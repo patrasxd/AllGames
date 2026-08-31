@@ -185,12 +185,13 @@
 }
 
 .ttt-status-text {
-  font-family: var(--font-serif);
-  font-style: italic;
-  font-size: 1.375rem;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-style: normal;
+  font-size: 1.125rem;
   color: var(--text);
   letter-spacing: -0.01em;
-  line-height: 1;
+  line-height: 1.2;
 }
 
 .ttt-status-sub {
