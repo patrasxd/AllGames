@@ -4,7 +4,7 @@
 
 ---
 
-## 🎯 What's This?
+## What's This?
 
 A collection of simple games you can play right in your browser. No account needed, no distractions:
 
@@ -16,7 +16,7 @@ A collection of simple games you can play right in your browser. No account need
 
 ---
 
-## 🏗️ Architecture & Monorepo Structure
+## Architecture & Monorepo Structure
 
 The project is structured as an **npm workspaces monorepo**:
 
@@ -59,7 +59,7 @@ AllGames/
 
 ---
 
-## 🔌 Game API Contract
+## Game API Contract
 
 Every game module in `packages/games/*` must conform to the following export contract in its `src/index.ts`:
 
@@ -103,7 +103,7 @@ export interface GameComponentProps {
 
 ---
 
-## 🎨 Design System & Aesthetics
+## Design System & Aesthetics
 
 - **Color Palette**: Monochrome high-contrast palette with CSS variables (`--bg`, `--surface`, `--border`, `--text`, `--text-muted`, `--accent`).
 - **Typography**: 
@@ -116,7 +116,7 @@ export interface GameComponentProps {
 
 ---
 
-## 🌍 Internationalization (i18n)
+## Internationalization (i18n)
 
 - Automatically determines locale based on browser preferences (`navigator.language`).
 - Allows users to switch between English and Polish in the settings/menu drawer in the header.
@@ -125,7 +125,7 @@ export interface GameComponentProps {
 
 ---
 
-## 💾 LocalStorage Convention
+## LocalStorage Convention
 
 All data persisted to `localStorage` follows standardized key prefixes:
 
@@ -138,7 +138,7 @@ All data persisted to `localStorage` follows standardized key prefixes:
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 - Node.js 18+
