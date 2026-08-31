@@ -1,19 +1,10 @@
-import { Suspense, useState, useCallback } from 'react'
+import { Suspense, useCallback } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { findGame } from '../games/registry'
 import { useI18n } from '../i18n'
 import { useEink } from '../hooks/useEink'
-import { getLocalizedText } from '../types/game'
-
-function BackIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M8 2L3 7l5 5" />
-      <path d="M3 7h9" />
-    </svg>
-  )
-}
+import { useGameHeader } from '../components/Layout'
 
 function GameFallback() {
   const { t } = useI18n()
@@ -68,13 +59,10 @@ export function GamePage() {
   const { isEink } = useEink()
   const entry = findGame(slug)
 
-  // Header slot — games can inject their stats/UI here via the setHeader prop
-  const [headerExtra, setHeaderExtra] = useState<React.ReactNode>(null)
+  const { setHeaderExtra } = useGameHeader()
   const setHeader = useCallback((content: React.ReactNode) => {
     setHeaderExtra(content)
-  }, [])
-
-  const title = entry ? getLocalizedText(entry.metadata.name, locale) : ''
+  }, [setHeaderExtra])
 
   return (
     <motion.div
@@ -85,41 +73,18 @@ export function GamePage() {
       exit="exit"
     >
       <div className="game-page-inner container">
-        {/* ── Compact header ── */}
-        <header className="game-page-header">
-          <button
-            id={`back-btn-${slug}`}
-            className="back-button"
-            onClick={() => navigate(-1)}
-            aria-label={t.backToGamesAria}
-          >
-            <BackIcon />
-            {t.backToGames}
-          </button>
-
-          <div className="game-page-title-row">
-            <h1 className="game-page-title">
-              {title}
-            </h1>
-
-            {/* Stats injected by the game component */}
-            <AnimatePresence>
-              {headerExtra && (
-                <motion.div
-                  className="game-page-header-extra"
-                  initial={{ opacity: 0, x: 12 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 12 }}
-                  transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-                >
-                  {headerExtra}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </header>
-
-        <div className="divider" role="separator" />
+        <button
+          className="game-floating-back"
+          onClick={() => navigate(-1)}
+          aria-label={t.backToGamesAria}
+          title={t.backToGames}
+        >
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M15 18l-6-6 6-6" />
+            <path d="M9 12h10" />
+          </svg>
+          <span>{t.backToGames}</span>
+        </button>
 
         {/* ── Game area — fills remaining viewport height ── */}
         <div className="game-page-content">

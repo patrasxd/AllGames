@@ -26,7 +26,7 @@
   flex-direction: column;
   gap: 0.875rem;
   width: min(580px, 96vw);
-  max-height: calc(100vh - 300px);
+  max-height: 100%;
   user-select: none;
 }
 
