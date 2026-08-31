@@ -8,6 +8,7 @@ interface Grid10x10Props {
   isInteractive: boolean
   title: string
   isEink: boolean
+  showShips?: boolean
   onCellClick?: (row: number, col: number) => void
 }
 
@@ -18,6 +19,7 @@ export const Grid10x10 = memo(function Grid10x10({
   isEnemy,
   isInteractive,
   title,
+  showShips = !isEnemy,
   onCellClick,
 }: Grid10x10Props) {
   return (
@@ -41,10 +43,11 @@ export const Grid10x10 = memo(function Grid10x10({
               <div className="bs-header-num">{r + 1}</div>
 
               {row.map((cell, c) => {
-                const isHit = cell === 'hit'
-                const isMiss = cell === 'miss'
-                const isSunk = cell === 'sunk'
-                const isShip = !isEnemy && cell === 'ship'
+                const visibleCell = showShips || cell === 'hit' || cell === 'miss' || cell === 'sunk' ? cell : 'empty'
+                const isHit = visibleCell === 'hit'
+                const isMiss = visibleCell === 'miss'
+                const isSunk = visibleCell === 'sunk'
+                const isShip = showShips && cell === 'ship'
 
                 let cellClass = 'bs-cell'
                 if (isInteractive) cellClass += ' bs-cell--interactive'
@@ -60,7 +63,7 @@ export const Grid10x10 = memo(function Grid10x10({
                     onClick={() => isInteractive && onCellClick?.(r, c)}
                     role={isInteractive ? 'button' : 'gridcell'}
                     tabIndex={isInteractive ? 0 : -1}
-                    aria-label={`${LETTERS[c]}${r + 1}: ${cell}`}
+                    aria-label={`${LETTERS[c]}${r + 1}: ${visibleCell}`}
                     onKeyDown={e => {
                       if (isInteractive && (e.key === 'Enter' || e.key === ' ')) {
                         e.preventDefault()

@@ -91,12 +91,27 @@ export function useBattleship(options?: { isEink?: boolean }) {
   const [winner, setWinner] = useState<'p1' | 'p2' | null>(null)
   const [isAIThinking, setIsAIThinking] = useState(false)
   const [lastShotInfo, setLastShotInfo] = useState<{ hit: boolean; sunkShip: PlacedShip | null } | null>(null)
+  const [turnCountdown, setTurnCountdown] = useState<number | null>(null)
+  const [passDevicePlayer, setPassDevicePlayer] = useState<'p1' | 'p2' | null>(null)
 
   const [p1Shots, setP1Shots] = useState(0)
   const [p1Hits, setP1Hits] = useState(0)
   const [bestShots, setBestShots] = useState<number | null>(() => loadBestShots(difficulty))
 
   const aiTimerRef = useRef<number | null>(null)
+  const turnTimerRef = useRef<number | null>(null)
+
+  const clearTurnCountdown = useCallback(() => {
+    if (turnTimerRef.current !== null) {
+      window.clearInterval(turnTimerRef.current)
+      turnTimerRef.current = null
+    }
+    setTurnCountdown(null)
+  }, [])
+
+  const clearPassDevice = useCallback(() => {
+    setPassDevicePlayer(null)
+  }, [])
 
   const resetGame = useCallback(
     (newDiff?: BattleshipDifficulty, newMode?: BattleshipMode) => {
@@ -119,6 +134,8 @@ export function useBattleship(options?: { isEink?: boolean }) {
       setWinner(null)
       setIsAIThinking(false)
       setLastShotInfo(null)
+      clearTurnCountdown()
+      clearPassDevice()
       setP1Shots(0)
       setP1Hits(0)
       setBestShots(loadBestShots(diffToUse))
@@ -127,8 +144,12 @@ export function useBattleship(options?: { isEink?: boolean }) {
         clearTimeout(aiTimerRef.current)
         aiTimerRef.current = null
       }
+      if (turnTimerRef.current !== null) {
+        clearInterval(turnTimerRef.current)
+        turnTimerRef.current = null
+      }
     },
-    [difficulty, mode]
+    [difficulty, mode, clearTurnCountdown]
   )
 
   const setDifficulty = useCallback(
@@ -171,6 +192,49 @@ export function useBattleship(options?: { isEink?: boolean }) {
       const autoP2 = autoPlaceFleet()
       setP2State({ ships: autoP2.ships, grid: autoP2.grid, shotsReceived: 0 })
       setActivePlacementPlayer('p2')
+      setCurrentTurn('p2')
+      setPassDevicePlayer('p2')
+      setTurnCountdown(5)
+
+      if (turnTimerRef.current !== null) {
+        window.clearInterval(turnTimerRef.current)
+      }
+
+      turnTimerRef.current = window.setInterval(() => {
+        setTurnCountdown(prev => {
+          if (prev === null || prev <= 1) {
+            window.clearInterval(turnTimerRef.current ?? undefined)
+            turnTimerRef.current = null
+            setPassDevicePlayer(null)
+            return null
+          }
+          return prev - 1
+        })
+      }, 1000)
+      return
+    }
+
+    if (mode === '2p' && activePlacementPlayer === 'p2') {
+      setPassDevicePlayer('p1')
+      setCurrentTurn('p1')
+      setTurnCountdown(5)
+
+      if (turnTimerRef.current !== null) {
+        window.clearInterval(turnTimerRef.current)
+      }
+
+      turnTimerRef.current = window.setInterval(() => {
+        setTurnCountdown(prev => {
+          if (prev === null || prev <= 1) {
+            window.clearInterval(turnTimerRef.current ?? undefined)
+            turnTimerRef.current = null
+            setPassDevicePlayer(null)
+            setPhase('battle')
+            return null
+          }
+          return prev - 1
+        })
+      }, 1000)
       return
     }
 
@@ -209,9 +273,28 @@ export function useBattleship(options?: { isEink?: boolean }) {
     }, delay)
   }, [winner, difficulty, isEink])
 
+  const beginTurnHandoff = useCallback((nextPlayer: 'p1' | 'p2') => {
+    clearTurnCountdown()
+    setPassDevicePlayer(nextPlayer)
+    setCurrentTurn(nextPlayer)
+    setTurnCountdown(5)
+
+    turnTimerRef.current = window.setInterval(() => {
+      setTurnCountdown(prev => {
+        if (prev === null || prev <= 1) {
+          window.clearInterval(turnTimerRef.current ?? undefined)
+          turnTimerRef.current = null
+          setPassDevicePlayer(null)
+          return null
+        }
+        return prev - 1
+      })
+    }, 1000)
+  }, [clearTurnCountdown])
+
   const handleFire = useCallback(
     (row: number, col: number) => {
-      if (phase !== 'battle' || winner !== null || isAIThinking) return
+      if (phase !== 'battle' || winner !== null || isAIThinking || turnCountdown !== null) return
 
       const targetState = currentTurn === 'p1' ? p2State : p1State
       const cell = targetState.grid[row][col]
@@ -228,6 +311,7 @@ export function useBattleship(options?: { isEink?: boolean }) {
         // Check if player 1 won
         if (shotResult.nextState.ships.every(s => s.isSunk)) {
           setWinner('p1')
+          clearTurnCountdown()
 
           if (mode === 'ai') {
             const finalShots = p1Shots + 1
@@ -245,7 +329,7 @@ export function useBattleship(options?: { isEink?: boolean }) {
             setCurrentTurn('p2')
             setTimeout(() => executeAIMove(), 300)
           } else {
-            setCurrentTurn('p2')
+            beginTurnHandoff('p2')
           }
         }
       } else {
@@ -254,15 +338,16 @@ export function useBattleship(options?: { isEink?: boolean }) {
 
         if (shotResult.nextState.ships.every(s => s.isSunk)) {
           setWinner('p2')
+          clearTurnCountdown()
           return
         }
 
         if (!shotResult.hit) {
-          setCurrentTurn('p1')
+          beginTurnHandoff('p1')
         }
       }
     },
-    [phase, winner, isAIThinking, currentTurn, p1State, p2State, mode, p1Shots, difficulty, executeAIMove]
+    [phase, winner, isAIThinking, turnCountdown, currentTurn, p1State, p2State, mode, p1Shots, difficulty, executeAIMove, beginTurnHandoff, clearTurnCountdown]
   )
 
   const resetBest = useCallback(() => {
@@ -285,6 +370,8 @@ export function useBattleship(options?: { isEink?: boolean }) {
     winner,
     isAIThinking,
     lastShotInfo,
+    turnCountdown,
+    passDevicePlayer,
     p1Shots,
     p1Hits,
     bestShots,
