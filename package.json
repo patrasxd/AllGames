@@ -5,7 +5,8 @@
   "private": true,
   "workspaces": [
     "apps/*",
-    "packages/*"
+    "packages/*",
+    "packages/games/*"
   ],
   "scripts": {
     "start": "npm run dev -w @allgames/shell",
