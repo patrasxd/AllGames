@@ -12,6 +12,10 @@
     "dev": "npm run dev -w @allgames/shell",
     "build": "npm run build -w @allgames/shell",
     "preview": "npm run preview -w @allgames/shell",
+    "deploy": "npm run build -w @allgames/shell && gh-pages -d apps/shell/dist",
     "install-all": "npm install"
+  },
+  "devDependencies": {
+    "gh-pages": "^6.3.0"
   }
 }

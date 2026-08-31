@@ -25,7 +25,6 @@ export function Layout({ children }: LayoutProps) {
               aria-label={t.backToHomeAria}
             >
               AllGames
-              <span>beta</span>
             </button>
 
             <div className="header-actions">
