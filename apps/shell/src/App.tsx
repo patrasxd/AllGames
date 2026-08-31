@@ -36,7 +36,7 @@ export default function App() {
         {isEink ? (
           routes
         ) : (
-          <AnimatePresence mode="wait" initial={false}>
+          <AnimatePresence mode="sync" initial={false}>
             {routes}
           </AnimatePresence>
         )}

@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from 'react'
+import { createContext, useContext, useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { HeaderMenu } from './HeaderMenu'
 import { useI18n } from '../i18n'
@@ -31,6 +31,10 @@ export function Layout({ children }: LayoutProps) {
   const location = useLocation()
   const { t, locale } = useI18n()
   const [headerExtra, setHeaderExtra] = useState<React.ReactNode>(null)
+
+  useEffect(() => {
+    setHeaderExtra(null)
+  }, [location.pathname])
 
   const slug = location.pathname.match(/^\/games\/([^/]+)/)?.[1]
   const game = slug ? findGame(slug) : undefined
