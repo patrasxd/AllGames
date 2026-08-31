@@ -1011,14 +1011,15 @@ button, input, select {
   font-size: 0.8125rem;
 }
 
-/* ─── Global Badges ───────────────────────────────────────── */
+/* ─── Global Badges (Round Pills) ─────────────────────────── */
+.badge,
 .game-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.3rem;
-  padding: 0.15rem 0.5rem;
-  border-radius: var(--radius-sm);
+  padding: 0.2rem 0.6rem;
+  border-radius: 9999px;
   font-family: var(--font-sans);
   font-size: 0.625rem;
   font-weight: 500;
