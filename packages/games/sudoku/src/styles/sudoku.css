@@ -1,0 +1,333 @@
+/* ─── Sudoku Root & Layout ─────────────────────────────────── */
+.sdk-root {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  box-sizing: border-box;
+}
+
+.sdk-game {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+}
+
+/* ─── Status Bar ──────────────────────────────────────────── */
+.sdk-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: min(390px, 92vw);
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+.sdk-mistakes-counter {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.sdk-mistakes-val {
+  font-weight: 700;
+  color: var(--text);
+}
+
+.sdk-mistakes-val--warn {
+  color: #ef4444;
+}
+
+/* ─── Board & Grid ────────────────────────────────────────── */
+.sdk-board-wrapper {
+  position: relative;
+  width: min(390px, min(92vw, calc(100vh - 310px)));
+  aspect-ratio: 1;
+  background: var(--surface);
+  border: 2px solid var(--border-2);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  box-sizing: border-box;
+  overflow: hidden;
+  user-select: none;
+}
+
+.sdk-board {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  grid-template-rows: repeat(9, 1fr);
+  width: 100%;
+  height: 100%;
+}
+
+/* ─── Cells ───────────────────────────────────────────────── */
+.sdk-cell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: background 100ms ease;
+  font-family: var(--font-mono);
+  font-size: clamp(1rem, 3.5vw, 1.35rem);
+  font-weight: 500;
+  color: var(--text);
+}
+
+.sdk-cell:nth-child(9n) {
+  border-right: none;
+}
+
+.sdk-cell:nth-last-child(-n+9) {
+  border-bottom: none;
+}
+
+/* 3x3 Block Thicker Dividers */
+.sdk-cell--border-right {
+  border-right: 2px solid var(--border-2) !important;
+}
+
+.sdk-cell--border-bottom {
+  border-bottom: 2px solid var(--border-2) !important;
+}
+
+/* Initial Clues */
+.sdk-cell--initial {
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* Highlight states */
+.sdk-cell--highlighted {
+  background: var(--surface-2);
+}
+
+.sdk-cell--same-num {
+  background: color-mix(in srgb, var(--text) 12%, var(--surface));
+}
+
+.sdk-cell--selected {
+  background: color-mix(in srgb, var(--text) 22%, var(--surface)) !important;
+  box-shadow: inset 0 0 0 2px var(--text);
+  z-index: 2;
+}
+
+/* Errors */
+.sdk-cell--error {
+  color: #ef4444 !important;
+  background: color-mix(in srgb, #ef4444 14%, var(--surface)) !important;
+}
+
+/* Notes Grid (mini 3x3 inside cell) */
+.sdk-cell-notes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  width: 100%;
+  height: 100%;
+  padding: 1px;
+  box-sizing: border-box;
+  pointer-events: none;
+}
+
+.sdk-cell-note {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(0.45rem, 1.3vw, 0.6rem);
+  font-weight: 500;
+  color: var(--text-muted);
+  line-height: 1;
+}
+
+/* ─── Numpad & Tools ──────────────────────────────────────── */
+.sdk-numpad-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  width: min(390px, 92vw);
+}
+
+.sdk-tools-row {
+  display: flex;
+  gap: 0.4rem;
+  justify-content: center;
+}
+
+.sdk-tool-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.sdk-tool-btn:hover {
+  color: var(--text);
+  border-color: var(--border-2);
+  background: var(--surface-2);
+}
+
+.sdk-tool-btn--active {
+  background: var(--text);
+  color: var(--bg);
+  border-color: var(--text);
+  font-weight: 600;
+}
+
+.sdk-tool-btn--active:hover {
+  background: var(--text);
+  color: var(--bg);
+}
+
+.sdk-numbers-row {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  gap: 0.3rem;
+}
+
+.sdk-num-btn {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+  transition: all 100ms ease;
+  padding: 0;
+}
+
+.sdk-num-btn:hover {
+  background: var(--surface-2);
+  border-color: var(--border-2);
+  transform: translateY(-1px);
+}
+
+.sdk-num-btn:active {
+  transform: scale(0.94);
+}
+
+/* ─── Controls & Difficulty Pills ─────────────────────────── */
+.sdk-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sdk-pill-group {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--surface);
+  flex-shrink: 0;
+}
+
+.sdk-pill-btn {
+  background: transparent;
+  border: none;
+  border-right: 1px solid var(--border);
+  padding: 0.45rem 0.75rem;
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background 150ms ease, color 150ms ease;
+}
+
+.sdk-pill-btn:last-child {
+  border-right: none;
+}
+
+.sdk-pill-btn:hover {
+  color: var(--text);
+}
+
+.sdk-pill-btn--active {
+  background: var(--surface-2);
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* ─── Overlay ─────────────────────────────────────────────── */
+.sdk-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.78);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.875rem;
+  border-radius: var(--radius-sm);
+  z-index: 20;
+  text-align: center;
+  padding: 1rem;
+}
+
+.sdk-overlay-title {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 1.5rem;
+  color: var(--text);
+}
+
+/* ─── E-ink Mode ─────────────────────────────────────────── */
+[data-eink='true'] .sdk-board-wrapper {
+  border: 2px solid var(--border) !important;
+  box-shadow: none !important;
+}
+
+[data-eink='true'] .sdk-cell--selected {
+  background: var(--text) !important;
+  color: var(--bg) !important;
+}
+
+[data-eink='true'] .sdk-cell--error {
+  text-decoration: underline !important;
+  color: var(--text) !important;
+}
+
+[data-eink='true'] .sdk-tool-btn--active {
+  background: var(--text) !important;
+  color: var(--bg) !important;
+}
+
+[data-eink='true'] .sdk-pill-btn--active {
+  background: var(--text) !important;
+  color: var(--bg) !important;
+}

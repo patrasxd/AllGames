@@ -1,0 +1,320 @@
+/* ─── Snake Root ─────────────────────────────────────────── */
+.snake-root {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+
+.snake-game {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+/* ─── Header Stats Badge ─────────────────────────────────── */
+.snake-stats-header {
+  text-align: right;
+  user-select: none;
+}
+
+.snake-stats-header-label {
+  font-size: 0.5625rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 0.375rem;
+}
+
+.snake-stats-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.snake-stats-header-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+  min-width: 2.25rem;
+}
+
+.snake-stats-header-value {
+  font-family: var(--font-mono);
+  font-size: 1.375rem;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.snake-stats-header-value--score { color: var(--text); }
+.snake-stats-header-value--best  { color: var(--text-dim); }
+
+.snake-stats-header-key {
+  font-size: 0.5rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.snake-stats-header-sep {
+  color: var(--border-2);
+  font-size: 1rem;
+  line-height: 1;
+  margin-top: -0.5rem;
+}
+
+.snake-stats-header-reset {
+  background: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 1rem;
+  padding: 0.2rem 0.3rem;
+  border-radius: 3px;
+  line-height: 1;
+  margin-left: 0.25rem;
+  margin-top: -0.25rem;
+  transition: color 150ms ease, border-color 150ms ease;
+  align-self: flex-start;
+}
+
+.snake-stats-header-reset:hover {
+  color: var(--text);
+  border-color: var(--border);
+}
+
+/* ─── Board Wrapper & SVG ────────────────────────────────── */
+.snake-board-wrapper {
+  position: relative;
+  width: min(380px, min(90vw, calc(100vh - 310px)));
+  aspect-ratio: 1;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+}
+
+.snake-board-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* ─── Overlay Banner ─────────────────────────────────────── */
+.snake-overlay {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  text-align: center;
+  z-index: 10;
+  gap: 0.75rem;
+}
+
+.snake-overlay-title {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 1.75rem;
+  color: var(--text);
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+}
+
+.snake-overlay-sub {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.snake-overlay-score {
+  font-family: var(--font-mono);
+  font-size: 1.125rem;
+  color: var(--text);
+  margin-top: 0.25rem;
+}
+
+.snake-overlay-highscore-badge {
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text);
+  border: 1px solid var(--border-2);
+  padding: 0.2rem 0.5rem;
+  border-radius: 2px;
+}
+
+/* ─── Controls Bar ───────────────────────────────────────── */
+.snake-controls-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.snake-btn {
+  padding: 0.5rem 1.125rem;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    border-color 150ms ease,
+    color 150ms ease,
+    background 150ms ease;
+}
+
+.snake-btn:hover {
+  border-color: var(--border-2);
+  color: var(--text);
+  background: var(--surface);
+}
+
+.snake-btn--primary {
+  border-color: var(--text-muted);
+  color: var(--text);
+  background: var(--surface);
+}
+
+.snake-btn--primary:hover {
+  border-color: var(--accent);
+  background: var(--surface-2);
+}
+
+/* Pill selector groups (Map and Speed) */
+.snake-pill-group {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.snake-pill-btn {
+  background: transparent;
+  border: none;
+  border-right: 1px solid var(--border);
+  padding: 0.45rem 0.65rem;
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background 150ms ease, color 150ms ease;
+}
+
+.snake-pill-btn:last-child {
+  border-right: none;
+}
+
+.snake-pill-btn:hover:not(:disabled) {
+  color: var(--text);
+}
+
+.snake-pill-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.snake-pill-btn--active {
+  background: var(--surface-2);
+  color: var(--text);
+  font-weight: 600;
+}
+
+[data-eink='true'] .snake-pill-btn--active {
+  background: var(--text) !important;
+  color: var(--bg) !important;
+}
+
+/* ─── D-Pad Controls ─────────────────────────────────────── */
+.snake-dpad {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.25rem;
+}
+
+@media (min-width: 768px) {
+  /* Hide on-screen d-pad on desktop with mouse/keyboard */
+  .snake-dpad {
+    display: none;
+  }
+}
+
+.snake-dpad-row {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.snake-dpad-btn {
+  width: 44px;
+  height: 40px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 100ms ease, border-color 100ms ease, color 100ms ease;
+}
+
+.snake-dpad-btn:active {
+  background: var(--surface-2);
+  border-color: var(--text);
+  color: var(--text);
+}
+
+/* ─── E-ink Mode Specifics ───────────────────────────────── */
+[data-eink='true'] .snake-board-wrapper {
+  border: 2px solid var(--border) !important;
+  box-shadow: none !important;
+}
+
+[data-eink='true'] .snake-overlay {
+  background: var(--bg) !important;
+  border: 2px solid var(--border) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+[data-eink='true'] .snake-dpad-btn {
+  border: 1.5px solid var(--border) !important;
+}
+
+[data-eink='true'] .snake-speed-btn--active {
+  background: var(--text) !important;
+  color: var(--bg) !important;
+}

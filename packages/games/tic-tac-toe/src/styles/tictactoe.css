@@ -1,0 +1,365 @@
+/* ─── TicTacToe Root ───────────────────────────────────────── */
+/* Fills the game-page-content area (flex: 1, full remaining height) */
+.ttt-root {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ─── Mode Select ─────────────────────────────────────────── */
+.ttt-mode-select {
+  width: 100%;
+  max-width: 480px;
+  text-align: center;
+}
+
+.ttt-mode-label {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+}
+
+.ttt-mode-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.ttt-mode-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 2rem 1.25rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--text);
+  transition:
+    border-color 200ms ease,
+    background 200ms ease;
+  text-align: center;
+}
+
+.ttt-mode-btn:hover {
+  border-color: var(--border-2);
+  background: var(--surface-2);
+}
+
+.ttt-mode-btn-icon {
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 200ms ease;
+}
+
+.ttt-mode-btn:hover .ttt-mode-btn-icon {
+  color: var(--text);
+}
+
+.ttt-mode-btn-title {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 1.375rem;
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+
+.ttt-mode-btn-desc {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  font-weight: 300;
+}
+
+@media (max-width: 420px) {
+  .ttt-mode-options { grid-template-columns: 1fr; }
+}
+
+/* ─── Compact Stats — rendered in page header ─────────────── */
+.ttt-stats-header {
+  text-align: right;
+  user-select: none;
+}
+
+.ttt-stats-header-label {
+  font-size: 0.5625rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 0.375rem;
+}
+
+.ttt-stats-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.375rem;
+}
+
+.ttt-stats-header-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+  min-width: 2rem;
+}
+
+.ttt-stats-header-value {
+  font-family: var(--font-mono);
+  font-size: 1.375rem;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.ttt-stats-header-value--win  { color: var(--text); }
+.ttt-stats-header-value--draw { color: var(--text-dim); }
+.ttt-stats-header-value--loss { color: var(--text-muted); }
+
+.ttt-stats-header-key {
+  font-size: 0.5rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.ttt-stats-header-sep {
+  color: var(--border-2);
+  font-size: 1rem;
+  line-height: 1;
+  margin-top: -0.5rem;
+  padding: 0 0.125rem;
+}
+
+.ttt-stats-header-reset {
+  background: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 1rem;
+  padding: 0.2rem 0.3rem;
+  border-radius: 3px;
+  line-height: 1;
+  margin-left: 0.25rem;
+  margin-top: -0.25rem;
+  transition: color 150ms ease, border-color 150ms ease;
+  align-self: flex-start;
+}
+
+.ttt-stats-header-reset:hover {
+  color: var(--text);
+  border-color: var(--border);
+}
+
+/* ─── Game Layout ─────────────────────────────────────────── */
+.ttt-game {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+}
+
+/* ─── Status Bar ──────────────────────────────────────────── */
+.ttt-status {
+  text-align: center;
+  min-height: 2.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.ttt-status-text {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 1.375rem;
+  color: var(--text);
+  letter-spacing: -0.01em;
+  line-height: 1;
+}
+
+.ttt-status-sub {
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* AI thinking dots */
+.ttt-thinking-dots {
+  display: inline-flex;
+  gap: 3px;
+  margin-left: 4px;
+}
+
+.ttt-thinking-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  display: inline-block;
+}
+
+/* ─── Board ───────────────────────────────────────────────── */
+.ttt-board-wrapper {
+  position: relative;
+  width: min(340px, min(100%, calc(100vh - 340px)));
+  flex-shrink: 0;
+}
+
+.ttt-board {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  aspect-ratio: 1;
+  position: relative;
+  gap: 0;
+}
+
+/* Grid lines SVG overlay */
+.ttt-grid {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Win line SVG overlay */
+.ttt-win-line {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* ─── Cells ───────────────────────────────────────────────── */
+.ttt-cell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  cursor: default;
+  z-index: 2;
+  aspect-ratio: 1;
+  transition: background 150ms ease;
+  border-radius: 2px;
+}
+
+.ttt-cell--clickable {
+  cursor: pointer;
+}
+
+.ttt-cell--clickable:hover {
+  background: color-mix(in srgb, var(--text) 4%, transparent);
+}
+
+.ttt-cell--winning {
+  background: color-mix(in srgb, var(--accent) 5%, transparent);
+}
+
+/* ─── Controls ────────────────────────────────────────────── */
+.ttt-controls {
+  display: flex;
+  gap: 0.625rem;
+  flex-shrink: 0;
+}
+
+.ttt-btn {
+  padding: 0.5rem 1.125rem;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    border-color 200ms ease,
+    color 200ms ease,
+    background 200ms ease;
+}
+
+.ttt-btn:hover {
+  border-color: var(--border-2);
+  color: var(--text);
+  background: var(--surface);
+}
+
+.ttt-btn--primary {
+  border-color: var(--text-muted);
+  color: var(--text);
+}
+
+.ttt-btn--primary:hover {
+  border-color: var(--accent);
+  background: var(--surface-2);
+}
+
+/* Difficulty Selector Pills */
+.ttt-pill-group {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--surface);
+  flex-shrink: 0;
+}
+
+.ttt-pill-btn {
+  background: transparent;
+  border: none;
+  border-right: 1px solid var(--border);
+  padding: 0.45rem 0.65rem;
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background 150ms ease, color 150ms ease;
+}
+
+.ttt-pill-btn:last-child {
+  border-right: none;
+}
+
+.ttt-pill-btn:hover {
+  color: var(--text);
+}
+
+.ttt-pill-btn--active {
+  background: var(--surface-2);
+  color: var(--text);
+  font-weight: 600;
+}
+
+[data-eink='true'] .ttt-pill-btn--active {
+  background: var(--text) !important;
+  color: var(--bg) !important;
+}

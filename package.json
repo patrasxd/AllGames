@@ -1,0 +1,17 @@
+{
+  "name": "allgames",
+  "version": "0.1.0",
+  "description": "All Games - A collection of browser-based games",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "start": "npm run dev -w @allgames/shell",
+    "dev": "npm run dev -w @allgames/shell",
+    "build": "npm run build -w @allgames/shell",
+    "preview": "npm run preview -w @allgames/shell",
+    "install-all": "npm install"
+  }
+}

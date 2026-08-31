@@ -1,0 +1,367 @@
+/* ─── Minesweeper Root & Layout ───────────────────────────── */
+.ms-root {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  box-sizing: border-box;
+}
+
+.ms-game {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+/* ─── Header Stats (Injected into Shell Header) ───────────── */
+.ms-stats-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.2rem;
+}
+
+.ms-stats-header-label {
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.ms-stats-header-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+}
+
+.ms-stats-header-item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.2rem;
+}
+
+.ms-stats-header-val {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.ms-stats-header-key {
+  font-size: 0.625rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.ms-stats-header-sep {
+  color: var(--border-2);
+}
+
+.ms-stats-header-reset {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.75rem;
+  padding: 0.15rem 0.25rem;
+  border-radius: 2px;
+  line-height: 1;
+  transition: color 150ms ease, border-color 150ms ease;
+}
+
+.ms-stats-header-reset:hover {
+  color: var(--text);
+  border-color: var(--border);
+}
+
+/* ─── Control Bar (Counter, Face, Timer) ───────────────────── */
+.ms-statusbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.35rem 0.75rem;
+  width: 100%;
+  max-width: min(480px, 94vw);
+  box-sizing: border-box;
+}
+
+.ms-counter {
+  font-family: var(--font-mono);
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  padding: 0.2rem 0.5rem;
+  min-width: 3.25rem;
+  text-align: center;
+  letter-spacing: 0.05em;
+  user-select: none;
+}
+
+.ms-counter--mines {
+  color: #ef4444;
+}
+
+[data-eink='true'] .ms-counter--mines {
+  color: var(--text) !important;
+}
+
+.ms-face-btn {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 50%;
+  width: 2.35rem;
+  height: 2.35rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text);
+  cursor: pointer;
+  transition: transform 100ms ease, background 150ms ease;
+  user-select: none;
+  padding: 0;
+}
+
+.ms-face-btn:hover {
+  background: var(--surface-2);
+}
+
+.ms-face-btn:active {
+  transform: scale(0.92);
+}
+
+/* ─── Board Wrapper & Grid ────────────────────────────────── */
+.ms-board-wrapper {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 4px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  box-sizing: border-box;
+  max-height: calc(100vh - 280px);
+  max-width: 96vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ms-board-grid {
+  display: grid;
+  gap: 2px;
+  background: var(--border);
+  padding: 2px;
+  border-radius: 2px;
+}
+
+/* ─── Individual Cells ────────────────────────────────────── */
+.ms-cell {
+  background: var(--surface);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+  user-select: none;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  transition: background 80ms ease;
+}
+
+/* Adaptive cell sizing according to difficulty */
+.ms-board-wrapper[data-rows='9'] .ms-cell {
+  width: min(36px, calc(75vw / 9), calc((100vh - 300px) / 9));
+  height: min(36px, calc(75vw / 9), calc((100vh - 300px) / 9));
+  font-size: clamp(0.9rem, 2.5vw, 1.25rem);
+}
+
+.ms-board-wrapper[data-rows='16'][data-cols='16'] .ms-cell {
+  width: min(26px, calc(86vw / 16), calc((100vh - 300px) / 16));
+  height: min(26px, calc(86vw / 16), calc((100vh - 300px) / 16));
+  font-size: clamp(0.75rem, 1.8vw, 1rem);
+}
+
+.ms-board-wrapper[data-cols='30'] .ms-cell {
+  width: min(22px, calc(94vw / 30), calc((100vh - 300px) / 16));
+  height: min(22px, calc(94vw / 30), calc((100vh - 300px) / 16));
+  font-size: clamp(0.65rem, 1.4vw, 0.875rem);
+}
+
+.ms-cell--hidden {
+  background: var(--surface-2);
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.15), inset -1px -1px 0 rgba(0, 0, 0, 0.25);
+}
+
+.ms-cell--hidden:hover {
+  background: var(--border-2);
+}
+
+.ms-cell--revealed {
+  background: var(--bg);
+  box-shadow: inset 1px 1px 0 rgba(0, 0, 0, 0.2);
+}
+
+.ms-cell--mine {
+  background: #3f1010;
+  color: #ef4444;
+}
+
+[data-theme='light'] .ms-cell--mine {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.ms-cell--exploded {
+  background: #dc2626 !important;
+  color: #ffffff !important;
+}
+
+.ms-cell-flag {
+  color: #ef4444;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+[data-eink='true'] .ms-cell-flag {
+  color: var(--text) !important;
+}
+
+.ms-cell-number {
+  line-height: 1;
+}
+
+/* ─── Controls Bar & Difficulty Pills ─────────────────────── */
+.ms-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ms-pill-group {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--surface);
+  flex-shrink: 0;
+}
+
+.ms-pill-btn {
+  background: transparent;
+  border: none;
+  border-right: 1px solid var(--border);
+  padding: 0.45rem 0.65rem;
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background 150ms ease, color 150ms ease;
+}
+
+.ms-pill-btn:last-child {
+  border-right: none;
+}
+
+.ms-pill-btn:hover {
+  color: var(--text);
+}
+
+.ms-pill-btn--active {
+  background: var(--surface-2);
+  color: var(--text);
+  font-weight: 600;
+}
+
+[data-eink='true'] .ms-pill-btn--active {
+  background: var(--text) !important;
+  color: var(--bg) !important;
+}
+
+/* Mobile Touch Mode Switcher (Dig vs Flag) */
+.ms-touch-switcher {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.ms-touch-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: transparent;
+  border: none;
+  border-right: 1px solid var(--border);
+  padding: 0.45rem 0.65rem;
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background 150ms ease, color 150ms ease;
+}
+
+.ms-touch-btn:last-child {
+  border-right: none;
+}
+
+.ms-touch-btn--active {
+  background: var(--surface-2);
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* ─── E-ink Mode ─────────────────────────────────────────── */
+[data-eink='true'] .ms-board-wrapper {
+  border: 2px solid var(--border) !important;
+  box-shadow: none !important;
+}
+
+[data-eink='true'] .ms-statusbar {
+  border: 2px solid var(--border) !important;
+}
+
+[data-eink='true'] .ms-counter {
+  background: var(--bg) !important;
+  border: 1.5px solid var(--border) !important;
+  color: var(--text) !important;
+}
+
+[data-eink='true'] .ms-cell--hidden {
+  background: var(--surface-2) !important;
+  box-shadow: none !important;
+  border: 1px solid var(--border);
+}
+
+[data-eink='true'] .ms-cell--revealed {
+  background: var(--bg) !important;
+  box-shadow: none !important;
+}
+
+[data-eink='true'] .ms-touch-btn--active {
+  background: var(--text) !important;
+  color: var(--bg) !important;
+}
