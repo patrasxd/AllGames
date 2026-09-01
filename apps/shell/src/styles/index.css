@@ -322,6 +322,7 @@ button, input, select {
   font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
+  text-decoration: none;
   transition: color var(--duration) ease;
 }
 

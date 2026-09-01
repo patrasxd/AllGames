@@ -1,5 +1,5 @@
 import { Suspense, useCallback } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { findGame } from '../games/registry'
 import { useI18n } from '../i18n'
@@ -31,17 +31,17 @@ function GameFallback() {
 }
 
 function NotFound({ slug }: { slug: string }) {
-  const navigate = useNavigate()
   const { t } = useI18n()
   return (
     <div style={{ padding: '4rem 0', color: 'var(--text-muted)' }}>
       <p>{t.notFound} <code style={{ fontFamily: 'var(--font-mono)' }}>{slug}</code></p>
-      <button
-        onClick={() => navigate('/')}
-        style={{ marginTop: '1rem', background: 'none', border: 'none', color: 'var(--text)', cursor: 'pointer', padding: 0 }}
+      <Link
+        to="/"
+        className="game-floating-back"
+        style={{ marginTop: '1rem', display: 'inline-flex' }}
       >
-        {t.returnToGames}
-      </button>
+        <span>{t.backToGames}</span>
+      </Link>
     </div>
   )
 }
@@ -54,7 +54,6 @@ const pageVariants = {
 
 export function GamePage() {
   const { slug = '' } = useParams<{ slug: string }>()
-  const navigate = useNavigate()
   const { locale, t } = useI18n()
   const { isEink } = useEink()
   const entry = findGame(slug)
@@ -73,9 +72,9 @@ export function GamePage() {
       exit="exit"
     >
       <div className="game-page-inner container">
-        <button
+        <Link
+          to="/"
           className="game-floating-back"
-          onClick={() => navigate(-1)}
           aria-label={t.backToGamesAria}
           title={t.backToGames}
         >
@@ -84,7 +83,7 @@ export function GamePage() {
             <path d="M9 12h10" />
           </svg>
           <span>{t.backToGames}</span>
-        </button>
+        </Link>
 
         {/* ── Game area — fills remaining viewport height ── */}
         <div className="game-page-content">
