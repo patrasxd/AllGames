@@ -17,22 +17,28 @@ import './styles/game2048.css'
 
 /* ─── Sketched Arrow Icons ───────────────────────────────── */
 function ArrowIcon({ dir }: { dir: 'up' | 'down' | 'left' | 'right' }) {
-  const rotation = dir === 'up' ? 0 : dir === 'right' ? 90 : dir === 'down' ? 180 : 270
+  const points =
+    dir === 'up'
+      ? '18 15 12 9 6 15'
+      : dir === 'right'
+        ? '9 18 15 12 9 6'
+        : dir === 'down'
+          ? '6 9 12 15 18 9'
+          : '15 18 9 12 15 6'
+
   return (
     <svg
-      width="16"
-      height="16"
+      width="20"
+      height="20"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="2.2"
+      strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
-      style={{ transform: `rotate(${rotation}deg)` }}
       aria-hidden="true"
     >
-      <line x1="12" y1="19" x2="12" y2="5" />
-      <polyline points="5 12 12 5 19 12" />
+      <polyline points={points} />
     </svg>
   )
 }
@@ -151,37 +157,6 @@ export function Game2048({ setHeader, locale = 'en', isEink = false }: GameCompo
           </AnimatePresence>
         </div>
 
-        {/* Action Controls Bar */}
-        <ControlsBar>
-          <GameButton
-            id="g2048-new-game-btn"
-            variant="primary"
-            onClick={() => resetGame()}
-          >
-            {t.newGame}
-          </GameButton>
-
-          <GameButton
-            id="g2048-undo-btn"
-            icon={<UndoIcon />}
-            onClick={undoMove}
-            disabled={!canUndo}
-          >
-            {t.undo}
-          </GameButton>
-
-          <PillGroup<GridSize>
-            label={t.gridSizeLabel}
-            options={GRID_SIZES.map(s => ({
-              value: s,
-              label: s === 3 ? t.grid3 : s === 4 ? t.grid4 : t.grid5,
-              id: `g2048-size-${s}`,
-            }))}
-            value={gridSize}
-            onChange={handleSizeClick}
-          />
-        </ControlsBar>
-
         {/* D-pad controls for accessible navigation and touch */}
         <div className="g2048-dpad" role="group" aria-label="Direction Controls">
           <button
@@ -221,6 +196,37 @@ export function Game2048({ setHeader, locale = 'en', isEink = false }: GameCompo
             <ArrowIcon dir="right" />
           </button>
         </div>
+
+        {/* Action Controls Bar */}
+        <ControlsBar>
+          <GameButton
+            id="g2048-new-game-btn"
+            variant="primary"
+            onClick={() => resetGame()}
+          >
+            {t.newGame}
+          </GameButton>
+
+          <GameButton
+            id="g2048-undo-btn"
+            icon={<UndoIcon />}
+            onClick={undoMove}
+            disabled={!canUndo}
+          >
+            {t.undo}
+          </GameButton>
+
+          <PillGroup<GridSize>
+            label={t.gridSizeLabel}
+            options={GRID_SIZES.map(s => ({
+              value: s,
+              label: s === 3 ? t.grid3 : s === 4 ? t.grid4 : t.grid5,
+              id: `g2048-size-${s}`,
+            }))}
+            value={gridSize}
+            onChange={handleSizeClick}
+          />
+        </ControlsBar>
 
         {/* Reset Confirmation Modal */}
         <AnimatePresence>
