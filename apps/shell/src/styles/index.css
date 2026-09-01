@@ -1077,6 +1077,201 @@ button, input, select {
   color: var(--text-dim);
 }
 
+/* ─── Global Game Confirmation Modal ──────────────────────── */
+.game-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  animation: modalFadeIn 150ms ease-out;
+}
+
+.game-modal {
+  background: var(--surface);
+  border: 1.5px solid var(--border-2);
+  border-radius: var(--radius);
+  padding: var(--space-6) var(--space-6) var(--space-5);
+  max-width: 400px;
+  width: 100%;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  text-align: center;
+  animation: modalScaleIn 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.game-modal-title {
+  font-family: var(--font-sans);
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+.game-modal-desc {
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
+.game-modal-actions {
+  display: flex;
+  gap: var(--space-3);
+  justify-content: center;
+  margin-top: var(--space-3);
+}
+
+.game-modal-btn {
+  flex: 1;
+  padding: 0.55rem 1rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: all 150ms ease;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+.game-modal-btn:hover {
+  background: var(--border);
+  border-color: var(--border-2);
+  transform: translateY(-1px);
+}
+
+.game-modal-btn--primary {
+  background: var(--text);
+  color: var(--bg);
+  border-color: var(--text);
+  font-weight: 700;
+}
+
+.game-modal-btn--primary:hover {
+  background: var(--text);
+  color: var(--bg);
+  opacity: 0.9;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes modalScaleIn {
+  from { opacity: 0; transform: scale(0.94); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+[data-eink='true'] .game-modal-overlay {
+  background: rgba(0, 0, 0, 0.85) !important;
+  backdrop-filter: none !important;
+}
+
+[data-eink='true'] .game-modal {
+  border: 2px solid var(--border) !important;
+  box-shadow: none !important;
+}
+
+[data-eink='true'] .game-modal-btn--primary {
+  background: var(--text) !important;
+  color: var(--bg) !important;
+}
+
+/* ─── Global Game Result Overlay ──────────────────────────── */
+.game-result-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.78);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  padding: 1rem;
+}
+
+.game-result-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border-2);
+  border-radius: var(--radius);
+  padding: 1.5rem 2rem;
+  max-width: 380px;
+  width: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35);
+}
+
+.game-result-title {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 1.75rem;
+  color: var(--text);
+}
+
+.game-result-subtitle {
+  font-size: 0.8125rem;
+  color: var(--text-dim);
+}
+
+.game-result-stats {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  font-family: var(--font-mono);
+  margin: 0.25rem 0;
+}
+
+.game-result-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+}
+
+.game-result-stat-val {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.game-result-stat-key {
+  font-size: 0.625rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.game-result-stat-sep {
+  color: var(--border-2);
+  font-size: 1rem;
+}
+
+.game-result-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
 /* ─── Global Unified Game Mode Select Screen ─────────────── */
 .game-mode-select {
   display: flex;
