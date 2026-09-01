@@ -179,20 +179,23 @@ html {
   text-rendering: optimizeLegibility;
   font-size: 16px;
   scrollbar-gutter: stable;
-  height: 100%;
-  overscroll-behavior: none;
+  min-height: 100%;
+  height: auto;
+  overscroll-behavior-y: auto;
 }
 
 body {
   font-family: var(--font-sans);
   background-color: var(--bg);
   color: var(--text);
-  height: 100%;
-  overscroll-behavior: none;
+  min-height: 100vh;
+  height: auto;
+  overscroll-behavior-y: auto;
   transition:
     background-color 0.4s var(--ease-in-out),
     color 0.4s var(--ease-in-out);
   overflow-x: hidden;
+  overflow-y: auto;
 }
 
 /* Noise grain overlay */
@@ -238,10 +241,21 @@ button, input, select {
 
 /* ─── Layout ──────────────────────────────────────────────── */
 #root {
-  height: 100dvh;
+  min-height: 100vh;
+  height: auto;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: visible;
+  -webkit-overflow-scrolling: touch;
+}
+
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: visible;
+  -webkit-overflow-scrolling: touch;
 }
 
 .container {
@@ -918,7 +932,7 @@ button, input, select {
   flex-direction: column;
   overflow: hidden;
   min-height: 0;
-  height: 100%;
+  height: auto;
 }
 
 .game-page-inner {
@@ -928,7 +942,7 @@ button, input, select {
   flex-direction: column;
   overflow: hidden;
   min-height: 0;
-  height: 100%;
+  height: auto;
   padding-top: 0;
   padding-bottom: var(--space-2);
 }
