@@ -18,6 +18,8 @@ export interface GameMetadata {
 export interface GameComponentProps {
   /** Current active locale ('en' | 'pl') */
   locale: Locale;
+  /** Active theme ('dark' | 'light') */
+  theme?: 'dark' | 'light';
   /** Whether E-reader (E-ink) mode is currently active */
   isEink?: boolean;
   /** Called by the game when it wants to save data */

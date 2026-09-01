@@ -1,4 +1,5 @@
 import { useEffect, useCallback, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useCrystalMatch } from './hooks/useCrystalMatch'
 import { CrystalBoard } from './components/CrystalBoard'
@@ -79,9 +80,9 @@ export function CrystalMatch({ setHeader, locale = 'en', isEink = false }: GameC
       <StatsHeader
         label={isPl ? 'Postęp' : 'Progress'}
         items={[
-          { key: 'level', label: isPl ? 'Poziom' : 'Level', value: level },
+          { key: 'level', label: 'LVL', value: level },
           { key: 'score', label: isPl ? 'Wynik' : 'Score', value: score },
-          { key: 'moves', label: isPl ? 'Ruchy' : 'Moves', value: movesLeft },
+          { key: 'moves', label: 'MOV', value: movesLeft },
           { key: 'stars', label: isPl ? 'Gwiazdki' : 'Stars', value: totalStars },
         ]}
       />
@@ -211,7 +212,7 @@ export function CrystalMatch({ setHeader, locale = 'en', isEink = false }: GameC
 
         {/* Level Goal Intro Modal */}
         <AnimatePresence>
-          {isLevelIntroOpen && (
+          {isLevelIntroOpen && typeof document !== 'undefined' && createPortal(
             <div className="cm-modal-overlay" role="dialog" aria-modal="true">
               <div className="cm-intro-modal">
                 <h3 className="cm-intro-title">{t.level(level)}</h3>
@@ -253,13 +254,14 @@ export function CrystalMatch({ setHeader, locale = 'en', isEink = false }: GameC
                   {t.startLevel}
                 </GameButton>
               </div>
-            </div>
+            </div>,
+            document.body
           )}
         </AnimatePresence>
 
         {/* How to Play Rules Modal */}
         <AnimatePresence>
-          {isHowToPlayOpen && (
+          {isHowToPlayOpen && typeof document !== 'undefined' && createPortal(
             <div className="cm-modal-overlay" role="dialog" aria-modal="true">
               <div className="cm-intro-modal">
                 <div className="cm-level-modal-header">
@@ -300,7 +302,8 @@ export function CrystalMatch({ setHeader, locale = 'en', isEink = false }: GameC
                   OK
                 </GameButton>
               </div>
-            </div>
+            </div>,
+            document.body
           )}
         </AnimatePresence>
 
@@ -364,14 +367,15 @@ export function CrystalMatch({ setHeader, locale = 'en', isEink = false }: GameC
 
         {/* Saga Level Selector Modal */}
         <AnimatePresence>
-          {isLevelModalOpen && (
+          {isLevelModalOpen && typeof document !== 'undefined' && createPortal(
             <LevelSelectModal
               progress={progress}
               currentLevel={level}
               onSelectLevel={selectLevel}
               onClose={() => setIsLevelModalOpen(false)}
               isPl={isPl}
-            />
+            />,
+            document.body
           )}
         </AnimatePresence>
 

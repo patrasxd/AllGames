@@ -1,4 +1,5 @@
 import { memo } from 'react'
+import { createPortal } from 'react-dom'
 
 interface GameModalProps {
   title: string
@@ -21,7 +22,7 @@ export const GameModal = memo(function GameModal({
   onCancel,
   onConfirm,
 }: GameModalProps) {
-  return (
+  const content = (
     <div className="game-modal-overlay" role="dialog" aria-modal="true">
       <div className="game-modal">
         <h3 className="game-modal-title">{title}</h3>
@@ -47,4 +48,9 @@ export const GameModal = memo(function GameModal({
       </div>
     </div>
   )
+
+  if (typeof document !== 'undefined') {
+    return createPortal(content, document.body)
+  }
+  return content
 })

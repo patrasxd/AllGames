@@ -362,6 +362,7 @@ button, input, select {
   overflow: visible;
 }
 
+.header-icon-btn,
 .header-menu-btn {
   width: 36px;
   height: 36px;
@@ -377,8 +378,10 @@ button, input, select {
     border-color var(--duration) ease,
     color var(--duration) ease,
     background var(--duration) ease;
+  flex-shrink: 0;
 }
 
+.header-icon-btn:hover,
 .header-menu-btn:hover,
 .header-menu-btn--active {
   border-color: var(--border-2);
@@ -1192,16 +1195,19 @@ button, input, select {
 
 /* ─── Global Game Result Overlay ──────────────────────────── */
 .game-result-overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 50;
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 99999 !important;
+  width: 100vw !important;
+  height: 100vh !important;
   display: flex;
   align-items: center;
   justify-content: center;
   background: rgba(0, 0, 0, 0.78);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   padding: 1rem;
+  box-sizing: border-box;
 }
 
 .game-result-card {

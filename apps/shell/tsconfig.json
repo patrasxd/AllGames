@@ -26,6 +26,8 @@
       "@allgames/sudoku": ["../../packages/games/sudoku/src/index.tsx"],
       "@allgames/battleship": ["../../packages/games/battleship/src/index.tsx"],
       "@allgames/solitaire": ["../../packages/games/solitaire/src/index.tsx"],
+      "@allgames/crystal-match": ["../../packages/games/crystal-match/src/index.tsx"],
+      "@allgames/wing-rush": ["../../packages/games/wing-rush/src/index.tsx"],
       "@allgames/ui": ["../../packages/ui/src/index.ts"]
     }
   },

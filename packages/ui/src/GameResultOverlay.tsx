@@ -1,4 +1,5 @@
 import { memo, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import { motion } from 'framer-motion'
 import { GameButton } from './GameButton'
 
@@ -34,7 +35,7 @@ export const GameResultOverlay = memo(function GameResultOverlay({
   playAgainId,
   secondaryAction,
 }: GameResultOverlayProps) {
-  return (
+  const content = (
     <motion.div
       className={`game-result-overlay game-result-overlay--${status}`}
       initial={!isEink ? { opacity: 0, scale: 0.94 } : false}
@@ -78,4 +79,9 @@ export const GameResultOverlay = memo(function GameResultOverlay({
       </div>
     </motion.div>
   )
+
+  if (typeof document !== 'undefined') {
+    return createPortal(content, document.body)
+  }
+  return content
 })

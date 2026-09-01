@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { findGame } from '../games/registry'
 import { useI18n } from '../i18n'
+import { useTheme } from '../hooks/useTheme'
 import { useEink } from '../hooks/useEink'
 import { useGameHeader } from '../components/Layout'
 
@@ -55,6 +56,7 @@ const pageVariants = {
 export function GamePage() {
   const { slug = '' } = useParams<{ slug: string }>()
   const { locale, t } = useI18n()
+  const { theme } = useTheme()
   const { isEink } = useEink()
   const entry = findGame(slug)
 
@@ -91,7 +93,7 @@ export function GamePage() {
             <Suspense fallback={<GameFallback />}>
               {(() => {
                 const GameComp = entry.load
-                return <GameComp setHeader={setHeader} locale={locale} isEink={isEink} />
+                return <GameComp setHeader={setHeader} locale={locale} isEink={isEink} theme={theme} />
               })()}
             </Suspense>
           ) : (
