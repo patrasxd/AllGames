@@ -151,25 +151,6 @@ export function CrystalMatch({ setHeader, locale = 'en', isEink = false }: GameC
           </div>
         </div>
 
-        {/* Level 1 Tutorial Tip */}
-        {level === 1 && !isLevelIntroOpen && movesLeft >= 18 && (
-          <div
-            style={{
-              fontSize: '0.75rem',
-              color: 'var(--text-dim)',
-              textAlign: 'center',
-              padding: '0 0.5rem',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.35rem',
-            }}
-          >
-            <TipIcon size={14} />
-            <span>{t.tutorialTip}</span>
-          </div>
-        )}
-
         {/* Interactive Board Grid */}
         <CrystalBoard
           board={board}
@@ -211,40 +192,61 @@ export function CrystalMatch({ setHeader, locale = 'en', isEink = false }: GameC
         </div>
 
         {/* Level Goal Intro Modal */}
-        <AnimatePresence>
-          {isLevelIntroOpen && typeof document !== 'undefined' && createPortal(
-            <div className="cm-modal-overlay" role="dialog" aria-modal="true">
-              <div className="cm-intro-modal">
+        {isLevelIntroOpen && typeof document !== 'undefined' && createPortal(
+          <div className="cm-modal-overlay" role="dialog" aria-modal="true">
+            <div className="cm-intro-modal">
+              <div className="cm-level-modal-header">
                 <h3 className="cm-intro-title">{t.level(level)}</h3>
-                <p className="cm-intro-subtitle">{t.levelTargetTitle}</p>
+                <button
+                  type="button"
+                  className="cm-modal-close-btn"
+                  onClick={() => setIsLevelIntroOpen(false)}
+                  aria-label="Close"
+                >
+                  ✕
+                </button>
+              </div>
+              <p className="cm-intro-subtitle">{t.levelTargetTitle}</p>
 
-                <div className="cm-intro-goals-list">
-                  {goals.map((g, idx) => (
-                    <div key={idx} className="cm-intro-goal-card">
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        {g.type === 'gems' && g.gemType && (
-                          <div style={{ width: 20, height: 20 }}>
-                            <GemIcon gem={g.gemType} isEink={isEink} size={20} />
-                          </div>
-                        )}
-                        {g.type === 'ice' && <IceGoalIcon size={18} />}
-                        {g.type === 'score' && <TargetScoreIcon size={18} />}
-                        <span>
-                          {g.type === 'score'
-                            ? t.scoreGoal(g.target)
-                            : g.type === 'ice'
-                            ? t.iceGoal(0, g.target)
-                            : g.gemType
-                            ? t.gemGoal(0, g.target, g.gemType)
-                            : ''}
-                        </span>
-                      </div>
-                      <span style={{ color: 'var(--text-muted)' }}>
-                        {movesLeft} {t.moves.toLowerCase()}
+              <div className="cm-intro-goals-list">
+                {goals.map((g, idx) => (
+                  <div key={idx} className="cm-intro-goal-card">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      {g.type === 'gems' && g.gemType && (
+                        <div style={{ width: 20, height: 20 }}>
+                          <GemIcon gem={g.gemType} isEink={isEink} size={20} />
+                        </div>
+                      )}
+                      {g.type === 'ice' && <IceGoalIcon size={18} />}
+                      {g.type === 'score' && <TargetScoreIcon size={18} />}
+                      <span>
+                        {g.type === 'score'
+                          ? t.scoreGoal(g.target)
+                          : g.type === 'ice'
+                          ? t.iceGoal(0, g.target)
+                          : g.gemType
+                          ? t.gemGoal(0, g.target, g.gemType)
+                          : ''}
                       </span>
                     </div>
-                  ))}
-                </div>
+                    <span style={{ color: 'var(--text-muted)' }}>
+                      {movesLeft} {t.moves.toLowerCase()}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ display: 'flex', gap: '0.5rem', flexDirection: 'column' }}>
+                <GameButton
+                  id="cm-rules-from-intro-btn"
+                  variant="secondary"
+                  onClick={() => {
+                    setIsLevelIntroOpen(false)
+                    setIsHowToPlayOpen(true)
+                  }}
+                >
+                  {t.howToPlay}
+                </GameButton>
 
                 <GameButton
                   id="cm-start-level-btn"
@@ -254,58 +256,56 @@ export function CrystalMatch({ setHeader, locale = 'en', isEink = false }: GameC
                   {t.startLevel}
                 </GameButton>
               </div>
-            </div>,
-            document.body
-          )}
-        </AnimatePresence>
+            </div>
+          </div>,
+          document.body
+        )}
 
         {/* How to Play Rules Modal */}
-        <AnimatePresence>
-          {isHowToPlayOpen && typeof document !== 'undefined' && createPortal(
-            <div className="cm-modal-overlay" role="dialog" aria-modal="true">
-              <div className="cm-intro-modal">
-                <div className="cm-level-modal-header">
-                  <h3 className="cm-intro-title">{t.rulesTitle}</h3>
-                  <button
-                    type="button"
-                    className="cm-modal-close-btn"
-                    onClick={() => setIsHowToPlayOpen(false)}
-                    aria-label="Close"
-                  >
-                    ✕
-                  </button>
-                </div>
-
-                <div className="cm-rules-list">
-                  <div className="cm-rules-item">
-                    <SparkleIcon size={16} />
-                    <span>{t.rule1}</span>
-                  </div>
-                  <div className="cm-rules-item">
-                    <LaserBeamIcon size={16} />
-                    <span>{t.rule2}</span>
-                  </div>
-                  <div className="cm-rules-item">
-                    <CrystalBombIcon size={16} />
-                    <span>{t.rule3}</span>
-                  </div>
-                  <div className="cm-rules-item">
-                    <RainbowPrismIcon size={16} />
-                    <span>{t.rule4}</span>
-                  </div>
-                </div>
-
-                <GameButton
-                  variant="primary"
+        {isHowToPlayOpen && typeof document !== 'undefined' && createPortal(
+          <div className="cm-modal-overlay" role="dialog" aria-modal="true">
+            <div className="cm-intro-modal">
+              <div className="cm-level-modal-header">
+                <h3 className="cm-intro-title">{t.rulesTitle}</h3>
+                <button
+                  type="button"
+                  className="cm-modal-close-btn"
                   onClick={() => setIsHowToPlayOpen(false)}
+                  aria-label="Close"
                 >
-                  OK
-                </GameButton>
+                  ✕
+                </button>
               </div>
-            </div>,
-            document.body
-          )}
-        </AnimatePresence>
+
+              <div className="cm-rules-list">
+                <div className="cm-rules-item">
+                  <SparkleIcon size={16} />
+                  <span>{t.rule1}</span>
+                </div>
+                <div className="cm-rules-item">
+                  <LaserBeamIcon size={16} />
+                  <span>{t.rule2}</span>
+                </div>
+                <div className="cm-rules-item">
+                  <CrystalBombIcon size={16} />
+                  <span>{t.rule3}</span>
+                </div>
+                <div className="cm-rules-item">
+                  <RainbowPrismIcon size={16} />
+                  <span>{t.rule4}</span>
+                </div>
+              </div>
+
+              <GameButton
+                variant="primary"
+                onClick={() => setIsHowToPlayOpen(false)}
+              >
+                OK
+              </GameButton>
+            </div>
+          </div>,
+          document.body
+        )}
 
         {/* Victory Dialog */}
         <AnimatePresence>
@@ -366,18 +366,16 @@ export function CrystalMatch({ setHeader, locale = 'en', isEink = false }: GameC
         </AnimatePresence>
 
         {/* Saga Level Selector Modal */}
-        <AnimatePresence>
-          {isLevelModalOpen && typeof document !== 'undefined' && createPortal(
-            <LevelSelectModal
-              progress={progress}
-              currentLevel={level}
-              onSelectLevel={selectLevel}
-              onClose={() => setIsLevelModalOpen(false)}
-              isPl={isPl}
-            />,
-            document.body
-          )}
-        </AnimatePresence>
+        {isLevelModalOpen && typeof document !== 'undefined' && createPortal(
+          <LevelSelectModal
+            progress={progress}
+            currentLevel={level}
+            onSelectLevel={selectLevel}
+            onClose={() => setIsLevelModalOpen(false)}
+            isPl={isPl}
+          />,
+          document.body
+        )}
 
         {/* Reset Progress Confirmation Modal */}
         <AnimatePresence>

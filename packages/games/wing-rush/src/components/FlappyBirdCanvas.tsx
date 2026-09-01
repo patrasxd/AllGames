@@ -217,8 +217,7 @@ export const FlappyBirdCanvas = memo(function FlappyBirdCanvas({
   return (
     <div
       className="fb-canvas-wrapper"
-      onTouchStart={e => {
-        e.preventDefault()
+      onTouchStart={() => {
         lastTouchRef.current = Date.now()
         onFlap()
       }}

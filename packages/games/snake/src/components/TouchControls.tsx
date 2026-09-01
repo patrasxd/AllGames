@@ -13,8 +13,7 @@ export function TouchControls({ onDirection, locale = 'en' }: TouchControlsProps
 
   function makeHandlers(dir: Direction) {
     return {
-      onTouchStart: (e: React.TouchEvent) => {
-        e.preventDefault()
+      onTouchStart: () => {
         lastTouchRef.current = Date.now()
         onDirection(dir)
       },

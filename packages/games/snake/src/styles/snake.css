@@ -110,6 +110,7 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   cursor: pointer;
   flex-shrink: 0;
+  touch-action: manipulation;
 }
 
 .snake-board-svg {

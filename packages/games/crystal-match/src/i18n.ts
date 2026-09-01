@@ -14,7 +14,6 @@ export interface CrystalMatchTranslations {
   tryAgain: string
   startLevel: string
   levelTargetTitle: string
-  tutorialTip: string
   victoryTitle: string
   victorySub: string
   defeatTitle: string
@@ -52,7 +51,6 @@ export const crystalMatchTranslations: Record<Locale, CrystalMatchTranslations> 
     tryAgain: 'Try Again',
     startLevel: 'Play Level',
     levelTargetTitle: 'Level Goals',
-    tutorialTip: 'Swipe or tap two crystals to swap and match 3 in a row!',
     victoryTitle: 'Level Cleared!',
     victorySub: 'Brilliant matching! You unlocked the next level.',
     defeatTitle: 'Out of Moves',
@@ -88,7 +86,6 @@ export const crystalMatchTranslations: Record<Locale, CrystalMatchTranslations> 
     tryAgain: 'Spróbuj Ponownie',
     startLevel: 'Graj',
     levelTargetTitle: 'Cele Poziomu',
-    tutorialTip: 'Przesuń lub kliknij dwa kryształy, aby połączyć 3 w linii!',
     victoryTitle: 'Poziom Ukończony!',
     victorySub: 'Wspaniałe dopasowania! Odblokowano kolejny poziom.',
     defeatTitle: 'Koniec Ruchów',
