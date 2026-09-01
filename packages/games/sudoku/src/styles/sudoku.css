@@ -6,8 +6,9 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 0.5rem;
+  padding: 0.25rem 0.5rem;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 .sdk-game {
@@ -16,8 +17,9 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 0.625rem;
+  justify-content: space-between;
+  gap: 0.35rem;
+  overflow: hidden;
 }
 
 /* ─── Status Bar ──────────────────────────────────────────── */
@@ -49,7 +51,7 @@
 /* ─── Board & Grid ────────────────────────────────────────── */
 .sdk-board-wrapper {
   position: relative;
-  width: min(390px, min(92vw, calc(100vh - 310px)));
+  width: min(390px, min(92vw, calc(100dvh - 280px)));
   aspect-ratio: 1;
   background: var(--surface);
   border: 2px solid var(--border-2);

@@ -6,8 +6,9 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 0.5rem;
+  padding: 0.25rem 0.5rem;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 .bs-game {
@@ -16,8 +17,9 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 0.625rem;
+  justify-content: space-between;
+  gap: 0.4rem;
+  overflow: hidden;
 }
 
 /* ─── Mode Select ─────────────────────────────────────────── */
@@ -84,10 +86,10 @@
 }
 
 .bs-mode-btn-desc {
-  font-size: 0.6875rem;
+  font-size: 0.8125rem;
   color: var(--text-muted);
   line-height: 1.4;
-  font-weight: 300;
+  font-weight: 400;
 }
 
 /* ─── Status Bar ──────────────────────────────────────────── */
@@ -112,7 +114,7 @@
 }
 
 .bs-status-sub {
-  font-size: 0.625rem;
+  font-size: 0.75rem;
   color: var(--text-muted);
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -170,9 +172,17 @@
   max-height: 100%;
 }
 
-@media (max-width: 680px) {
+@media (max-width: 768px) {
   .bs-boards-row {
-    gap: 0.5rem;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+    align-items: center;
+    justify-content: flex-start;
+    overflow-y: auto;
+    max-height: calc(100dvh - 200px);
+    -webkit-overflow-scrolling: touch;
+    padding: 2px 0;
   }
 }
 
@@ -182,10 +192,11 @@
   flex-direction: column;
   align-items: center;
   gap: 0.35rem;
+  max-width: 100%;
 }
 
 .bs-grid-title {
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -202,6 +213,8 @@
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
   box-sizing: border-box;
   user-select: none;
+  max-width: 96vw;
+  overflow: auto;
 }
 
 .bs-header-row {
@@ -217,9 +230,9 @@
 }
 
 .bs-header-letter {
-  width: clamp(18px, 3.2vw, 26px);
+  width: clamp(22px, 6.8vw, 30px);
   font-family: var(--font-mono);
-  font-size: 0.625rem;
+  font-size: 0.6875rem;
   font-weight: 600;
   color: var(--text-muted);
   text-align: center;
@@ -238,7 +251,7 @@
 .bs-header-num {
   width: 1.25rem;
   font-family: var(--font-mono);
-  font-size: 0.625rem;
+  font-size: 0.6875rem;
   font-weight: 600;
   color: var(--text-muted);
   text-align: center;
@@ -247,8 +260,8 @@
 
 /* ─── Cells ───────────────────────────────────────────────── */
 .bs-cell {
-  width: clamp(18px, 3.2vw, 26px);
-  height: clamp(18px, 3.2vw, 26px);
+  width: clamp(22px, 6.8vw, 30px);
+  height: clamp(22px, 6.8vw, 30px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -257,6 +270,9 @@
   background: var(--surface-2);
   transition: background 100ms ease, transform 100ms ease;
   position: relative;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
 }
 
 .bs-cell--interactive {

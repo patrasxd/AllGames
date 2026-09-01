@@ -6,8 +6,9 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 0.5rem;
+  padding: 0.25rem 0.5rem;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 .ms-game {
@@ -16,8 +17,9 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
+  justify-content: space-between;
+  gap: 0.35rem;
+  overflow: hidden;
 }
 
 /* ─── Header Stats (Injected into Shell Header) ───────────── */
@@ -143,6 +145,74 @@
   transform: scale(0.92);
 }
 
+/* ─── Board Container & Zoom Toolbar ──────────────────────── */
+.ms-board-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  max-width: 100%;
+  max-height: 100%;
+  min-height: 0;
+  position: relative;
+}
+
+.ms-zoom-bar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 2px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  z-index: 10;
+  user-select: none;
+}
+
+.ms-zoom-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  background: transparent;
+  border: none;
+  border-radius: 2px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background 150ms ease, color 150ms ease;
+  padding: 0;
+}
+
+.ms-zoom-btn:hover:not(:disabled) {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.ms-zoom-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.ms-zoom-level-btn {
+  background: transparent;
+  border: none;
+  padding: 0.15rem 0.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+  border-radius: 2px;
+  transition: background 150ms ease;
+  line-height: 1;
+}
+
+.ms-zoom-level-btn:hover {
+  background: var(--surface-2);
+}
+
 /* ─── Board Wrapper & Grid ────────────────────────────────── */
 .ms-board-wrapper {
   background: var(--surface);
@@ -151,11 +221,14 @@
   padding: 4px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
   box-sizing: border-box;
-  max-height: 100%;
+  max-height: calc(100vh - 270px);
   max-width: 96vw;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x pan-y;
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: flex-start;
 }
 
 .ms-board-grid {
@@ -164,6 +237,9 @@
   background: var(--border);
   padding: 2px;
   border-radius: 2px;
+  margin: auto;
+  transform-origin: center top;
+  transition: width 150ms ease, height 150ms ease;
 }
 
 /* ─── Individual Cells ────────────────────────────────────── */
@@ -176,28 +252,33 @@
   padding: 0;
   cursor: pointer;
   user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: manipulation;
   font-family: var(--font-mono);
   font-weight: 700;
   transition: background 80ms ease;
 }
 
-/* Adaptive cell sizing according to difficulty */
+/* Adaptive cell sizing with smooth zoom factor */
 .ms-board-wrapper[data-rows='9'] .ms-cell {
-  width: min(36px, calc(75vw / 9), calc((100vh - 300px) / 9));
-  height: min(36px, calc(75vw / 9), calc((100vh - 300px) / 9));
-  font-size: clamp(0.9rem, 2.5vw, 1.25rem);
+  width: calc(min(36px, calc(78vw / 9), calc((100vh - 340px) / 9)) * var(--ms-zoom, 1));
+  height: calc(min(36px, calc(78vw / 9), calc((100vh - 340px) / 9)) * var(--ms-zoom, 1));
+  font-size: calc(clamp(0.9rem, 2.5vw, 1.25rem) * var(--ms-zoom, 1));
 }
 
 .ms-board-wrapper[data-rows='16'][data-cols='16'] .ms-cell {
-  width: min(26px, calc(86vw / 16), calc((100vh - 300px) / 16));
-  height: min(26px, calc(86vw / 16), calc((100vh - 300px) / 16));
-  font-size: clamp(0.75rem, 1.8vw, 1rem);
+  width: calc(max(24px, min(28px, calc(86vw / 16), calc((100vh - 340px) / 16))) * var(--ms-zoom, 1));
+  height: calc(max(24px, min(28px, calc(86vw / 16), calc((100vh - 340px) / 16))) * var(--ms-zoom, 1));
+  font-size: calc(clamp(0.75rem, 1.8vw, 1rem) * var(--ms-zoom, 1));
 }
 
 .ms-board-wrapper[data-cols='30'] .ms-cell {
-  width: min(22px, calc(94vw / 30), calc((100vh - 300px) / 16));
-  height: min(22px, calc(94vw / 30), calc((100vh - 300px) / 16));
-  font-size: clamp(0.65rem, 1.4vw, 0.875rem);
+  width: calc(26px * var(--ms-zoom, 1));
+  height: calc(26px * var(--ms-zoom, 1));
+  font-size: calc(0.85rem * var(--ms-zoom, 1));
+  min-width: calc(22px * var(--ms-zoom, 1));
+  min-height: calc(22px * var(--ms-zoom, 1));
 }
 
 .ms-cell--hidden {

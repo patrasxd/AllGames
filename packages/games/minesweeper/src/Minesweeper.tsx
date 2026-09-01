@@ -93,6 +93,7 @@ export function Minesweeper({ setHeader, locale = 'en', isEink = false }: GameCo
     setTouchMode,
     handleCellClick,
     handleCellContextMenu,
+    handleCellToggleFlag,
     handleCellMouseDown,
     handleCellMouseUp,
     resetGame,
@@ -177,12 +178,13 @@ export function Minesweeper({ setHeader, locale = 'en', isEink = false }: GameCo
           </div>
         </div>
 
-        {/* Board Grid */}
+        {/* Board Grid with interactive zoom */}
         <MinesweeperBoard
           board={board}
           isEink={isEink}
           onCellClick={handleCellClick}
           onCellContextMenu={handleCellContextMenu}
+          onToggleFlag={handleCellToggleFlag}
           onCellMouseDown={handleCellMouseDown}
           onCellMouseUp={handleCellMouseUp}
         />

@@ -208,6 +208,16 @@ export function useMinesweeper(options?: { isEink?: boolean }) {
     }
   }, [gameStatus])
 
+  const handleCellToggleFlag = useCallback(
+    (row: number, col: number) => {
+      if (gameStatus === 'won' || gameStatus === 'lost') return
+      const cell = board[row][col]
+      if (cell.isRevealed) return
+      setBoard(prev => toggleFlag(prev, row, col))
+    },
+    [board, gameStatus]
+  )
+
   const handleCellMouseUp = useCallback(() => {
     setIsFaceShocked(false)
   }, [])
@@ -234,6 +244,7 @@ export function useMinesweeper(options?: { isEink?: boolean }) {
     setTouchMode,
     handleCellClick,
     handleCellContextMenu,
+    handleCellToggleFlag,
     handleCellMouseDown,
     handleCellMouseUp,
     resetGame,

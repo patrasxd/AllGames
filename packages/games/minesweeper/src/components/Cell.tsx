@@ -1,4 +1,4 @@
-import { memo } from 'react'
+import { memo, useRef, useCallback } from 'react'
 import type { CellState } from '../types'
 
 interface CellProps {
@@ -6,6 +6,7 @@ interface CellProps {
   isEink: boolean
   onClick: () => void
   onContextMenu: (e: React.MouseEvent) => void
+  onToggleFlag?: () => void
   onMouseDown: () => void
   onMouseUp: () => void
 }
@@ -47,9 +48,93 @@ export const Cell = memo(function Cell({
   isEink,
   onClick,
   onContextMenu,
+  onToggleFlag,
   onMouseDown,
   onMouseUp,
 }: CellProps) {
+  const longPressTimerRef = useRef<number | null>(null)
+  const isLongPressRef = useRef(false)
+  const touchStartPosRef = useRef<{ x: number; y: number } | null>(null)
+
+  const clearLongPress = useCallback(() => {
+    if (longPressTimerRef.current !== null) {
+      window.clearTimeout(longPressTimerRef.current)
+      longPressTimerRef.current = null
+    }
+  }, [])
+
+  const handleTouchStart = useCallback(
+    (e: React.TouchEvent) => {
+      clearLongPress()
+      isLongPressRef.current = false
+      if (e.touches.length === 1) {
+        touchStartPosRef.current = {
+          x: e.touches[0].clientX,
+          y: e.touches[0].clientY,
+        }
+        longPressTimerRef.current = window.setTimeout(() => {
+          if (!cell.isRevealed) {
+            isLongPressRef.current = true
+            if (onToggleFlag) {
+              onToggleFlag()
+            } else {
+              onContextMenu(e as unknown as React.MouseEvent)
+            }
+            if (typeof navigator !== 'undefined' && navigator.vibrate) {
+              navigator.vibrate(40)
+            }
+          }
+        }, 360)
+      }
+    },
+    [cell.isRevealed, clearLongPress, onToggleFlag, onContextMenu]
+  )
+
+  const handleTouchMove = useCallback(
+    (e: React.TouchEvent) => {
+      if (touchStartPosRef.current && e.touches.length === 1) {
+        const dx = Math.abs(e.touches[0].clientX - touchStartPosRef.current.x)
+        const dy = Math.abs(e.touches[0].clientY - touchStartPosRef.current.y)
+        if (dx > 8 || dy > 8) {
+          clearLongPress()
+        }
+      }
+    },
+    [clearLongPress]
+  )
+
+  const handleTouchEnd = useCallback(
+    (e: React.TouchEvent) => {
+      clearLongPress()
+      if (isLongPressRef.current) {
+        e.preventDefault()
+      }
+    },
+    [clearLongPress]
+  )
+
+  const handleClick = useCallback(
+    (e: React.MouseEvent) => {
+      if (isLongPressRef.current) {
+        isLongPressRef.current = false
+        e.preventDefault()
+        e.stopPropagation()
+        return
+      }
+      onClick()
+    },
+    [onClick]
+  )
+
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      if (e.button === 0) {
+        onMouseDown()
+      }
+    },
+    [onMouseDown]
+  )
+
   let content = null
   let cellClass = 'ms-cell'
 
@@ -69,7 +154,11 @@ export const Cell = memo(function Cell({
   } else {
     cellClass += ' ms-cell--hidden'
     if (cell.isFlagged) {
-      content = <span className="ms-cell-flag"><FlagIcon /></span>
+      content = (
+        <span className="ms-cell-flag">
+          <FlagIcon />
+        </span>
+      )
     }
   }
 
@@ -77,12 +166,14 @@ export const Cell = memo(function Cell({
     <button
       type="button"
       className={cellClass}
-      onClick={onClick}
+      onClick={handleClick}
       onContextMenu={onContextMenu}
-      onMouseDown={onMouseDown}
+      onMouseDown={handleMouseDown}
       onMouseUp={onMouseUp}
-      onTouchStart={onMouseDown}
-      onTouchEnd={onMouseUp}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onTouchCancel={clearLongPress}
       aria-label={`Row ${cell.row + 1}, Col ${cell.col + 1}${
         cell.isRevealed
           ? cell.hasMine

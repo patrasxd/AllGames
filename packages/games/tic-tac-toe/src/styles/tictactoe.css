@@ -1,5 +1,4 @@
 /* ─── TicTacToe Root ───────────────────────────────────────── */
-/* Fills the game-page-content area (flex: 1, full remaining height) */
 .ttt-root {
   width: 100%;
   height: 100%;
@@ -7,6 +6,20 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  padding: 0.25rem 0.5rem;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.ttt-game {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.35rem;
+  overflow: hidden;
 }
 
 /* ─── Mode Select ─────────────────────────────────────────── */
