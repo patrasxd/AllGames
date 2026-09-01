@@ -24,6 +24,7 @@ export const FlappyBirdCanvas = memo(function FlappyBirdCanvas({
   onFlap,
 }: FlappyBirdCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
+  const lastTouchRef = useRef(0)
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -216,7 +217,16 @@ export const FlappyBirdCanvas = memo(function FlappyBirdCanvas({
   return (
     <div
       className="fb-canvas-wrapper"
-      onClick={onFlap}
+      onTouchStart={e => {
+        e.preventDefault()
+        lastTouchRef.current = Date.now()
+        onFlap()
+      }}
+      onClick={() => {
+        // ignoruj jeśli touch był <500ms temu (zapobiega double-fire w Chrome)
+        if (Date.now() - lastTouchRef.current < 500) return
+        onFlap()
+      }}
       role="button"
       tabIndex={0}
       aria-label="Wing Rush Game Canvas"

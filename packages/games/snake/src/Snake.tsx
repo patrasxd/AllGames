@@ -5,7 +5,7 @@ import { SnakeCanvas } from './components/SnakeCanvas'
 import { TouchControls } from './components/TouchControls'
 import type { GameComponentProps, SpeedMode, MapMode } from './types'
 import { snakeTranslations } from './i18n'
-import { StatsHeader, ControlsBar, GameButton, PillGroup, Badge } from '@allgames/ui'
+import { StatsHeader, GameButton, PillGroup, Badge } from '@allgames/ui'
 import './styles/snake.css'
 
 export function Snake({ setHeader, locale = 'en', isEink = false }: GameComponentProps) {
@@ -141,8 +141,11 @@ export function Snake({ setHeader, locale = 'en', isEink = false }: GameComponen
           </AnimatePresence>
         </div>
 
-        {/* Controls, Maps & Speed Settings */}
-        <ControlsBar>
+        {/* D-Pad for Mobile Touch Devices */}
+        <TouchControls onDirection={changeDirection} locale={locale} />
+
+        {/* Bottom Settings Bar — Map, Speed & Pause */}
+        <div className="snake-bottom-bar">
           {status === 'PLAYING' && (
             <GameButton
               id="snake-pause-btn"
@@ -185,10 +188,7 @@ export function Snake({ setHeader, locale = 'en', isEink = false }: GameComponen
             value={speed}
             onChange={setSpeed}
           />
-        </ControlsBar>
-
-        {/* D-Pad for Mobile Touch Devices */}
-        <TouchControls onDirection={changeDirection} locale={locale} />
+        </div>
       </div>
     </div>
   )
