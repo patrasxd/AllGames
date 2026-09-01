@@ -34,6 +34,10 @@ export function Layout({ children }: LayoutProps) {
 
   useEffect(() => {
     setHeaderExtra(null)
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+    if (document.documentElement) {
+      document.documentElement.scrollTop = 0
+    }
   }, [location.pathname])
 
   const slug = location.pathname.match(/^\/games\/([^/]+)/)?.[1]
