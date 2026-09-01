@@ -91,7 +91,7 @@ export function HeaderMenu() {
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setIsOpen(false)
+        closeMenu()
       }
     }
     if (isOpen) {
@@ -103,7 +103,7 @@ export function HeaderMenu() {
   // Close on Escape key
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') setIsOpen(false)
+      if (event.key === 'Escape') closeMenu()
     }
     if (isOpen) {
       document.addEventListener('keydown', handleKeyDown)
@@ -115,9 +115,13 @@ export function HeaderMenu() {
     setLocale(newLocale)
   }
 
+  const toggleMenu = () => setIsOpen(prev => !prev)
+
+  const closeMenu = () => setIsOpen(false)
+
   const handleInstall = async () => {
     await install()
-    setIsOpen(false)
+    closeMenu()
   }
 
   const buyMeACoffeeUrl = 'https://www.buymeacoffee.com/patrasxd'
@@ -125,9 +129,10 @@ export function HeaderMenu() {
   return (
     <div className="header-menu-container" ref={menuRef}>
       <button
+        type="button"
         id="header-menu-toggle"
         className={`header-menu-btn ${isOpen ? 'header-menu-btn--active' : ''}`}
-        onClick={() => setIsOpen(prev => !prev)}
+        onClick={toggleMenu}
         aria-expanded={isOpen}
         aria-label={isOpen ? t.closeMenuAria : t.menuToggleAria}
         title={t.preferences}
