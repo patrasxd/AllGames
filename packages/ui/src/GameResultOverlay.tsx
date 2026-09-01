@@ -49,14 +49,11 @@ export const GameResultOverlay = memo(function GameResultOverlay({
         {subtitle && <p className="game-result-subtitle">{subtitle}</p>}
         {stats && stats.length > 0 && (
           <div className="game-result-stats">
-            {stats.map((s, idx) => (
-              <span key={s.label} className="game-result-stat-wrapper">
-                {idx > 0 && <span className="game-result-stat-sep" aria-hidden="true">·</span>}
-                <div className="game-result-stat">
-                  <span className="game-result-stat-val">{s.value}</span>
-                  <span className="game-result-stat-key">{s.label}</span>
-                </div>
-              </span>
+            {stats.map(s => (
+              <div key={s.label} className="game-result-stat">
+                <span className="game-result-stat-val">{s.value}</span>
+                <span className="game-result-stat-key">{s.label}</span>
+              </div>
             ))}
           </div>
         )}

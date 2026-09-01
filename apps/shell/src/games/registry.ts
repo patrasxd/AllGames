@@ -12,6 +12,7 @@ import { metadata as memoryMetadata } from '@allgames/memory'
 import { metadata as sudokuMetadata } from '@allgames/sudoku'
 import { metadata as battleshipMetadata } from '@allgames/battleship'
 import { metadata as solitaireMetadata } from '@allgames/solitaire'
+import { metadata as crystalMatchMetadata } from '@allgames/crystal-match'
 
 export interface GameRegistryEntry {
   metadata: GameMetadata
@@ -25,6 +26,10 @@ function lazyGame(importFn: () => Promise<{ GameComponent: React.ComponentType<G
 }
 
 export const GAMES: GameRegistryEntry[] = [
+  {
+    metadata: crystalMatchMetadata,
+    load: lazyGame(() => import('@allgames/crystal-match')),
+  },
   {
     metadata: ticTacToeMetadata,
     load: lazyGame(() => import('@allgames/tic-tac-toe')),

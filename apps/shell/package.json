@@ -19,6 +19,7 @@
     "@allgames/sudoku": "*",
     "@allgames/battleship": "*",
     "@allgames/solitaire": "*",
+    "@allgames/crystal-match": "*",
     "@allgames/ui": "*",
     "framer-motion": "^11.3.0",
     "react": "^18.3.0",
