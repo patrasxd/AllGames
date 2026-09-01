@@ -24,7 +24,7 @@ export const FlappyBirdCanvas = memo(function FlappyBirdCanvas({
   onFlap,
 }: FlappyBirdCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
-  const lastTouchRef = useRef(0)
+  const lastPointerRef = useRef(0)
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -217,13 +217,14 @@ export const FlappyBirdCanvas = memo(function FlappyBirdCanvas({
   return (
     <div
       className="fb-canvas-wrapper"
-      onTouchStart={() => {
-        lastTouchRef.current = Date.now()
-        onFlap()
-      }}
-      onClick={() => {
-        // ignoruj jeśli touch był <500ms temu (zapobiega double-fire w Chrome)
-        if (Date.now() - lastTouchRef.current < 500) return
+      onPointerDown={e => {
+        if (e.pointerType === 'mouse' && e.button !== 0) return
+
+        const now = Date.now()
+        if (now - lastPointerRef.current < 120) return
+
+        lastPointerRef.current = now
+        e.preventDefault()
         onFlap()
       }}
       role="button"
