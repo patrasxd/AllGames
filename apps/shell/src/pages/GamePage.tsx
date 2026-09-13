@@ -65,18 +65,20 @@ export function GamePage() {
     setHeaderExtra(content)
   }, [setHeaderExtra])
 
+  const isFullBleed = slug === 'wing-rush'
+
   return (
     <motion.div
-      className="game-page"
+      className={`game-page ${isFullBleed ? 'game-page--fullbleed' : ''}`.trim()}
       variants={pageVariants}
       initial="hidden"
       animate="visible"
       exit="exit"
     >
-      <div className="game-page-inner container">
+      <div className={`game-page-inner ${isFullBleed ? 'game-page-inner--fullbleed' : 'container'}`.trim()}>
         <Link
           to="/"
-          className="game-floating-back"
+          className={`game-floating-back ${isFullBleed ? 'game-floating-back--overlay' : ''}`.trim()}
           aria-label={t.backToGamesAria}
           title={t.backToGames}
         >

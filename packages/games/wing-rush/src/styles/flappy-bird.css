@@ -1,50 +1,31 @@
 /* ─── Flappy Bird Root & Layout ───────────────────────────── */
 .fb-root {
+  position: relative;
   width: 100%;
   height: 100%;
-  max-height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  box-sizing: border-box;
   overflow: hidden;
   user-select: none;
 }
 
 .fb-game {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
-  max-height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.4rem;
-  padding: 0.1rem 0.5rem 0.4rem;
-  box-sizing: border-box;
   overflow: hidden;
 }
 
-/* ─── Canvas Wrapper ──────────────────────────────────────── */
+/* ─── Canvas Wrapper (Full Bleed) ─────────────────────────── */
 .fb-canvas-wrapper {
-  position: relative;
-  height: min(calc(100dvh - 170px), calc(94vw * (540 / 380)), 520px);
-  width: auto;
-  aspect-ratio: 380 / 540;
-  max-width: min(94vw, 400px);
-  background: var(--surface);
-  border: 1.5px solid var(--border-2);
-  border-radius: var(--radius);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
-  box-sizing: border-box;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
   cursor: pointer;
   touch-action: manipulation;
   -webkit-touch-callout: none;
   -webkit-tap-highlight-color: transparent;
-  flex-shrink: 1;
 }
 
 .fb-canvas {
@@ -68,6 +49,7 @@
   padding: 1.5rem;
   text-align: center;
   pointer-events: none;
+  z-index: 10;
 }
 
 .fb-ready-pill {
@@ -103,21 +85,17 @@
   to   { transform: scale(1.03); opacity: 1; }
 }
 
-/* ─── Controls Bar (Board Width, Symmetrical) ─────────────── */
+/* ─── Controls Bar (Floating Overlay) ─────────────────────── */
 .fb-controls {
   display: flex;
-  align-items: stretch;
-  justify-content: space-between;
-  gap: 0.5rem;
-  width: min(calc(min(calc(100dvh - 170px), 520px) * (380 / 540)), min(94vw, 400px));
-  box-sizing: border-box;
-  flex-shrink: 0;
+  align-items: center;
+  gap: var(--all-space-2, 0.5rem);
 }
 
 .fb-diff-group {
-  flex: 2;
-  height: 2.25rem;
   display: flex;
+  align-items: center;
+  height: 2rem;
   background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -245,11 +223,6 @@
 }
 
 /* ─── E-ink Mode ─────────────────────────────────────────── */
-[data-eink='true'] .fb-canvas-wrapper {
-  border: 2px solid var(--border) !important;
-  box-shadow: none !important;
-}
-
 [data-eink='true'] .fb-ready-overlay {
   background: rgba(255, 255, 255, 0.85) !important;
 }
