@@ -1,0 +1,1 @@
+function n(t){const r=Math.floor(t/60),a=Math.floor(t%60);return`${String(r).padStart(2,"0")}:${String(a).padStart(2,"0")}`}function i(t){return t<0?"000":t>999?"999":String(t).padStart(3,"0")}export{n as f,i as p};
