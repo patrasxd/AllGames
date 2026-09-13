@@ -1,7 +1,8 @@
 import type { CardData, SolitaireState, DrawMode, CardLocation } from './types'
 import { createDeck, shuffleDeck } from './cards'
+import { isSolvable } from './solver'
 
-export function dealNewGame(drawMode: DrawMode = 1): SolitaireState {
+function buildDeal(drawMode: DrawMode): SolitaireState {
   const deck = shuffleDeck(createDeck())
   const tableau: CardData[][] = Array.from({ length: 7 }, () => [])
 
@@ -26,6 +27,17 @@ export function dealNewGame(drawMode: DrawMode = 1): SolitaireState {
     score: 0,
     isWon: false,
   }
+}
+
+export function dealNewGame(drawMode: DrawMode = 1): SolitaireState {
+  const MAX_ATTEMPTS = 50
+  for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+    const state = buildDeal(drawMode)
+    if (isSolvable(state)) return state
+  }
+  // Fallback: return last attempt even if solver timed out
+  // (extremely rare — only if solver budget is exhausted every time)
+  return buildDeal(drawMode)
 }
 
 export function canMoveToFoundation(card: CardData, foundation: CardData[]): boolean {
