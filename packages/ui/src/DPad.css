@@ -1,0 +1,77 @@
+/* ─── Standardized DPad Geometry Styles in AllGames ─── */
+
+.game-dpad {
+  display: grid;
+  grid-template-columns: repeat(3, 48px);
+  grid-template-rows: repeat(3, 48px);
+  gap: 6px;
+  user-select: none;
+  touch-action: none;
+  justify-content: center;
+  align-items: center;
+}
+
+@media (min-width: 640px) {
+  .game-dpad {
+    grid-template-columns: repeat(3, 56px);
+    grid-template-rows: repeat(3, 56px);
+    gap: 8px;
+  }
+}
+
+.game-dpad-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-width: 48px;
+  min-height: 48px;
+  background: var(--all-surface, var(--color-surface, #1e2530));
+  border: var(--all-border-width, 1.5px) solid var(--all-border-2, var(--color-border, #2d3748));
+  border-radius: var(--all-radius, 4px);
+  color: var(--all-text, var(--color-text, #ffffff));
+  cursor: pointer;
+  touch-action: none;
+  transition:
+    background var(--all-duration-fast, 150ms) ease,
+    border-color var(--all-duration-fast, 150ms) ease,
+    transform var(--all-duration-fast, 150ms) ease;
+}
+
+.game-dpad-btn:hover {
+  background: var(--all-surface-2, var(--color-surface-hover, #2d3748));
+  border-color: var(--all-text-dim, var(--color-text-dim, #a0aec0));
+}
+
+.game-dpad-btn:active {
+  background: var(--all-border-2, var(--color-border-hover, #4a5568));
+  transform: scale(0.94);
+}
+
+.game-dpad-btn svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+}
+
+/* Grid placement */
+.game-dpad-btn--up    { grid-column: 2; grid-row: 1; }
+.game-dpad-btn--left  { grid-column: 1; grid-row: 2; }
+.game-dpad-btn--center{ grid-column: 2; grid-row: 2; opacity: 0.3; pointer-events: none; }
+.game-dpad-btn--right { grid-column: 3; grid-row: 2; }
+.game-dpad-btn--down  { grid-column: 2; grid-row: 3; }
+
+[data-eink='true'] .game-dpad-btn {
+  border: 2px solid var(--all-border, #000000) !important;
+  background: var(--all-surface, #ffffff) !important;
+  transform: none !important;
+  transition: none !important;
+}
+
+[data-eink='true'] .game-dpad-btn:active {
+  background: var(--all-text, #000000) !important;
+  color: var(--all-bg, #ffffff) !important;
+}
