@@ -49,9 +49,11 @@ export interface HighScores {
   hard: number
 }
 
+export type GameTheme = 'dark' | 'light' | 'e-ink-light' | 'e-ink-dark'
+
 export interface GameComponentProps {
   setHeader?: (content: React.ReactNode) => void
   locale?: Locale
   isEink?: boolean
-  theme?: 'dark' | 'light'
+  theme?: GameTheme
 }

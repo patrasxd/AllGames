@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { Button, AppHeader } from '@all/ui'
 import { HeaderMenu } from './HeaderMenu'
 import { useI18n } from '../i18n'
 import { findGame } from '../games/registry'
@@ -47,39 +48,23 @@ export function Layout({ children }: LayoutProps) {
 
   return (
     <GameHeaderContext.Provider value={{ headerExtra, setHeaderExtra }}>
-      <header className="header">
-        <div className="container">
-          <div className="header-inner">
-            <div className="header-left-group">
-              <button
-                className="header-logo"
-                onClick={() => navigate('/')}
-                style={{ background: 'none', border: 'none', padding: 0 }}
-                aria-label={t.backToHomeAria}
-              >
-                AllGames
-              </button>
+      <AppHeader
+        logo={
+          <button
+            type="button"
+            className="header-logo"
+            onClick={() => navigate('/')}
+            aria-label={t.backToHomeAria}
+          >
+            AllGames
+          </button>
+        }
+        title={isGamePage ? gameTitle : undefined}
+        actions={isGamePage && headerExtra ? headerExtra : undefined}
+        menu={<HeaderMenu />}
+      />
 
-              {isGamePage && (
-                <div className="header-game-title" aria-live="polite">
-                  {gameTitle}
-                </div>
-              )}
-            </div>
-
-            <div className="header-actions">
-              {isGamePage && headerExtra && (
-                <div className="header-game-stats">
-                  {headerExtra}
-                </div>
-              )}
-              <HeaderMenu />
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <main style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+      <main className="app-main" style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
         {children}
       </main>
     </GameHeaderContext.Provider>

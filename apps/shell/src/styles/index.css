@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import '@all/ui/tokens.css';
 
 /* ─── Design Tokens (Pure 2-Font System: Inter + JetBrains Mono) ─── */
 :root {
@@ -39,6 +40,7 @@
   --space-16: 4rem;
   --space-20: 5rem;
   --space-24: 6rem;
+  --all-header-height: 64px;
 }
 
 [data-theme='light'] {
@@ -273,7 +275,11 @@ main {
   position: sticky;
   top: 0;
   z-index: 100;
-  padding: var(--space-4) 0;
+  height: 64px;
+  box-sizing: border-box;
+  padding: 0;
+  display: flex;
+  align-items: center;
   border-bottom: 1px solid var(--border);
   background-color: color-mix(in srgb, var(--bg) 85%, transparent);
   backdrop-filter: blur(12px);
@@ -286,6 +292,7 @@ main {
   align-items: center;
   justify-content: space-between;
   gap: var(--space-6);
+  height: 100%;
 }
 
 .header-left-group {
@@ -302,6 +309,9 @@ main {
   font-size: 1.125rem;
   color: var(--text);
   letter-spacing: -0.02em;
+  background: transparent;
+  border: none;
+  padding: 0;
   cursor: pointer;
   transition: opacity var(--duration) ease;
   flex-shrink: 0;
@@ -322,29 +332,23 @@ main {
   border-left: 1px solid var(--border);
 }
 
-.game-floating-back-wrap {
-  border-bottom: 1px solid var(--border);
-  background: color-mix(in srgb, var(--bg) 90%, transparent);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-}
-
 .game-floating-back {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: var(--all-space-2, 8px);
   padding: 0;
-  margin: var(--space-4) 0 var(--space-3);
+  margin: var(--all-space-4, 16px) 0 var(--all-space-3, 12px);
   border: none;
   background: transparent;
-  color: var(--text-muted);
+  color: var(--all-text-muted, var(--text-muted));
   cursor: pointer;
+  font-family: var(--all-font-sans, inherit);
   font-size: 0.7rem;
   font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   text-decoration: none;
-  transition: color var(--duration) ease;
+  transition: color var(--all-duration-fast, 150ms) ease;
 }
 
 @media (max-width: 600px) {
@@ -354,11 +358,11 @@ main {
 }
 
 .game-floating-back:hover {
-  color: var(--text);
+  color: var(--all-text, var(--text));
 }
 
 .game-floating-back svg {
-  transition: transform var(--duration) ease;
+  transition: transform var(--all-duration-fast, 150ms) ease;
 }
 
 .game-floating-back:hover svg {
@@ -938,9 +942,36 @@ main {
   overflow: visible;
 }
 
+body.body--fullbleed,
+html:has(.game-page--fullbleed),
+body:has(.game-page--fullbleed) {
+  height: 100dvh !important;
+  max-height: 100dvh !important;
+  overflow: hidden !important;
+}
+
+body.body--fullbleed #root,
+#root:has(.game-page--fullbleed) {
+  height: 100dvh !important;
+  max-height: 100dvh !important;
+  overflow: hidden !important;
+}
+
+body.body--fullbleed > #root > main,
+body.body--fullbleed .app-main,
+#root > main:has(.game-page--fullbleed) {
+  flex: 1 1 0 !important;
+  min-height: 0 !important;
+  height: calc(100dvh - var(--all-header-height, 64px)) !important;
+  max-height: calc(100dvh - var(--all-header-height, 64px)) !important;
+  overflow: hidden !important;
+}
+
 .game-page--fullbleed {
-  height: calc(100dvh - var(--all-header-height, 60px));
-  max-height: calc(100dvh - var(--all-header-height, 60px));
+  flex: 1 1 0;
+  min-height: 0;
+  height: calc(100dvh - var(--all-header-height, 64px));
+  max-height: calc(100dvh - var(--all-header-height, 64px));
   overflow: hidden;
 }
 
@@ -970,7 +1001,14 @@ main {
   overflow: hidden;
 }
 
+.game-floating-back-fullbleed-wrap {
+  padding: 0 var(--space-4);
+  flex-shrink: 0;
+}
+
 .game-page-inner--fullbleed .game-page-content {
+  flex: 1 1 0;
+  min-height: 0;
   width: 100%;
   height: 100%;
   padding: 0;
@@ -982,20 +1020,6 @@ main {
 .game-page-inner--fullbleed .game-page-content > * {
   width: 100%;
   height: 100%;
-}
-
-.game-floating-back--overlay {
-  position: absolute;
-  top: var(--space-3);
-  left: var(--space-4);
-  z-index: 30;
-  margin: 0;
-  background: color-mix(in srgb, var(--surface) 80%, transparent);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  padding: 0.35rem 0.65rem;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-2);
 }
 
 @media (max-width: 600px) {

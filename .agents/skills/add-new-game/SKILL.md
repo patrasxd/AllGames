@@ -28,8 +28,13 @@ Classify the new game against the workspace archetypes catalog:
    - `src/<Game>.tsx` (main component)
    - `src/index.tsx` (component entry point exporting `GameComponent`)
 2. **CRITICAL Module Graph Rule**: The metadata entry point and the component entry point must be resolvable as genuinely separate module graphs, never re-exported from one barrel file. If a single file or barrel is imported both statically (for metadata) and dynamically (for lazy loading), Vite/Rollup merges the dynamic import into the eager entry chunk, causing the entire game to leak into the initial bundle.
-3. Use shared UI primitives (`@all/ui` or `@allgames/ui`) rather than custom buttons or modals.
-4. Wrap game in an appropriate responsive template (e.g. SquareBoardTemplate).
+3. **Use Shared UI Components (`@all/ui` or `@allgames/ui`)**:
+   - Layout Templates: `BoardLayout` (for grid/board games like 2048, Sudoku, Chess, Checkers), `FullBleedLayout` (for canvas/action games like Wing Rush).
+   - Action Bars & Controls: `ControlsBar`, `BackLink`, `DPad`, `GameButton`, `Button`, `IconButton`.
+   - Modals & Overlays: `GameModal`, `GameResultOverlay`, `Dialog`.
+   - Settings & Modes: `ModeSelect`, `PillGroup`, `Badge`.
+   - Utilities & Formatters: `formatTime`, `pad3`.
+4. Wrap game in the appropriate responsive template (`BoardLayout` or `FullBleedLayout`).
 
 ## 3. Register in App Shell
 In `apps/shell/src/games/registry.ts`:

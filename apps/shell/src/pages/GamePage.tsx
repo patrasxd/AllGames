@@ -1,6 +1,7 @@
-import { Suspense, useCallback } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Suspense, useCallback, useEffect } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { Button, BackLink } from '@all/ui'
 import { findGame } from '../games/registry'
 import { useI18n } from '../i18n'
 import { useTheme } from '../hooks/useTheme'
@@ -33,16 +34,18 @@ function GameFallback() {
 
 function NotFound({ slug }: { slug: string }) {
   const { t } = useI18n()
+  const navigate = useNavigate()
   return (
-    <div style={{ padding: '4rem 0', color: 'var(--text-muted)' }}>
+    <div style={{ padding: '4rem 0', color: 'var(--text-muted)', textAlign: 'center' }}>
       <p>{t.notFound} <code style={{ fontFamily: 'var(--font-mono)' }}>{slug}</code></p>
-      <Link
-        to="/"
-        className="game-floating-back"
-        style={{ marginTop: '1rem', display: 'inline-flex' }}
+      <Button
+        variant="secondary"
+        size="sm"
+        onClick={() => navigate('/')}
+        style={{ marginTop: '1rem' }}
       >
-        <span>{t.backToGames}</span>
-      </Link>
+        {t.backToGames}
+      </Button>
     </div>
   )
 }
@@ -55,6 +58,7 @@ const pageVariants = {
 
 export function GamePage() {
   const { slug = '' } = useParams<{ slug: string }>()
+  const navigate = useNavigate()
   const { locale, t } = useI18n()
   const { theme } = useTheme()
   const { isEink } = useEink()
@@ -67,6 +71,15 @@ export function GamePage() {
 
   const isFullBleed = slug === 'wing-rush'
 
+  useEffect(() => {
+    if (isFullBleed) {
+      document.body.classList.add('body--fullbleed')
+      return () => {
+        document.body.classList.remove('body--fullbleed')
+      }
+    }
+  }, [isFullBleed])
+
   return (
     <motion.div
       className={`game-page ${isFullBleed ? 'game-page--fullbleed' : ''}`.trim()}
@@ -76,18 +89,15 @@ export function GamePage() {
       exit="exit"
     >
       <div className={`game-page-inner ${isFullBleed ? 'game-page-inner--fullbleed' : 'container'}`.trim()}>
-        <Link
-          to="/"
-          className={`game-floating-back ${isFullBleed ? 'game-floating-back--overlay' : ''}`.trim()}
-          aria-label={t.backToGamesAria}
-          title={t.backToGames}
-        >
-          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <path d="M15 18l-6-6 6-6" />
-            <path d="M9 12h10" />
-          </svg>
-          <span>{t.backToGames}</span>
-        </Link>
+        <div className={isFullBleed ? 'game-floating-back-fullbleed-wrap' : ''} style={{ width: '100%' }}>
+          <BackLink
+            id={`back-btn-${slug}`}
+            label={t.backToGames}
+            onClick={() => navigate('/')}
+            aria-label={t.backToGamesAria}
+            title={t.backToGames}
+          />
+        </div>
 
         {/* ── Game area — fills remaining viewport height ── */}
         <div className="game-page-content">

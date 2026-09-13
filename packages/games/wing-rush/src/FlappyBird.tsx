@@ -1,11 +1,10 @@
 import { useEffect, useCallback } from 'react'
-import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useFlappyBird } from './hooks/useFlappyBird'
 import { FlappyBirdCanvas } from './components/FlappyBirdCanvas'
 import type { GameComponentProps, Difficulty } from './types'
 import { flappyBirdTranslations } from './i18n'
-import { FullBleedLayout, Button } from '@all/ui'
+import { FullBleedLayout, Button, PillGroup } from '@all/ui'
 import { StatsHeader, GameResultOverlay } from '@allgames/ui'
 import './styles/flappy-bird.css'
 
@@ -76,26 +75,24 @@ export function FlappyBird({ setHeader, locale = 'en', isEink = false, theme = '
 
   return (
     <FullBleedLayout
-      floatingToolbar={
+      footer={
         <div className="fb-controls">
-          {/* Enhanced Difficulty Selector */}
-          <div className="game-pill-group fb-diff-group" role="group" aria-label="Difficulty">
-            {(['easy', 'normal', 'hard'] as Difficulty[]).map(diff => (
-              <button
-                key={diff}
-                type="button"
-                className={`game-pill-btn ${difficulty === diff ? 'game-pill-btn--active' : ''}`}
-                onClick={() => changeDifficulty(diff)}
-              >
-                {t.difficultyLabels[diff]}
-              </button>
-            ))}
-          </div>
+          {/* Difficulty Selector */}
+          <PillGroup
+            label="Difficulty"
+            size="sm"
+            value={difficulty}
+            onChange={changeDifficulty}
+            options={(['easy', 'normal', 'hard'] as Difficulty[]).map(diff => ({
+              value: diff,
+              label: t.difficultyLabels[diff],
+            }))}
+          />
 
           <Button
             id="fb-restart-btn"
             variant="secondary"
-            className="fb-restart-btn"
+            size="sm"
             onClick={resetGame}
             icon={<RestartIcon />}
           >

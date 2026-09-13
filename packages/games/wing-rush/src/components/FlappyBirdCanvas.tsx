@@ -2,6 +2,8 @@ import { useEffect, useRef, memo } from 'react'
 import type { Bird, Pipe, Particle, GameStatus } from '../types'
 import { VIRTUAL_WIDTH, VIRTUAL_HEIGHT, FLOOR_HEIGHT } from '../logic/engine'
 
+import type { GameTheme } from '../types'
+
 interface FlappyBirdCanvasProps {
   bird: Bird
   pipes: Pipe[]
@@ -9,7 +11,7 @@ interface FlappyBirdCanvasProps {
   score: number
   gameStatus: GameStatus
   isEink?: boolean
-  theme?: 'dark' | 'light'
+  theme?: GameTheme
   onFlap: () => void
 }
 
@@ -45,23 +47,31 @@ export const FlappyBirdCanvas = memo(function FlappyBirdCanvas({
     ctx.save()
     ctx.scale((width * dpr) / VIRTUAL_WIDTH, (height * dpr) / VIRTUAL_HEIGHT)
 
-    const isDark = theme !== 'light' && !isEink
+    const computed = window.getComputedStyle(canvas)
+    const isEinkMode =
+      isEink ||
+      theme === 'e-ink-dark' ||
+      theme === 'e-ink-light' ||
+      computed.getPropertyValue('--all-duration-fast').trim() === '0ms'
+    const isDark =
+      theme === 'dark' ||
+      theme === 'e-ink-dark' ||
+      (document.documentElement.getAttribute('data-theme') || '').includes('dark')
 
-    // Palette definitions
-    const bgFill = isEink ? '#ffffff' : isDark ? '#090d14' : '#f5f4ef'
-    const gridColor = isEink ? 'rgba(0, 0, 0, 0.05)' : isDark ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.04)'
-    const pipeFill = isEink ? '#ffffff' : isDark ? '#151c28' : '#e2e8f0'
-    const pipeStroke = isEink ? '#000000' : isDark ? '#334155' : '#94a3b8'
-    const pipeTrim = isEink ? '#000000' : isDark ? '#475569' : '#cbd5e1'
-    const floorFill = isEink ? '#ffffff' : isDark ? '#0f172a' : '#eae8e1'
-    const floorStroke = isEink ? '#000000' : isDark ? '#1e293b' : '#dcd8cf'
-    const birdBody = isEink ? '#000000' : isDark ? '#f8fafc' : '#1e293b'
-    const birdWing = isEink ? '#555555' : isDark ? '#cbd5e1' : '#475569'
-    const birdBeak = isEink ? '#000000' : '#f59e0b'
+    // Semantic tokens read directly from the CSS token table
+    const bgFill = computed.getPropertyValue('--all-bg').trim() || (isDark ? '#090d14' : '#f5f4ef')
+    const pipeFill = computed.getPropertyValue('--all-surface-2').trim() || (isDark ? '#151c28' : '#e2e8f0')
+    const pipeStroke = computed.getPropertyValue('--all-border-2').trim() || (isDark ? '#334155' : '#94a3b8')
+    const pipeTrim = computed.getPropertyValue('--all-border').trim() || (isDark ? '#475569' : '#cbd5e1')
+    const floorFill = computed.getPropertyValue('--all-surface').trim() || (isDark ? '#0f172a' : '#eae8e1')
+    const floorStroke = computed.getPropertyValue('--all-border-2').trim() || (isDark ? '#1e293b' : '#dcd8cf')
+    const birdBody = computed.getPropertyValue('--all-text').trim() || (isDark ? '#f8fafc' : '#1e293b')
+    const birdWing = computed.getPropertyValue('--all-text-dim').trim() || (isDark ? '#cbd5e1' : '#475569')
+    const birdBeak = isEinkMode ? birdBody : '#f59e0b'
+    const gridColor = isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(0, 0, 0, 0.04)'
 
-    // 1. Clear background
-    ctx.fillStyle = bgFill
-    ctx.fillRect(0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT)
+    // 1. Clear canvas transparently so page background flows through seamlessly
+    ctx.clearRect(0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT)
 
     // 2. Subtle architectural background grid
     ctx.strokeStyle = gridColor
@@ -191,22 +201,15 @@ export const FlappyBirdCanvas = memo(function FlappyBirdCanvas({
     const scoreStr = score.toString()
     ctx.font = '800 24px Inter, system-ui, -apple-system, sans-serif'
 
-    if (isEink) {
-      ctx.fillStyle = '#000000'
-      ctx.fillText(scoreStr, VIRTUAL_WIDTH / 2, 20)
-    } else if (isDark) {
-      ctx.strokeStyle = 'rgba(9, 13, 20, 0.85)'
-      ctx.lineWidth = 4
-      ctx.lineJoin = 'round'
-      ctx.strokeText(scoreStr, VIRTUAL_WIDTH / 2, 20)
-      ctx.fillStyle = '#f8fafc'
+    if (isEinkMode) {
+      ctx.fillStyle = birdBody
       ctx.fillText(scoreStr, VIRTUAL_WIDTH / 2, 20)
     } else {
-      ctx.strokeStyle = 'rgba(245, 244, 239, 0.9)'
+      ctx.strokeStyle = bgFill
       ctx.lineWidth = 4
       ctx.lineJoin = 'round'
       ctx.strokeText(scoreStr, VIRTUAL_WIDTH / 2, 20)
-      ctx.fillStyle = '#0f172a'
+      ctx.fillStyle = birdBody
       ctx.fillText(scoreStr, VIRTUAL_WIDTH / 2, 20)
     }
     ctx.restore()
@@ -216,7 +219,7 @@ export const FlappyBirdCanvas = memo(function FlappyBirdCanvas({
 
   return (
     <div
-      className="fb-canvas-wrapper"
+      className="fb-canvas-container"
       onPointerDown={e => {
         if (e.pointerType === 'mouse' && e.button !== 0) return
 
@@ -237,7 +240,9 @@ export const FlappyBirdCanvas = memo(function FlappyBirdCanvas({
         }
       }}
     >
-      <canvas ref={canvasRef} className="fb-canvas" />
+      <div className="fb-canvas-wrapper">
+        <canvas ref={canvasRef} className="fb-canvas" />
+      </div>
     </div>
   )
 })

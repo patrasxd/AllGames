@@ -1,5 +1,7 @@
 import { useState, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import { AppFooter } from '@all/ui'
 import { GAMES } from '../games/registry'
 import { GameCard } from '../components/GameCard'
 import { useI18n } from '../i18n'
@@ -22,6 +24,7 @@ const lineVariants = {
 }
 
 export function HomePage() {
+  const navigate = useNavigate()
   const { locale, t } = useI18n()
   const [selectedTag, setSelectedTag] = useState<string | null>(null)
 
@@ -181,6 +184,12 @@ export function HomePage() {
             </AnimatePresence>
           </motion.div>
         </section>
+
+        <AppFooter
+          legalLabel={t.legalNotice}
+          onLegalClick={() => navigate('/legal')}
+          copyright="AllGames © 2026. Free & Open Source."
+        />
       </div>
     </div>
   )

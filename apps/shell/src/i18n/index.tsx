@@ -49,6 +49,7 @@ export interface TranslationDictionary {
   filterLabel: string
   noFilteredGames: string
   clearFilter: string
+  legalNotice: string
 }
 
 export const translations: Record<Locale, TranslationDictionary> = {
@@ -84,6 +85,7 @@ export const translations: Record<Locale, TranslationDictionary> = {
     filterLabel: 'Filter by category',
     noFilteredGames: 'No games found in this category.',
     clearFilter: 'Show all games',
+    legalNotice: 'Legal Notice & Privacy',
   },
   pl: {
     backToHomeAria: 'AllGames — wróć do strony głównej',
@@ -117,6 +119,7 @@ export const translations: Record<Locale, TranslationDictionary> = {
     filterLabel: 'Filtruj według kategorii',
     noFilteredGames: 'Brak gier w tej kategorii.',
     clearFilter: 'Pokaż wszystkie gry',
+    legalNotice: 'Informacje prawne & Prywatność',
   },
 }
 

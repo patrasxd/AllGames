@@ -1,30 +1,25 @@
-import { useEffect } from 'react'
-import { useLocalStorage } from './useLocalStorage'
-
-const STORAGE_KEY = 'allgames:eink'
+import { useTheme } from './useTheme'
 
 /**
  * Hook to manage E-reader (E-ink) mode.
- * Disables animations, forces ultra-crisp monochrome contrast,
- * and removes low-refresh-rate artifacts for e-ink displays.
+ * E-Ink is now modeled as part of the shared semantic theme state
+ * so the menu, shell and game content stay synchronized without refresh.
  */
 export function useEink() {
-  const [isEink, setIsEink] = useLocalStorage<boolean>(STORAGE_KEY, false)
+  const { theme, setTheme, isEink } = useTheme()
 
-  useEffect(() => {
-    const storedTheme = window.localStorage.getItem('allgames:theme') || 'dark'
-    if (isEink) {
-      document.documentElement.setAttribute('data-eink', 'true')
-      document.documentElement.setAttribute('data-theme', storedTheme === 'dark' ? 'e-ink-dark' : 'e-ink-light')
-      document.documentElement.setAttribute('data-motion', 'none')
-    } else {
-      document.documentElement.removeAttribute('data-eink')
-      document.documentElement.setAttribute('data-theme', storedTheme)
-      document.documentElement.removeAttribute('data-motion')
+  const setIsEink = (nextValue: boolean) => {
+    const baseTheme = theme === 'e-ink-dark' || theme === 'dark' ? 'dark' : 'light'
+
+    if (nextValue) {
+      setTheme(baseTheme === 'dark' ? 'e-ink-dark' : 'e-ink-light')
+      return
     }
-  }, [isEink])
 
-  const toggleEink = () => setIsEink(prev => !prev)
+    setTheme(baseTheme)
+  }
+
+  const toggleEink = () => setIsEink(!isEink)
 
   return { isEink, toggleEink, setIsEink }
 }

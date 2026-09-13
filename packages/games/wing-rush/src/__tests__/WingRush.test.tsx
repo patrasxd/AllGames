@@ -10,11 +10,11 @@ describe('WingRush Component Integration', () => {
     // FullBleedLayout root should be present
     expect(document.querySelector('.all-fullbleed-layout')).toBeInTheDocument()
 
-    // Floating toolbar overlay should be present and contain difficulty pills + restart button
-    const floatingToolbar = document.querySelector('.all-fullbleed-layout__floating-toolbar')
-    expect(floatingToolbar).toBeInTheDocument()
-    expect(floatingToolbar?.querySelector('#fb-restart-btn')).toBeInTheDocument()
-    expect(floatingToolbar?.querySelector('.fb-diff-group')).toBeInTheDocument()
+    // Controls footer should be present with difficulty selector and restart button
+    const footer = document.querySelector('.all-fullbleed-layout__footer')
+    expect(footer).toBeInTheDocument()
+    expect(footer?.querySelector('#fb-restart-btn')).toBeInTheDocument()
+    expect(footer?.querySelector('.all-pill-group')).toBeInTheDocument()
 
     // Canvas should be rendered within edge-to-edge wrapper
     const canvasWrapper = document.querySelector('.fb-canvas-wrapper')
