@@ -22,6 +22,7 @@
     "@allgames/crystal-match": "*",
     "@allgames/wing-rush": "*",
     "@allgames/ui": "*",
+    "@all/ui": "file:../../../AllUI",
     "framer-motion": "^11.3.0",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
