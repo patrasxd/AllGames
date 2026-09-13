@@ -5,7 +5,7 @@
   "type": "module",
   "main": "./src/index.tsx",
   "dependencies": {
-    "@all/ui": "github:patrasxd/AllUI#main",
+    "@all/ui": "file:../../../AllUI",
     "@allgames/ui": "*"
   },
   "peerDependencies": {

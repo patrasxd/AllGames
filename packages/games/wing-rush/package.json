@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "@allgames/ui": "*",
-    "@all/ui": "github:patrasxd/AllUI#main",
+    "@all/ui": "file:../../../AllUI",
     "framer-motion": "^11.5.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"

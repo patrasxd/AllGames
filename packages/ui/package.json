@@ -9,6 +9,6 @@
     "framer-motion": "^11.0.0"
   },
   "dependencies": {
-    "@all/ui": "github:patrasxd/AllUI#main"
+    "@all/ui": "file:../../AllUI"
   }
 }

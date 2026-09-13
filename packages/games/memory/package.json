@@ -13,6 +13,6 @@
     "./metadata": "./src/metadata.tsx"
   },
   "dependencies": {
-    "@all/ui": "github:patrasxd/AllUI#main"
+    "@all/ui": "file:../../../AllUI"
   }
 }
