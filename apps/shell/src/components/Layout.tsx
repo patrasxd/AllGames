@@ -64,7 +64,7 @@ export function Layout({ children }: LayoutProps) {
         menu={<HeaderMenu />}
       />
 
-      <main className="app-main" style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+      <main className="app-main">
         {children}
       </main>
     </GameHeaderContext.Provider>

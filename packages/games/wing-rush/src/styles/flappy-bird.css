@@ -5,6 +5,8 @@
   height: 100%;
   overflow: hidden;
   user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .fb-game {
@@ -25,6 +27,8 @@
   outline: none;
   cursor: pointer;
   overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .fb-canvas-wrapper {
