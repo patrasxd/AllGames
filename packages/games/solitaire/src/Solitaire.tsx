@@ -4,11 +4,10 @@ import { useSolitaire } from './hooks/useSolitaire'
 import { SolitaireBoard } from './components/SolitaireBoard'
 import type { GameComponentProps, DrawMode } from './types'
 import { solitaireTranslations } from './i18n'
+import { BoardLayout, Dialog, Button } from '@all/ui'
 import {
   StatsHeader,
-  GameModal,
   PillGroup,
-  GameButton,
   ControlsBar,
   GameResultOverlay,
   UndoIcon,
@@ -104,110 +103,121 @@ export function Solitaire({ setHeader, locale = 'en', isEink = false }: GameComp
   return (
     <div className="sol-root">
       <div className="sol-game">
-        <div style={{ position: 'relative', width: '100%', display: 'flex', justifyContent: 'center' }}>
-          <SolitaireBoard
-            state={state}
-            selectedLocation={selectedLocation}
-            hint={hint}
-            isEink={isEink}
-            onStockClick={handleStockClick}
-            onCardClick={handleCardClick}
-            onDoubleClick={handleAutoMoveToFoundation}
-            onEmptyTableauClick={colIdx => {
-              if (selectedLocation) {
-                handleMove(selectedLocation, { type: 'tableau', pileIndex: colIdx })
-              }
-            }}
-            onEmptyFoundationClick={fIdx => {
-              if (selectedLocation) {
-                handleMove(selectedLocation, { type: 'foundation', pileIndex: fIdx })
-              }
-            }}
-          />
+        <BoardLayout
+          variant="wide"
+          controls={
+            <ControlsBar>
+              <Button
+                id="sol-new-game-btn"
+                variant="primary"
+                onClick={() => resetGame()}
+              >
+                {t.newGame}
+              </Button>
 
-          {/* Win Overlay */}
-          <AnimatePresence>
-            {state.isWon && (
-              <GameResultOverlay
-                status="won"
-                title={t.youWon}
-                stats={[
-                  { label: t.score, value: state.score },
-                  { label: t.time, value: formatTime(elapsedSeconds) },
-                  { label: t.moves, value: state.moves },
-                ]}
-                isEink={isEink}
-                playAgainText={t.playAgain}
-                onPlayAgain={() => resetGame()}
-                playAgainId="sol-play-again-btn"
+              <Button
+                id="sol-undo-btn"
+                variant="secondary"
+                icon={<UndoIcon />}
+                onClick={handleUndo}
+              >
+                {t.undo}
+              </Button>
+
+              <Button
+                id="sol-hint-btn"
+                variant="secondary"
+                icon={<HintIcon />}
+                onClick={handleHint}
+              >
+                {t.hint}
+              </Button>
+
+              {isEligibleForAutoFinish && !state.isWon && (
+                <Button
+                  id="sol-finish-btn"
+                  variant="secondary"
+                  icon={<FinishIcon />}
+                  onClick={handleAutoComplete}
+                >
+                  {t.autoComplete}
+                </Button>
+              )}
+
+              <PillGroup<DrawMode>
+                label={t.drawModeLabel}
+                options={DRAW_MODES.map(m => ({
+                  value: m,
+                  label: m === 1 ? t.draw1 : t.draw3,
+                  id: `sol-draw-${m}-btn`,
+                }))}
+                value={drawMode}
+                onChange={handleDrawModeClick}
               />
-            )}
-          </AnimatePresence>
-        </div>
+            </ControlsBar>
+          }
+        >
+          <div style={{ position: 'relative', width: '100%', display: 'flex', justifyContent: 'center' }}>
+            <SolitaireBoard
+              state={state}
+              selectedLocation={selectedLocation}
+              hint={hint}
+              isEink={isEink}
+              onStockClick={handleStockClick}
+              onCardClick={handleCardClick}
+              onDoubleClick={handleAutoMoveToFoundation}
+              onEmptyTableauClick={colIdx => {
+                if (selectedLocation) {
+                  handleMove(selectedLocation, { type: 'tableau', pileIndex: colIdx })
+                }
+              }}
+              onEmptyFoundationClick={fIdx => {
+                if (selectedLocation) {
+                  handleMove(selectedLocation, { type: 'foundation', pileIndex: fIdx })
+                }
+              }}
+            />
 
-        {/* Global Unified Controls Bar */}
-        <ControlsBar>
-          <GameButton
-            id="sol-new-game-btn"
-            variant="primary"
-            onClick={() => resetGame()}
-          >
-            {t.newGame}
-          </GameButton>
-
-          <GameButton
-            id="sol-undo-btn"
-            icon={<UndoIcon />}
-            onClick={handleUndo}
-          >
-            {t.undo}
-          </GameButton>
-
-          <GameButton
-            id="sol-hint-btn"
-            icon={<HintIcon />}
-            onClick={handleHint}
-          >
-            {t.hint}
-          </GameButton>
-
-          {isEligibleForAutoFinish && !state.isWon && (
-            <GameButton
-              id="sol-finish-btn"
-              icon={<FinishIcon />}
-              onClick={handleAutoComplete}
-            >
-              {t.autoComplete}
-            </GameButton>
-          )}
-
-          <PillGroup<DrawMode>
-            label={t.drawModeLabel}
-            options={DRAW_MODES.map(m => ({
-              value: m,
-              label: m === 1 ? t.draw1 : t.draw3,
-              id: `sol-draw-${m}-btn`,
-            }))}
-            value={drawMode}
-            onChange={handleDrawModeClick}
-          />
-        </ControlsBar>
+            {/* Win Overlay */}
+            <AnimatePresence>
+              {state.isWon && (
+                <GameResultOverlay
+                  status="won"
+                  title={t.youWon}
+                  stats={[
+                    { label: t.score, value: state.score },
+                    { label: t.time, value: formatTime(elapsedSeconds) },
+                    { label: t.moves, value: state.moves },
+                  ]}
+                  isEink={isEink}
+                  playAgainText={t.playAgain}
+                  onPlayAgain={() => resetGame()}
+                  playAgainId="sol-play-again-btn"
+                />
+              )}
+            </AnimatePresence>
+          </div>
+        </BoardLayout>
 
         {/* Reset Confirmation Modal */}
-        <AnimatePresence>
-          {pendingDrawMode && (
-            <GameModal
-              title={t.confirmResetTitle}
-              description={t.confirmDrawDesc}
-              cancelText="Cancel"
-              confirmText="Continue"
-              cancelId="sol-modal-cancel"
-              confirmId="sol-modal-confirm"
-              onCancel={handleCancelDrawMode}
-              onConfirm={handleConfirmDrawMode}
-            />
-          )}
-        </AnimatePresence>
+        <Dialog
+          open={pendingDrawMode !== null}
+          onOpenChange={(open) => {
+            if (!open) handleCancelDrawMode()
+          }}
+          title={t.confirmResetTitle}
+          description={t.confirmDrawDesc}
+          footer={
+            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', width: '100%' }}>
+              <Button id="sol-modal-cancel" variant="secondary" onClick={handleCancelDrawMode}>
+                Cancel
+              </Button>
+              <Button id="sol-modal-confirm" variant="danger" onClick={handleConfirmDrawMode}>
+                Continue
+              </Button>
+            </div>
+          }
+        />
       </div>
     </div>
   )

@@ -4,7 +4,8 @@ import { useMinesweeper } from './hooks/useMinesweeper'
 import { MinesweeperBoard } from './components/MinesweeperBoard'
 import type { GameComponentProps, MinesweeperDifficulty, GameStatus } from './types'
 import { minesweeperTranslations } from './i18n'
-import { StatsHeader, GameModal, PillGroup, GameButton, ControlsBar, pad3 } from '@allgames/ui'
+import { BoardLayout, Dialog, Button } from '@all/ui'
+import { StatsHeader, PillGroup, pad3 } from '@allgames/ui'
 import './styles/minesweeper.css'
 
 /* ─── Sketched Vector Icons ──────────────────────────────── */
@@ -156,90 +157,103 @@ export function Minesweeper({ setHeader, locale = 'en', isEink = false }: GameCo
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.25 }}
       >
-        {/* Status bar with retro counters and sketched face button */}
-        <div className="ms-statusbar">
-          <div className="ms-counter ms-counter--mines" title={t.minesLeft}>
-            {pad3(remainingMines)}
-          </div>
+        <BoardLayout
+          variant={difficulty === 'expert' ? 'wide' : 'fluid'}
+          hud={
+            <div className="ms-statusbar">
+              <div className="ms-counter ms-counter--mines" title={t.minesLeft}>
+                {pad3(remainingMines)}
+              </div>
 
-          <button
-            type="button"
-            id="ms-face-btn"
-            className="ms-face-btn"
-            onClick={() => resetGame()}
-            aria-label={t.clickSmileDesc}
-            title={t.clickSmileDesc}
-          >
-            <SketchFace status={gameStatus} isShocked={isFaceShocked} />
-          </button>
+              <button
+                type="button"
+                id="ms-face-btn"
+                className="ms-face-btn"
+                onClick={() => resetGame()}
+                aria-label={t.clickSmileDesc}
+                title={t.clickSmileDesc}
+              >
+                <SketchFace status={gameStatus} isShocked={isFaceShocked} />
+              </button>
 
-          <div className="ms-counter ms-counter--time" title={t.time}>
-            {pad3(elapsedSeconds)}
-          </div>
-        </div>
+              <div className="ms-counter ms-counter--time" title={t.time}>
+                {pad3(elapsedSeconds)}
+              </div>
+            </div>
+          }
+          board={
+            <MinesweeperBoard
+              board={board}
+              isEink={isEink}
+              onCellClick={handleCellClick}
+              onCellContextMenu={handleCellContextMenu}
+              onToggleFlag={handleCellToggleFlag}
+              onCellMouseDown={handleCellMouseDown}
+              onCellMouseUp={handleCellMouseUp}
+            />
+          }
+          controls={
+            <div className="ms-controls">
+              <PillGroup<MinesweeperDifficulty>
+                label={t.difficultyLabel}
+                options={DIFFICULTIES.map(d => ({
+                  value: d,
+                  label: d === 'beginner' ? t.beginner : d === 'intermediate' ? t.intermediate : t.expert,
+                  id: `ms-diff-${d}`,
+                }))}
+                value={difficulty}
+                onChange={handleDifficultyClick}
+              />
 
-        {/* Board Grid with interactive zoom */}
-        <MinesweeperBoard
-          board={board}
-          isEink={isEink}
-          onCellClick={handleCellClick}
-          onCellContextMenu={handleCellContextMenu}
-          onToggleFlag={handleCellToggleFlag}
-          onCellMouseDown={handleCellMouseDown}
-          onCellMouseUp={handleCellMouseUp}
+              {/* Mobile Tap Mode Switcher (Dig vs Flag) */}
+              <div className="ms-touch-switcher" role="group" aria-label="Action Mode">
+                <button
+                  type="button"
+                  id="ms-touch-dig"
+                  className={`ms-touch-btn ${touchMode === 'reveal' ? 'ms-touch-btn--active' : ''}`}
+                  onClick={() => setTouchMode('reveal')}
+                >
+                  <PickaxeIcon />
+                  <span>{t.modeReveal}</span>
+                </button>
+                <button
+                  type="button"
+                  id="ms-touch-flag"
+                  className={`ms-touch-btn ${touchMode === 'flag' ? 'ms-touch-btn--active' : ''}`}
+                  onClick={() => setTouchMode('flag')}
+                >
+                  <FlagActionIcon />
+                  <span>{t.modeFlag}</span>
+                </button>
+              </div>
+            </div>
+          }
         />
 
-        {/* Controls & Difficulty Bar */}
-        <div className="ms-controls">
-          <PillGroup<MinesweeperDifficulty>
-            label={t.difficultyLabel}
-            options={DIFFICULTIES.map(d => ({
-              value: d,
-              label: d === 'beginner' ? t.beginner : d === 'intermediate' ? t.intermediate : t.expert,
-              id: `ms-diff-${d}`,
-            }))}
-            value={difficulty}
-            onChange={handleDifficultyClick}
-          />
-
-          {/* Mobile Tap Mode Switcher (Dig vs Flag) */}
-          <div className="ms-touch-switcher" role="group" aria-label="Action Mode">
-            <button
-              type="button"
-              id="ms-touch-dig"
-              className={`ms-touch-btn ${touchMode === 'reveal' ? 'ms-touch-btn--active' : ''}`}
-              onClick={() => setTouchMode('reveal')}
+        {/* Reset Confirmation Dialog */}
+        <Dialog
+          isOpen={Boolean(pendingDifficulty)}
+          onClose={handleCancelDifficulty}
+          title={t.confirmResetTitle}
+          description={t.confirmDifficultyDesc}
+        >
+          <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '16px' }}>
+            <Button
+              id="ms-modal-cancel"
+              variant="secondary"
+              onClick={handleCancelDifficulty}
             >
-              <PickaxeIcon />
-              <span>{t.modeReveal}</span>
-            </button>
-            <button
-              type="button"
-              id="ms-touch-flag"
-              className={`ms-touch-btn ${touchMode === 'flag' ? 'ms-touch-btn--active' : ''}`}
-              onClick={() => setTouchMode('flag')}
+              {t.cancelBtn}
+            </Button>
+            <Button
+              id="ms-modal-confirm"
+              variant="primary"
+              onClick={handleConfirmDifficulty}
             >
-              <FlagActionIcon />
-              <span>{t.modeFlag}</span>
-            </button>
+              {t.confirmBtn}
+            </Button>
           </div>
-        </div>
-
-        {/* Reset Confirmation Modal */}
-        <AnimatePresence>
-          {pendingDifficulty && (
-            <GameModal
-              title={t.confirmResetTitle}
-              description={t.confirmDifficultyDesc}
-              cancelText={t.cancelBtn}
-              confirmText={t.confirmBtn}
-              cancelId="ms-modal-cancel"
-              confirmId="ms-modal-confirm"
-              onCancel={handleCancelDifficulty}
-              onConfirm={handleConfirmDifficulty}
-            />
-          )}
-        </AnimatePresence>
+        </Dialog>
       </motion.div>
     </div>
   )

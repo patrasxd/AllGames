@@ -3,9 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useBattleship } from './hooks/useBattleship'
 import { Grid10x10 } from './components/Grid10x10'
 import { PlacementControls } from './components/PlacementControls'
-import type { GameComponentProps, BattleshipDifficulty, BattleshipMode, Locale } from './types'
+import type { GameComponentProps, BattleshipDifficulty, BattleshipMode } from './types'
 import { battleshipTranslations } from './i18n'
-import { ModeSelect, StatsHeader, GameModal, PillGroup, GameButton, ControlsBar, ComputerIcon, TwoPlayersIcon } from '@allgames/ui'
+import { BoardLayout, Dialog, Button } from '@all/ui'
+import { ModeSelect, StatsHeader, PillGroup, ControlsBar, ComputerIcon, TwoPlayersIcon } from '@allgames/ui'
 import './styles/battleship.css'
 
 const DIFFICULTIES: BattleshipDifficulty[] = ['easy', 'medium', 'hard']
@@ -176,28 +177,41 @@ export function Battleship({ setHeader, locale = 'en', isEink = false }: GameCom
             initial={{ opacity: 0, scale: 0.97 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.97 }}
+            style={{ width: '100%', height: '100%' }}
           >
-            {!isPassDeviceVisible && (
-              <div className="bs-status">
-                <div className="bs-status-text">
-                  {mode === '2p' && activePlacementPlayer === 'p2'
-                    ? t.player2Fleet
-                    : t.placementPhase}
+            <BoardLayout
+              variant="square"
+              hud={
+                !isPassDeviceVisible ? (
+                  <div className="bs-status">
+                    <div className="bs-status-text">
+                      {mode === '2p' && activePlacementPlayer === 'p2'
+                        ? t.player2Fleet
+                        : t.placementPhase}
+                    </div>
+                    <div className="bs-status-sub">{t.placementDesc}</div>
+                  </div>
+                ) : undefined
+              }
+              controls={
+                !isPassDeviceVisible ? (
+                  <PlacementControls
+                    locale={locale}
+                    hasShips={currentPlacementState.ships.length > 0}
+                    onAutoDeploy={autoDeployCurrent}
+                    onClear={clearCurrent}
+                    onStart={confirmPlacementAndStart}
+                  />
+                ) : undefined
+              }
+            >
+              {isPassDeviceVisible ? (
+                <div className="bs-turn-handoff" aria-live="polite">
+                  <div className="bs-turn-handoff__label">Pass device to</div>
+                  <div className="bs-turn-handoff__player">{handoffPlayerLabel}</div>
+                  <div className="bs-turn-handoff__timer">{turnCountdown}s</div>
                 </div>
-                <div className="bs-status-sub">{t.placementDesc}</div>
-              </div>
-            )}
-
-            {isPassDeviceVisible && (
-              <div className="bs-turn-handoff" aria-live="polite">
-                <div className="bs-turn-handoff__label">Pass device to</div>
-                <div className="bs-turn-handoff__player">{handoffPlayerLabel}</div>
-                <div className="bs-turn-handoff__timer">{turnCountdown}s</div>
-              </div>
-            )}
-
-            {!isPassDeviceVisible && (
-              <>
+              ) : (
                 <Grid10x10
                   grid={currentPlacementState.grid}
                   ships={currentPlacementState.ships}
@@ -206,16 +220,8 @@ export function Battleship({ setHeader, locale = 'en', isEink = false }: GameCom
                   title={mode === '2p' && activePlacementPlayer === 'p2' ? t.player2Fleet : t.yourFleet}
                   isEink={isEink}
                 />
-
-                <PlacementControls
-                  locale={locale}
-                  hasShips={currentPlacementState.ships.length > 0}
-                  onAutoDeploy={autoDeployCurrent}
-                  onClear={clearCurrent}
-                  onStart={confirmPlacementAndStart}
-                />
-              </>
-            )}
+              )}
+            </BoardLayout>
           </motion.div>
         ) : (
           <motion.div
@@ -223,130 +229,138 @@ export function Battleship({ setHeader, locale = 'en', isEink = false }: GameCom
             className="bs-game"
             initial={{ opacity: 0, scale: 0.97 }}
             animate={{ opacity: 1, scale: 1 }}
+            style={{ width: '100%', height: '100%' }}
           >
-            {/* Status Bar */}
-            {!isPassDeviceVisible && (
-              <div className="bs-status">
-                <div className="bs-status-text">
-                  {winner !== null
-                    ? mode === 'ai'
-                      ? winner === 'p1'
-                        ? t.youWon
-                        : t.youLost
-                      : t.playerWon(winner === 'p1' ? 'Gracz 1' : 'Gracz 2')
-                    : turnCountdown !== null
-                    ? `Pass device to ${handoffPlayerLabel}`
-                    : isAIThinking
-                    ? t.computerTurn
-                    : lastShotInfo
-                    ? lastShotInfo.sunkShip
-                      ? t.hitAndSunk(lastShotInfo.sunkShip.name)
-                      : lastShotInfo.hit
-                      ? t.hit
-                      : t.miss
-                    : mode === 'ai'
-                    ? t.yourTurn
-                    : currentTurn === 'p1'
-                    ? t.player1Turn
-                    : t.player2Turn}
+            <BoardLayout
+              variant="wide"
+              hud={
+                !isPassDeviceVisible ? (
+                  <div className="bs-status">
+                    <div className="bs-status-text">
+                      {winner !== null
+                        ? mode === 'ai'
+                          ? winner === 'p1'
+                            ? t.youWon
+                            : t.youLost
+                          : t.playerWon(winner === 'p1' ? 'Gracz 1' : 'Gracz 2')
+                        : turnCountdown !== null
+                        ? `Pass device to ${handoffPlayerLabel}`
+                        : isAIThinking
+                        ? t.computerTurn
+                        : lastShotInfo
+                        ? lastShotInfo.sunkShip
+                          ? t.hitAndSunk(lastShotInfo.sunkShip.name)
+                          : lastShotInfo.hit
+                          ? t.hit
+                          : t.miss
+                        : mode === 'ai'
+                        ? t.yourTurn
+                        : currentTurn === 'p1'
+                        ? t.player1Turn
+                        : t.player2Turn}
+                    </div>
+                    <div className="bs-status-sub">
+                      {winner !== null
+                        ? `${t.shots}: ${p1Shots}`
+                        : turnCountdown !== null
+                        ? `Next turn in ${turnCountdown}s`
+                        : mode === 'ai'
+                        ? `${t.difficultyLabel}: ${difficulty.toUpperCase()}`
+                        : `${t.player1Turn} vs ${t.player2Turn}`}
+                    </div>
+                  </div>
+                ) : undefined
+              }
+              controls={
+                !isPassDeviceVisible ? (
+                  <ControlsBar>
+                    <Button
+                      id="bs-new-game-btn"
+                      variant="primary"
+                      onClick={() => resetGame()}
+                    >
+                      {t.newGame}
+                    </Button>
+
+                    <Button
+                      id="bs-change-mode-btn"
+                      variant="secondary"
+                      onClick={handleChangeModeClick}
+                    >
+                      {t.changeMode}
+                    </Button>
+
+                    {mode === 'ai' && (
+                      <PillGroup
+                        label={t.difficultyLabel}
+                        options={DIFFICULTIES.map(d => ({
+                          value: d,
+                          label: d === 'easy' ? t.easy : d === 'medium' ? t.medium : t.hard,
+                          id: `bs-diff-${d}`,
+                        }))}
+                        value={difficulty}
+                        onChange={handleDifficultyClick}
+                      />
+                    )}
+                  </ControlsBar>
+                ) : undefined
+              }
+            >
+              {isPassDeviceVisible ? (
+                <div className="bs-turn-handoff" aria-live="polite">
+                  <div className="bs-turn-handoff__label">Pass device to</div>
+                  <div className="bs-turn-handoff__player">{handoffPlayerLabel}</div>
+                  <div className="bs-turn-handoff__timer">{turnCountdown}s</div>
                 </div>
-                <div className="bs-status-sub">
-                  {winner !== null
-                    ? `${t.shots}: ${p1Shots}`
-                    : turnCountdown !== null
-                    ? `Next turn in ${turnCountdown}s`
-                    : mode === 'ai'
-                    ? `${t.difficultyLabel}: ${difficulty.toUpperCase()}`
-                    : `${t.player1Turn} vs ${t.player2Turn}`}
-                </div>
-              </div>
-            )}
-
-            {isPassDeviceVisible && (
-              <div className="bs-turn-handoff" aria-live="polite">
-                <div className="bs-turn-handoff__label">Pass device to</div>
-                <div className="bs-turn-handoff__player">{handoffPlayerLabel}</div>
-                <div className="bs-turn-handoff__timer">{turnCountdown}s</div>
-              </div>
-            )}
-
-            {!isPassDeviceVisible && (
-              <div className="bs-boards-row">
-              <Grid10x10
-                grid={leftBoardState.grid}
-                ships={leftBoardState.ships}
-                isEnemy={false}
-                isInteractive={false}
-                title={leftBoardTitle}
-                isEink={isEink}
-                showShips={true}
-              />
-
-                <Grid10x10
-                  grid={rightBoardState.grid}
-                  ships={rightBoardState.ships}
-                  isEnemy={true}
-                  isInteractive={isEnemyBoardInteractive}
-                  title={rightBoardTitle}
-                  isEink={isEink}
-                  showShips={false}
-                  onCellClick={handleFire}
-                />
-              </div>
-            )}
-
-            {/* Controls Bar */}
-            {!isPassDeviceVisible && (
-              <ControlsBar>
-                <GameButton
-                  id="bs-new-game-btn"
-                  variant="primary"
-                  onClick={() => resetGame()}
-                >
-                  {t.newGame}
-                </GameButton>
-
-                <GameButton
-                  id="bs-change-mode-btn"
-                  onClick={handleChangeModeClick}
-                >
-                  {t.changeMode}
-                </GameButton>
-
-                {mode === 'ai' && (
-                  <PillGroup
-                    label={t.difficultyLabel}
-                    options={DIFFICULTIES.map(d => ({
-                      value: d,
-                      label: d === 'easy' ? t.easy : d === 'medium' ? t.medium : t.hard,
-                      id: `bs-diff-${d}`,
-                    }))}
-                    value={difficulty}
-                    onChange={handleDifficultyClick}
+              ) : (
+                <div className="bs-boards-row">
+                  <Grid10x10
+                    grid={leftBoardState.grid}
+                    ships={leftBoardState.ships}
+                    isEnemy={false}
+                    isInteractive={false}
+                    title={leftBoardTitle}
+                    isEink={isEink}
+                    showShips={true}
                   />
-                )}
-              </ControlsBar>
-            )}
+
+                  <Grid10x10
+                    grid={rightBoardState.grid}
+                    ships={rightBoardState.ships}
+                    isEnemy={true}
+                    isInteractive={isEnemyBoardInteractive}
+                    title={rightBoardTitle}
+                    isEink={isEink}
+                    showShips={false}
+                    onCellClick={handleFire}
+                  />
+                </div>
+              )}
+            </BoardLayout>
 
             {/* Reset Confirmation Modal */}
-            <AnimatePresence>
-              {pendingAction && (
-                <GameModal
-                  title={t.confirmResetTitle}
-                  description={
-                    pendingAction.type === 'difficulty'
-                      ? t.confirmDifficultyDesc
-                      : t.confirmModeDesc
-                  }
-                  cancelText={t.cancelBtn}
-                  confirmText={t.confirmBtn}
-                  cancelId="bs-modal-cancel"
-                  confirmId="bs-modal-confirm"
-                  onCancel={handleCancelAction}
-                  onConfirm={handleConfirmAction}
-                />
-              )}
-            </AnimatePresence>
+            <Dialog
+              open={pendingAction !== null}
+              onOpenChange={(open) => {
+                if (!open) handleCancelAction()
+              }}
+              title={t.confirmResetTitle}
+              description={
+                pendingAction?.type === 'difficulty'
+                  ? t.confirmDifficultyDesc
+                  : t.confirmModeDesc
+              }
+              footer={
+                <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', width: '100%' }}>
+                  <Button id="bs-modal-cancel" variant="secondary" onClick={handleCancelAction}>
+                    {t.cancelBtn}
+                  </Button>
+                  <Button id="bs-modal-confirm" variant="danger" onClick={handleConfirmAction}>
+                    {t.confirmBtn}
+                  </Button>
+                </div>
+              }
+            />
           </motion.div>
         )}
       </AnimatePresence>

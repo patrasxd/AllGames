@@ -17,7 +17,8 @@ import {
 } from './components/Icons'
 import type { GameComponentProps } from './types'
 import { crystalMatchTranslations } from './i18n'
-import { StatsHeader, GameButton, ControlsBar, GameResultOverlay, GameModal } from '@allgames/ui'
+import { BoardLayout, Dialog, Button } from '@all/ui'
+import { StatsHeader, ControlsBar, GameResultOverlay } from '@allgames/ui'
 import './styles/crystal-match.css'
 
 function CheckIcon() {
@@ -105,91 +106,95 @@ export function CrystalMatch({ setHeader, locale = 'en', isEink = false }: GameC
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.25 }}
       >
-        {/* Active Goals Target Bar (Board-width, Non-duplicated) */}
-        <div className="cm-goals-bar">
-          <span className="cm-goals-label">
-            <TargetScoreIcon size={13} />
-            <span>{t.goals}:</span>
-          </span>
-          <div className="cm-goals-container">
-            {goals.map((g, idx) => {
-              const isDone = g.type === 'score' ? score >= g.target : g.current >= g.target
+        <BoardLayout
+          variant="square"
+          hud={
+            <div className="cm-goals-bar">
+              <span className="cm-goals-label">
+                <TargetScoreIcon size={13} />
+                <span>{t.goals}:</span>
+              </span>
+              <div className="cm-goals-container">
+                {goals.map((g, idx) => {
+                  const isDone = g.type === 'score' ? score >= g.target : g.current >= g.target
 
-              return (
-                <div
-                  key={idx}
-                  className={`cm-goal-pill ${isDone ? 'cm-goal-pill--done' : ''}`}
-                  title={
-                    g.type === 'score'
-                      ? t.scoreGoal(g.target)
-                      : g.type === 'ice'
-                      ? t.iceGoal(g.current, g.target)
-                      : g.gemType
-                      ? t.gemGoal(g.current, g.target, g.gemType)
-                      : ''
-                  }
-                >
-                  {g.type === 'gems' && g.gemType && (
-                    <div className="cm-goal-icon">
-                      <GemIcon gem={g.gemType} isEink={isEink} size={14} />
+                  return (
+                    <div
+                      key={idx}
+                      className={`cm-goal-pill ${isDone ? 'cm-goal-pill--done' : ''}`}
+                      title={
+                        g.type === 'score'
+                          ? t.scoreGoal(g.target)
+                          : g.type === 'ice'
+                          ? t.iceGoal(g.current, g.target)
+                          : g.gemType
+                          ? t.gemGoal(g.current, g.target, g.gemType)
+                          : ''
+                      }
+                    >
+                      {g.type === 'gems' && g.gemType && (
+                        <div className="cm-goal-icon">
+                          <GemIcon gem={g.gemType} isEink={isEink} size={14} />
+                        </div>
+                      )}
+                      {g.type === 'ice' && (
+                        <IceGoalIcon size={13} />
+                      )}
+                      {g.type === 'score' && (
+                        <TargetScoreIcon size={13} />
+                      )}
+
+                      <span>
+                        {g.type === 'score' ? `${score}/${g.target}` : `${g.current}/${g.target}`}
+                      </span>
+                      {isDone && <CheckIcon />}
                     </div>
-                  )}
-                  {g.type === 'ice' && (
-                    <IceGoalIcon size={13} />
-                  )}
-                  {g.type === 'score' && (
-                    <TargetScoreIcon size={13} />
-                  )}
+                  )
+                })}
+              </div>
+            </div>
+          }
+          board={
+            <CrystalBoard
+              board={board}
+              isEink={isEink}
+              isAnimating={isAnimating}
+              particles={particles}
+              comboPopups={comboPopups}
+              swapAnimation={swapAnimation}
+              hintCoords={hintCoords}
+              onSwap={handleSwap}
+            />
+          }
+          controls={
+            <div className="cm-controls">
+              <Button
+                id="cm-levels-btn"
+                variant="secondary"
+                onClick={() => setIsLevelModalOpen(true)}
+              >
+                {t.levelSelect}
+              </Button>
 
-                  <span>
-                    {g.type === 'score' ? `${score}/${g.target}` : `${g.current}/${g.target}`}
-                  </span>
-                  {isDone && <CheckIcon />}
-                </div>
-              )
-            })}
-          </div>
-        </div>
+              <Button
+                id="cm-how-to-play-btn"
+                variant="secondary"
+                onClick={() => setIsHowToPlayOpen(true)}
+                icon={<HelpIcon />}
+              >
+                {t.howToPlay}
+              </Button>
 
-        {/* Interactive Board Grid */}
-        <CrystalBoard
-          board={board}
-          isEink={isEink}
-          isAnimating={isAnimating}
-          particles={particles}
-          comboPopups={comboPopups}
-          swapAnimation={swapAnimation}
-          hintCoords={hintCoords}
-          onSwap={handleSwap}
+              <Button
+                id="cm-restart-btn"
+                variant="secondary"
+                onClick={restartLevel}
+              >
+                {t.restart}
+              </Button>
+            </div>
+          }
         />
-
-        {/* In-Game Action Bar (Board-width, equal 1/3 buttons) */}
-        <div className="cm-controls">
-          <GameButton
-            id="cm-levels-btn"
-            variant="secondary"
-            onClick={() => setIsLevelModalOpen(true)}
-          >
-            {t.levelSelect}
-          </GameButton>
-
-          <GameButton
-            id="cm-how-to-play-btn"
-            variant="secondary"
-            onClick={() => setIsHowToPlayOpen(true)}
-          >
-            <HelpIcon />
-            <span>{t.howToPlay}</span>
-          </GameButton>
-
-          <GameButton
-            id="cm-restart-btn"
-            variant="secondary"
-            onClick={restartLevel}
-          >
-            {t.restart}
-          </GameButton>
-        </div>
 
         {/* Level Goal Intro Modal */}
         {isLevelIntroOpen && typeof document !== 'undefined' && createPortal(
@@ -237,7 +242,7 @@ export function CrystalMatch({ setHeader, locale = 'en', isEink = false }: GameC
               </div>
 
               <div style={{ display: 'flex', gap: '0.5rem', flexDirection: 'column' }}>
-                <GameButton
+                <Button
                   id="cm-rules-from-intro-btn"
                   variant="secondary"
                   onClick={() => {
@@ -246,15 +251,15 @@ export function CrystalMatch({ setHeader, locale = 'en', isEink = false }: GameC
                   }}
                 >
                   {t.howToPlay}
-                </GameButton>
+                </Button>
 
-                <GameButton
+                <Button
                   id="cm-start-level-btn"
                   variant="primary"
                   onClick={() => setIsLevelIntroOpen(false)}
                 >
                   {t.startLevel}
-                </GameButton>
+                </Button>
               </div>
             </div>
           </div>,
@@ -296,12 +301,12 @@ export function CrystalMatch({ setHeader, locale = 'en', isEink = false }: GameC
                 </div>
               </div>
 
-              <GameButton
+              <Button
                 variant="primary"
                 onClick={() => setIsHowToPlayOpen(false)}
               >
                 OK
-              </GameButton>
+              </Button>
             </div>
           </div>,
           document.body
@@ -351,10 +356,10 @@ export function CrystalMatch({ setHeader, locale = 'en', isEink = false }: GameC
               isEink={isEink}
               playAgainText={t.tryAgain}
               onPlayAgain={restartLevel}
-              playAgainId="cm-try-again-btn"
+              playAgainId="cm-retry-btn"
               stats={[
                 { label: t.score, value: score },
-                { label: t.moves, value: 0 },
+                { label: t.target, value: config.starThresholds[0] },
               ]}
               secondaryAction={{
                 label: t.levelSelect,
@@ -365,7 +370,7 @@ export function CrystalMatch({ setHeader, locale = 'en', isEink = false }: GameC
           )}
         </AnimatePresence>
 
-        {/* Saga Level Selector Modal */}
+        {/* Level Select Modal */}
         {isLevelModalOpen && typeof document !== 'undefined' && createPortal(
           <LevelSelectModal
             progress={progress}
@@ -377,24 +382,33 @@ export function CrystalMatch({ setHeader, locale = 'en', isEink = false }: GameC
           document.body
         )}
 
-        {/* Reset Progress Confirmation Modal */}
-        <AnimatePresence>
-          {isResetConfirmOpen && (
-            <GameModal
-              title={t.confirmResetProgress}
-              description={t.confirmResetDesc}
-              cancelText={t.cancelBtn}
-              confirmText={t.confirmBtn}
-              cancelId="cm-reset-cancel"
-              confirmId="cm-reset-confirm"
-              onCancel={() => setIsResetConfirmOpen(false)}
-              onConfirm={() => {
+        {/* Reset Progress Confirmation Dialog */}
+        <Dialog
+          isOpen={isResetConfirmOpen}
+          onClose={() => setIsResetConfirmOpen(false)}
+          title={t.confirmResetProgress}
+          description={t.confirmResetDesc}
+        >
+          <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '16px' }}>
+            <Button
+              id="cm-reset-cancel"
+              variant="secondary"
+              onClick={() => setIsResetConfirmOpen(false)}
+            >
+              {t.cancelBtn}
+            </Button>
+            <Button
+              id="cm-reset-confirm"
+              variant="primary"
+              onClick={() => {
                 resetAllProgress()
                 setIsResetConfirmOpen(false)
               }}
-            />
-          )}
-        </AnimatePresence>
+            >
+              {t.confirmBtn}
+            </Button>
+          </div>
+        </Dialog>
       </motion.div>
     </div>
   )

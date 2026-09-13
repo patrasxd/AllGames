@@ -4,11 +4,10 @@ import { use2048 } from './hooks/use2048'
 import { Board2048 } from './components/Board2048'
 import type { GameComponentProps, GridSize } from './types'
 import { game2048Translations } from './i18n'
+import { BoardLayout, Dialog, Button } from '@all/ui'
 import {
   StatsHeader,
-  GameModal,
   PillGroup,
-  GameButton,
   ControlsBar,
   GameResultOverlay,
   UndoIcon,
@@ -120,129 +119,146 @@ export function Game2048({ setHeader, locale = 'en', isEink = false }: GameCompo
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.25 }}
       >
-        {/* Board & Overlays */}
-        <div style={{ position: 'relative' }}>
-          <Board2048
-            tiles={tiles}
-            size={gridSize}
-            isEink={isEink}
-            onMove={handleMove}
-          />
-
-          {/* Win / Loss Overlay */}
-          <AnimatePresence>
-            {(gameStatus === 'won' || gameStatus === 'lost') && (
-              <GameResultOverlay
-                status={gameStatus}
-                title={gameStatus === 'won' ? t.youWon : t.youLost}
-                stats={[
-                  { label: t.score, value: score },
-                  { label: t.bestScore, value: bestScore },
-                ]}
+        <BoardLayout
+          variant="square"
+          board={
+            <div style={{ position: 'relative' }}>
+              <Board2048
+                tiles={tiles}
+                size={gridSize}
                 isEink={isEink}
-                playAgainText={t.tryAgain}
-                onPlayAgain={() => resetGame()}
-                playAgainId="g2048-retry-btn"
-                secondaryAction={
-                  gameStatus === 'won'
-                    ? {
-                        label: t.keepPlaying,
-                        onClick: dismissWin,
-                        id: 'g2048-keep-playing-btn',
-                      }
-                    : undefined
-                }
+                onMove={handleMove}
               />
-            )}
-          </AnimatePresence>
-        </div>
 
-        {/* D-pad controls for accessible navigation and touch */}
-        <div className="g2048-dpad" role="group" aria-label="Direction Controls">
-          <button
-            type="button"
-            id="g2048-dpad-up"
-            className="g2048-dpad-btn g2048-dpad-up"
-            onClick={() => handleMove('up')}
-            aria-label="Move Up"
-          >
-            <ArrowIcon dir="up" />
-          </button>
-          <button
-            type="button"
-            id="g2048-dpad-left"
-            className="g2048-dpad-btn g2048-dpad-left"
-            onClick={() => handleMove('left')}
-            aria-label="Move Left"
-          >
-            <ArrowIcon dir="left" />
-          </button>
-          <button
-            type="button"
-            id="g2048-dpad-down"
-            className="g2048-dpad-btn g2048-dpad-down"
-            onClick={() => handleMove('down')}
-            aria-label="Move Down"
-          >
-            <ArrowIcon dir="down" />
-          </button>
-          <button
-            type="button"
-            id="g2048-dpad-right"
-            className="g2048-dpad-btn g2048-dpad-right"
-            onClick={() => handleMove('right')}
-            aria-label="Move Right"
-          >
-            <ArrowIcon dir="right" />
-          </button>
-        </div>
+              {/* Win / Loss Overlay */}
+              <AnimatePresence>
+                {(gameStatus === 'won' || gameStatus === 'lost') && (
+                  <GameResultOverlay
+                    status={gameStatus}
+                    title={gameStatus === 'won' ? t.youWon : t.youLost}
+                    stats={[
+                      { label: t.score, value: score },
+                      { label: t.bestScore, value: bestScore },
+                    ]}
+                    isEink={isEink}
+                    playAgainText={t.tryAgain}
+                    onPlayAgain={() => resetGame()}
+                    playAgainId="g2048-retry-btn"
+                    secondaryAction={
+                      gameStatus === 'won'
+                        ? {
+                            label: t.keepPlaying,
+                            onClick: dismissWin,
+                            id: 'g2048-keep-playing-btn',
+                          }
+                        : undefined
+                    }
+                  />
+                )}
+              </AnimatePresence>
+            </div>
+          }
+          controls={
+            <div>
+              {/* D-pad controls for accessible navigation and touch */}
+              <div className="g2048-dpad" role="group" aria-label="Direction Controls">
+                <button
+                  type="button"
+                  id="g2048-dpad-up"
+                  className="g2048-dpad-btn g2048-dpad-up"
+                  onClick={() => handleMove('up')}
+                  aria-label="Move Up"
+                >
+                  <ArrowIcon dir="up" />
+                </button>
+                <button
+                  type="button"
+                  id="g2048-dpad-left"
+                  className="g2048-dpad-btn g2048-dpad-left"
+                  onClick={() => handleMove('left')}
+                  aria-label="Move Left"
+                >
+                  <ArrowIcon dir="left" />
+                </button>
+                <button
+                  type="button"
+                  id="g2048-dpad-down"
+                  className="g2048-dpad-btn g2048-dpad-down"
+                  onClick={() => handleMove('down')}
+                  aria-label="Move Down"
+                >
+                  <ArrowIcon dir="down" />
+                </button>
+                <button
+                  type="button"
+                  id="g2048-dpad-right"
+                  className="g2048-dpad-btn g2048-dpad-right"
+                  onClick={() => handleMove('right')}
+                  aria-label="Move Right"
+                >
+                  <ArrowIcon dir="right" />
+                </button>
+              </div>
 
-        {/* Action Controls Bar */}
-        <ControlsBar>
-          <GameButton
-            id="g2048-new-game-btn"
-            variant="primary"
-            onClick={() => resetGame()}
-          >
-            {t.newGame}
-          </GameButton>
+              {/* Action Controls Bar */}
+              <ControlsBar>
+                <Button
+                  id="g2048-new-game-btn"
+                  variant="primary"
+                  onClick={() => resetGame()}
+                >
+                  {t.newGame}
+                </Button>
 
-          <GameButton
-            id="g2048-undo-btn"
-            icon={<UndoIcon />}
-            onClick={undoMove}
-            disabled={!canUndo}
-          >
-            {t.undo}
-          </GameButton>
+                <Button
+                  id="g2048-undo-btn"
+                  variant="secondary"
+                  icon={<UndoIcon />}
+                  onClick={undoMove}
+                  disabled={!canUndo}
+                >
+                  {t.undo}
+                </Button>
 
-          <PillGroup<GridSize>
-            label={t.gridSizeLabel}
-            options={GRID_SIZES.map(s => ({
-              value: s,
-              label: s === 3 ? t.grid3 : s === 4 ? t.grid4 : t.grid5,
-              id: `g2048-size-${s}`,
-            }))}
-            value={gridSize}
-            onChange={handleSizeClick}
-          />
-        </ControlsBar>
+                <PillGroup<GridSize>
+                  label={t.gridSizeLabel}
+                  options={GRID_SIZES.map(s => ({
+                    value: s,
+                    label: s === 3 ? t.grid3 : s === 4 ? t.grid4 : t.grid5,
+                    id: `g2048-size-${s}`,
+                  }))}
+                  value={gridSize}
+                  onChange={handleSizeClick}
+                />
+              </ControlsBar>
+            </div>
+          }
+        />
 
-        {/* Reset Confirmation Modal */}
-        <AnimatePresence>
-          {pendingSize && (
-            <GameModal
-              title={t.confirmResetTitle}
-              description={t.confirmModeDesc}
-              cancelText={t.cancelBtn}
-              confirmText={t.confirmBtn}
-              cancelId="g2048-modal-cancel"
-              confirmId="g2048-modal-confirm"
-              onCancel={handleCancelSize}
-              onConfirm={handleConfirmSize}
-            />
-          )}
-        </AnimatePresence>
+        {/* Reset Confirmation Dialog */}
+        <Dialog
+          isOpen={Boolean(pendingSize)}
+          onClose={handleCancelSize}
+          title={t.confirmResetTitle}
+          description={t.confirmModeDesc}
+        >
+          <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '16px' }}>
+            <Button
+              id="g2048-modal-cancel"
+              variant="secondary"
+              onClick={handleCancelSize}
+            >
+              {t.cancelBtn}
+            </Button>
+            <Button
+              id="g2048-modal-confirm"
+              variant="primary"
+              onClick={handleConfirmSize}
+            >
+              {t.confirmBtn}
+            </Button>
+          </div>
+        </Dialog>
       </motion.div>
     </div>
   )

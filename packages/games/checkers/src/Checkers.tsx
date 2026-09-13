@@ -4,7 +4,8 @@ import { useCheckers } from './hooks/useCheckers'
 import { CheckersBoard } from './components/CheckersBoard'
 import type { GameComponentProps, GameMode, Locale, CheckersDifficulty } from './types'
 import { checkersTranslations } from './i18n'
-import { ModeSelect, StatsHeader, GameModal, PillGroup, GameButton, ControlsBar, ComputerIcon, TwoPlayersIcon } from '@allgames/ui'
+import { BoardLayout, Dialog, Button } from '@all/ui'
+import { ModeSelect, StatsHeader, PillGroup, ControlsBar, ComputerIcon, TwoPlayersIcon } from '@allgames/ui'
 import './styles/checkers.css'
 
 function ThinkingDots() {
@@ -159,100 +160,114 @@ export function Checkers({ setHeader, locale = 'en', isEink = false }: GameCompo
           </motion.div>
         ) : (
           <motion.div key="game" className="checkers-game" {...pageVariants}>
-            {/* Status indicator */}
-            <div className="checkers-status" aria-live="polite">
-              {winner ? (
-                <>
-                  <div className="checkers-status-text">
-                    {mode === 'ai'
-                      ? winner === 'white'
-                        ? t.youWon
-                        : t.computerWon
-                      : t.playerWon(winner === 'white' ? t.white : t.black)}
-                  </div>
-                  <div className="checkers-status-sub">{t.gameOver}</div>
-                </>
-              ) : isAIThinking ? (
-                <div className="checkers-status-text">
-                  {t.computerThinking}
-                  {!isEink ? <ThinkingDots /> : '…'}
+            <BoardLayout
+              variant="square"
+              hud={
+                <div className="checkers-status" aria-live="polite">
+                  {winner ? (
+                    <>
+                      <div className="checkers-status-text">
+                        {mode === 'ai'
+                          ? winner === 'white'
+                            ? t.youWon
+                            : t.computerWon
+                          : t.playerWon(winner === 'white' ? t.white : t.black)}
+                      </div>
+                      <div className="checkers-status-sub">{t.gameOver}</div>
+                    </>
+                  ) : isAIThinking ? (
+                    <div className="checkers-status-text">
+                      {t.computerThinking}
+                      {!isEink ? <ThinkingDots /> : '…'}
+                    </div>
+                  ) : (
+                    <>
+                      <div className="checkers-status-text">
+                        {mode === 'ai'
+                          ? t.yourTurn
+                          : t.playerTurn(turn === 'white' ? t.white : t.black)}
+                      </div>
+                      <div className="checkers-status-sub">
+                        {hasJumps
+                          ? t.mustJump
+                          : `${t.white}: ${piecesCount.white} · ${t.black}: ${piecesCount.black}`}
+                      </div>
+                    </>
+                  )}
                 </div>
-              ) : (
-                <>
-                  <div className="checkers-status-text">
-                    {mode === 'ai'
-                      ? t.yourTurn
-                      : t.playerTurn(turn === 'white' ? t.white : t.black)}
-                  </div>
-                  <div className="checkers-status-sub">
-                    {hasJumps
-                      ? t.mustJump
-                      : `${t.white}: ${piecesCount.white} · ${t.black}: ${piecesCount.black}`}
-                  </div>
-                </>
-              )}
-            </div>
+              }
+              board={
+                <CheckersBoard
+                  board={board}
+                  selectedPos={selectedPos}
+                  validMoves={validMovesForSelected}
+                  turn={turn}
+                  isEink={isEink}
+                  locale={locale}
+                  onSquareClick={handleSquareClick}
+                />
+              }
+              controls={
+                <ControlsBar>
+                  <Button
+                    id="checkers-new-game-btn"
+                    variant="primary"
+                    onClick={resetGame}
+                  >
+                    {t.newGame}
+                  </Button>
+                  <Button
+                    id="checkers-change-mode-btn"
+                    variant="secondary"
+                    onClick={handleChangeModeClick}
+                  >
+                    {t.changeMode}
+                  </Button>
 
-            {/* 8x8 Board */}
-            <CheckersBoard
-              board={board}
-              selectedPos={selectedPos}
-              validMoves={validMovesForSelected}
-              turn={turn}
-              isEink={isEink}
-              locale={locale}
-              onSquareClick={handleSquareClick}
+                  {mode === 'ai' && (
+                    <PillGroup
+                      label={t.difficultyLabel}
+                      options={DIFFICULTIES.map(d => ({
+                        value: d,
+                        label: d === 'easy' ? t.difficultyEasy : d === 'medium' ? t.difficultyMedium : t.difficultyHard,
+                        id: `checkers-diff-${d}`,
+                      }))}
+                      value={difficulty}
+                      onChange={handleDifficultyClick}
+                    />
+                  )}
+                </ControlsBar>
+              }
             />
 
-            {/* Controls */}
-            <ControlsBar>
-              <GameButton
-                id="checkers-new-game-btn"
-                variant="primary"
-                onClick={resetGame}
-              >
-                {t.newGame}
-              </GameButton>
-              <GameButton
-                id="checkers-change-mode-btn"
-                onClick={handleChangeModeClick}
-              >
-                {t.changeMode}
-              </GameButton>
-
-              {mode === 'ai' && (
-                <PillGroup
-                  label={t.difficultyLabel}
-                  options={DIFFICULTIES.map(d => ({
-                    value: d,
-                    label: d === 'easy' ? t.difficultyEasy : d === 'medium' ? t.difficultyMedium : t.difficultyHard,
-                    id: `checkers-diff-${d}`,
-                  }))}
-                  value={difficulty}
-                  onChange={handleDifficultyClick}
-                />
-              )}
-            </ControlsBar>
-
-            {/* Reset Confirmation Modal */}
-            <AnimatePresence>
-              {pendingAction && (
-                <GameModal
-                  title={t.confirmResetTitle}
-                  description={
-                    pendingAction.type === 'difficulty'
-                      ? t.confirmDifficultyDesc
-                      : t.confirmModeDesc
-                  }
-                  cancelText={t.cancelBtn}
-                  confirmText={t.confirmBtn}
-                  cancelId="checkers-modal-cancel"
-                  confirmId="checkers-modal-confirm"
-                  onCancel={handleCancelAction}
-                  onConfirm={handleConfirmAction}
-                />
-              )}
-            </AnimatePresence>
+            {/* Reset Confirmation Dialog */}
+            <Dialog
+              isOpen={Boolean(pendingAction)}
+              onClose={handleCancelAction}
+              title={t.confirmResetTitle}
+              description={
+                pendingAction?.type === 'difficulty'
+                  ? t.confirmDifficultyDesc
+                  : t.confirmModeDesc
+              }
+            >
+              <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '16px' }}>
+                <Button
+                  id="checkers-modal-cancel"
+                  variant="secondary"
+                  onClick={handleCancelAction}
+                >
+                  {t.cancelBtn}
+                </Button>
+                <Button
+                  id="checkers-modal-confirm"
+                  variant="primary"
+                  onClick={handleConfirmAction}
+                >
+                  {t.confirmBtn}
+                </Button>
+              </div>
+            </Dialog>
           </motion.div>
         )}
       </AnimatePresence>

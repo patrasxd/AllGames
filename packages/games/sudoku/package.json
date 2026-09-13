@@ -11,5 +11,8 @@
   "exports": {
     ".": "./src/index.tsx",
     "./metadata": "./src/metadata.tsx"
+  },
+  "dependencies": {
+    "@all/ui": "*"
   }
 }

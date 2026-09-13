@@ -5,11 +5,10 @@ import { SudokuBoard } from './components/SudokuBoard'
 import { Numpad } from './components/Numpad'
 import type { GameComponentProps, SudokuDifficulty } from './types'
 import { sudokuTranslations } from './i18n'
+import { BoardLayout, Dialog, Button } from '@all/ui'
 import {
   StatsHeader,
-  GameModal,
   PillGroup,
-  GameButton,
   ControlsBar,
   GameResultOverlay,
   formatTime,
@@ -98,81 +97,97 @@ export function Sudoku({ setHeader, locale = 'en', isEink = false }: GameCompone
   return (
     <div className="sdk-root">
       <div className="sdk-game">
-        {/* Board & Overlay */}
-        <div style={{ position: 'relative' }}>
-          <SudokuBoard
-            board={board}
-            selectedCell={selectedCell}
-            isEink={isEink}
-            onSelectCell={(r, c) => setSelectedCell([r, c])}
-          />
+        <BoardLayout
+          variant="square"
+          board={
+            <div>
+              {/* Board & Overlay */}
+              <div style={{ position: 'relative' }}>
+                <SudokuBoard
+                  board={board}
+                  selectedCell={selectedCell}
+                  isEink={isEink}
+                  onSelectCell={(r, c) => setSelectedCell([r, c])}
+                />
 
-          {/* Win / Loss Overlay */}
-          <AnimatePresence>
-            {(gameStatus === 'won' || gameStatus === 'lost') && (
-              <GameResultOverlay
-                status={gameStatus}
-                title={gameStatus === 'won' ? t.youWon : t.youLost}
-                stats={[
-                  { label: isPl ? 'Czas' : 'Time', value: formatTime(elapsedSeconds) },
-                  { label: isPl ? 'Błędy' : 'Mistakes', value: `${mistakes}/3` },
-                ]}
-                isEink={isEink}
-                playAgainText={t.tryAgain}
-                onPlayAgain={() => resetGame()}
-                playAgainId="sdk-retry-btn"
+                {/* Win / Loss Overlay */}
+                <AnimatePresence>
+                  {(gameStatus === 'won' || gameStatus === 'lost') && (
+                    <GameResultOverlay
+                      status={gameStatus}
+                      title={gameStatus === 'won' ? t.youWon : t.youLost}
+                      stats={[
+                        { label: isPl ? 'Czas' : 'Time', value: formatTime(elapsedSeconds) },
+                        { label: isPl ? 'Błędy' : 'Mistakes', value: `${mistakes}/3` },
+                      ]}
+                      isEink={isEink}
+                      playAgainText={t.tryAgain}
+                      onPlayAgain={() => resetGame()}
+                      playAgainId="sdk-retry-btn"
+                    />
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* Numpad & Action Tools */}
+              <Numpad
+                pencilMode={pencilMode}
+                locale={locale}
+                onNumber={handleInputNumber}
+                onErase={handleErase}
+                onTogglePencil={() => setPencilMode(p => !p)}
+                onUndo={handleUndo}
               />
-            )}
-          </AnimatePresence>
-        </div>
+            </div>
+          }
+          controls={
+            <ControlsBar>
+              <Button
+                id="sdk-new-game-btn"
+                variant="primary"
+                onClick={() => resetGame()}
+              >
+                {t.newGame}
+              </Button>
 
-        {/* Numpad & Action Tools */}
-        <Numpad
-          pencilMode={pencilMode}
-          locale={locale}
-          onNumber={handleInputNumber}
-          onErase={handleErase}
-          onTogglePencil={() => setPencilMode(p => !p)}
-          onUndo={handleUndo}
+              <PillGroup<SudokuDifficulty>
+                label={t.difficultyLabel}
+                options={DIFFICULTIES.map(d => ({
+                  value: d,
+                  label: d === 'easy' ? t.easy : d === 'medium' ? t.medium : t.hard,
+                  id: `sdk-diff-${d}`,
+                }))}
+                value={difficulty}
+                onChange={handleDifficultyClick}
+              />
+            </ControlsBar>
+          }
         />
 
-        {/* Controls */}
-        <ControlsBar>
-          <GameButton
-            id="sdk-new-game-btn"
-            variant="primary"
-            onClick={() => resetGame()}
-          >
-            {t.newGame}
-          </GameButton>
-
-          <PillGroup<SudokuDifficulty>
-            label={t.difficultyLabel}
-            options={DIFFICULTIES.map(d => ({
-              value: d,
-              label: d === 'easy' ? t.easy : d === 'medium' ? t.medium : t.hard,
-              id: `sdk-diff-${d}`,
-            }))}
-            value={difficulty}
-            onChange={handleDifficultyClick}
-          />
-        </ControlsBar>
-
-        {/* Reset Confirmation Modal */}
-        <AnimatePresence>
-          {pendingDifficulty && (
-            <GameModal
-              title={t.confirmResetTitle}
-              description={t.confirmDifficultyDesc}
-              cancelText="Cancel"
-              confirmText="Continue"
-              cancelId="sdk-modal-cancel"
-              confirmId="sdk-modal-confirm"
-              onCancel={handleCancelDifficulty}
-              onConfirm={handleConfirmDifficulty}
-            />
-          )}
-        </AnimatePresence>
+        {/* Reset Confirmation Dialog */}
+        <Dialog
+          isOpen={Boolean(pendingDifficulty)}
+          onClose={handleCancelDifficulty}
+          title={t.confirmResetTitle}
+          description={t.confirmDifficultyDesc}
+        >
+          <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '16px' }}>
+            <Button
+              id="sdk-modal-cancel"
+              variant="secondary"
+              onClick={handleCancelDifficulty}
+            >
+              Cancel
+            </Button>
+            <Button
+              id="sdk-modal-confirm"
+              variant="primary"
+              onClick={handleConfirmDifficulty}
+            >
+              Continue
+            </Button>
+          </div>
+        </Dialog>
       </div>
     </div>
   )

@@ -4,7 +4,8 @@ import { useMemory } from './hooks/useMemory'
 import { MemoryBoard } from './components/MemoryBoard'
 import type { GameComponentProps, MemoryDifficulty, MemoryGameMode } from './types'
 import { memoryTranslations } from './i18n'
-import { ModeSelect, StatsHeader, GameModal, PillGroup, GameButton, ControlsBar, SinglePlayerIcon, TwoPlayersIcon, formatTime } from '@allgames/ui'
+import { BoardLayout, Dialog, Button } from '@all/ui'
+import { ModeSelect, StatsHeader, PillGroup, ControlsBar, SinglePlayerIcon, TwoPlayersIcon, formatTime } from '@allgames/ui'
 import './styles/memory.css'
 
 const DIFFICULTIES: MemoryDifficulty[] = ['easy', 'medium', 'hard']
@@ -158,92 +159,106 @@ export function Memory({ setHeader, locale = 'en', isEink = false }: GameCompone
           </motion.div>
         ) : (
           <motion.div key="game" className="memory-game" {...pageVariants}>
-            {/* Status indicator */}
-            <div className="memory-status" aria-live="polite">
-              {gameStatus === 'ended' ? (
-                <>
-                  <div className="memory-status-text">
-                    {mode === '2p'
-                      ? scores.p1 === scores.p2
-                        ? t.draw
-                        : t.playerWon(scores.p1 > scores.p2 ? t.player1 : t.player2)
-                      : t.youWon}
-                  </div>
-                  <div className="memory-status-sub">
-                    {mode === '2p'
-                      ? `${t.player1}: ${scores.p1} · ${t.player2}: ${scores.p2}`
-                      : `${t.moves}: ${moves} · ${t.time}: ${formatTime(elapsedSeconds)}`}
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="memory-status-text">
-                    {mode === '2p'
-                      ? t.turn2p(currentTurn === 'p1' ? t.player1 : t.player2)
-                      : t.turn1p}
-                  </div>
-                  <div className="memory-status-sub">
-                    {t.pairs}: {matchedPairsCount} / {totalPairs}
-                  </div>
-                </>
-              )}
-            </div>
+            <BoardLayout
+              variant="square"
+              hud={
+                <div className="memory-status" aria-live="polite">
+                  {gameStatus === 'ended' ? (
+                    <>
+                      <div className="memory-status-text">
+                        {mode === '2p'
+                          ? scores.p1 === scores.p2
+                            ? t.draw
+                            : t.playerWon(scores.p1 > scores.p2 ? t.player1 : t.player2)
+                          : t.youWon}
+                      </div>
+                      <div className="memory-status-sub">
+                        {mode === '2p'
+                          ? `${t.player1}: ${scores.p1} · ${t.player2}: ${scores.p2}`
+                          : `${t.moves}: ${moves} · ${t.time}: ${formatTime(elapsedSeconds)}`}
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="memory-status-text">
+                        {mode === '2p'
+                          ? t.turn2p(currentTurn === 'p1' ? t.player1 : t.player2)
+                          : t.turn1p}
+                      </div>
+                      <div className="memory-status-sub">
+                        {t.pairs}: {matchedPairsCount} / {totalPairs}
+                      </div>
+                    </>
+                  )}
+                </div>
+              }
+              board={
+                <MemoryBoard
+                  cards={cards}
+                  difficulty={difficulty}
+                  isEink={isEink}
+                  onCardClick={handleCardClick}
+                />
+              }
+              controls={
+                <ControlsBar>
+                  <Button
+                    id="memory-new-game-btn"
+                    variant="primary"
+                    onClick={() => resetGame()}
+                  >
+                    {t.newGame}
+                  </Button>
+                  <Button
+                    id="memory-change-mode-btn"
+                    variant="secondary"
+                    onClick={handleChangeModeClick}
+                  >
+                    {t.changeMode}
+                  </Button>
 
-            {/* Grid of Cards */}
-            <MemoryBoard
-              cards={cards}
-              difficulty={difficulty}
-              isEink={isEink}
-              onCardClick={handleCardClick}
+                  <PillGroup<MemoryDifficulty>
+                    label={t.difficultyLabel}
+                    options={DIFFICULTIES.map(d => ({
+                      value: d,
+                      label: d === 'easy' ? t.easy : d === 'medium' ? t.medium : t.hard,
+                      id: `memory-diff-${d}`,
+                    }))}
+                    value={difficulty}
+                    onChange={handleDifficultyClick}
+                  />
+                </ControlsBar>
+              }
             />
 
-            {/* Controls Bar */}
-            <ControlsBar>
-              <GameButton
-                id="memory-new-game-btn"
-                variant="primary"
-                onClick={() => resetGame()}
-              >
-                {t.newGame}
-              </GameButton>
-              <GameButton
-                id="memory-change-mode-btn"
-                onClick={handleChangeModeClick}
-              >
-                {t.changeMode}
-              </GameButton>
-
-              <PillGroup<MemoryDifficulty>
-                label={t.difficultyLabel}
-                options={DIFFICULTIES.map(d => ({
-                  value: d,
-                  label: d === 'easy' ? t.easy : d === 'medium' ? t.medium : t.hard,
-                  id: `memory-diff-${d}`,
-                }))}
-                value={difficulty}
-                onChange={handleDifficultyClick}
-              />
-            </ControlsBar>
-
-            {/* Reset Confirmation Modal */}
-            <AnimatePresence>
-              {pendingAction && (
-                <GameModal
-                  title={t.confirmResetTitle}
-                  description={
-                    pendingAction.type === 'difficulty'
-                      ? t.confirmDifficultyDesc
-                      : t.confirmModeDesc
-                  }
-                  cancelText={t.cancelBtn}
-                  confirmText={t.confirmBtn}
-                  cancelId="memory-modal-cancel"
-                  confirmId="memory-modal-confirm"
-                  onCancel={handleCancelAction}
-                  onConfirm={handleConfirmAction}
-                />
-              )}
-            </AnimatePresence>
+            {/* Reset Confirmation Dialog */}
+            <Dialog
+              isOpen={Boolean(pendingAction)}
+              onClose={handleCancelAction}
+              title={t.confirmResetTitle}
+              description={
+                pendingAction?.type === 'difficulty'
+                  ? t.confirmDifficultyDesc
+                  : t.confirmModeDesc
+              }
+            >
+              <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '16px' }}>
+                <Button
+                  id="memory-modal-cancel"
+                  variant="secondary"
+                  onClick={handleCancelAction}
+                >
+                  {t.cancelBtn}
+                </Button>
+                <Button
+                  id="memory-modal-confirm"
+                  variant="primary"
+                  onClick={handleConfirmAction}
+                >
+                  {t.confirmBtn}
+                </Button>
+              </div>
+            </Dialog>
           </motion.div>
         )}
       </AnimatePresence>

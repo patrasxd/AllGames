@@ -5,6 +5,7 @@
   "type": "module",
   "main": "./src/index.tsx",
   "dependencies": {
+    "@all/ui": "*",
     "@allgames/ui": "*"
   },
   "peerDependencies": {
