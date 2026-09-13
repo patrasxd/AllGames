@@ -34,7 +34,13 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   // Sync data-theme attribute on <html>
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme)
+    const isEinkActive = document.documentElement.getAttribute('data-eink') === 'true' || window.localStorage.getItem('allgames:eink') === 'true'
+    if (isEinkActive) {
+      document.documentElement.setAttribute('data-theme', theme === 'dark' ? 'e-ink-dark' : 'e-ink-light')
+      document.documentElement.setAttribute('data-motion', 'none')
+    } else {
+      document.documentElement.setAttribute('data-theme', theme)
+    }
     const meta = document.querySelector('meta[name="theme-color"]')
     if (meta) {
       meta.setAttribute('content', theme === 'dark' ? '#0a0a0a' : '#f2f1ec')

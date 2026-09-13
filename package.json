@@ -14,9 +14,11 @@
     "build": "npm run build -w @allgames/shell",
     "preview": "npm run preview -w @allgames/shell",
     "deploy": "npm run build -w @allgames/shell && gh-pages -d apps/shell/dist",
+    "test": "vitest run packages/games",
     "install-all": "npm install"
   },
   "devDependencies": {
-    "gh-pages": "^6.3.0"
+    "gh-pages": "^6.3.0",
+    "vitest": "^5.0.0"
   }
 }

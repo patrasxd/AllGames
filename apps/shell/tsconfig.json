@@ -43,5 +43,6 @@
       "@allgames/ui": ["../../packages/ui/src/index.ts"]
     }
   },
-  "include": ["src", "../../packages/games/*/src", "../../packages/ui/src"]
+  "include": ["src", "../../packages/games/*/src", "../../packages/ui/src"],
+  "exclude": ["**/__tests__/**", "../../packages/games/**/__tests__/**", "**/*.test.ts", "**/*.test.tsx"]
 }

@@ -5,7 +5,8 @@ import { useFlappyBird } from './hooks/useFlappyBird'
 import { FlappyBirdCanvas } from './components/FlappyBirdCanvas'
 import type { GameComponentProps, Difficulty } from './types'
 import { flappyBirdTranslations } from './i18n'
-import { StatsHeader, GameButton, GameResultOverlay } from '@allgames/ui'
+import { FullBleedLayout, Button } from '@all/ui'
+import { StatsHeader, GameResultOverlay } from '@allgames/ui'
 import './styles/flappy-bird.css'
 
 function RestartIcon() {
@@ -75,84 +76,82 @@ export function FlappyBird({ setHeader, locale = 'en', isEink = false, theme = '
 
   return (
     <div className="fb-root">
-      <motion.div
-        className="fb-game"
-        initial={!isEink ? { opacity: 0, scale: 0.98 } : false}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.25 }}
-      >
-        {/* Game Canvas */}
-        <div style={{ position: 'relative' }}>
-          <FlappyBirdCanvas
-            bird={bird}
-            pipes={pipes}
-            particles={particles}
-            score={score}
-            gameStatus={gameStatus}
-            isEink={isEink}
-            theme={theme}
-            onFlap={flap}
-          />
-
-          {/* Ready State Overlay */}
-          {gameStatus === 'ready' && (
-            <div className="fb-ready-overlay">
-              <div className="fb-ready-pill">
-                <TapIcon />
-                <span className="fb-ready-title">{t.readyPrompt}</span>
-              </div>
-              <p className="fb-ready-subtitle">{t.readySubPrompt}</p>
+      <FullBleedLayout
+        floatingToolbar={
+          <div className="fb-controls">
+            {/* Enhanced Difficulty Selector */}
+            <div className="game-pill-group fb-diff-group" role="group" aria-label="Difficulty">
+              {(['easy', 'normal', 'hard'] as Difficulty[]).map(diff => (
+                <button
+                  key={diff}
+                  type="button"
+                  className={`game-pill-btn ${difficulty === diff ? 'game-pill-btn--active' : ''}`}
+                  onClick={() => changeDifficulty(diff)}
+                >
+                  {t.difficultyLabels[diff]}
+                </button>
+              ))}
             </div>
-          )}
-        </div>
 
-        {/* Bottom Symmetrical Controls Bar */}
-        <div className="fb-controls">
-          {/* Enhanced Difficulty Selector */}
-          <div className="game-pill-group fb-diff-group" role="group" aria-label="Difficulty">
-            {(['easy', 'normal', 'hard'] as Difficulty[]).map(diff => (
-              <button
-                key={diff}
-                type="button"
-                className={`game-pill-btn ${difficulty === diff ? 'game-pill-btn--active' : ''}`}
-                onClick={() => changeDifficulty(diff)}
-              >
-                {t.difficultyLabels[diff]}
-              </button>
-            ))}
+            <Button
+              id="fb-restart-btn"
+              variant="secondary"
+              className="fb-restart-btn"
+              onClick={resetGame}
+              icon={<RestartIcon />}
+            >
+              {t.restart}
+            </Button>
+          </div>
+        }
+      >
+        <div className="fb-game">
+          {/* Game Canvas */}
+          <div style={{ position: 'relative' }}>
+            <FlappyBirdCanvas
+              bird={bird}
+              pipes={pipes}
+              particles={particles}
+              score={score}
+              gameStatus={gameStatus}
+              isEink={isEink}
+              theme={theme}
+              onFlap={flap}
+            />
+
+            {/* Ready State Overlay */}
+            {gameStatus === 'ready' && (
+              <div className="fb-ready-overlay">
+                <div className="fb-ready-pill">
+                  <TapIcon />
+                  <span className="fb-ready-title">{t.readyPrompt}</span>
+                </div>
+                <p className="fb-ready-subtitle">{t.readySubPrompt}</p>
+              </div>
+            )}
           </div>
 
-          <GameButton
-            id="fb-restart-btn"
-            variant="secondary"
-            className="fb-restart-btn"
-            onClick={resetGame}
-          >
-            <RestartIcon />
-            <span>{t.restart}</span>
-          </GameButton>
+          {/* Game Over Dialog */}
+          <AnimatePresence>
+            {gameStatus === 'gameover' && (
+              <GameResultOverlay
+                status="lost"
+                title={isNewBest ? t.newBest : t.gameOverTitle}
+                subtitle={t.gameOverSub}
+                isEink={isEink}
+                playAgainText={t.restart}
+                onPlayAgain={resetGame}
+                playAgainId="fb-play-again-btn"
+                stats={[
+                  { label: t.score, value: score },
+                  { label: t.bestScore, value: bestScore },
+                  { label: t.difficulty, value: t.difficultyLabels[difficulty] },
+                ]}
+              />
+            )}
+          </AnimatePresence>
         </div>
-
-        {/* Game Over Dialog */}
-        <AnimatePresence>
-          {gameStatus === 'gameover' && (
-            <GameResultOverlay
-              status="lost"
-              title={isNewBest ? t.newBest : t.gameOverTitle}
-              subtitle={t.gameOverSub}
-              isEink={isEink}
-              playAgainText={t.restart}
-              onPlayAgain={resetGame}
-              playAgainId="fb-play-again-btn"
-              stats={[
-                { label: t.score, value: score },
-                { label: t.bestScore, value: bestScore },
-                { label: t.difficulty, value: t.difficultyLabels[difficulty] },
-              ]}
-            />
-          )}
-        </AnimatePresence>
-      </motion.div>
+      </FullBleedLayout>
     </div>
   )
 }

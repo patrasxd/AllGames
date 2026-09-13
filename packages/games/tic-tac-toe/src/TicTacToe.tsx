@@ -4,8 +4,9 @@ import { useGame } from './hooks/useGame'
 import { Board } from './components/Board'
 import type { GameComponentProps, GameMetadata, DifficultyLevel } from './types'
 import type { GameMode, Player } from './logic'
+import { BoardLayout, Dialog, Button } from '@all/ui'
 import { gameTranslations, type Locale } from './i18n'
-import { ModeSelect, StatsHeader, GameModal, PillGroup, GameButton, ControlsBar, ComputerIcon, TwoPlayersIcon } from '@allgames/ui'
+import { ModeSelect, StatsHeader, PillGroup, ControlsBar, ComputerIcon, TwoPlayersIcon } from '@allgames/ui'
 import './styles/tictactoe.css'
 
 export interface GameMetadataExtended extends GameMetadata {
@@ -228,16 +229,11 @@ export function TicTacToe({ setHeader, locale = 'en', isEink = false }: GameComp
             />
           </motion.div>
         ) : (
-          <motion.div key="game" className="ttt-game" {...pageVariants}>
-            {/* Status indicator */}
-            <AnimatePresence mode="wait">
-              <motion.div
+          <BoardLayout
+            variant="square"
+            hud={
+              <div
                 className="ttt-status"
-                key={`${winner}-${isDraw}-${currentPlayer}-${isAIThinking}-${locale}`}
-                initial={!isEink ? { opacity: 0, y: 6 } : false}
-                animate={{ opacity: 1, y: 0 }}
-                exit={!isEink ? { opacity: 0, y: -6 } : undefined}
-                transition={{ duration: 0.18 }}
                 aria-live="polite"
                 aria-atomic="true"
               >
@@ -250,74 +246,84 @@ export function TicTacToe({ setHeader, locale = 'en', isEink = false }: GameComp
                   locale={locale}
                   isEink={isEink}
                 />
-              </motion.div>
-            </AnimatePresence>
+              </div>
+            }
+            board={
+              <Board
+                board={board}
+                winningLine={winningLine}
+                currentPlayer={currentPlayer}
+                gameOver={gameOver}
+                isAIThinking={isAIThinking}
+                locale={locale}
+                isEink={isEink}
+                onMove={makeMove}
+              />
+            }
+            controls={
+              <ControlsBar>
+                <Button
+                  id="ttt-reset-btn"
+                  variant="primary"
+                  onClick={reset}
+                >
+                  {t.newGame}
+                </Button>
 
-            {/* Board */}
-            <Board
-              board={board}
-              winningLine={winningLine}
-              currentPlayer={currentPlayer}
-              gameOver={gameOver}
-              isAIThinking={isAIThinking}
-              locale={locale}
-              isEink={isEink}
-              onMove={makeMove}
-            />
+                <Button
+                  id="ttt-change-mode-btn"
+                  variant="secondary"
+                  onClick={handleChangeModeClick}
+                >
+                  {t.changeMode}
+                </Button>
 
-            {/* Controls */}
-            <ControlsBar>
-              <GameButton
-                id="ttt-reset-btn"
-                variant="primary"
-                onClick={reset}
-              >
-                {t.newGame}
-              </GameButton>
-
-              <GameButton
-                id="ttt-change-mode-btn"
-                onClick={handleChangeModeClick}
-              >
-                {t.changeMode}
-              </GameButton>
-
-              {mode === 'ai' && (
-                <PillGroup<DifficultyLevel>
-                  label={t.difficultyLabel}
-                  options={DIFFICULTIES.map(d => ({
-                    value: d,
-                    label: d === 'easy' ? t.difficultyEasy : d === 'medium' ? t.difficultyMedium : t.difficultyHard,
-                    id: `ttt-diff-${d}`,
-                  }))}
-                  value={difficulty}
-                  onChange={handleDifficultyClick}
-                />
-              )}
-            </ControlsBar>
-
-            {/* Confirmation Modal */}
-            <AnimatePresence>
-              {pendingAction && (
-                <GameModal
-                  title={t.confirmResetTitle}
-                  description={
-                    pendingAction.type === 'difficulty'
-                      ? t.confirmDifficultyDesc
-                      : t.confirmModeDesc
-                  }
-                  cancelText={t.cancelBtn}
-                  confirmText={t.confirmBtn}
-                  cancelId="ttt-modal-cancel"
-                  confirmId="ttt-modal-confirm"
-                  onCancel={handleCancelAction}
-                  onConfirm={handleConfirmAction}
-                />
-              )}
-            </AnimatePresence>
-          </motion.div>
+                {mode === 'ai' && (
+                  <PillGroup<DifficultyLevel>
+                    label={t.difficultyLabel}
+                    options={DIFFICULTIES.map(d => ({
+                      value: d,
+                      label: d === 'easy' ? t.difficultyEasy : d === 'medium' ? t.difficultyMedium : t.difficultyHard,
+                      id: `ttt-diff-${d}`,
+                    }))}
+                    value={difficulty}
+                    onChange={handleDifficultyClick}
+                  />
+                )}
+              </ControlsBar>
+            }
+          />
         )}
       </AnimatePresence>
+
+      {/* Accessible Confirmation Dialog */}
+      <Dialog
+        isOpen={Boolean(pendingAction)}
+        onClose={handleCancelAction}
+        title={t.confirmResetTitle}
+        description={
+          pendingAction?.type === 'difficulty'
+            ? t.confirmDifficultyDesc
+            : t.confirmModeDesc
+        }
+      >
+        <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '16px' }}>
+          <Button
+            id="ttt-modal-cancel"
+            variant="secondary"
+            onClick={handleCancelAction}
+          >
+            {t.cancelBtn}
+          </Button>
+          <Button
+            id="ttt-modal-confirm"
+            variant="primary"
+            onClick={handleConfirmAction}
+          >
+            {t.confirmBtn}
+          </Button>
+        </div>
+      </Dialog>
     </div>
   )
 }
