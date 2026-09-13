@@ -2,10 +2,14 @@
   "name": "@allgames/sudoku",
   "version": "0.1.0",
   "type": "module",
-  "main": "src/index.tsx",
+  "main": "./src/index.tsx",
   "peerDependencies": {
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
     "framer-motion": "^11.0.0"
+  },
+  "exports": {
+    ".": "./src/index.tsx",
+    "./metadata": "./src/metadata.tsx"
   }
 }
