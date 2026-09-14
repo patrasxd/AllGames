@@ -117,6 +117,7 @@
   color: #ef4444;
 }
 
+[data-theme^='e-ink'] .ms-counter--mines,
 [data-eink='true'] .ms-counter--mines {
   color: var(--text) !important;
 }
@@ -317,6 +318,7 @@
   justify-content: center;
 }
 
+[data-theme^='e-ink'] .ms-cell-flag,
 [data-eink='true'] .ms-cell-flag {
   color: var(--text) !important;
 }
@@ -373,6 +375,7 @@
   font-weight: 600;
 }
 
+[data-theme^='e-ink'] .ms-pill-btn--active,
 [data-eink='true'] .ms-pill-btn--active {
   background: var(--text) !important;
   color: var(--bg) !important;
@@ -416,32 +419,38 @@
 }
 
 /* ─── E-ink Mode ─────────────────────────────────────────── */
+[data-theme^='e-ink'] .ms-board-wrapper,
 [data-eink='true'] .ms-board-wrapper {
   border: 2px solid var(--border) !important;
   box-shadow: none !important;
 }
 
+[data-theme^='e-ink'] .ms-statusbar,
 [data-eink='true'] .ms-statusbar {
   border: 2px solid var(--border) !important;
 }
 
+[data-theme^='e-ink'] .ms-counter,
 [data-eink='true'] .ms-counter {
   background: var(--bg) !important;
   border: 1.5px solid var(--border) !important;
   color: var(--text) !important;
 }
 
+[data-theme^='e-ink'] .ms-cell--hidden,
 [data-eink='true'] .ms-cell--hidden {
   background: var(--surface-2) !important;
   box-shadow: none !important;
   border: 1px solid var(--border);
 }
 
+[data-theme^='e-ink'] .ms-cell--revealed,
 [data-eink='true'] .ms-cell--revealed {
   background: var(--bg) !important;
   box-shadow: none !important;
 }
 
+[data-theme^='e-ink'] .ms-touch-btn--active,
 [data-eink='true'] .ms-touch-btn--active {
   background: var(--text) !important;
   color: var(--bg) !important;

@@ -6,6 +6,8 @@ import {
   checkCollisions,
   createFlapParticles,
   updateParticles,
+  stepBirdPhysics,
+  stepPipePosition,
   DIFFICULTY_CONFIGS,
   BIRD_X,
 } from '../logic/engine'
@@ -37,7 +39,7 @@ function saveHighScores(scores: HighScores) {
   }
 }
 
-export function useFlappyBird() {
+export function useWingRush() {
   const [difficulty, setDifficulty] = useState<Difficulty>('normal')
   const [gameStatus, setGameStatus] = useState<GameStatus>('ready')
   const [score, setScore] = useState<number>(0)
@@ -118,57 +120,62 @@ export function useFlappyBird() {
     stateRef.current.particles = [...stateRef.current.particles, ...newParticles]
   }, [])
 
-  // Main 60fps Game Loop
+  // Main Game Loop with delta-time correction
   useEffect(() => {
     let animationFrameId: number
+    let lastTime = performance.now()
 
-    const tick = () => {
+    const tick = (now: number) => {
+      const elapsed = now - lastTime
+      lastTime = now
+
+      // Normalize delta time to 60fps base (16.667ms per frame = dt 1.0)
+      // Clamp between 0.1 and 3.0 to prevent large physics jumps on tab blur/resume
+      const dt = Math.min(Math.max(elapsed / (1000 / 60), 0.1), 3.0)
+
       const { gameStatus: curStatus, difficulty: curDiff } = stateRef.current
       const config = DIFFICULTY_CONFIGS[curDiff]
 
       if (curStatus === 'ready') {
-        // Gentle bobbing hover
-        stateRef.current.bobAngle += 0.05
+        // Gentle bobbing hover scaled by dt
+        stateRef.current.bobAngle += 0.05 * dt
         stateRef.current.bird.y = createInitialBird().y + Math.sin(stateRef.current.bobAngle) * 8
         stateRef.current.bird.vy = 0
         stateRef.current.bird.angle = 0
-        stateRef.current.bird.wingPhase += 0.08
+        stateRef.current.bird.wingPhase += 0.08 * dt
         setBird({ ...stateRef.current.bird })
       } else if (curStatus === 'playing') {
-        const currentBird = stateRef.current.bird
+        // 1. Physics update with dt scaling
+        const currentBird = stepBirdPhysics(stateRef.current.bird, config, dt)
+        stateRef.current.bird = currentBird
 
-        // 1. Physics update
-        currentBird.vy += config.gravity
-        currentBird.y += currentBird.vy
-        currentBird.angle = Math.min(Math.PI / 2.8, Math.max(-Math.PI / 5, currentBird.vy * 0.08))
-        currentBird.wingPhase += currentBird.vy < 0 ? 0.35 : 0.12
-
-        // 2. Pipe generation
-        stateRef.current.pipeCounter++
+        // 2. Pipe generation scaled by dt
+        stateRef.current.pipeCounter += dt
         if (stateRef.current.pipeCounter >= config.pipeInterval) {
           stateRef.current.pipeCounter = 0
           const newPipe = createPipe(stateRef.current.nextPipeId++, curDiff)
           stateRef.current.pipes.push(newPipe)
         }
 
-        // 3. Move pipes & check scoring
+        // 3. Move pipes with dt scaling & check scoring
         let currentScore = stateRef.current.score
         const updatedPipes: Pipe[] = []
 
         for (const pipe of stateRef.current.pipes) {
-          const nextX = pipe.x - config.pipeSpeed
+          const movedPipe = stepPipePosition(pipe, config, dt)
+          const nextX = movedPipe.x
 
           // Score when passing bird center
-          if (!pipe.passed && nextX + pipe.width < BIRD_X) {
-            pipe.passed = true
+          if (!movedPipe.passed && nextX + movedPipe.width < BIRD_X) {
+            movedPipe.passed = true
             currentScore++
             stateRef.current.score = currentScore
             setScore(currentScore)
           }
 
           // Keep active pipes
-          if (nextX + pipe.width > -20) {
-            updatedPipes.push({ ...pipe, x: nextX })
+          if (nextX + movedPipe.width > -20) {
+            updatedPipes.push(movedPipe)
           }
         }
         stateRef.current.pipes = updatedPipes

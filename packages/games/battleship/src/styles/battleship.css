@@ -424,26 +424,33 @@
 }
 
 /* ─── E-ink Mode ─────────────────────────────────────────── */
+[data-theme^='e-ink'] .bs-grid-wrapper,
 [data-eink='true'] .bs-grid-wrapper {
   border: 2px solid var(--border) !important;
   box-shadow: none !important;
 }
 
+[data-theme^='e-ink'] .bs-cell--ship,
 [data-eink='true'] .bs-cell--ship {
   background: var(--text) !important;
   color: var(--bg) !important;
 }
 
+[data-theme^='e-ink'] .bs-cell--hit,
+[data-theme^='e-ink'] .bs-cell--sunk,
 [data-eink='true'] .bs-cell--hit,
 [data-eink='true'] .bs-cell--sunk {
   background: var(--surface-2) !important;
 }
 
+[data-theme^='e-ink'] .bs-marker--hit,
+[data-theme^='e-ink'] .bs-marker--sunk,
 [data-eink='true'] .bs-marker--hit,
 [data-eink='true'] .bs-marker--sunk {
   color: var(--text) !important;
 }
 
+[data-theme^='e-ink'] .bs-pill-btn--active,
 [data-eink='true'] .bs-pill-btn--active {
   background: var(--text) !important;
   color: var(--bg) !important;

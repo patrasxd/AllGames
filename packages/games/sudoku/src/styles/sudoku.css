@@ -309,26 +309,31 @@
 }
 
 /* ─── E-ink Mode ─────────────────────────────────────────── */
+[data-theme^='e-ink'] .sdk-board-wrapper,
 [data-eink='true'] .sdk-board-wrapper {
   border: 2px solid var(--border) !important;
   box-shadow: none !important;
 }
 
+[data-theme^='e-ink'] .sdk-cell--selected,
 [data-eink='true'] .sdk-cell--selected {
   background: var(--text) !important;
   color: var(--bg) !important;
 }
 
+[data-theme^='e-ink'] .sdk-cell--error,
 [data-eink='true'] .sdk-cell--error {
   text-decoration: underline !important;
   color: var(--text) !important;
 }
 
+[data-theme^='e-ink'] .sdk-tool-btn--active,
 [data-eink='true'] .sdk-tool-btn--active {
   background: var(--text) !important;
   color: var(--bg) !important;
 }
 
+[data-theme^='e-ink'] .sdk-pill-btn--active,
 [data-eink='true'] .sdk-pill-btn--active {
   background: var(--text) !important;
   color: var(--bg) !important;

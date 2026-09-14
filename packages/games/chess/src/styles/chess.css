@@ -460,31 +460,37 @@
   font-weight: 600;
 }
 
+[data-theme^='e-ink'] .chess-pill-btn--active,
 [data-eink='true'] .chess-pill-btn--active {
   background: var(--text) !important;
   color: var(--bg) !important;
 }
 
 /* ─── E-ink Mode ─────────────────────────────────────────── */
+[data-theme^='e-ink'] .chess-board-wrapper,
 [data-eink='true'] .chess-board-wrapper {
   border: 2px solid var(--border) !important;
   box-shadow: none !important;
 }
 
+[data-theme^='e-ink'] .chess-square--light,
 [data-eink='true'] .chess-square--light {
   background: var(--bg) !important;
 }
 
+[data-theme^='e-ink'] .chess-square--dark,
 [data-eink='true'] .chess-square--dark {
   background: var(--surface-2) !important;
 }
 
+[data-theme^='e-ink'] .chess-modal,
 [data-eink='true'] .chess-modal {
   border: 2px solid var(--border) !important;
   background: var(--surface) !important;
   box-shadow: none !important;
 }
 
+[data-theme^='e-ink'] .chess-target-dot,
 [data-eink='true'] .chess-target-dot {
   background: var(--text) !important;
   opacity: 0.9 !important;

@@ -64,6 +64,7 @@
 .game-dpad-btn--right { grid-column: 3; grid-row: 2; }
 .game-dpad-btn--down  { grid-column: 2; grid-row: 3; }
 
+[data-theme^='e-ink'] .game-dpad-btn,
 [data-eink='true'] .game-dpad-btn {
   border: 2px solid var(--all-border, #000000) !important;
   background: var(--all-surface, #ffffff) !important;
@@ -71,6 +72,7 @@
   transition: none !important;
 }
 
+[data-theme^='e-ink'] .game-dpad-btn:active,
 [data-eink='true'] .game-dpad-btn:active {
   background: var(--all-text, #000000) !important;
   color: var(--all-bg, #ffffff) !important;

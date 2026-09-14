@@ -373,6 +373,7 @@
   font-weight: 600;
 }
 
+[data-theme^='e-ink'] .ttt-pill-btn--active,
 [data-eink='true'] .ttt-pill-btn--active {
   background: var(--text) !important;
   color: var(--bg) !important;

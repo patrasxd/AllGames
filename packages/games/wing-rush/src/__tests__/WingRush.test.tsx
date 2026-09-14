@@ -1,11 +1,11 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import React from 'react'
-import { FlappyBird } from '../FlappyBird'
+import { WingRush } from '../WingRush'
 
 describe('WingRush Component Integration', () => {
   it('renders FullBleedLayout and canvas stage with ready state prompt', () => {
-    render(<FlappyBird locale="en" />)
+    render(<WingRush locale="en" />)
 
     // FullBleedLayout root should be present
     expect(document.querySelector('.all-fullbleed-layout')).toBeInTheDocument()
@@ -13,11 +13,11 @@ describe('WingRush Component Integration', () => {
     // Controls footer should be present with difficulty selector and restart button
     const footer = document.querySelector('.all-fullbleed-layout__footer')
     expect(footer).toBeInTheDocument()
-    expect(footer?.querySelector('#fb-restart-btn')).toBeInTheDocument()
+    expect(footer?.querySelector('#wr-restart-btn')).toBeInTheDocument()
     expect(footer?.querySelector('.all-pill-group')).toBeInTheDocument()
 
     // Canvas should be rendered within edge-to-edge wrapper
-    const canvasWrapper = document.querySelector('.fb-canvas-wrapper')
+    const canvasWrapper = document.querySelector('.wr-canvas-wrapper')
     expect(canvasWrapper).toBeInTheDocument()
     const canvas = document.querySelector('canvas')
     expect(canvas).toBeInTheDocument()

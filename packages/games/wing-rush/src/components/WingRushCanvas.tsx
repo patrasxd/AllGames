@@ -1,10 +1,8 @@
 import { useEffect, useRef, memo } from 'react'
-import type { Bird, Pipe, Particle, GameStatus } from '../types'
+import type { Bird, Pipe, Particle, GameStatus, GameTheme } from '../types'
 import { VIRTUAL_WIDTH, VIRTUAL_HEIGHT, FLOOR_HEIGHT } from '../logic/engine'
 
-import type { GameTheme } from '../types'
-
-interface FlappyBirdCanvasProps {
+interface WingRushCanvasProps {
   bird: Bird
   pipes: Pipe[]
   particles: Particle[]
@@ -15,7 +13,7 @@ interface FlappyBirdCanvasProps {
   onFlap: () => void
 }
 
-export const FlappyBirdCanvas = memo(function FlappyBirdCanvas({
+export const WingRushCanvas = memo(function WingRushCanvas({
   bird,
   pipes,
   particles,
@@ -24,7 +22,7 @@ export const FlappyBirdCanvas = memo(function FlappyBirdCanvas({
   isEink = false,
   theme = 'dark',
   onFlap,
-}: FlappyBirdCanvasProps) {
+}: WingRushCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const lastPointerRef = useRef(0)
 
@@ -219,7 +217,7 @@ export const FlappyBirdCanvas = memo(function FlappyBirdCanvas({
 
   return (
     <div
-      className="fb-canvas-container"
+      className="wr-canvas-container"
       onPointerDown={e => {
         if (e.pointerType === 'mouse' && e.button !== 0) return
 
@@ -240,8 +238,8 @@ export const FlappyBirdCanvas = memo(function FlappyBirdCanvas({
         }
       }}
     >
-      <div className="fb-canvas-wrapper">
-        <canvas ref={canvasRef} className="fb-canvas" />
+      <div className="wr-canvas-wrapper">
+        <canvas ref={canvasRef} className="wr-canvas" />
       </div>
     </div>
   )

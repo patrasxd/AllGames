@@ -1,12 +1,12 @@
 import { useEffect, useCallback } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { useFlappyBird } from './hooks/useFlappyBird'
-import { FlappyBirdCanvas } from './components/FlappyBirdCanvas'
+import { AnimatePresence } from 'framer-motion'
+import { useWingRush } from './hooks/useWingRush'
+import { WingRushCanvas } from './components/WingRushCanvas'
 import type { GameComponentProps, Difficulty } from './types'
-import { flappyBirdTranslations } from './i18n'
+import { wingRushTranslations } from './i18n'
 import { FullBleedLayout, Button, PillGroup } from '@all/ui'
 import { StatsHeader, GameResultOverlay } from '@allgames/ui'
-import './styles/flappy-bird.css'
+import './styles/wing-rush.css'
 
 function RestartIcon() {
   return (
@@ -29,8 +29,8 @@ function TapIcon() {
 
 const DIFF_SHORT: Record<Difficulty, string> = { easy: 'EZY', normal: 'NRM', hard: 'HRD' }
 
-export function FlappyBird({ setHeader, locale = 'en', isEink = false, theme = 'dark' }: GameComponentProps) {
-  const t = flappyBirdTranslations[locale] || flappyBirdTranslations.en
+export function WingRush({ setHeader, locale = 'en', isEink = false, theme = 'dark' }: GameComponentProps) {
+  const t = wingRushTranslations[locale] || wingRushTranslations.en
   const isPl = locale === 'pl'
 
   const {
@@ -45,7 +45,7 @@ export function FlappyBird({ setHeader, locale = 'en', isEink = false, theme = '
     flap,
     resetGame,
     changeDifficulty,
-  } = useFlappyBird()
+  } = useWingRush()
 
   // Injected Header Stats — score is on the canvas, best + difficulty shown in header
   const renderHeader = useCallback(() => {
@@ -76,7 +76,7 @@ export function FlappyBird({ setHeader, locale = 'en', isEink = false, theme = '
   return (
     <FullBleedLayout
       footer={
-        <div className="fb-controls">
+        <div className="wr-controls">
           {/* Difficulty Selector */}
           <PillGroup
             label="Difficulty"
@@ -90,7 +90,7 @@ export function FlappyBird({ setHeader, locale = 'en', isEink = false, theme = '
           />
 
           <Button
-            id="fb-restart-btn"
+            id="wr-restart-btn"
             variant="secondary"
             size="sm"
             onClick={resetGame}
@@ -101,7 +101,7 @@ export function FlappyBird({ setHeader, locale = 'en', isEink = false, theme = '
         </div>
       }
     >
-      <FlappyBirdCanvas
+      <WingRushCanvas
         bird={bird}
         pipes={pipes}
         particles={particles}
@@ -114,12 +114,12 @@ export function FlappyBird({ setHeader, locale = 'en', isEink = false, theme = '
 
       {/* Ready State Overlay */}
       {gameStatus === 'ready' && (
-        <div className="fb-ready-overlay">
-          <div className="fb-ready-pill">
+        <div className="wr-ready-overlay">
+          <div className="wr-ready-pill">
             <TapIcon />
-            <span className="fb-ready-title">{t.readyPrompt}</span>
+            <span className="wr-ready-title">{t.readyPrompt}</span>
           </div>
-          <p className="fb-ready-subtitle">{t.readySubPrompt}</p>
+          <p className="wr-ready-subtitle">{t.readySubPrompt}</p>
         </div>
       )}
 
@@ -133,7 +133,7 @@ export function FlappyBird({ setHeader, locale = 'en', isEink = false, theme = '
             isEink={isEink}
             playAgainText={t.restart}
             onPlayAgain={resetGame}
-            playAgainId="fb-play-again-btn"
+            playAgainId="wr-play-again-btn"
             stats={[
               { label: t.score, value: score },
               { label: t.bestScore, value: bestScore },
@@ -145,4 +145,5 @@ export function FlappyBird({ setHeader, locale = 'en', isEink = false, theme = '
     </FullBleedLayout>
   )
 }
-export default FlappyBird
+
+export default WingRush

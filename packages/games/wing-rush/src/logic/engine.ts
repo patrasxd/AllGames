@@ -171,3 +171,25 @@ export function updateParticles(particles: Particle[]): Particle[] {
     }))
     .filter(p => p.alpha > 0.05)
 }
+
+export function stepBirdPhysics(bird: Bird, config: DifficultyConfig, dt: number): Bird {
+  const vy = bird.vy + config.gravity * dt
+  const y = bird.y + vy * dt
+  const angle = Math.min(Math.PI / 2.8, Math.max(-Math.PI / 5, vy * 0.08))
+  const wingPhase = bird.wingPhase + (vy < 0 ? 0.35 : 0.12) * dt
+  return {
+    ...bird,
+    y,
+    vy,
+    angle,
+    wingPhase,
+  }
+}
+
+export function stepPipePosition(pipe: Pipe, config: DifficultyConfig, dt: number): Pipe {
+  return {
+    ...pipe,
+    x: pipe.x - config.pipeSpeed * dt,
+  }
+}
+

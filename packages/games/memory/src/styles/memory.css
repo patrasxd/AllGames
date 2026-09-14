@@ -361,26 +361,31 @@
 }
 
 /* ─── E-ink Mode ─────────────────────────────────────────── */
+[data-theme^='e-ink'] .memory-card-inner,
 [data-eink='true'] .memory-card-inner {
   transition: none !important;
 }
 
+[data-theme^='e-ink'] .memory-card-back,
 [data-eink='true'] .memory-card-back {
   border: 2px solid var(--border) !important;
   box-shadow: none !important;
 }
 
+[data-theme^='e-ink'] .memory-card-front,
 [data-eink='true'] .memory-card-front {
   border: 2px solid var(--border) !important;
   box-shadow: none !important;
 }
 
+[data-theme^='e-ink'] .memory-card--matched .memory-card-front,
 [data-eink='true'] .memory-card--matched .memory-card-front {
   border-color: var(--text) !important;
   color: var(--text) !important;
   background: var(--surface-2) !important;
 }
 
+[data-theme^='e-ink'] .memory-pill-btn--active,
 [data-eink='true'] .memory-pill-btn--active {
   background: var(--text) !important;
   color: var(--bg) !important;

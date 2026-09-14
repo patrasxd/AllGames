@@ -1,5 +1,5 @@
-/* ─── Flappy Bird Root & Layout ───────────────────────────── */
-.fb-root {
+/* ─── Wing Rush Root & Layout ───────────────────────────── */
+.wr-root {
   position: relative;
   width: 100%;
   height: 100%;
@@ -9,7 +9,7 @@
   touch-action: manipulation;
 }
 
-.fb-game {
+.wr-game {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -18,7 +18,7 @@
 }
 
 /* ─── Canvas Container & Wrapper (Aspect Preserving) ───────── */
-.fb-canvas-container {
+.wr-canvas-container {
   width: 100%;
   height: 100%;
   display: flex;
@@ -31,7 +31,7 @@
   touch-action: manipulation;
 }
 
-.fb-canvas-wrapper {
+.wr-canvas-wrapper {
   position: relative;
   height: 100%;
   width: auto;
@@ -47,7 +47,7 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-.fb-canvas {
+.wr-canvas {
   width: 100%;
   height: 100%;
   max-width: 100%;
@@ -57,7 +57,7 @@
 }
 
 /* ─── Ready Prompt Overlay ────────────────────────────────── */
-.fb-ready-overlay {
+.wr-ready-overlay {
   position: absolute;
   inset: 0;
   display: flex;
@@ -72,7 +72,7 @@
   z-index: 10;
 }
 
-.fb-ready-pill {
+.wr-ready-pill {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
@@ -81,10 +81,10 @@
   padding: 0.5rem 1rem;
   border-radius: 9999px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  animation: fbPulsePrompt 1.4s infinite alternate ease-in-out;
+  animation: wrPulsePrompt 1.4s infinite alternate ease-in-out;
 }
 
-.fb-ready-title {
+.wr-ready-title {
   font-family: var(--font-sans);
   font-size: 0.8125rem;
   font-weight: 700;
@@ -93,20 +93,20 @@
   color: var(--text);
 }
 
-.fb-ready-subtitle {
+.wr-ready-subtitle {
   font-size: 0.75rem;
   color: var(--text-dim);
   max-width: 220px;
   line-height: 1.4;
 }
 
-@keyframes fbPulsePrompt {
+@keyframes wrPulsePrompt {
   from { transform: scale(0.97); opacity: 0.85; }
   to   { transform: scale(1.03); opacity: 1; }
 }
 
 /* ─── Controls Bar ────────────────────────────────────────── */
-.fb-controls {
+.wr-controls {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -116,7 +116,7 @@
 }
 
 /* ─── Rules Modal ─────────────────────────────────────────── */
-.fb-modal-overlay {
+.wr-modal-overlay {
   position: fixed;
   inset: 0;
   z-index: 9999;
@@ -129,7 +129,7 @@
   padding: 1rem;
 }
 
-.fb-modal-card {
+.wr-modal-card {
   background: var(--surface);
   border: 1.5px solid var(--border-2);
   border-radius: var(--radius);
@@ -142,20 +142,20 @@
   box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4);
 }
 
-.fb-modal-header {
+.wr-modal-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-.fb-modal-title {
+.wr-modal-title {
   font-family: var(--font-sans);
   font-size: 1.125rem;
   font-weight: 800;
   color: var(--text);
 }
 
-.fb-modal-close-btn {
+.wr-modal-close-btn {
   background: transparent;
   border: none;
   font-size: 1rem;
@@ -164,11 +164,11 @@
   padding: 0.2rem 0.4rem;
 }
 
-.fb-modal-close-btn:hover {
+.wr-modal-close-btn:hover {
   color: var(--text);
 }
 
-.fb-rules-list {
+.wr-rules-list {
   display: flex;
   flex-direction: column;
   gap: 0.65rem;
@@ -178,10 +178,8 @@
   line-height: 1.45;
 }
 
-.fb-rules-item {
+.wr-rules-item {
   display: flex;
   gap: 0.5rem;
   align-items: flex-start;
 }
-
-

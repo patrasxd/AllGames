@@ -482,21 +482,25 @@
 }
 
 /* ─── E-ink Mode ─────────────────────────────────────────── */
+[data-theme^='e-ink'] .cm-board-wrapper,
 [data-eink='true'] .cm-board-wrapper {
   border: 2px solid var(--border) !important;
   box-shadow: none !important;
 }
 
+[data-theme^='e-ink'] .cm-tile,
 [data-eink='true'] .cm-tile {
   background: var(--surface) !important;
   border: 1px solid var(--border) !important;
 }
 
+[data-theme^='e-ink'] .cm-tile--selected,
 [data-eink='true'] .cm-tile--selected {
   border: 2px solid var(--text) !important;
   background: var(--surface-2) !important;
 }
 
+[data-theme^='e-ink'] .cm-obstacle--ice,
 [data-eink='true'] .cm-obstacle--ice {
   border: 2px dashed var(--border) !important;
   background: none !important;

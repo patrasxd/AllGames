@@ -266,16 +266,19 @@
 }
 
 /* ─── E-ink Mode ─────────────────────────────────────────── */
+[data-theme^='e-ink'] .sol-card,
 [data-eink='true'] .sol-card {
   border: 2px solid var(--border) !important;
   box-shadow: none !important;
 }
 
+[data-theme^='e-ink'] .sol-card--selected,
 [data-eink='true'] .sol-card--selected {
   border: 2px solid var(--text) !important;
   background: var(--surface-2) !important;
 }
 
+[data-theme^='e-ink'] .sol-card--red,
 [data-eink='true'] .sol-card--red {
   color: var(--text) !important;
   text-decoration: underline;

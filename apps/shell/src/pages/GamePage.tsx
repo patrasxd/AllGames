@@ -5,7 +5,6 @@ import { Button, BackLink } from '@all/ui'
 import { findGame } from '../games/registry'
 import { useI18n } from '../i18n'
 import { useTheme } from '../hooks/useTheme'
-import { useEink } from '../hooks/useEink'
 import { useGameHeader } from '../components/Layout'
 
 function GameFallback() {
@@ -60,8 +59,7 @@ export function GamePage() {
   const { slug = '' } = useParams<{ slug: string }>()
   const navigate = useNavigate()
   const { locale, t } = useI18n()
-  const { theme } = useTheme()
-  const { isEink } = useEink()
+  const { theme, isEink } = useTheme()
   const entry = findGame(slug)
 
   const { setHeaderExtra } = useGameHeader()

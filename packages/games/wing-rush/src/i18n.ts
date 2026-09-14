@@ -1,6 +1,6 @@
 import type { Locale, Difficulty } from './types'
 
-export interface FlappyBirdTranslations {
+export interface WingRushTranslations {
   gameTitle: string
   score: string
   bestScore: string
@@ -20,7 +20,7 @@ export interface FlappyBirdTranslations {
   rule3: string
 }
 
-export const flappyBirdTranslations: Record<Locale, FlappyBirdTranslations> = {
+export const wingRushTranslations: Record<Locale, WingRushTranslations> = {
   en: {
     gameTitle: 'Wing Rush',
     score: 'Score',

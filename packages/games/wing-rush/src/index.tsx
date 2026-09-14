@@ -1,4 +1,4 @@
-import { FlappyBird } from './FlappyBird'
+import { WingRush } from './WingRush'
 
-export { FlappyBird, FlappyBird as GameComponent }
-export default FlappyBird
+export { WingRush, WingRush as GameComponent }
+export default WingRush
