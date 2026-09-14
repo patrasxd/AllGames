@@ -120,48 +120,45 @@ export function Game2048({ setHeader, locale = 'en', isEink = false }: GameCompo
               />
             ) : null
           }
+          dpad={
+            <DPad
+              onDirection={handleMove}
+              ariaLabel={t.swipeHint}
+            />
+          }
           controls={
-            <div className="g2048-controls-wrapper">
-              {/* Shared Standardized D-pad from @allgames/ui */}
-              <DPad
-                onDirection={handleMove}
-                ariaLabel={t.swipeHint}
+            <ControlsBar>
+              <Button
+                id="g2048-new-game-btn"
+                variant="primary"
+                size="sm"
+                onClick={() => resetGame()}
+              >
+                {t.newGame}
+              </Button>
+
+              <Button
+                id="g2048-undo-btn"
+                variant="secondary"
+                size="sm"
+                icon={<UndoIcon />}
+                onClick={undoMove}
+                disabled={!canUndo}
+              >
+                {t.undo}
+              </Button>
+
+              <PillGroup<GridSize>
+                label={t.gridSizeLabel}
+                options={GRID_SIZES.map(s => ({
+                  value: s,
+                  label: s === 3 ? t.grid3 : s === 4 ? t.grid4 : t.grid5,
+                  id: `g2048-size-${s}`,
+                }))}
+                value={gridSize}
+                onChange={handleSizeClick}
               />
-
-              {/* Action Controls Bar */}
-              <ControlsBar>
-                <Button
-                  id="g2048-new-game-btn"
-                  variant="primary"
-                  size="sm"
-                  onClick={() => resetGame()}
-                >
-                  {t.newGame}
-                </Button>
-
-                <Button
-                  id="g2048-undo-btn"
-                  variant="secondary"
-                  size="sm"
-                  icon={<UndoIcon />}
-                  onClick={undoMove}
-                  disabled={!canUndo}
-                >
-                  {t.undo}
-                </Button>
-
-                <PillGroup<GridSize>
-                  label={t.gridSizeLabel}
-                  options={GRID_SIZES.map(s => ({
-                    value: s,
-                    label: s === 3 ? t.grid3 : s === 4 ? t.grid4 : t.grid5,
-                    id: `g2048-size-${s}`,
-                  }))}
-                  value={gridSize}
-                  onChange={handleSizeClick}
-                />
-              </ControlsBar>
-            </div>
+            </ControlsBar>
           }
         />
 

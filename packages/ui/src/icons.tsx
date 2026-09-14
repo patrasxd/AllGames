@@ -187,3 +187,23 @@ export function TrashIcon(props: SVGProps<SVGSVGElement>) {
     </svg>
   )
 }
+
+export function DpadIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      {...props}
+    >
+      <path d="M9 3h6v5h5v6h-5v7H9v-7H4V8h5V3z" />
+    </svg>
+  )
+}
+

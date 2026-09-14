@@ -121,70 +121,67 @@ export function Snake({ setHeader, locale = 'en', isEink = false }: GameComponen
             )}
           </AnimatePresence>
         }
+        dpad={
+          <DPad
+            onDirection={(dir) => changeDirection(dir.toUpperCase() as any)}
+            labels={{
+              up: t.upAria,
+              down: t.downAria,
+              left: t.leftAria,
+              right: t.rightAria,
+            }}
+          />
+        }
         controls={
-          <div className="snake-controls-section">
-            {/* Standardized D-Pad for Mobile Touch Devices from @allgames/ui */}
-            <DPad
-              onDirection={(dir) => changeDirection(dir.toUpperCase() as any)}
-              labels={{
-                up: t.upAria,
-                down: t.downAria,
-                left: t.leftAria,
-                right: t.rightAria,
-              }}
+          <ControlsBar className="snake-bottom-bar">
+            {status === 'PLAYING' && (
+              <Button
+                id="snake-pause-btn"
+                variant="secondary"
+                size="sm"
+                onClick={pauseGame}
+              >
+                {t.pauseBtn}
+              </Button>
+            )}
+
+            {status === 'PAUSED' && (
+              <Button
+                id="snake-resume-bottom-btn"
+                variant="primary"
+                size="sm"
+                onClick={resumeGame}
+              >
+                {t.resumeBtn}
+              </Button>
+            )}
+
+            {/* Map Selector */}
+            <PillGroup<MapMode>
+              label={t.mapLabel}
+              size="sm"
+              options={maps.map(m => ({
+                value: m,
+                label: m === 'classic' ? t.mapClassicShort : m === 'obstacles' ? t.mapObstaclesShort : t.mapBigShort,
+                id: `snake-map-${m}`,
+              }))}
+              value={mapMode}
+              onChange={setMapMode}
             />
 
-            {/* Bottom Settings Bar — Map, Speed & Pause */}
-            <ControlsBar className="snake-bottom-bar">
-              {status === 'PLAYING' && (
-                <Button
-                  id="snake-pause-btn"
-                  variant="secondary"
-                  size="sm"
-                  onClick={pauseGame}
-                >
-                  {t.pauseBtn}
-                </Button>
-              )}
-
-              {status === 'PAUSED' && (
-                <Button
-                  id="snake-resume-bottom-btn"
-                  variant="primary"
-                  size="sm"
-                  onClick={resumeGame}
-                >
-                  {t.resumeBtn}
-                </Button>
-              )}
-
-              {/* Map Selector */}
-              <PillGroup<MapMode>
-                label={t.mapLabel}
-                size="sm"
-                options={maps.map(m => ({
-                  value: m,
-                  label: m === 'classic' ? t.mapClassicShort : m === 'obstacles' ? t.mapObstaclesShort : t.mapBigShort,
-                  id: `snake-map-${m}`,
-                }))}
-                value={mapMode}
-                onChange={setMapMode}
-              />
-
-              {/* Speed Selector */}
-              <PillGroup<SpeedMode>
-                label={t.speedLabel}
-                size="sm"
-                options={speeds.map(s => ({
-                  value: s,
-                  label: s === 'relaxed' ? t.speedRelaxed : s === 'normal' ? t.speedNormal : t.speedFast,
-                  id: `snake-speed-${s}`,
-                }))}
-                value={speed}
-                onChange={setSpeed}
-              />
-            </ControlsBar>
-          </div>
+            {/* Speed Selector */}
+            <PillGroup<SpeedMode>
+              label={t.speedLabel}
+              size="sm"
+              options={speeds.map(s => ({
+                value: s,
+                label: s === 'relaxed' ? t.speedRelaxed : s === 'normal' ? t.speedNormal : t.speedFast,
+                id: `snake-speed-${s}`,
+              }))}
+              value={speed}
+              onChange={setSpeed}
+            />
+          </ControlsBar>
         }
       />
     </div>

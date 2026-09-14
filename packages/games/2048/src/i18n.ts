@@ -20,6 +20,9 @@ export const game2048Translations = {
     cancelBtn: 'Cancel',
     resetStatsAria: 'Reset best score',
     boardAria: '2048 grid',
+    dpadHide: 'Hide D-Pad',
+    dpadShow: 'Show D-Pad',
+    dpadLabel: 'D-Pad',
   },
   pl: {
     title: '2048',
@@ -42,5 +45,8 @@ export const game2048Translations = {
     cancelBtn: 'Anuluj',
     resetStatsAria: 'Resetuj rekord',
     boardAria: 'Plansza 2048',
+    dpadHide: 'Ukryj D-Pad',
+    dpadShow: 'Pokaż D-Pad',
+    dpadLabel: 'D-Pad',
   },
 } as const

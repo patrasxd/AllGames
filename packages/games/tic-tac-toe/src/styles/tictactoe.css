@@ -302,11 +302,11 @@
 
 /* ─── Controls Bar ────────────────────────────────────────── */
 .ttt-controls-bar {
-  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: var(--all-space-2, 0.5rem);
+  width: auto;
   flex-wrap: wrap;
 }
 
