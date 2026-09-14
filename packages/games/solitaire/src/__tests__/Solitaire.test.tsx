@@ -29,5 +29,28 @@ describe('Solitaire component integration', () => {
     // Verify card drawn to waste
     const wasteSlot = document.querySelector('.sol-waste-group') || document.querySelector('.sol-slot')
     expect(wasteSlot).toBeInTheDocument()
+  }, 10000)
+
+  it('prompts ConfirmDialog when clicking New Game after moves are made', () => {
+    render(<Solitaire locale="en" />)
+
+    // Make a move by clicking stock
+    const stockBtn = document.querySelector('.sol-slot--stock')
+    fireEvent.click(stockBtn!)
+
+    // Click new game - should open ConfirmDialog instead of instant reset
+    const newGameBtn = document.getElementById('sol-new-game-btn')
+    fireEvent.click(newGameBtn!)
+
+    // Confirm dialog should be open
+    const confirmBtn = document.getElementById('sol-new-game-confirm')
+    const cancelBtn = document.getElementById('sol-new-game-cancel')
+    expect(confirmBtn).toBeInTheDocument()
+    expect(cancelBtn).toBeInTheDocument()
+
+    // Cancel preserves current game
+    fireEvent.click(cancelBtn!)
+    expect(document.getElementById('sol-new-game-confirm')).toBeNull()
   })
 })
+

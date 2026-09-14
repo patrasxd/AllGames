@@ -17,6 +17,9 @@ export const solitaireTranslations = {
     playAgain: 'Play again',
     confirmResetTitle: 'Reset game?',
     confirmDrawDesc: 'Changing draw mode will restart the game. Continue?',
+    confirmNewGameDesc: 'Your current game progress will be lost. Start a new game?',
+    cancelBtn: 'Cancel',
+    continueBtn: 'Continue',
     resetStatsAria: 'Reset record',
   },
   pl: {
@@ -37,6 +40,9 @@ export const solitaireTranslations = {
     playAgain: 'Zagraj ponownie',
     confirmResetTitle: 'Zresetować grę?',
     confirmDrawDesc: 'Zmiana trybu dobierania zresetuje trwającą partię. Czy chcesz kontynuować?',
+    confirmNewGameDesc: 'Bieżący postęp gry zostanie utracony. Rozpocząć nową grę?',
+    cancelBtn: 'Anuluj',
+    continueBtn: 'Kontynuuj',
     resetStatsAria: 'Resetuj rekord',
   },
 } as const

@@ -31,6 +31,11 @@ export interface GameComponentProps {
    * Call with null to clear. Cleared automatically when game unmounts.
    */
   setHeader?: (content: React.ReactNode) => void;
+  /**
+   * Game can call this to signal whether a playable game session is currently in progress.
+   * When true, navigating away (e.g. via BackLink) triggers a confirmation dialog.
+   */
+  setIsActive?: (active: boolean) => void;
 }
 
 export interface GameModule {

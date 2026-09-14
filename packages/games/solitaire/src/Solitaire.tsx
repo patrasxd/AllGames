@@ -4,7 +4,7 @@ import { useSolitaire } from './hooks/useSolitaire'
 import { SolitaireBoard } from './components/SolitaireBoard'
 import type { GameComponentProps, DrawMode } from './types'
 import { solitaireTranslations } from './i18n'
-import { BoardLayout, Dialog, Button } from '@all/ui'
+import { BoardLayout, ConfirmDialog, Button } from '@all/ui'
 import {
   StatsHeader,
   PillGroup,
@@ -18,16 +18,17 @@ import './styles/solitaire.css'
 
 function FinishIcon() {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <polyline points="20 6 9 17 4 12" />
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M5 12l5 5L20 7" />
     </svg>
   )
 }
 
 const DRAW_MODES: DrawMode[] = [1, 3]
 
-export function Solitaire({ setHeader, locale = 'en', isEink = false }: GameComponentProps) {
+export function Solitaire({ setHeader, setIsActive, locale = 'en', isEink = false }: GameComponentProps) {
   const [pendingDrawMode, setPendingDrawMode] = useState<DrawMode | null>(null)
+  const [showNewGameConfirm, setShowNewGameConfirm] = useState(false)
 
   const t = solitaireTranslations[locale] || solitaireTranslations.en
   const isPl = locale === 'pl'
@@ -53,6 +54,19 @@ export function Solitaire({ setHeader, locale = 'en', isEink = false }: GameComp
   } = useSolitaire({ isEink })
 
   const isGameActive = state.moves > 0 && !state.isWon
+
+  useEffect(() => {
+    setIsActive?.(isGameActive)
+    return () => setIsActive?.(false)
+  }, [isGameActive, setIsActive])
+
+  const handleNewGameClick = () => {
+    if (isGameActive) {
+      setShowNewGameConfirm(true)
+    } else {
+      resetGame()
+    }
+  }
 
   const renderHeader = useCallback(() => {
     if (!setHeader) return
@@ -110,7 +124,7 @@ export function Solitaire({ setHeader, locale = 'en', isEink = false }: GameComp
               <Button
                 id="sol-new-game-btn"
                 variant="primary"
-                onClick={() => resetGame()}
+                onClick={handleNewGameClick}
               >
                 {t.newGame}
               </Button>
@@ -199,24 +213,35 @@ export function Solitaire({ setHeader, locale = 'en', isEink = false }: GameComp
           </div>
         </BoardLayout>
 
-        {/* Reset Confirmation Modal */}
-        <Dialog
-          open={pendingDrawMode !== null}
-          onOpenChange={(open) => {
-            if (!open) handleCancelDrawMode()
+        {/* New Game Confirmation Modal */}
+        <ConfirmDialog
+          open={showNewGameConfirm}
+          title={t.confirmResetTitle}
+          description={t.confirmNewGameDesc}
+          confirmLabel={t.newGame}
+          cancelLabel={t.cancelBtn}
+          confirmVariant="danger"
+          confirmId="sol-new-game-confirm"
+          cancelId="sol-new-game-cancel"
+          onConfirm={() => {
+            setShowNewGameConfirm(false)
+            resetGame()
           }}
+          onClose={() => setShowNewGameConfirm(false)}
+        />
+
+        {/* Draw Mode Change Confirmation Modal */}
+        <ConfirmDialog
+          open={pendingDrawMode !== null}
           title={t.confirmResetTitle}
           description={t.confirmDrawDesc}
-          footer={
-            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', width: '100%' }}>
-              <Button id="sol-modal-cancel" variant="secondary" onClick={handleCancelDrawMode}>
-                Cancel
-              </Button>
-              <Button id="sol-modal-confirm" variant="danger" onClick={handleConfirmDrawMode}>
-                Continue
-              </Button>
-            </div>
-          }
+          confirmLabel={t.continueBtn}
+          cancelLabel={t.cancelBtn}
+          confirmVariant="danger"
+          confirmId="sol-modal-confirm"
+          cancelId="sol-modal-cancel"
+          onConfirm={handleConfirmDrawMode}
+          onClose={handleCancelDrawMode}
         />
       </div>
     </div>

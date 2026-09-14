@@ -1,7 +1,7 @@
-import { Suspense, useCallback, useEffect } from 'react'
+import { Suspense, useCallback, useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Button, BackLink } from '@all/ui'
+import { Button, BackLink, ConfirmDialog } from '@all/ui'
 import { findGame } from '../games/registry'
 import { useI18n } from '../i18n'
 import { useTheme } from '../hooks/useTheme'
@@ -62,10 +62,21 @@ export function GamePage() {
   const { theme, isEink } = useTheme()
   const entry = findGame(slug)
 
+  const [isGameActive, setIsGameActive] = useState(false)
+  const [showLeaveConfirm, setShowLeaveConfirm] = useState(false)
+
   const { setHeaderExtra } = useGameHeader()
   const setHeader = useCallback((content: React.ReactNode) => {
     setHeaderExtra(content)
   }, [setHeaderExtra])
+
+  const handleBack = useCallback(() => {
+    if (isGameActive) {
+      setShowLeaveConfirm(true)
+    } else {
+      navigate('/')
+    }
+  }, [isGameActive, navigate])
 
   return (
     <motion.div
@@ -80,7 +91,7 @@ export function GamePage() {
           <BackLink
             id={`back-btn-${slug}`}
             label={t.backToGames}
-            onClick={() => navigate('/')}
+            onClick={handleBack}
             aria-label={t.backToGamesAria}
             title={t.backToGames}
           />
@@ -92,7 +103,15 @@ export function GamePage() {
             <Suspense fallback={<GameFallback />}>
               {(() => {
                 const GameComp = entry.load
-                return <GameComp setHeader={setHeader} locale={locale} isEink={isEink} theme={theme} />
+                return (
+                  <GameComp
+                    setHeader={setHeader}
+                    setIsActive={setIsGameActive}
+                    locale={locale}
+                    isEink={isEink}
+                    theme={theme}
+                  />
+                )
               })()}
             </Suspense>
           ) : (
@@ -100,6 +119,23 @@ export function GamePage() {
           )}
         </div>
       </div>
+
+      {/* Confirmation Dialog when leaving an active game session */}
+      <ConfirmDialog
+        open={showLeaveConfirm}
+        title={t.confirmLeaveTitle}
+        description={t.confirmLeaveDesc}
+        confirmLabel={t.confirmLeaveBtn}
+        cancelLabel={t.cancelBtn}
+        confirmVariant="danger"
+        confirmId="leave-game-confirm-btn"
+        cancelId="leave-game-cancel-btn"
+        onConfirm={() => {
+          setShowLeaveConfirm(false)
+          navigate('/')
+        }}
+        onClose={() => setShowLeaveConfirm(false)}
+      />
     </motion.div>
   )
 }

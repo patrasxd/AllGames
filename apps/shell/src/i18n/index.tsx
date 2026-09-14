@@ -39,6 +39,10 @@ export interface TranslationDictionary {
   gameTagsAria: string
   backToGames: string
   backToGamesAria: string
+  confirmLeaveTitle: string
+  confirmLeaveDesc: string
+  confirmLeaveBtn: string
+  cancelBtn: string
   loading: string
   notFound: string
   returnToGames: string
@@ -75,6 +79,10 @@ export const translations: Record<Locale, TranslationDictionary> = {
     gameTagsAria: 'Game tags',
     backToGames: 'All games',
     backToGamesAria: 'Back to games list',
+    confirmLeaveTitle: 'Leave game?',
+    confirmLeaveDesc: 'Your current progress will be lost. Are you sure you want to return to all games?',
+    confirmLeaveBtn: 'Leave game',
+    cancelBtn: 'Cancel',
     loading: 'Loading…',
     notFound: 'Game not found:',
     returnToGames: 'Return to games list →',
@@ -109,6 +117,10 @@ export const translations: Record<Locale, TranslationDictionary> = {
     gameTagsAria: 'Tagi gry',
     backToGames: 'Wszystkie gry',
     backToGamesAria: 'Wróć do listy gier',
+    confirmLeaveTitle: 'Opuścić grę?',
+    confirmLeaveDesc: 'Twój bieżący postęp zostanie utracony. Czy na pewno chcesz wrócić do listy gier?',
+    confirmLeaveBtn: 'Opuść grę',
+    cancelBtn: 'Anuluj',
     loading: 'Ładowanie…',
     notFound: 'Nie znaleziono gry:',
     returnToGames: 'Wróć do listy gier →',
