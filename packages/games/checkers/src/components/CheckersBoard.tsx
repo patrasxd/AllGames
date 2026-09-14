@@ -40,6 +40,7 @@ export function CheckersBoard({
               <button
                 key={`${row}-${col}`}
                 type="button"
+                tabIndex={isDark ? 0 : -1}
                 className={`checkers-square ${isDark ? 'checkers-square--dark' : 'checkers-square--light'} ${
                   isSelected ? 'checkers-square--selected' : ''
                 } ${isValidDestination ? 'checkers-square--target' : ''}`}

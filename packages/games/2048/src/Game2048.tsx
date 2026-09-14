@@ -1,46 +1,12 @@
 import { useState, useEffect, useCallback } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { use2048 } from './hooks/use2048'
 import { Board2048 } from './components/Board2048'
 import type { GameComponentProps, GridSize } from './types'
 import { game2048Translations } from './i18n'
-import { BoardLayout, Dialog, Button } from '@all/ui'
-import {
-  StatsHeader,
-  PillGroup,
-  ControlsBar,
-  GameResultOverlay,
-  UndoIcon,
-} from '@allgames/ui'
+import { BoardLayout, Dialog, Button, PillGroup, ControlsBar } from '@all/ui'
+import { StatsHeader, GameResultOverlay, UndoIcon, DPad } from '@allgames/ui'
 import './styles/game2048.css'
-
-/* ─── Sketched Arrow Icons ───────────────────────────────── */
-function ArrowIcon({ dir }: { dir: 'up' | 'down' | 'left' | 'right' }) {
-  const points =
-    dir === 'up'
-      ? '18 15 12 9 6 15'
-      : dir === 'right'
-        ? '9 18 15 12 9 6'
-        : dir === 'down'
-          ? '6 9 12 15 18 9'
-          : '15 18 9 12 15 6'
-
-  return (
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <polyline points={points} />
-    </svg>
-  )
-}
 
 const GRID_SIZES: GridSize[] = [3, 4, 5]
 
@@ -65,7 +31,7 @@ export function Game2048({ setHeader, locale = 'en', isEink = false }: GameCompo
     resetBestScore,
   } = use2048({ isEink })
 
-  const isGameActive = score > 0 && gameStatus !== 'lost'
+  const isGameActive = (score > 0 || canUndo) && gameStatus === 'playing'
 
   const renderHeader = useCallback(() => {
     if (!setHeader) return
@@ -122,89 +88,52 @@ export function Game2048({ setHeader, locale = 'en', isEink = false }: GameCompo
         <BoardLayout
           variant="square"
           board={
-            <div style={{ position: 'relative' }}>
-              <Board2048
-                tiles={tiles}
-                size={gridSize}
+            <Board2048
+              tiles={tiles}
+              size={gridSize}
+              isEink={isEink}
+              onMove={handleMove}
+            />
+          }
+          overlay={
+            (gameStatus === 'won' || gameStatus === 'lost') ? (
+              <GameResultOverlay
+                status={gameStatus === 'won' ? 'won' : 'lost'}
+                title={gameStatus === 'won' ? t.youWon : t.youLost}
+                stats={[
+                  { label: t.score, value: score },
+                  { label: t.bestScore, value: bestScore },
+                ]}
                 isEink={isEink}
-                onMove={handleMove}
+                playAgainText={t.tryAgain}
+                onPlayAgain={() => resetGame()}
+                playAgainId="g2048-retry-btn"
+                secondaryAction={
+                  gameStatus === 'won'
+                    ? {
+                        label: t.keepPlaying,
+                        onClick: dismissWin,
+                        id: 'g2048-keep-playing-btn',
+                      }
+                    : undefined
+                }
               />
-
-              {/* Win / Loss Overlay */}
-              <AnimatePresence>
-                {(gameStatus === 'won' || gameStatus === 'lost') && (
-                  <GameResultOverlay
-                    status={gameStatus}
-                    title={gameStatus === 'won' ? t.youWon : t.youLost}
-                    stats={[
-                      { label: t.score, value: score },
-                      { label: t.bestScore, value: bestScore },
-                    ]}
-                    isEink={isEink}
-                    playAgainText={t.tryAgain}
-                    onPlayAgain={() => resetGame()}
-                    playAgainId="g2048-retry-btn"
-                    secondaryAction={
-                      gameStatus === 'won'
-                        ? {
-                            label: t.keepPlaying,
-                            onClick: dismissWin,
-                            id: 'g2048-keep-playing-btn',
-                          }
-                        : undefined
-                    }
-                  />
-                )}
-              </AnimatePresence>
-            </div>
+            ) : null
           }
           controls={
-            <div>
-              {/* D-pad controls for accessible navigation and touch */}
-              <div className="g2048-dpad" role="group" aria-label="Direction Controls">
-                <button
-                  type="button"
-                  id="g2048-dpad-up"
-                  className="g2048-dpad-btn g2048-dpad-up"
-                  onClick={() => handleMove('up')}
-                  aria-label="Move Up"
-                >
-                  <ArrowIcon dir="up" />
-                </button>
-                <button
-                  type="button"
-                  id="g2048-dpad-left"
-                  className="g2048-dpad-btn g2048-dpad-left"
-                  onClick={() => handleMove('left')}
-                  aria-label="Move Left"
-                >
-                  <ArrowIcon dir="left" />
-                </button>
-                <button
-                  type="button"
-                  id="g2048-dpad-down"
-                  className="g2048-dpad-btn g2048-dpad-down"
-                  onClick={() => handleMove('down')}
-                  aria-label="Move Down"
-                >
-                  <ArrowIcon dir="down" />
-                </button>
-                <button
-                  type="button"
-                  id="g2048-dpad-right"
-                  className="g2048-dpad-btn g2048-dpad-right"
-                  onClick={() => handleMove('right')}
-                  aria-label="Move Right"
-                >
-                  <ArrowIcon dir="right" />
-                </button>
-              </div>
+            <div className="g2048-controls-wrapper">
+              {/* Shared Standardized D-pad from @allgames/ui */}
+              <DPad
+                onDirection={handleMove}
+                ariaLabel={t.swipeHint}
+              />
 
               {/* Action Controls Bar */}
               <ControlsBar>
                 <Button
                   id="g2048-new-game-btn"
                   variant="primary"
+                  size="sm"
                   onClick={() => resetGame()}
                 >
                   {t.newGame}
@@ -213,6 +142,7 @@ export function Game2048({ setHeader, locale = 'en', isEink = false }: GameCompo
                 <Button
                   id="g2048-undo-btn"
                   variant="secondary"
+                  size="sm"
                   icon={<UndoIcon />}
                   onClick={undoMove}
                   disabled={!canUndo}
@@ -241,24 +171,28 @@ export function Game2048({ setHeader, locale = 'en', isEink = false }: GameCompo
           onClose={handleCancelSize}
           title={t.confirmResetTitle}
           description={t.confirmModeDesc}
-        >
-          <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '16px' }}>
-            <Button
-              id="g2048-modal-cancel"
-              variant="secondary"
-              onClick={handleCancelSize}
-            >
-              {t.cancelBtn}
-            </Button>
-            <Button
-              id="g2048-modal-confirm"
-              variant="primary"
-              onClick={handleConfirmSize}
-            >
-              {t.confirmBtn}
-            </Button>
-          </div>
-        </Dialog>
+          maxWidth="sm"
+          footer={
+            <>
+              <Button
+                id="g2048-modal-cancel"
+                variant="secondary"
+                size="sm"
+                onClick={handleCancelSize}
+              >
+                {t.cancelBtn}
+              </Button>
+              <Button
+                id="g2048-modal-confirm"
+                variant="primary"
+                size="sm"
+                onClick={handleConfirmSize}
+              >
+                {t.confirmBtn}
+              </Button>
+            </>
+          }
+        />
       </motion.div>
     </div>
   )

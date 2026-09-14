@@ -55,3 +55,4 @@ export const Tile = memo(function Tile({ tile, size, isEink }: TileProps) {
     </motion.div>
   )
 })
+export default Tile

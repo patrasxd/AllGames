@@ -1,73 +1,147 @@
-/* ─── Standardized DPad Geometry Styles in AllGames ─── */
+/* ─── Standardized DPad in AllGames ────────────────────────── */
 
 .game-dpad {
-  display: grid;
-  grid-template-columns: repeat(3, 48px);
-  grid-template-rows: repeat(3, 48px);
-  gap: 6px;
-  user-select: none;
-  touch-action: none;
-  justify-content: center;
+  display: flex;
+  flex-direction: column;
   align-items: center;
+  justify-content: center;
+  gap: var(--all-space-2, 0.5rem);
+  width: 100%;
+  max-width: min(440px, 100%);
+  margin: auto 0;
+  user-select: none;
+  touch-action: manipulation;
+  flex: 1 1 auto;
 }
 
-@media (min-width: 640px) {
+@media (min-width: 768px) {
+  /* On desktop devices with physical keyboards, hide on-screen D-Pad */
   .game-dpad {
-    grid-template-columns: repeat(3, 56px);
-    grid-template-rows: repeat(3, 56px);
-    gap: 8px;
+    display: none;
   }
 }
 
-.game-dpad-btn {
+/* ─── Compact Inverted-T Variant (Default) ────────────────── */
+.game-dpad--compact {
+  width: 100%;
+  max-width: min(440px, 100%);
+}
+
+.game-dpad--compact .game-dpad-row {
   display: flex;
+  gap: var(--all-space-2, 0.5rem);
   align-items: center;
   justify-content: center;
   width: 100%;
-  height: 100%;
-  min-width: 48px;
-  min-height: 48px;
-  background: var(--all-surface, var(--color-surface, #1e2530));
-  border: var(--all-border-width, 1.5px) solid var(--all-border-2, var(--color-border, #2d3748));
-  border-radius: var(--all-radius, 4px);
-  color: var(--all-text, var(--color-text, #ffffff));
+}
+
+.game-dpad--compact .game-dpad-row--top .game-dpad-btn {
+  width: calc((100% - 2 * var(--all-space-2, 0.5rem)) / 3);
+  height: clamp(70px, 11.5vh, 98px);
+  min-height: 64px;
+}
+
+.game-dpad--compact .game-dpad-row--bottom .game-dpad-btn {
+  flex: 1 1 0px;
+  height: clamp(70px, 11.5vh, 98px);
+  min-height: 64px;
+}
+
+/* ─── 3x3 Cross Variant ──────────────────────────────────── */
+.game-dpad--cross {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(3, clamp(64px, 10vh, 88px));
+  gap: var(--all-space-2, 0.5rem);
+  width: 100%;
+  max-width: min(420px, 100%);
+  justify-content: center;
+  align-items: center;
+  margin: auto 0;
+}
+
+.game-dpad--cross .game-dpad-btn--up    { grid-column: 2; grid-row: 1; }
+.game-dpad--cross .game-dpad-btn--left  { grid-column: 1; grid-row: 2; }
+.game-dpad--cross .game-dpad-btn--center{ grid-column: 2; grid-row: 2; opacity: 0; pointer-events: none; }
+.game-dpad--cross .game-dpad-btn--right { grid-column: 3; grid-row: 2; }
+.game-dpad--cross .game-dpad-btn--down  { grid-column: 2; grid-row: 3; }
+
+/* ─── Directional Buttons ─────────────────────────────────── */
+.game-dpad-btn {
+  background: var(--all-surface, var(--surface, #1e1e24));
+  border: 1.5px solid var(--all-border, var(--border, #33333f));
+  border-radius: var(--all-radius-sm, 6px);
+  color: var(--all-text-muted, var(--text-muted, #8b8b9e));
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  touch-action: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
   transition:
-    background var(--all-duration-fast, 150ms) ease,
-    border-color var(--all-duration-fast, 150ms) ease,
-    transform var(--all-duration-fast, 150ms) ease;
+    background var(--all-duration-fast, 120ms) ease,
+    border-color var(--all-duration-fast, 120ms) ease,
+    color var(--all-duration-fast, 120ms) ease,
+    transform var(--all-duration-fast, 100ms) ease;
+  padding: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
 }
 
-.game-dpad-btn:hover {
-  background: var(--all-surface-2, var(--color-surface-hover, #2d3748));
-  border-color: var(--all-text-dim, var(--color-text-dim, #a0aec0));
+.game-dpad-btn:hover:not(:disabled) {
+  background: var(--all-surface-2, var(--surface-2, #282834));
+  border-color: var(--all-border-2, var(--border-2, #4a4a5f));
+  color: var(--all-text, var(--text, #f0f0f5));
 }
 
-.game-dpad-btn:active {
-  background: var(--all-border-2, var(--color-border-hover, #4a5568));
-  transform: scale(0.94);
+.game-dpad-btn:active:not(:disabled) {
+  background: var(--all-surface-2, var(--surface-2, #282834));
+  border-color: var(--all-text, #ffffff);
+  color: var(--all-text, #ffffff);
+  transform: scale(0.96);
+}
+
+.game-dpad-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 .game-dpad-btn svg {
-  width: 20px;
-  height: 20px;
+  width: 32px;
+  height: 32px;
   stroke: currentColor;
-  stroke-width: 2;
+  stroke-width: 2.6;
   fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
-/* Grid placement */
-.game-dpad-btn--up    { grid-column: 2; grid-row: 1; }
-.game-dpad-btn--left  { grid-column: 1; grid-row: 2; }
-.game-dpad-btn--center{ grid-column: 2; grid-row: 2; opacity: 0.3; pointer-events: none; }
-.game-dpad-btn--right { grid-column: 3; grid-row: 2; }
-.game-dpad-btn--down  { grid-column: 2; grid-row: 3; }
+/* ─── Light Theme Overrides ───────────────────────────────── */
+[data-theme='light'] .game-dpad-btn {
+  background: #ffffff;
+  border-color: #d1d5db;
+  color: #4b5563;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
 
+[data-theme='light'] .game-dpad-btn:hover:not(:disabled) {
+  background: #f9fafb;
+  border-color: #9ca3af;
+  color: #111827;
+}
+
+[data-theme='light'] .game-dpad-btn:active:not(:disabled) {
+  background: #f3f4f6;
+  border-color: #111827;
+  color: #111827;
+}
+
+/* ─── E-ink Theme ─────────────────────────────────────────── */
 [data-theme^='e-ink'] .game-dpad-btn,
 [data-eink='true'] .game-dpad-btn {
   border: 2px solid var(--all-border, #000000) !important;
   background: var(--all-surface, #ffffff) !important;
+  color: var(--all-text, #000000) !important;
+  box-shadow: none !important;
   transform: none !important;
   transition: none !important;
 }
@@ -76,4 +150,19 @@
 [data-eink='true'] .game-dpad-btn:active {
   background: var(--all-text, #000000) !important;
   color: var(--all-bg, #ffffff) !important;
+}
+
+/* ─── Reduced Motion ──────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .game-dpad-btn {
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
+  }
+}
+
+[data-motion='none'] .game-dpad-btn {
+  transition: none !important;
+  animation: none !important;
+  transform: none !important;
 }

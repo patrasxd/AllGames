@@ -12,6 +12,7 @@ export interface WingRushTranslations {
   gameOverSub: string
   newBest: string
   restart: string
+  startBtn: string
   tapToFlap: string
   howToPlay: string
   rulesTitle: string
@@ -37,6 +38,7 @@ export const wingRushTranslations: Record<Locale, WingRushTranslations> = {
     gameOverSub: 'Good run! Try again to beat your personal best.',
     newBest: 'New Best Score!',
     restart: 'Restart',
+    startBtn: 'Start',
     tapToFlap: 'Tap / Click anywhere or press Space',
     howToPlay: 'How to Play',
     rulesTitle: 'How to Play Wing Rush',
@@ -60,6 +62,7 @@ export const wingRushTranslations: Record<Locale, WingRushTranslations> = {
     gameOverSub: 'Dobra próba! Spróbuj pobić swój najlepszy wynik.',
     newBest: 'Nowy Rekord!',
     restart: 'Zagraj ponownie',
+    startBtn: 'Start',
     tapToFlap: 'Kliknij / dotknij lub wciśnij Spację',
     howToPlay: 'Zasady',
     rulesTitle: 'Zasady gry Wing Rush',

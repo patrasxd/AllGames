@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { useMinesweeper } from './hooks/useMinesweeper'
 import { MinesweeperBoard } from './components/MinesweeperBoard'
 import type { GameComponentProps, MinesweeperDifficulty, GameStatus } from './types'
 import { minesweeperTranslations } from './i18n'
-import { BoardLayout, Dialog, Button } from '@all/ui'
-import { StatsHeader, PillGroup, pad3 } from '@allgames/ui'
+import { BoardLayout, Dialog, Button, PillGroup, ControlsBar } from '@all/ui'
+import { StatsHeader, GameResultOverlay, pad3 } from '@allgames/ui'
 import './styles/minesweeper.css'
 
 /* ─── Sketched Vector Icons ──────────────────────────────── */
@@ -102,7 +102,7 @@ export function Minesweeper({ setHeader, locale = 'en', isEink = false }: GameCo
     resetBestTime,
   } = useMinesweeper({ isEink })
 
-  const isGameActive = elapsedSeconds > 0 && gameStatus === 'playing'
+  const isGameActive = gameStatus === 'playing'
 
   const renderHeader = useCallback(() => {
     if (!setHeader) return
@@ -158,7 +158,7 @@ export function Minesweeper({ setHeader, locale = 'en', isEink = false }: GameCo
         transition={{ duration: 0.25 }}
       >
         <BoardLayout
-          variant={difficulty === 'expert' ? 'wide' : 'fluid'}
+          variant={difficulty === 'expert' ? 'wide' : 'square'}
           hud={
             <div className="ms-statusbar">
               <div className="ms-counter ms-counter--mines" title={t.minesLeft}>
@@ -192,8 +192,29 @@ export function Minesweeper({ setHeader, locale = 'en', isEink = false }: GameCo
               onCellMouseUp={handleCellMouseUp}
             />
           }
+          overlay={
+            (gameStatus === 'won' || gameStatus === 'lost') ? (
+              <GameResultOverlay
+                title={gameStatus === 'won' ? t.youWon : t.youLost}
+                stats={
+                  gameStatus === 'won'
+                    ? [
+                        { label: t.time, value: `${elapsedSeconds}s` },
+                        { label: t.bestTime, value: bestTime !== null ? `${bestTime}s` : '--' },
+                      ]
+                    : [
+                        { label: t.time, value: `${elapsedSeconds}s` },
+                        { label: t.minesLeft, value: remainingMines },
+                      ]
+                }
+                primaryActionText={t.newGame}
+                onPrimaryAction={() => resetGame()}
+                isEink={isEink}
+              />
+            ) : null
+          }
           controls={
-            <div className="ms-controls">
+            <ControlsBar>
               <PillGroup<MinesweeperDifficulty>
                 label={t.difficultyLabel}
                 options={DIFFICULTIES.map(d => ({
@@ -226,7 +247,7 @@ export function Minesweeper({ setHeader, locale = 'en', isEink = false }: GameCo
                   <span>{t.modeFlag}</span>
                 </button>
               </div>
-            </div>
+            </ControlsBar>
           }
         />
 
@@ -236,24 +257,28 @@ export function Minesweeper({ setHeader, locale = 'en', isEink = false }: GameCo
           onClose={handleCancelDifficulty}
           title={t.confirmResetTitle}
           description={t.confirmDifficultyDesc}
-        >
-          <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '16px' }}>
-            <Button
-              id="ms-modal-cancel"
-              variant="secondary"
-              onClick={handleCancelDifficulty}
-            >
-              {t.cancelBtn}
-            </Button>
-            <Button
-              id="ms-modal-confirm"
-              variant="primary"
-              onClick={handleConfirmDifficulty}
-            >
-              {t.confirmBtn}
-            </Button>
-          </div>
-        </Dialog>
+          maxWidth="sm"
+          footer={
+            <>
+              <Button
+                id="ms-modal-cancel"
+                variant="secondary"
+                size="sm"
+                onClick={handleCancelDifficulty}
+              >
+                {t.cancelBtn}
+              </Button>
+              <Button
+                id="ms-modal-confirm"
+                variant="primary"
+                size="sm"
+                onClick={handleConfirmDifficulty}
+              >
+                {t.confirmBtn}
+              </Button>
+            </>
+          }
+        />
       </motion.div>
     </div>
   )

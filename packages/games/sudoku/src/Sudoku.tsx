@@ -101,33 +101,13 @@ export function Sudoku({ setHeader, locale = 'en', isEink = false }: GameCompone
           variant="square"
           board={
             <div>
-              {/* Board & Overlay */}
-              <div style={{ position: 'relative' }}>
-                <SudokuBoard
-                  board={board}
-                  selectedCell={selectedCell}
-                  isEink={isEink}
-                  onSelectCell={(r, c) => setSelectedCell([r, c])}
-                />
-
-                {/* Win / Loss Overlay */}
-                <AnimatePresence>
-                  {(gameStatus === 'won' || gameStatus === 'lost') && (
-                    <GameResultOverlay
-                      status={gameStatus}
-                      title={gameStatus === 'won' ? t.youWon : t.youLost}
-                      stats={[
-                        { label: isPl ? 'Czas' : 'Time', value: formatTime(elapsedSeconds) },
-                        { label: isPl ? 'Błędy' : 'Mistakes', value: `${mistakes}/3` },
-                      ]}
-                      isEink={isEink}
-                      playAgainText={t.tryAgain}
-                      onPlayAgain={() => resetGame()}
-                      playAgainId="sdk-retry-btn"
-                    />
-                  )}
-                </AnimatePresence>
-              </div>
+              {/* Board */}
+              <SudokuBoard
+                board={board}
+                selectedCell={selectedCell}
+                isEink={isEink}
+                onSelectCell={(r, c) => setSelectedCell([r, c])}
+              />
 
               {/* Numpad & Action Tools */}
               <Numpad
@@ -139,6 +119,24 @@ export function Sudoku({ setHeader, locale = 'en', isEink = false }: GameCompone
                 onUndo={handleUndo}
               />
             </div>
+          }
+          overlay={
+            <AnimatePresence>
+              {(gameStatus === 'won' || gameStatus === 'lost') && (
+                <GameResultOverlay
+                  status={gameStatus}
+                  title={gameStatus === 'won' ? t.youWon : t.youLost}
+                  stats={[
+                    { label: isPl ? 'Czas' : 'Time', value: formatTime(elapsedSeconds) },
+                    { label: isPl ? 'Błędy' : 'Mistakes', value: `${mistakes}/3` },
+                  ]}
+                  isEink={isEink}
+                  playAgainText={t.tryAgain}
+                  onPlayAgain={() => resetGame()}
+                  playAgainId="sdk-retry-btn"
+                />
+              )}
+            </AnimatePresence>
           }
           controls={
             <ControlsBar>

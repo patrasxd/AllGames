@@ -1,0 +1,91 @@
+/* ─── GameResultOverlay Card ─── */
+/* The backdrop is rendered by the parent layout (.all-fullbleed-layout__overlay /
+   .all-board-layout__overlay). This file only styles the floating card itself. */
+
+.gr-overlay-card {
+  /* Allows the motion.div wrapper to size itself to the card */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: min(380px, calc(100% - 2rem));
+  width: 100%;
+}
+
+/* AllUI Card overrides — keep text centered & limit width */
+.gr-card {
+  width: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--all-space-3, 12px);
+  overflow-y: auto;
+  max-height: calc(100dvh - 120px);
+}
+
+/* ─── Title ─── */
+.gr-title {
+  margin: 0;
+  font-size: var(--all-text-xl, 1.5rem);
+  font-weight: 700;
+  color: var(--all-text);
+  line-height: 1.2;
+  font-family: var(--all-font-sans);
+}
+
+/* ─── Subtitle ─── */
+.gr-subtitle {
+  margin: 0;
+  font-size: var(--all-text-sm, 0.875rem);
+  color: var(--all-text-dim);
+  line-height: 1.4;
+}
+
+/* ─── Stat Grid ─── */
+.gr-stats {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: var(--all-space-2, 8px);
+  width: 100%;
+  margin: var(--all-space-1, 4px) 0;
+}
+
+.gr-stat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  background: var(--all-surface-2);
+  border: var(--all-border-width, 1.5px) solid var(--all-border);
+  border-radius: var(--all-radius-sm, 4px);
+  padding: var(--all-space-2, 8px) var(--all-space-3, 12px);
+  min-width: 60px;
+}
+
+.gr-stat-val {
+  font-size: var(--all-text-lg, 1.125rem);
+  font-weight: 800;
+  color: var(--all-text);
+  line-height: 1.1;
+  font-family: var(--all-font-mono);
+}
+
+.gr-stat-key {
+  font-size: 0.5625rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--all-text-muted);
+  font-weight: 600;
+}
+
+/* ─── Actions ─── */
+.gr-actions {
+  display: flex;
+  gap: var(--all-space-2, 8px);
+  justify-content: center;
+  width: 100%;
+  flex-wrap: wrap;
+}

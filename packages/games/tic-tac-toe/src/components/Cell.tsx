@@ -16,7 +16,7 @@ interface CellProps {
  * SVG X mark — animated with strokes unless in E-ink mode.
  */
 function XMark({ isWinning, isEink }: { isWinning: boolean; isEink: boolean }) {
-  const color = isWinning ? 'var(--accent)' : 'var(--text)'
+  const color = isWinning ? 'var(--all-accent, var(--accent, #6366f1))' : 'var(--all-text, var(--text, #ffffff))'
   const stroke = { stroke: color, strokeWidth: 5, strokeLinecap: 'round' as const, fill: 'none' }
 
   if (isEink) {
@@ -52,7 +52,7 @@ function XMark({ isWinning, isEink }: { isWinning: boolean; isEink: boolean }) {
  * SVG O mark — animated with stroke unless in E-ink mode.
  */
 function OMark({ isWinning, isEink }: { isWinning: boolean; isEink: boolean }) {
-  const color = isWinning ? 'var(--accent)' : 'var(--text-dim)'
+  const color = isWinning ? 'var(--all-accent, var(--accent, #6366f1))' : 'var(--all-text-dim, var(--text-dim, #888888))'
 
   if (isEink) {
     return (

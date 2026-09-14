@@ -5,17 +5,17 @@ import { ChessBoard } from './components/ChessBoard'
 import { PromotionModal } from './components/PromotionModal'
 import type { GameComponentProps, ChessGameMode, Locale, ChessDifficulty } from './types'
 import { chessTranslations } from './i18n'
-import { BoardLayout, Dialog, Button } from '@all/ui'
-import { ModeSelect, StatsHeader, PillGroup, ControlsBar, ComputerIcon, TwoPlayersIcon } from '@allgames/ui'
+import { BoardLayout, Dialog, Button, PillGroup, ControlsBar } from '@all/ui'
+import { ModeSelect, StatsHeader, GameResultOverlay, ComputerIcon, TwoPlayersIcon } from '@allgames/ui'
 import './styles/chess.css'
 
 function ThinkingDots() {
   return (
-    <span style={{ display: 'inline-flex', gap: '3px', marginLeft: '4px' }} aria-hidden="true">
+    <span className="chess-thinking-dots" aria-hidden="true">
       {[0, 1, 2].map(i => (
         <motion.span
           key={i}
-          style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'var(--text-muted)', display: 'inline-block' }}
+          className="chess-dot"
           animate={{ opacity: [0.2, 1, 0.2] }}
           transition={{ duration: 0.9, repeat: Infinity, delay: i * 0.2 }}
         />
@@ -57,7 +57,16 @@ export function Chess({ setHeader, locale = 'en', isEink = false }: GameComponen
     resetStats,
   } = useChess({ isEink })
 
-  const isGameActive = (selectedCoord !== null || winner !== null || isCheckmate)
+  const isGameActive =
+    (turn !== 'white' ||
+      selectedCoord !== null ||
+      board[2].some(Boolean) ||
+      board[3].some(Boolean) ||
+      board[4].some(Boolean) ||
+      board[5].some(Boolean)) &&
+    !winner &&
+    !isCheckmate &&
+    !isStalemate
 
   const renderHeader = useCallback(() => {
     if (!setHeader) return
@@ -151,144 +160,167 @@ export function Chess({ setHeader, locale = 'en', isEink = false }: GameComponen
                   title: t.vsComputer,
                   desc: t.vsComputerDesc,
                   icon: <ComputerIcon />,
+                  ariaLabel: t.vsComputer,
                 },
                 {
                   id: '2p',
                   title: t.twoPlayers,
                   desc: t.twoPlayersDesc,
                   icon: <TwoPlayersIcon />,
+                  ariaLabel: t.twoPlayers,
                 },
               ]}
               onSelect={handleModeSelect}
             />
           </motion.div>
         ) : (
-          <motion.div key="game" className="chess-game" {...pageVariants}>
-            <BoardLayout
-              variant="square"
-              hud={
-                <div className="chess-status" aria-live="polite">
-                  {isCheckmate ? (
-                    <>
-                      <div className="chess-status-text">
-                        {mode === 'ai'
-                          ? turn === 'black'
-                            ? t.youWon
-                            : t.computerWon
-                          : t.playerWon(turn === 'black' ? t.white : t.black)}
-                      </div>
-                      <div className="chess-status-sub">{t.checkmate}</div>
-                    </>
-                  ) : isStalemate ? (
-                    <>
-                      <div className="chess-status-text">{t.stalemate}</div>
-                      <div className="chess-status-sub">{t.gameOver}</div>
-                    </>
-                  ) : isAIThinking ? (
+          <BoardLayout
+            variant="square"
+            hud={
+              <div className="chess-status" aria-live="polite">
+                {isAIThinking ? (
+                  <div className="chess-status-text">
+                    {t.computerThinking}
+                    {!isEink ? <ThinkingDots /> : '…'}
+                  </div>
+                ) : (
+                  <>
                     <div className="chess-status-text">
-                      {t.computerThinking}
-                      {!isEink ? <ThinkingDots /> : '…'}
+                      {mode === 'ai'
+                        ? t.yourTurn
+                        : t.playerTurn(turn === 'white' ? t.white : t.black)}
+                      {inCheck && <span className="chess-check-badge"> {t.check}</span>}
                     </div>
-                  ) : (
-                    <>
-                      <div className="chess-status-text">
-                        {mode === 'ai'
-                          ? t.yourTurn
-                          : t.playerTurn(turn === 'white' ? t.white : t.black)}
-                        {inCheck && <span className="chess-check-badge"> {t.check}</span>}
-                      </div>
-                      <div className="chess-status-sub">
-                        {turn === 'white' ? `${t.white}` : `${t.black}`}
-                      </div>
-                    </>
-                  )}
-                </div>
-              }
-              board={
-                <ChessBoard
-                  board={board}
-                  selectedCoord={selectedCoord}
-                  validMoves={validMovesForSelected}
-                  turn={turn}
-                  inCheck={inCheck}
-                  isEink={isEink}
-                  locale={locale}
-                  onSquareClick={handleSquareClick}
-                />
-              }
-              controls={
-                <ControlsBar>
-                  <Button
-                    id="chess-new-game-btn"
-                    variant="primary"
-                    onClick={resetGame}
-                  >
-                    {t.newGame}
-                  </Button>
-                  <Button
-                    id="chess-change-mode-btn"
-                    variant="secondary"
-                    onClick={handleChangeModeClick}
-                  >
-                    {t.changeMode}
-                  </Button>
-
-                  {mode === 'ai' && (
-                    <PillGroup<ChessDifficulty>
-                      label={t.difficultyLabel}
-                      options={DIFFICULTIES.map(d => ({
-                        value: d,
-                        label: d === 'easy' ? t.difficultyEasy : d === 'medium' ? t.difficultyMedium : t.difficultyHard,
-                        id: `chess-diff-${d}`,
-                      }))}
-                      value={difficulty}
-                      onChange={handleDifficultyClick}
-                    />
-                  )}
-                </ControlsBar>
-              }
-            />
-
-            {/* Pawn Promotion Dialog */}
-            {pendingPromotion && (
-              <PromotionModal
-                color={turn}
-                locale={locale}
-                onSelect={choosePromotion}
-              />
-            )}
-
-            {/* Reset Confirmation Modal */}
-            <Dialog
-              isOpen={Boolean(pendingAction)}
-              onClose={handleCancelAction}
-              title={t.confirmResetTitle}
-              description={
-                pendingAction?.type === 'difficulty'
-                  ? t.confirmDifficultyDesc
-                  : t.confirmModeDesc
-              }
-            >
-              <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '16px' }}>
-                <Button
-                  id="chess-modal-cancel"
-                  variant="secondary"
-                  onClick={handleCancelAction}
-                >
-                  {t.cancelBtn}
-                </Button>
-                <Button
-                  id="chess-modal-confirm"
-                  variant="primary"
-                  onClick={handleConfirmAction}
-                >
-                  {t.confirmBtn}
-                </Button>
+                    <div className="chess-status-sub">
+                      {turn === 'white' ? `${t.white}` : `${t.black}`}
+                    </div>
+                  </>
+                )}
               </div>
-            </Dialog>
-          </motion.div>
+            }
+            board={
+              <ChessBoard
+                board={board}
+                selectedCoord={selectedCoord}
+                validMoves={validMovesForSelected}
+                turn={turn}
+                inCheck={inCheck}
+                isEink={isEink}
+                locale={locale}
+                onSquareClick={handleSquareClick}
+              />
+            }
+            overlay={
+              <AnimatePresence>
+                {(isCheckmate || isStalemate || winner !== null) && (
+                  <GameResultOverlay
+                    status={
+                      isStalemate || winner === 'draw'
+                        ? 'draw'
+                        : mode === 'ai'
+                        ? turn === 'black'
+                          ? 'won'
+                          : 'lost'
+                        : 'won'
+                    }
+                    title={
+                      isStalemate || winner === 'draw'
+                        ? t.stalemate
+                        : mode === 'ai'
+                        ? turn === 'black'
+                          ? t.youWon
+                          : t.computerWon
+                        : t.playerWon(turn === 'black' ? t.white : t.black)
+                    }
+                    subtitle={isCheckmate ? t.checkmate : t.gameOver}
+                    isEink={isEink}
+                    playAgainText={t.newGame}
+                    onPlayAgain={resetGame}
+                    playAgainId="chess-play-again-btn"
+                  />
+                )}
+              </AnimatePresence>
+            }
+            controls={
+              <ControlsBar className="chess-controls-bar">
+                <Button
+                  id="chess-new-game-btn"
+                  variant="primary"
+                  size="sm"
+                  onClick={resetGame}
+                >
+                  {t.newGame}
+                </Button>
+                <Button
+                  id="chess-change-mode-btn"
+                  variant="secondary"
+                  size="sm"
+                  onClick={handleChangeModeClick}
+                >
+                  {t.changeMode}
+                </Button>
+
+                {mode === 'ai' && (
+                  <PillGroup<ChessDifficulty>
+                    label={t.difficultyLabel}
+                    size="sm"
+                    options={DIFFICULTIES.map(d => ({
+                      value: d,
+                      label: d === 'easy' ? t.difficultyEasy : d === 'medium' ? t.difficultyMedium : t.difficultyHard,
+                      id: `chess-diff-${d}`,
+                    }))}
+                    value={difficulty}
+                    onChange={handleDifficultyClick}
+                  />
+                )}
+              </ControlsBar>
+            }
+          />
         )}
       </AnimatePresence>
+
+      {/* Pawn Promotion Dialog */}
+      {pendingPromotion && (
+        <PromotionModal
+          color={turn}
+          locale={locale}
+          isEink={isEink}
+          onSelect={choosePromotion}
+        />
+      )}
+
+      {/* Reset Confirmation Modal */}
+      <Dialog
+        isOpen={Boolean(pendingAction)}
+        onClose={handleCancelAction}
+        title={t.confirmResetTitle}
+        description={
+          pendingAction?.type === 'difficulty'
+            ? t.confirmDifficultyDesc
+            : t.confirmModeDesc
+        }
+        maxWidth="sm"
+        footer={
+          <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', width: '100%' }}>
+            <Button
+              id="chess-modal-cancel"
+              variant="secondary"
+              size="sm"
+              onClick={handleCancelAction}
+            >
+              {t.cancelBtn}
+            </Button>
+            <Button
+              id="chess-modal-confirm"
+              variant="primary"
+              size="sm"
+              onClick={handleConfirmAction}
+            >
+              {t.confirmBtn}
+            </Button>
+          </div>
+        }
+      />
     </div>
   )
 }

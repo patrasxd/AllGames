@@ -137,8 +137,12 @@ export function useSnake(options?: { isEink?: boolean }) {
   const startGame = useCallback(() => {
     const cfg = MAP_CONFIGS[mapModeRef.current]
     const initial = getInitialSnake(cfg.gridSize)
+    const newFood = spawnFood(initial, cfg.obstacles, cfg.gridSize)
+    snakeRef.current = initial
+    foodRef.current = newFood
+    scoreRef.current = 0
     setSnake(initial)
-    setFood(spawnFood(initial, cfg.obstacles, cfg.gridSize))
+    setFood(newFood)
     directionRef.current = INITIAL_DIRECTION
     nextDirectionRef.current = INITIAL_DIRECTION
     setScore(0)
@@ -202,6 +206,10 @@ export function useSnake(options?: { isEink?: boolean }) {
         const nextScore = scoreRef.current + 10
         const nextFood = spawnFood(nextSnake, cfg.obstacles, cfg.gridSize)
 
+        snakeRef.current = nextSnake
+        foodRef.current = nextFood
+        scoreRef.current = nextScore
+
         setSnake(nextSnake)
         setFood(nextFood)
         setScore(nextScore)
@@ -213,6 +221,7 @@ export function useSnake(options?: { isEink?: boolean }) {
         }
       } else {
         const nextSnake = [newHead, ...currentSnake.slice(0, -1)]
+        snakeRef.current = nextSnake
         setSnake(nextSnake)
       }
     }, intervalMs)

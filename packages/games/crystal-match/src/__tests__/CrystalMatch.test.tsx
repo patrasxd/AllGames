@@ -4,15 +4,23 @@ import React from 'react'
 import { CrystalMatch } from '../CrystalMatch'
 
 describe('CrystalMatch Component Integration', () => {
-  it('renders BoardLayout with goals, grid, and @all/ui Buttons', () => {
+  it('renders BoardLayout with goals, grid, ControlsBar, and handles Dialog modals', async () => {
     render(<CrystalMatch locale="en" />)
 
-    // Should render Restart button (from @all/ui Button)
+    // Initially, the Level Intro Dialog should be open
+    expect(screen.getByText(/Level 1/i)).toBeInTheDocument()
+    const startLevelBtn = screen.getByRole('button', { name: /Play Level/i })
+    expect(startLevelBtn).toBeInTheDocument()
+
+    // Dismiss Level Intro Dialog
+    fireEvent.click(startLevelBtn)
+
+    // Should render Restart button with icon
     const restartBtn = screen.getByRole('button', { name: /Restart/i })
     expect(restartBtn).toBeInTheDocument()
 
-    // Should render How to Play button on controls
-    const howToPlayBtn = document.getElementById('cm-how-to-play-btn')
+    // Should render How to Play button
+    const howToPlayBtn = document.getElementById('cm-how-to-play-btn') as HTMLElement
     expect(howToPlayBtn).toBeInTheDocument()
 
     // Goals bar should be rendered in HUD
@@ -23,17 +31,44 @@ describe('CrystalMatch Component Integration', () => {
     const board = document.querySelector('.cm-board-grid')
     expect(board).toBeInTheDocument()
 
-    // Click How to Play button
-    if (howToPlayBtn) {
-      fireEvent.click(howToPlayBtn)
-    }
+    // ControlsBar should be rendered with all buttons
+    const controlsBar = document.querySelector('.cm-controls-bar')
+    expect(controlsBar).toBeInTheDocument()
 
-    // OK button inside rules modal should be visible
+    // Open How to Play modal
+    fireEvent.click(howToPlayBtn)
+    expect(screen.getByText(/How to Play Crystal Match/i)).toBeInTheDocument()
+
+    // Close How to Play modal via OK button
     const okBtn = screen.getByRole('button', { name: /OK/i })
     expect(okBtn).toBeInTheDocument()
-
-    // Click OK to close modal
     fireEvent.click(okBtn)
-    expect(screen.queryByText(/Rules/i)).not.toBeInTheDocument()
+
+    // Open Level Select modal
+    const levelsBtn = screen.getByRole('button', { name: /Levels/i })
+    fireEvent.click(levelsBtn)
+
+    // Level select modal should show level cards
+    const levelCards = document.querySelectorAll('.cm-level-card')
+    expect(levelCards.length).toBeGreaterThan(0)
+    expect(screen.getByText('1')).toBeInTheDocument()
+
+    // Close Level Select modal
+    const closeDialogBtn = screen.getByRole('button', { name: /Close dialog/i })
+    fireEvent.click(closeDialogBtn)
+    expect(screen.queryByText(/Select Level/i)).not.toBeInTheDocument()
+  })
+
+  it('renders in Polish locale with appropriate labels', () => {
+    render(<CrystalMatch locale="pl" />)
+
+    // Level Intro Dialog in Polish
+    expect(screen.getByText(/Poziom 1/i)).toBeInTheDocument()
+    const startBtn = screen.getByRole('button', { name: /Graj/i })
+    fireEvent.click(startBtn)
+
+    expect(document.getElementById('cm-how-to-play-btn')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Poziomy/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Restart/i })).toBeInTheDocument()
   })
 })

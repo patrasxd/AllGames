@@ -67,27 +67,16 @@ export function GamePage() {
     setHeaderExtra(content)
   }, [setHeaderExtra])
 
-  const isFullBleed = slug === 'wing-rush'
-
-  useEffect(() => {
-    if (isFullBleed) {
-      document.body.classList.add('body--fullbleed')
-      return () => {
-        document.body.classList.remove('body--fullbleed')
-      }
-    }
-  }, [isFullBleed])
-
   return (
     <motion.div
-      className={`game-page ${isFullBleed ? 'game-page--fullbleed' : ''}`.trim()}
+      className="game-page"
       variants={pageVariants}
       initial="hidden"
       animate="visible"
       exit="exit"
     >
-      <div className={`game-page-inner ${isFullBleed ? 'game-page-inner--fullbleed' : 'container'}`.trim()}>
-        <div className={isFullBleed ? 'game-floating-back-fullbleed-wrap' : ''} style={{ width: '100%' }}>
+      <div className="game-page-inner">
+        <div className="container" style={{ width: '100%' }}>
           <BackLink
             id={`back-btn-${slug}`}
             label={t.backToGames}

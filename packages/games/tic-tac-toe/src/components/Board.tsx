@@ -34,7 +34,7 @@ function WinLine({ line, isEink }: { line: [number, number, number]; isEink: boo
   if (isEink) {
     return (
       <svg className="ttt-win-line" viewBox="0 0 300 300" preserveAspectRatio="none" aria-hidden="true">
-        <line x1={pos.x1} y1={pos.y1} x2={pos.x2} y2={pos.y2} stroke="var(--text)" strokeWidth={6} strokeLinecap="round" />
+        <line x1={pos.x1} y1={pos.y1} x2={pos.x2} y2={pos.y2} stroke="var(--all-text, var(--text, #ffffff))" strokeWidth={6} strokeLinecap="round" />
       </svg>
     )
   }
@@ -44,7 +44,7 @@ function WinLine({ line, isEink }: { line: [number, number, number]; isEink: boo
       <motion.line
         x1={pos.x1} y1={pos.y1}
         x2={pos.x2} y2={pos.y2}
-        stroke="var(--text)"
+        stroke="var(--all-text, var(--text, #ffffff))"
         strokeWidth={6}
         strokeLinecap="round"
         opacity={0.35}
@@ -60,13 +60,15 @@ function WinLine({ line, isEink }: { line: [number, number, number]; isEink: boo
  * Grid lines for the 3x3 board.
  */
 function GridLines({ isEink }: { isEink: boolean }) {
+  const strokeColor = 'var(--all-border-2, var(--border-2, #333333))'
+
   if (isEink) {
     return (
       <svg className="ttt-grid" viewBox="0 0 3 3" preserveAspectRatio="none" aria-hidden="true">
-        <path d="M 1 0.05 Q 1.02 1.5 1 2.95" stroke="var(--border-2)" strokeWidth="0.04" strokeLinecap="round" fill="none" />
-        <path d="M 2 0.05 Q 2.01 1.5 2 2.95" stroke="var(--border-2)" strokeWidth="0.04" strokeLinecap="round" fill="none" />
-        <path d="M 0.05 1 Q 1.5 1.02 2.95 1" stroke="var(--border-2)" strokeWidth="0.04" strokeLinecap="round" fill="none" />
-        <path d="M 0.05 2 Q 1.5 2.01 2.95 2" stroke="var(--border-2)" strokeWidth="0.04" strokeLinecap="round" fill="none" />
+        <path d="M 1 0.05 Q 1.02 1.5 1 2.95" stroke={strokeColor} strokeWidth="0.04" strokeLinecap="round" fill="none" />
+        <path d="M 2 0.05 Q 2.01 1.5 2 2.95" stroke={strokeColor} strokeWidth="0.04" strokeLinecap="round" fill="none" />
+        <path d="M 0.05 1 Q 1.5 1.02 2.95 1" stroke={strokeColor} strokeWidth="0.04" strokeLinecap="round" fill="none" />
+        <path d="M 0.05 2 Q 1.5 2.01 2.95 2" stroke={strokeColor} strokeWidth="0.04" strokeLinecap="round" fill="none" />
       </svg>
     )
   }
@@ -75,7 +77,7 @@ function GridLines({ isEink }: { isEink: boolean }) {
     <svg className="ttt-grid" viewBox="0 0 3 3" preserveAspectRatio="none" aria-hidden="true">
       <motion.path
         d="M 1 0.05 Q 1.02 1.5 1 2.95"
-        stroke="var(--border-2)"
+        stroke={strokeColor}
         strokeWidth="0.04"
         strokeLinecap="round"
         fill="none"
@@ -85,7 +87,7 @@ function GridLines({ isEink }: { isEink: boolean }) {
       />
       <motion.path
         d="M 2 0.05 Q 2.01 1.5 2 2.95"
-        stroke="var(--border-2)"
+        stroke={strokeColor}
         strokeWidth="0.04"
         strokeLinecap="round"
         fill="none"
@@ -95,7 +97,7 @@ function GridLines({ isEink }: { isEink: boolean }) {
       />
       <motion.path
         d="M 0.05 1 Q 1.5 1.02 2.95 1"
-        stroke="var(--border-2)"
+        stroke={strokeColor}
         strokeWidth="0.04"
         strokeLinecap="round"
         fill="none"
@@ -105,7 +107,7 @@ function GridLines({ isEink }: { isEink: boolean }) {
       />
       <motion.path
         d="M 0.05 2 Q 1.5 2.01 2.95 2"
-        stroke="var(--border-2)"
+        stroke={strokeColor}
         strokeWidth="0.04"
         strokeLinecap="round"
         fill="none"

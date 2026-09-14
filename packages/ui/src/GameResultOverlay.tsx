@@ -1,7 +1,7 @@
 import { memo, type ReactNode } from 'react'
-import { createPortal } from 'react-dom'
 import { motion } from 'framer-motion'
-import { GameButton } from './GameButton'
+import { Card, Button } from '@all/ui'
+import './GameResultOverlay.css'
 
 export interface ResultStatItem {
   label: string
@@ -24,6 +24,18 @@ export interface GameResultOverlayProps {
   }
 }
 
+/**
+ * GameResultOverlay
+ *
+ * Renders a centered result card using AllUI tokens.
+ * This component renders as a plain `motion.div` — it has NO backdrop of its own.
+ * The backdrop (semi-transparent bg) must be provided by the parent layout slot:
+ *   - FullBleedLayout: use the `overlay` prop → `.all-fullbleed-layout__overlay`
+ *   - BoardLayout:     use the `overlay` prop → `.all-board-layout__overlay`
+ *
+ * This keeps the backdrop theming in a single place (AllUI templates) and
+ * eliminates the old `position: fixed; 100vw; 100vh` smearing bug.
+ */
 export const GameResultOverlay = memo(function GameResultOverlay({
   status,
   title,
@@ -35,9 +47,9 @@ export const GameResultOverlay = memo(function GameResultOverlay({
   playAgainId,
   secondaryAction,
 }: GameResultOverlayProps) {
-  const content = (
+  return (
     <motion.div
-      className={`game-result-overlay game-result-overlay--${status}`}
+      className={`gr-overlay-card gr-overlay-card--${status}`}
       initial={!isEink ? { opacity: 0, scale: 0.94 } : false}
       animate={{ opacity: 1, scale: 1 }}
       exit={!isEink ? { opacity: 0, scale: 0.94 } : undefined}
@@ -45,43 +57,40 @@ export const GameResultOverlay = memo(function GameResultOverlay({
       role="dialog"
       aria-modal="true"
     >
-      <div className="game-result-card">
-        <h3 className="game-result-title">{title}</h3>
-        {subtitle && <p className="game-result-subtitle">{subtitle}</p>}
+      <Card variant="elevated" padding="lg" className="gr-card">
+        <h3 className="gr-title">{title}</h3>
+        {subtitle && <p className="gr-subtitle">{subtitle}</p>}
         {stats && stats.length > 0 && (
-          <div className="game-result-stats">
+          <div className="gr-stats">
             {stats.map(s => (
-              <div key={s.label} className="game-result-stat">
-                <span className="game-result-stat-val">{s.value}</span>
-                <span className="game-result-stat-key">{s.label}</span>
+              <div key={s.label} className="gr-stat">
+                <span className="gr-stat-val">{s.value}</span>
+                <span className="gr-stat-key">{s.label}</span>
               </div>
             ))}
           </div>
         )}
-        <div className="game-result-actions">
+        <div className="gr-actions">
           {secondaryAction && (
-            <GameButton
+            <Button
               id={secondaryAction.id}
               variant="secondary"
+              size="sm"
               onClick={secondaryAction.onClick}
             >
               {secondaryAction.label}
-            </GameButton>
+            </Button>
           )}
-          <GameButton
+          <Button
             id={playAgainId}
             variant="primary"
+            size="sm"
             onClick={onPlayAgain}
           >
             {playAgainText}
-          </GameButton>
+          </Button>
         </div>
-      </div>
+      </Card>
     </motion.div>
   )
-
-  if (typeof document !== 'undefined') {
-    return createPortal(content, document.body)
-  }
-  return content
 })

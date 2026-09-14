@@ -4,9 +4,9 @@ import { useGame } from './hooks/useGame'
 import { Board } from './components/Board'
 import type { GameComponentProps, GameMetadata, DifficultyLevel } from './types'
 import type { GameMode, Player } from './logic'
-import { BoardLayout, Dialog, Button } from '@all/ui'
+import { BoardLayout, Dialog, Button, PillGroup, ControlsBar } from '@all/ui'
 import { gameTranslations, type Locale } from './i18n'
-import { ModeSelect, StatsHeader, PillGroup, ControlsBar, ComputerIcon, TwoPlayersIcon } from '@allgames/ui'
+import { ModeSelect, StatsHeader, ComputerIcon, TwoPlayersIcon } from '@allgames/ui'
 import './styles/tictactoe.css'
 
 export interface GameMetadataExtended extends GameMetadata {
@@ -261,10 +261,11 @@ export function TicTacToe({ setHeader, locale = 'en', isEink = false }: GameComp
               />
             }
             controls={
-              <ControlsBar>
+              <ControlsBar className="ttt-controls-bar">
                 <Button
                   id="ttt-reset-btn"
                   variant="primary"
+                  size="sm"
                   onClick={reset}
                 >
                   {t.newGame}
@@ -273,6 +274,7 @@ export function TicTacToe({ setHeader, locale = 'en', isEink = false }: GameComp
                 <Button
                   id="ttt-change-mode-btn"
                   variant="secondary"
+                  size="sm"
                   onClick={handleChangeModeClick}
                 >
                   {t.changeMode}
@@ -281,6 +283,7 @@ export function TicTacToe({ setHeader, locale = 'en', isEink = false }: GameComp
                 {mode === 'ai' && (
                   <PillGroup<DifficultyLevel>
                     label={t.difficultyLabel}
+                    size="sm"
                     options={DIFFICULTIES.map(d => ({
                       value: d,
                       label: d === 'easy' ? t.difficultyEasy : d === 'medium' ? t.difficultyMedium : t.difficultyHard,
@@ -306,24 +309,28 @@ export function TicTacToe({ setHeader, locale = 'en', isEink = false }: GameComp
             ? t.confirmDifficultyDesc
             : t.confirmModeDesc
         }
-      >
-        <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '16px' }}>
-          <Button
-            id="ttt-modal-cancel"
-            variant="secondary"
-            onClick={handleCancelAction}
-          >
-            {t.cancelBtn}
-          </Button>
-          <Button
-            id="ttt-modal-confirm"
-            variant="primary"
-            onClick={handleConfirmAction}
-          >
-            {t.confirmBtn}
-          </Button>
-        </div>
-      </Dialog>
+        maxWidth="sm"
+        footer={
+          <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', width: '100%' }}>
+            <Button
+              id="ttt-modal-cancel"
+              variant="secondary"
+              size="sm"
+              onClick={handleCancelAction}
+            >
+              {t.cancelBtn}
+            </Button>
+            <Button
+              id="ttt-modal-confirm"
+              variant="primary"
+              size="sm"
+              onClick={handleConfirmAction}
+            >
+              {t.confirmBtn}
+            </Button>
+          </div>
+        }
+      />
     </div>
   )
 }

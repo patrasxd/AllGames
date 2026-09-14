@@ -27,8 +27,8 @@ export function generateLevel(levelIndex: number): LevelConfig {
   const goals: LevelGoal[] = []
   const initialObstacles: { row: number; col: number; obstacle: ObstacleType }[] = []
 
-  let maxMoves = Math.max(18, Math.min(30, 26 - Math.floor(levelIndex / 8) + Math.floor(rand() * 4)))
-  let targetScore = 2000 + levelIndex * 450
+  let maxMoves = Math.max(20, Math.min(30, 26 - Math.floor(levelIndex / 8) + Math.floor(rand() * 4)))
+  let targetScore = Math.min(4200, 1800 + (levelIndex - 1) * 220)
 
   if (levelIndex === 1) {
     // Level 1: Tutorial Level - Collect specific gems and score (cannot be won in 1 move)
@@ -40,7 +40,7 @@ export function generateLevel(levelIndex: number): LevelConfig {
   } else if (levelIndex === 2) {
     // Level 2: Diamond Cutout Corners
     maxMoves = 22
-    targetScore = 2400
+    targetScore = 2000
     // Corner cutouts (empty holes)
     initialObstacles.push({ row: 0, col: 0, obstacle: 'empty' })
     initialObstacles.push({ row: 0, col: 7, obstacle: 'empty' })
@@ -52,8 +52,8 @@ export function generateLevel(levelIndex: number): LevelConfig {
     goals.push({ type: 'score', target: targetScore, current: 0 })
   } else if (levelIndex === 3) {
     // Level 3: Introduction to Ice
-    maxMoves = 20
-    targetScore = 2500
+    maxMoves = 22
+    targetScore = 2200
     // 8 Ice tiles in the middle
     for (let r = 2; r <= 5; r++) {
       for (let c = 3; c <= 4; c++) {
@@ -61,11 +61,11 @@ export function generateLevel(levelIndex: number): LevelConfig {
       }
     }
     goals.push({ type: 'ice', target: 8, current: 0 })
-    goals.push({ type: 'gems', target: 15, current: 0, gemType: 'ruby' })
+    goals.push({ type: 'score', target: targetScore, current: 0 })
   } else if (levelIndex === 4) {
     // Level 4: Introduction to Stone Walls
     maxMoves = 22
-    targetScore = 2800
+    targetScore = 2400
     // 4 stone blocks in center
     initialObstacles.push({ row: 3, col: 3, obstacle: 'stone' })
     initialObstacles.push({ row: 3, col: 4, obstacle: 'stone' })
@@ -96,7 +96,7 @@ export function generateLevel(levelIndex: number): LevelConfig {
     }
 
     // Place Ice & Stones
-    const iceCount = Math.min(24, 6 + Math.floor(levelIndex * 0.9))
+    const iceCount = Math.min(20, 6 + Math.floor(levelIndex * 0.8))
     const stoneCount = Math.min(6, Math.floor(levelIndex / 4))
     const placed = new Set<string>()
     initialObstacles.forEach(o => placed.add(`${o.row}-${o.col}`))
@@ -128,15 +128,16 @@ export function generateLevel(levelIndex: number): LevelConfig {
 
     const primaryGem = gemColors[Math.floor(rand() * gemColors.length)]
     if (addedIce > 0) {
-      goals.push({ type: 'ice', target: addedIce, current: 0 })
+      goals.push({ type: 'ice', target: Math.min(16, addedIce), current: 0 })
+    } else {
+      goals.push({ type: 'gems', target: 12 + Math.floor(levelIndex * 0.7), current: 0, gemType: primaryGem })
     }
-    goals.push({ type: 'gems', target: 15 + Math.floor(levelIndex * 0.8), current: 0, gemType: primaryGem })
     goals.push({ type: 'score', target: targetScore, current: 0 })
   }
 
   const star1 = targetScore
-  const star2 = Math.round(targetScore * 1.5)
-  const star3 = Math.round(targetScore * 2.1)
+  const star2 = Math.round(targetScore * 1.3)
+  const star3 = Math.round(targetScore * 1.65)
 
   return {
     level: levelIndex,

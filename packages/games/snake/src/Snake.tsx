@@ -1,12 +1,11 @@
 import { useEffect, useCallback } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { AnimatePresence } from 'framer-motion'
 import { useSnake } from './hooks/useSnake'
 import { SnakeCanvas } from './components/SnakeCanvas'
-import { TouchControls } from './components/TouchControls'
 import type { GameComponentProps, SpeedMode, MapMode } from './types'
 import { snakeTranslations } from './i18n'
-import { BoardLayout, Button, Badge } from '@all/ui'
-import { StatsHeader, PillGroup } from '@allgames/ui'
+import { BoardLayout, Button, Badge, PillGroup, ControlsBar } from '@all/ui'
+import { StatsHeader, GameResultOverlay, GameStartOverlay, DPad } from '@allgames/ui'
 import './styles/snake.css'
 
 export function Snake({ setHeader, locale = 'en', isEink = false }: GameComponentProps) {
@@ -66,94 +65,82 @@ export function Snake({ setHeader, locale = 'en', isEink = false }: GameComponen
       <BoardLayout
         variant="square"
         board={
-          <div style={{ position: 'relative' }}>
-            <SnakeCanvas
-              snake={snake}
-              food={food}
-              obstacles={obstacles}
-              gridSize={gridSize}
-              direction={direction}
-              status={status}
-              isEink={isEink}
-              onSwipe={changeDirection}
-              onBoardClick={() => {
-                if (status === 'IDLE' || status === 'GAME_OVER') startGame()
-                else if (status === 'PAUSED') resumeGame()
-              }}
-            />
+          <SnakeCanvas
+            snake={snake}
+            food={food}
+            obstacles={obstacles}
+            gridSize={gridSize}
+            direction={direction}
+            status={status}
+            isEink={isEink}
+            onSwipe={changeDirection}
+            onBoardClick={() => {
+              if (status === 'IDLE' || status === 'GAME_OVER') startGame()
+              else if (status === 'PAUSED') resumeGame()
+            }}
+          />
+        }
+        overlay={
+          <AnimatePresence>
+            {status === 'IDLE' && (
+              <GameStartOverlay
+                title={t.title}
+                subtitle={t.startGame}
+                startText={t.startBtn}
+                onStart={startGame}
+                startId="snake-start-btn"
+                isEink={isEink}
+              />
+            )}
 
-            {/* Overlays for Idle, Paused, and Game Over */}
-            <AnimatePresence>
-              {status !== 'PLAYING' && (
-                <motion.div
-                  className="snake-overlay"
-                  initial={!isEink ? { opacity: 0, scale: 0.96 } : false}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={!isEink ? { opacity: 0, scale: 0.96 } : undefined}
-                  transition={{ duration: 0.2 }}
-                >
-                  {status === 'IDLE' && (
-                    <>
-                      <h2 className="snake-overlay-title">{t.title}</h2>
-                      <p className="snake-overlay-sub">{t.startGame}</p>
-                      <Button
-                        id="snake-start-btn"
-                        variant="primary"
-                        onClick={startGame}
-                      >
-                        {t.startBtn}
-                      </Button>
-                    </>
-                  )}
+            {status === 'PAUSED' && (
+              <GameStartOverlay
+                title={t.pauseBtn}
+                subtitle={t.controlsHelp}
+                startText={t.resumeBtn}
+                onStart={resumeGame}
+                startId="snake-resume-btn"
+                isEink={isEink}
+              />
+            )}
 
-                  {status === 'PAUSED' && (
-                    <>
-                      <h2 className="snake-overlay-title">{t.pauseBtn}</h2>
-                      <p className="snake-overlay-sub">{t.controlsHelp}</p>
-                      <Button
-                        id="snake-resume-btn"
-                        variant="primary"
-                        onClick={resumeGame}
-                      >
-                        {t.resumeBtn}
-                      </Button>
-                    </>
-                  )}
-
-                  {status === 'GAME_OVER' && (
-                    <>
-                      <h2 className="snake-overlay-title">{t.gameOver}</h2>
-                      <p className="snake-overlay-score">{t.finalScore(score)}</p>
-                      {isNewHighScore && (
-                        <Badge variant="warning" style={{ marginBottom: '12px' }}>
-                          {t.newHighScore}
-                        </Badge>
-                      )}
-                      <Button
-                        id="snake-restart-btn"
-                        variant="primary"
-                        onClick={startGame}
-                      >
-                        {t.restartBtn}
-                      </Button>
-                    </>
-                  )}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+            {status === 'GAME_OVER' && (
+              <GameResultOverlay
+                status="lost"
+                title={t.gameOver}
+                subtitle={isNewHighScore ? t.newHighScore : undefined}
+                stats={[
+                  { label: isPl ? 'Wynik' : 'Score', value: score },
+                  { label: isPl ? 'Rekord' : 'Best', value: highScore },
+                ]}
+                isEink={isEink}
+                playAgainText={t.restartBtn}
+                onPlayAgain={startGame}
+                playAgainId="snake-restart-btn"
+              />
+            )}
+          </AnimatePresence>
         }
         controls={
           <div className="snake-controls-section">
-            {/* D-Pad for Mobile Touch Devices */}
-            <TouchControls onDirection={changeDirection} locale={locale} />
+            {/* Standardized D-Pad for Mobile Touch Devices from @allgames/ui */}
+            <DPad
+              onDirection={(dir) => changeDirection(dir.toUpperCase() as any)}
+              labels={{
+                up: t.upAria,
+                down: t.downAria,
+                left: t.leftAria,
+                right: t.rightAria,
+              }}
+            />
 
             {/* Bottom Settings Bar — Map, Speed & Pause */}
-            <div className="snake-bottom-bar">
+            <ControlsBar className="snake-bottom-bar">
               {status === 'PLAYING' && (
                 <Button
                   id="snake-pause-btn"
                   variant="secondary"
+                  size="sm"
                   onClick={pauseGame}
                 >
                   {t.pauseBtn}
@@ -164,6 +151,7 @@ export function Snake({ setHeader, locale = 'en', isEink = false }: GameComponen
                 <Button
                   id="snake-resume-bottom-btn"
                   variant="primary"
+                  size="sm"
                   onClick={resumeGame}
                 >
                   {t.resumeBtn}
@@ -173,6 +161,7 @@ export function Snake({ setHeader, locale = 'en', isEink = false }: GameComponen
               {/* Map Selector */}
               <PillGroup<MapMode>
                 label={t.mapLabel}
+                size="sm"
                 options={maps.map(m => ({
                   value: m,
                   label: m === 'classic' ? t.mapClassicShort : m === 'obstacles' ? t.mapObstaclesShort : t.mapBigShort,
@@ -185,6 +174,7 @@ export function Snake({ setHeader, locale = 'en', isEink = false }: GameComponen
               {/* Speed Selector */}
               <PillGroup<SpeedMode>
                 label={t.speedLabel}
+                size="sm"
                 options={speeds.map(s => ({
                   value: s,
                   label: s === 'relaxed' ? t.speedRelaxed : s === 'normal' ? t.speedNormal : t.speedFast,
@@ -193,10 +183,12 @@ export function Snake({ setHeader, locale = 'en', isEink = false }: GameComponen
                 value={speed}
                 onChange={setSpeed}
               />
-            </div>
+            </ControlsBar>
           </div>
         }
       />
     </div>
   )
 }
+
+

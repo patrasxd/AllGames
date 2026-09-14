@@ -68,7 +68,7 @@ export function SnakeCanvas({
         {/* Grid pattern */}
         <defs>
           <pattern id="snakeGrid" width="1" height="1" patternUnits="userSpaceOnUse">
-            <circle cx="0.5" cy="0.5" r="0.04" fill="var(--border)" />
+            <circle cx="0.5" cy="0.5" r="0.04" fill="var(--all-border, var(--border))" />
           </pattern>
         </defs>
         <rect width={gridSize} height={gridSize} fill="url(#snakeGrid)" />
@@ -82,8 +82,8 @@ export function SnakeCanvas({
               width={0.9}
               height={0.9}
               rx={0.12}
-              fill="var(--surface-2)"
-              stroke="var(--border-2)"
+              fill="var(--all-surface-2, var(--surface-2))"
+              stroke="var(--all-border-2, var(--border-2))"
               strokeWidth={0.06}
             />
             {/* Inner diagonal cross for sketch texture */}
@@ -92,7 +92,7 @@ export function SnakeCanvas({
               y1={obs.y + 0.2}
               x2={obs.x + 0.8}
               y2={obs.y + 0.8}
-              stroke="var(--border-2)"
+              stroke="var(--all-border-2, var(--border-2))"
               strokeWidth={0.05}
               strokeLinecap="round"
             />
@@ -101,7 +101,7 @@ export function SnakeCanvas({
               y1={obs.y + 0.2}
               x2={obs.x + 0.2}
               y2={obs.y + 0.8}
-              stroke="var(--border-2)"
+              stroke="var(--all-border-2, var(--border-2))"
               strokeWidth={0.05}
               strokeLinecap="round"
             />
@@ -114,15 +114,15 @@ export function SnakeCanvas({
             cx={food.x + 0.5}
             cy={food.y + 0.5}
             r={0.42}
-            fill="var(--text)"
-            stroke="var(--border-2)"
+            fill="var(--all-text, var(--text))"
+            stroke="var(--all-border-2, var(--border-2))"
             strokeWidth={0.06}
           />
           <circle
             cx={food.x + 0.38}
             cy={food.y + 0.38}
             r={0.12}
-            fill="var(--bg)"
+            fill="var(--all-bg, var(--bg))"
           />
         </g>
 
@@ -140,8 +140,8 @@ export function SnakeCanvas({
               width={size}
               height={size}
               rx={0.2}
-              fill="var(--text-dim)"
-              stroke="var(--border-2)"
+              fill="var(--all-text-dim, var(--text-dim))"
+              stroke="var(--all-border-2, var(--border-2))"
               strokeWidth={0.04}
             />
           )
@@ -156,33 +156,33 @@ export function SnakeCanvas({
               width={0.88}
               height={0.88}
               rx={0.28}
-              fill="var(--text)"
-              stroke="var(--border-2)"
+              fill="var(--all-text, var(--text))"
+              stroke="var(--all-border-2, var(--border-2))"
               strokeWidth={0.06}
             />
             {/* Eyes */}
             {direction === 'RIGHT' && (
               <>
-                <circle cx={head.x + 0.7} cy={head.y + 0.3} r={0.09} fill="var(--bg)" />
-                <circle cx={head.x + 0.7} cy={head.y + 0.7} r={0.09} fill="var(--bg)" />
+                <circle cx={head.x + 0.7} cy={head.y + 0.3} r={0.09} fill="var(--all-bg, var(--bg))" />
+                <circle cx={head.x + 0.7} cy={head.y + 0.7} r={0.09} fill="var(--all-bg, var(--bg))" />
               </>
             )}
             {direction === 'LEFT' && (
               <>
-                <circle cx={head.x + 0.3} cy={head.y + 0.3} r={0.09} fill="var(--bg)" />
-                <circle cx={head.x + 0.3} cy={head.y + 0.7} r={0.09} fill="var(--bg)" />
+                <circle cx={head.x + 0.3} cy={head.y + 0.3} r={0.09} fill="var(--all-bg, var(--bg))" />
+                <circle cx={head.x + 0.3} cy={head.y + 0.7} r={0.09} fill="var(--all-bg, var(--bg))" />
               </>
             )}
             {direction === 'UP' && (
               <>
-                <circle cx={head.x + 0.3} cy={head.y + 0.3} r={0.09} fill="var(--bg)" />
-                <circle cx={head.x + 0.7} cy={head.y + 0.3} r={0.09} fill="var(--bg)" />
+                <circle cx={head.x + 0.3} cy={head.y + 0.3} r={0.09} fill="var(--all-bg, var(--bg))" />
+                <circle cx={head.x + 0.7} cy={head.y + 0.3} r={0.09} fill="var(--all-bg, var(--bg))" />
               </>
             )}
             {direction === 'DOWN' && (
               <>
-                <circle cx={head.x + 0.3} cy={head.y + 0.7} r={0.09} fill="var(--bg)" />
-                <circle cx={head.x + 0.7} cy={head.y + 0.7} r={0.09} fill="var(--bg)" />
+                <circle cx={head.x + 0.3} cy={head.y + 0.7} r={0.09} fill="var(--all-bg, var(--bg))" />
+                <circle cx={head.x + 0.7} cy={head.y + 0.7} r={0.09} fill="var(--all-bg, var(--bg))" />
               </>
             )}
           </g>

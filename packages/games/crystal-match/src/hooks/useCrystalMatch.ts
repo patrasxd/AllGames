@@ -168,12 +168,14 @@ export function useCrystalMatch(options?: { isEink?: boolean }) {
     }, 1400)
   }, [])
 
-  // Particle life tick
+  // Particle life tick with stable boolean trigger (Archetype 6)
+  const hasParticles = particles.length > 0
   useEffect(() => {
-    if (particles.length === 0) return
+    if (!hasParticles) return
     const interval = setInterval(() => {
-      setParticles(prev =>
-        prev
+      setParticles(prev => {
+        if (prev.length === 0) return prev
+        return prev
           .map(p => ({
             ...p,
             x: p.x + p.vx,
@@ -182,10 +184,10 @@ export function useCrystalMatch(options?: { isEink?: boolean }) {
             life: p.life - 1,
           }))
           .filter(p => p.life > 0)
-      )
+      })
     }, 35)
     return () => clearInterval(interval)
-  }, [particles.length])
+  }, [hasParticles])
 
   // Check goal completion
   const checkGoalsCompleted = useCallback((currentGoals: LevelGoal[], currentScore: number): boolean => {
@@ -279,9 +281,14 @@ export function useCrystalMatch(options?: { isEink?: boolean }) {
       const isWon = checkGoalsCompleted(currentGoals, currentScore)
       if (isWon) {
         setGameStatus('won')
+        // Award bonus for remaining moves to reward efficient play
+        const movesBonus = initialMoves * 60
+        const totalLevelScore = currentScore + movesBonus
+        setScore(totalLevelScore)
+
         let stars = 1
-        if (currentScore >= config.starThresholds[2]) stars = 3
-        else if (currentScore >= config.starThresholds[1]) stars = 2
+        if (totalLevelScore >= config.starThresholds[2]) stars = 3
+        else if (totalLevelScore >= config.starThresholds[1]) stars = 2
 
         setProgress(prev => {
           const nextProg: PlayerProgress = {
@@ -289,9 +296,9 @@ export function useCrystalMatch(options?: { isEink?: boolean }) {
             levelStars: { ...prev.levelStars, [level]: Math.max(prev.levelStars[level] || 0, stars) },
             levelHighScores: {
               ...prev.levelHighScores,
-              [level]: Math.max(prev.levelHighScores[level] || 0, currentScore),
+              [level]: Math.max(prev.levelHighScores[level] || 0, totalLevelScore),
             },
-            totalScore: prev.totalScore + currentScore,
+            totalScore: prev.totalScore + totalLevelScore,
           }
           saveProgress(nextProg)
           return nextProg

@@ -156,8 +156,27 @@ export function Solitaire({ setHeader, locale = 'en', isEink = false }: GameComp
               />
             </ControlsBar>
           }
+          overlay={
+            <AnimatePresence>
+              {state.isWon && (
+                <GameResultOverlay
+                  status="won"
+                  title={t.youWon}
+                  stats={[
+                    { label: t.score, value: state.score },
+                    { label: t.time, value: formatTime(elapsedSeconds) },
+                    { label: t.moves, value: state.moves },
+                  ]}
+                  isEink={isEink}
+                  playAgainText={t.playAgain}
+                  onPlayAgain={() => resetGame()}
+                  playAgainId="sol-play-again-btn"
+                />
+              )}
+            </AnimatePresence>
+          }
         >
-          <div style={{ position: 'relative', width: '100%', display: 'flex', justifyContent: 'center' }}>
+          <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
             <SolitaireBoard
               state={state}
               selectedLocation={selectedLocation}
@@ -177,25 +196,6 @@ export function Solitaire({ setHeader, locale = 'en', isEink = false }: GameComp
                 }
               }}
             />
-
-            {/* Win Overlay */}
-            <AnimatePresence>
-              {state.isWon && (
-                <GameResultOverlay
-                  status="won"
-                  title={t.youWon}
-                  stats={[
-                    { label: t.score, value: state.score },
-                    { label: t.time, value: formatTime(elapsedSeconds) },
-                    { label: t.moves, value: state.moves },
-                  ]}
-                  isEink={isEink}
-                  playAgainText={t.playAgain}
-                  onPlayAgain={() => resetGame()}
-                  playAgainId="sol-play-again-btn"
-                />
-              )}
-            </AnimatePresence>
           </div>
         </BoardLayout>
 

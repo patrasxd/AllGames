@@ -34,6 +34,10 @@ export interface CrystalMatchTranslations {
   rule2: string
   rule3: string
   rule4: string
+  tip1Star: string
+  tip2Stars: string
+  tip3Stars: string
+  starTargets: string
 }
 
 export const crystalMatchTranslations: Record<Locale, CrystalMatchTranslations> = {
@@ -71,6 +75,10 @@ export const crystalMatchTranslations: Record<Locale, CrystalMatchTranslations> 
     rule2: 'Match 4: Creates a Line Blaster that clears a whole row or column.',
     rule3: 'Match 5 (T/L shape): Creates a Crystal Bomb with a 3x3 blast.',
     rule4: 'Match 5 in a line: Creates a Rainbow Prism that clears all crystals of one color.',
+    tip1Star: 'Tip: Save moves or match 4-5 crystals for special blasters to reach 2 and 3 stars!',
+    tip2Stars: 'Great job! Chain special combos or finish in fewer moves to claim 3 stars!',
+    tip3Stars: 'Masterful play! Perfect 3-star rating!',
+    starTargets: '2★ / 3★ Targets',
   },
   pl: {
     gameTitle: 'Crystal Match',
@@ -106,5 +114,9 @@ export const crystalMatchTranslations: Record<Locale, CrystalMatchTranslations> 
     rule2: 'Połącz 4: Tworzy kryształ laserowy, który czyści cały wiersz lub kolumnę.',
     rule3: 'Połącz 5 (w kształcie T lub L): Tworzy bombę wybuchającą w promieniu 3x3.',
     rule4: 'Połącz 5 w linii: Tworzy tęczowy pryzmat niszczący wszystkie kryształy wybranego koloru.',
+    tip1Star: 'Wskazówka: Oszczędzaj ruchy lub twórz lasery i bomby (połącz 4-5), aby zdobyć 2 i 3 gwiazdki!',
+    tip2Stars: 'Świetny wynik! Twórz potężne kombinacje lub kończ poziom szybciej, aby zdobyć 3 gwiazdki!',
+    tip3Stars: 'Mistrzowska gra! Zdobyto komplet 3 gwiazdek!',
+    starTargets: 'Progi 2★ / 3★',
   },
 }

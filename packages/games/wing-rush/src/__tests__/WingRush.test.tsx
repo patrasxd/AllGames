@@ -10,10 +10,10 @@ describe('WingRush Component Integration', () => {
     // FullBleedLayout root should be present
     expect(document.querySelector('.all-fullbleed-layout')).toBeInTheDocument()
 
-    // Controls footer should be present with difficulty selector and restart button
+    // Controls footer should be present with difficulty selector and no restart button
     const footer = document.querySelector('.all-fullbleed-layout__footer')
     expect(footer).toBeInTheDocument()
-    expect(footer?.querySelector('#wr-restart-btn')).toBeInTheDocument()
+    expect(footer?.querySelector('#wr-restart-btn')).toBeNull()
     expect(footer?.querySelector('.all-pill-group')).toBeInTheDocument()
 
     // Canvas should be rendered within edge-to-edge wrapper
@@ -22,12 +22,12 @@ describe('WingRush Component Integration', () => {
     const canvas = document.querySelector('canvas')
     expect(canvas).toBeInTheDocument()
 
-    // Ready prompt should be visible
-    expect(screen.getByText(/Tap or Space to Flap/i)).toBeInTheDocument()
+    // Start overlay card should be visible with Start button
+    const startBtn = screen.getByRole('button', { name: /^Start$/i })
+    expect(startBtn).toBeInTheDocument()
+    expect(screen.getByText(/Wing Rush/i)).toBeInTheDocument()
 
-    // Clicking restart button
-    const restartBtn = screen.getByRole('button', { name: /Restart/i })
-    expect(restartBtn).toBeInTheDocument()
-    fireEvent.click(restartBtn)
+    // Clicking start button begins play
+    fireEvent.click(startBtn)
   })
 })
