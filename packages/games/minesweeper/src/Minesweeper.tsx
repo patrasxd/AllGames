@@ -195,6 +195,7 @@ export function Minesweeper({ setHeader, locale = 'en', isEink = false }: GameCo
           overlay={
             (gameStatus === 'won' || gameStatus === 'lost') ? (
               <GameResultOverlay
+                status={gameStatus === 'won' ? 'won' : 'lost'}
                 title={gameStatus === 'won' ? t.youWon : t.youLost}
                 stats={
                   gameStatus === 'won'
