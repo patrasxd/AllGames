@@ -222,6 +222,11 @@ export function useSolitaire(options?: { isEink?: boolean }) {
     (from: CardLocation, to: CardLocation): boolean => {
       if (state.isWon) return false
 
+      // Prevent moving to the exact same pile
+      if (from.type === to.type && from.pileIndex === to.pileIndex) {
+        return false
+      }
+
       let movingCards: CardData[] = []
 
       // Get moving cards
@@ -259,6 +264,26 @@ export function useSolitaire(options?: { isEink?: boolean }) {
       pushHistory(state)
 
       setState(prev => {
+        // Idempotency check: verify moving cards still exist at source
+        let currentSourceCards: CardData[] = []
+        if (from.type === 'waste') {
+          if (prev.waste.length === 0) return prev
+          currentSourceCards = [prev.waste[prev.waste.length - 1]]
+        } else if (from.type === 'foundation' && from.pileIndex !== undefined) {
+          const fp = prev.foundations[from.pileIndex]
+          if (fp.length === 0) return prev
+          currentSourceCards = [fp[fp.length - 1]]
+        } else if (from.type === 'tableau' && from.pileIndex !== undefined && from.cardIndex !== undefined) {
+          const tp = prev.tableau[from.pileIndex]
+          if (from.cardIndex >= tp.length) return prev
+          currentSourceCards = tp.slice(from.cardIndex)
+        }
+
+        if (currentSourceCards.length === 0 || currentSourceCards[0].id !== movingCards[0].id) {
+          // Source already moved or changed! Prevent duplicate move
+          return prev
+        }
+
         const next = cloneState(prev)
 
         // Remove from source

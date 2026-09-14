@@ -64,6 +64,18 @@
   box-sizing: border-box;
   cursor: pointer;
   transition: border-color 150ms ease, box-shadow 150ms ease;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent !important;
+  outline: none !important;
+}
+
+.sol-slot:focus,
+.sol-slot:focus-visible,
+.sol-slot:active {
+  outline: none !important;
+  -webkit-tap-highlight-color: transparent !important;
 }
 
 .sol-slot--stock-empty {
@@ -117,6 +129,18 @@
   box-sizing: border-box;
   cursor: pointer;
   transition: outline 120ms ease;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent !important;
+  outline: none !important;
+}
+
+.sol-tableau-col:focus,
+.sol-tableau-col:focus-visible,
+.sol-tableau-col:active {
+  outline: none !important;
+  -webkit-tap-highlight-color: transparent !important;
 }
 
 .sol-tableau-col--empty {
@@ -143,11 +167,10 @@
 
 /* ─── Card Design ─────────────────────────────────────────── */
 .sol-card--dragging {
-  opacity: 0.55;
-  transform: scale(1.02);
+  opacity: 0.45;
+  transform: scale(0.98);
 }
 
-/* ─── Card Design ─────────────────────────────────────────── */
 .sol-card {
   width: 100%;
   aspect-ratio: 1 / 1.4;
@@ -163,11 +186,51 @@
   cursor: pointer;
   transition: transform 100ms ease, box-shadow 100ms ease, border-color 100ms ease;
   position: relative;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent !important;
+  touch-action: none;
+  outline: none !important;
+}
+
+.sol-card:focus,
+.sol-card:focus-visible,
+.sol-card:active {
+  outline: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+.sol-card * {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent !important;
 }
 
 .sol-card:hover {
   border-color: var(--text);
   transform: translateY(-2px);
+}
+
+/* Floating Mobile Drag Avatar */
+.sol-drag-avatar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 99999;
+  width: clamp(48px, 11vw, 68px);
+  filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.65));
+  opacity: 0.96;
+  will-change: transform;
+}
+
+.sol-drag-avatar .sol-card {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important;
+  border-color: var(--all-accent, #ffffff) !important;
 }
 
 /* Card Back */

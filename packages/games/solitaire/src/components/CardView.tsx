@@ -82,8 +82,14 @@ export const CardView = memo(function CardView({
   return (
     <div
       className={cardClass}
-      onClick={onClick}
-      onDoubleClick={onDoubleClick}
+      onClick={e => {
+        e.stopPropagation()
+        onClick?.()
+      }}
+      onDoubleClick={e => {
+        e.stopPropagation()
+        onDoubleClick?.()
+      }}
       draggable={draggable && card.faceUp}
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}

@@ -1,5 +1,5 @@
 import { memo, useState, useRef, useCallback } from 'react'
-import type { SolitaireState, CardLocation } from '../types'
+import type { SolitaireState, CardLocation, CardData } from '../types'
 import { FOUNDATION_SUITS } from '../cards'
 import { CardView, SuitIcon } from './CardView'
 
@@ -49,12 +49,21 @@ export const SolitaireBoard = memo(function SolitaireBoard({
   const [dragLoc, setDragLoc] = useState<CardLocation | null>(null)
   const [dragOverTarget, setDragOverTarget] = useState<{ type: string; pileIndex?: number } | null>(null)
 
-  // Touch tracking for mobile swipe-to-move
+  // Floating drag avatar for mobile touch dragging
+  const [touchAvatar, setTouchAvatar] = useState<{
+    x: number
+    y: number
+    cards: CardData[]
+  } | null>(null)
+
   const touchStateRef = useRef<{
     startX: number
     startY: number
+    offsetX: number
+    offsetY: number
     from: CardLocation
-    moved: boolean
+    cards: CardData[]
+    isDragging: boolean
   } | null>(null)
 
   const isSelected = (type: string, pileIndex?: number, cardIndex?: number) =>
@@ -79,7 +88,7 @@ export const SolitaireBoard = memo(function SolitaireBoard({
     return dragLoc.cardIndex === cardIndex
   }
 
-  // ── Drag & Drop Event Handlers ──
+  // ── Drag & Drop Event Handlers (Desktop Mouse) ──
   const handleDragStart = useCallback((e: React.DragEvent, loc: CardLocation) => {
     e.dataTransfer.setData('text/plain', JSON.stringify(loc))
     e.dataTransfer.effectAllowed = 'move'
@@ -120,47 +129,104 @@ export const SolitaireBoard = memo(function SolitaireBoard({
     }
   }, [dragLoc, onMove])
 
-  // ── Touch Drag Handlers (Mobile) ──
-  const handleTouchStart = useCallback((e: React.TouchEvent, from: CardLocation) => {
-    const t = e.touches[0]
-    touchStateRef.current = {
-      startX: t.clientX,
-      startY: t.clientY,
-      from,
-      moved: false,
-    }
-  }, [])
+  // ── Touch Drag Handlers (Mobile Touch Screen) ──
+  const handleTouchStart = useCallback(
+    (e: React.TouchEvent, from: CardLocation, cards: CardData[]) => {
+      const t = e.touches[0]
+      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+      touchStateRef.current = {
+        startX: t.clientX,
+        startY: t.clientY,
+        offsetX: t.clientX - rect.left,
+        offsetY: t.clientY - rect.top,
+        from,
+        cards,
+        isDragging: false,
+      }
+    },
+    []
+  )
 
   const handleTouchMove = useCallback((e: React.TouchEvent) => {
     if (!touchStateRef.current) return
     const t = e.touches[0]
-    const dist = Math.hypot(t.clientX - touchStateRef.current.startX, t.clientY - touchStateRef.current.startY)
-    if (dist > 12) {
-      touchStateRef.current.moved = true
+    const state = touchStateRef.current
+    const dist = Math.hypot(t.clientX - state.startX, t.clientY - state.startY)
+
+    if (dist > 8) {
+      state.isDragging = true
+      setTouchAvatar({
+        x: t.clientX - state.offsetX,
+        y: t.clientY - state.offsetY,
+        cards: state.cards,
+      })
+
+      // Hit-test drop target under finger
+      const el = document.elementFromPoint(t.clientX, t.clientY)
+      const targetEl = el?.closest('[data-sol-drop-type]')
+      if (targetEl) {
+        const type = targetEl.getAttribute('data-sol-drop-type')!
+        const pileIndexAttr = targetEl.getAttribute('data-sol-drop-index')
+        const pileIndex = pileIndexAttr !== null ? Number(pileIndexAttr) : undefined
+        setDragOverTarget({ type, pileIndex })
+      } else {
+        setDragOverTarget(null)
+      }
     }
   }, [])
 
-  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
-    const state = touchStateRef.current
-    touchStateRef.current = null
-    if (!state || !state.moved) return
+  const handleTouchEnd = useCallback(
+    (e: React.TouchEvent) => {
+      const state = touchStateRef.current
+      touchStateRef.current = null
+      setTouchAvatar(null)
+      setDragOverTarget(null)
 
-    const t = e.changedTouches[0]
-    const el = document.elementFromPoint(t.clientX, t.clientY)
-    const targetEl = el?.closest('[data-sol-drop-type]')
-    if (!targetEl) return
+      if (!state) return
 
-    const type = targetEl.getAttribute('data-sol-drop-type') as 'tableau' | 'foundation' | null
-    const pileIndexAttr = targetEl.getAttribute('data-sol-drop-index')
-    const pileIndex = pileIndexAttr !== null ? Number(pileIndexAttr) : undefined
-
-    if (type && pileIndex !== undefined) {
-      onMove?.(state.from, { type, pileIndex })
-    }
-  }, [onMove])
+      if (state.isDragging) {
+        const t = e.changedTouches[0]
+        const el = document.elementFromPoint(t.clientX, t.clientY)
+        const targetEl = el?.closest('[data-sol-drop-type]')
+        if (targetEl) {
+          const type = targetEl.getAttribute('data-sol-drop-type') as 'tableau' | 'foundation'
+          const pileIndexAttr = targetEl.getAttribute('data-sol-drop-index')
+          const pileIndex = pileIndexAttr !== null ? Number(pileIndexAttr) : undefined
+          if (type && pileIndex !== undefined) {
+            onMove?.(state.from, { type, pileIndex })
+          }
+        }
+      }
+    },
+    [onMove]
+  )
 
   return (
     <div className="sol-board">
+      {/* Floating Mobile Drag Avatar */}
+      {touchAvatar && (
+        <div
+          className="sol-drag-avatar"
+          style={{
+            transform: `translate3d(${touchAvatar.x}px, ${touchAvatar.y}px, 0)`,
+          }}
+        >
+          {touchAvatar.cards.map((c, i) => (
+            <div
+              key={c.id}
+              style={{
+                position: i === 0 ? 'relative' : 'absolute',
+                top: `${i * 20}px`,
+                left: 0,
+                width: '100%',
+              }}
+            >
+              <CardView card={c} isEink={isEink} />
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* ─── Upper Row: Stock, Waste, Gap, 4 Foundations ─────── */}
       <div className="sol-top-row">
         {/* Stock & Waste */}
@@ -170,7 +236,10 @@ export const SolitaireBoard = memo(function SolitaireBoard({
             className={`sol-slot sol-slot--stock ${
               state.stock.length === 0 ? 'sol-slot--stock-empty' : ''
             }`}
-            onClick={onStockClick}
+            onClick={e => {
+              e.stopPropagation()
+              onStockClick()
+            }}
             role="button"
             tabIndex={0}
             aria-label={`Stock pile (${state.stock.length} cards remaining)`}
@@ -208,7 +277,9 @@ export const SolitaireBoard = memo(function SolitaireBoard({
                 }
                 onDragEnd={handleDragEnd}
                 onTouchStart={e =>
-                  handleTouchStart(e, { type: 'waste', cardIndex: state.waste.length - 1 })
+                  handleTouchStart(e, { type: 'waste', cardIndex: state.waste.length - 1 }, [
+                    state.waste[state.waste.length - 1],
+                  ])
                 }
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}
@@ -235,7 +306,8 @@ export const SolitaireBoard = memo(function SolitaireBoard({
                 onDragOver={e => handleDragOver(e, { type: 'foundation', pileIndex: fIdx })}
                 onDragLeave={handleDragLeave}
                 onDrop={e => handleDrop(e, { type: 'foundation', pileIndex: fIdx })}
-                onClick={() => {
+                onClick={e => {
+                  e.stopPropagation()
                   if (selectedLocation) {
                     onMove?.(selectedLocation, { type: 'foundation', pileIndex: fIdx })
                   } else if (hasCards) {
@@ -275,11 +347,15 @@ export const SolitaireBoard = memo(function SolitaireBoard({
                     }
                     onDragEnd={handleDragEnd}
                     onTouchStart={e =>
-                      handleTouchStart(e, {
-                        type: 'foundation',
-                        pileIndex: fIdx,
-                        cardIndex: pile.length - 1,
-                      })
+                      handleTouchStart(
+                        e,
+                        {
+                          type: 'foundation',
+                          pileIndex: fIdx,
+                          cardIndex: pile.length - 1,
+                        },
+                        [pile[pile.length - 1]]
+                      )
                     }
                     onTouchMove={handleTouchMove}
                     onTouchEnd={handleTouchEnd}
@@ -314,10 +390,9 @@ export const SolitaireBoard = memo(function SolitaireBoard({
               onDragLeave={handleDragLeave}
               onDrop={e => handleDrop(e, { type: 'tableau', pileIndex: colIdx })}
               onClick={e => {
-                // If user clicks on column area or column is empty, target this column
-                if (selectedLocation) {
-                  onMove?.(selectedLocation, { type: 'tableau', pileIndex: colIdx })
-                } else if (isEmpty) {
+                // Only respond to column click if column is truly empty
+                if (isEmpty) {
+                  e.stopPropagation()
                   onEmptyTableauClick(colIdx)
                 }
               }}
@@ -371,11 +446,15 @@ export const SolitaireBoard = memo(function SolitaireBoard({
                       onDragEnd={handleDragEnd}
                       onTouchStart={e => {
                         e.stopPropagation()
-                        handleTouchStart(e, {
-                          type: 'tableau',
-                          pileIndex: colIdx,
-                          cardIndex: cardIdx,
-                        })
+                        handleTouchStart(
+                          e,
+                          {
+                            type: 'tableau',
+                            pileIndex: colIdx,
+                            cardIndex: cardIdx,
+                          },
+                          column.slice(cardIdx)
+                        )
                       }}
                       onTouchMove={handleTouchMove}
                       onTouchEnd={handleTouchEnd}

@@ -16,16 +16,27 @@ export const MemoryBoard = memo(function MemoryBoard({
   onCardClick,
 }: MemoryBoardProps) {
   let cols = 4
-  if (difficulty === 'easy') cols = 4 // 3x4 = 12
-  else if (difficulty === 'medium') cols = 4 // 4x4 = 16
-  else if (difficulty === 'hard') cols = 6 // 4x6 = 24
+  let rows = 4
+  if (difficulty === 'easy') {
+    cols = 4
+    rows = 3
+  } else if (difficulty === 'medium') {
+    cols = 4
+    rows = 4
+  } else if (difficulty === 'hard') {
+    cols = 6
+    rows = 4
+  }
 
   return (
     <div className="memory-board-wrapper" data-difficulty={difficulty}>
       <div
         className="memory-board-grid"
+        role="region"
+        aria-label="Memory cards grid"
         style={{
           gridTemplateColumns: `repeat(${cols}, 1fr)`,
+          gridTemplateRows: `repeat(${rows}, 1fr)`,
         }}
       >
         {cards.map(card => (

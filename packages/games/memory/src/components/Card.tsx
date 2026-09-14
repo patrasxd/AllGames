@@ -17,6 +17,9 @@ export const Card = memo(function Card({ card, isEink, onClick }: CardProps) {
 
   return (
     <div
+      id={card.id}
+      data-card-id={card.id}
+      data-symbol={card.symbolId}
       className={cardClasses}
       onClick={onClick}
       role="button"
