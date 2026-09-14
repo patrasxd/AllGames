@@ -207,8 +207,8 @@ export function Minesweeper({ setHeader, locale = 'en', isEink = false }: GameCo
                         { label: t.minesLeft, value: remainingMines },
                       ]
                 }
-                primaryActionText={t.newGame}
-                onPrimaryAction={() => resetGame()}
+                playAgainText={t.newGame}
+                onPlayAgain={() => resetGame()}
                 isEink={isEink}
               />
             ) : null
