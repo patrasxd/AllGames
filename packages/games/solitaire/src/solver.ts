@@ -48,7 +48,7 @@ function expand(s: State): State[] {
   if (s.waste.length > 0) {
     const card = s.waste[s.waste.length - 1]
     for (let f = 0; f < 4; f++) {
-      if (canMoveToFoundation(card, s.foundations[f])) {
+      if (canMoveToFoundation(card, s.foundations[f], f)) {
         const ns = cloneState(s)
         ns.foundations[f].push(ns.waste.pop()!)
         successors.push(ns)
@@ -61,7 +61,7 @@ function expand(s: State): State[] {
     const card = pile[pile.length - 1]
     if (!card.faceUp) continue
     for (let f = 0; f < 4; f++) {
-      if (canMoveToFoundation(card, s.foundations[f])) {
+      if (canMoveToFoundation(card, s.foundations[f], f)) {
         const ns = cloneState(s)
         ns.tableau[t].pop()
         ns.foundations[f].push({ ...card })

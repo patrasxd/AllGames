@@ -52,5 +52,34 @@ describe('Solitaire component integration', () => {
     fireEvent.click(cancelBtn!)
     expect(document.getElementById('sol-new-game-confirm')).toBeNull()
   })
+
+  it('supports drag-and-drop targets and responsive selection switching', () => {
+    render(<Solitaire locale="en" />)
+
+    // Verify 4 foundation drop targets
+    const foundations = document.querySelectorAll('[data-sol-drop-type="foundation"]')
+    expect(foundations).toHaveLength(4)
+
+    // Verify 7 tableau drop targets
+    const tableauCols = document.querySelectorAll('[data-sol-drop-type="tableau"]')
+    expect(tableauCols).toHaveLength(7)
+
+    // Verify face-up cards are draggable
+    const faceUpCards = document.querySelectorAll('.sol-card--face')
+    expect(faceUpCards.length).toBeGreaterThan(0)
+    faceUpCards.forEach(card => {
+      expect(card.getAttribute('draggable')).toBe('true')
+    })
+
+    // Click first face-up card to select it
+    fireEvent.click(faceUpCards[0])
+    expect(faceUpCards[0].classList.contains('sol-card--selected')).toBe(true)
+
+    // Click second face-up card (if different) - should smoothly switch selection
+    if (faceUpCards.length > 1) {
+      fireEvent.click(faceUpCards[1])
+      expect(faceUpCards[1].classList.contains('sol-card--selected')).toBe(true)
+    }
+  })
 })
 

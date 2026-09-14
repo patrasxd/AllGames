@@ -5,10 +5,11 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   padding: 0.25rem 0.5rem;
   box-sizing: border-box;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .sol-game {
@@ -17,9 +18,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.4rem;
-  overflow: hidden;
+  justify-content: flex-start;
+  gap: 0.5rem;
 }
 
 /* ─── Board & Dimensions ──────────────────────────────────── */
@@ -27,8 +27,8 @@
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  width: min(580px, 96vw);
-  max-height: calc(100dvh - 200px);
+  width: min(620px, 98vw);
+  max-width: 100%;
   user-select: none;
 }
 
@@ -63,7 +63,7 @@
   position: relative;
   box-sizing: border-box;
   cursor: pointer;
-  transition: border-color 150ms ease;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
 }
 
 .sol-slot--stock-empty {
@@ -95,21 +95,28 @@
   box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
 }
 
+.sol-slot--drag-over {
+  border-color: var(--accent, #ffffff) !important;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.45);
+}
+
 /* ─── Tableau Columns ─────────────────────────────────────── */
 .sol-tableau-row {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 0.5rem;
   width: 100%;
-  min-height: 200px;
+  min-height: 220px;
 }
 
 .sol-tableau-col {
   position: relative;
   width: 100%;
-  min-height: clamp(68px, 15vw, 95px);
+  min-height: clamp(68px, 14vw, 95px);
   border-radius: var(--radius-sm);
   box-sizing: border-box;
+  cursor: pointer;
+  transition: outline 120ms ease;
 }
 
 .sol-tableau-col--empty {
@@ -122,11 +129,22 @@
   box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
 }
 
+.sol-tableau-col--drag-over {
+  outline: 2px dashed var(--accent, #ffffff);
+  outline-offset: 2px;
+}
+
 .sol-tableau-card-wrapper {
   position: absolute;
   left: 0;
   right: 0;
   width: 100%;
+}
+
+/* ─── Card Design ─────────────────────────────────────────── */
+.sol-card--dragging {
+  opacity: 0.55;
+  transform: scale(1.02);
 }
 
 /* ─── Card Design ─────────────────────────────────────────── */

@@ -7,9 +7,16 @@ interface CardViewProps {
   isSelected?: boolean
   isHintSource?: boolean
   isHintTarget?: boolean
+  isDragging?: boolean
+  draggable?: boolean
   isEink?: boolean
   onClick?: () => void
   onDoubleClick?: () => void
+  onDragStart?: (e: React.DragEvent) => void
+  onDragEnd?: (e: React.DragEvent) => void
+  onTouchStart?: (e: React.TouchEvent) => void
+  onTouchMove?: (e: React.TouchEvent) => void
+  onTouchEnd?: (e: React.TouchEvent) => void
 }
 
 /* ─── Sketched Vector Suit Icons ──────────────────────────── */
@@ -47,9 +54,16 @@ export const CardView = memo(function CardView({
   isSelected,
   isHintSource,
   isHintTarget,
+  isDragging,
+  draggable = false,
   isEink,
   onClick,
   onDoubleClick,
+  onDragStart,
+  onDragEnd,
+  onTouchStart,
+  onTouchMove,
+  onTouchEnd,
 }: CardViewProps) {
   if (!card.faceUp) {
     return (
@@ -63,12 +77,19 @@ export const CardView = memo(function CardView({
   if (isSelected) cardClass += ' sol-card--selected'
   if (isHintSource) cardClass += ' sol-card--hint-source'
   if (isHintTarget) cardClass += ' sol-card--hint-target'
+  if (isDragging) cardClass += ' sol-card--dragging'
 
   return (
     <div
       className={cardClass}
       onClick={onClick}
       onDoubleClick={onDoubleClick}
+      draggable={draggable && card.faceUp}
+      onDragStart={onDragStart}
+      onDragEnd={onDragEnd}
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
       role="button"
       tabIndex={0}
       aria-label={`${formatRank(card.rank)} of ${card.suit}`}

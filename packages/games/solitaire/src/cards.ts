@@ -1,6 +1,7 @@
 import type { CardData, Suit, Rank, CardColor } from './types'
 
 export const SUITS: Suit[] = ['spades', 'hearts', 'diamonds', 'clubs']
+export const FOUNDATION_SUITS: Suit[] = ['spades', 'hearts', 'clubs', 'diamonds']
 export const RANKS: Rank[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
 
 export function getSuitColor(suit: Suit): CardColor {

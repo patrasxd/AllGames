@@ -1,5 +1,5 @@
 import type { CardData, SolitaireState, DrawMode, CardLocation } from './types'
-import { createDeck, shuffleDeck } from './cards'
+import { createDeck, shuffleDeck, FOUNDATION_SUITS } from './cards'
 import { isSolvable } from './solver'
 
 function buildDeal(drawMode: DrawMode): SolitaireState {
@@ -40,12 +40,23 @@ export function dealNewGame(drawMode: DrawMode = 1): SolitaireState {
   return buildDeal(drawMode)
 }
 
-export function canMoveToFoundation(card: CardData, foundation: CardData[]): boolean {
+export function canMoveToFoundation(
+  card: CardData,
+  foundation: CardData[],
+  foundationIndex?: number
+): boolean {
   if (foundation.length === 0) {
+    if (foundationIndex !== undefined && foundationIndex >= 0 && foundationIndex < FOUNDATION_SUITS.length) {
+      return card.rank === 1 && card.suit === FOUNDATION_SUITS[foundationIndex]
+    }
     return card.rank === 1
   }
   const top = foundation[foundation.length - 1]
-  return card.suit === top.suit && card.rank === top.rank + 1
+  const isValidNext = card.suit === top.suit && card.rank === top.rank + 1
+  if (foundationIndex !== undefined && foundationIndex >= 0 && foundationIndex < FOUNDATION_SUITS.length) {
+    return isValidNext && card.suit === FOUNDATION_SUITS[foundationIndex]
+  }
+  return isValidNext
 }
 
 export function canMoveToTableau(movingFirstCard: CardData, tableauPile: CardData[]): boolean {
@@ -79,7 +90,7 @@ export function findAutoFoundationMove(state: SolitaireState): {
   if (state.waste.length > 0) {
     const topWaste = state.waste[state.waste.length - 1]
     for (let f = 0; f < 4; f++) {
-      if (canMoveToFoundation(topWaste, state.foundations[f])) {
+      if (canMoveToFoundation(topWaste, state.foundations[f], f)) {
         return {
           from: { type: 'waste', cardIndex: state.waste.length - 1 },
           foundationIndex: f,
@@ -95,7 +106,7 @@ export function findAutoFoundationMove(state: SolitaireState): {
       const topTableau = pile[pile.length - 1]
       if (topTableau.faceUp) {
         for (let f = 0; f < 4; f++) {
-          if (canMoveToFoundation(topTableau, state.foundations[f])) {
+          if (canMoveToFoundation(topTableau, state.foundations[f], f)) {
             return {
               from: { type: 'tableau', pileIndex: t, cardIndex: pile.length - 1 },
               foundationIndex: f,

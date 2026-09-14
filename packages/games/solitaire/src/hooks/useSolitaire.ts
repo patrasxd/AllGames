@@ -176,7 +176,7 @@ export function useSolitaire(options?: { isEink?: boolean }) {
 
       // Find eligible foundation
       for (let f = 0; f < 4; f++) {
-        if (canMoveToFoundation(cardToMove, state.foundations[f])) {
+        if (canMoveToFoundation(cardToMove, state.foundations[f], f)) {
           setHint(null)
           setSelectedLocation(null)
           pushHistory(state)
@@ -219,39 +219,38 @@ export function useSolitaire(options?: { isEink?: boolean }) {
 
   // Handle manual move (from selectedLocation to target)
   const handleMove = useCallback(
-    (from: CardLocation, to: CardLocation) => {
-      if (state.isWon) return
+    (from: CardLocation, to: CardLocation): boolean => {
+      if (state.isWon) return false
 
       let movingCards: CardData[] = []
 
       // Get moving cards
       if (from.type === 'waste') {
-        if (state.waste.length === 0) return
+        if (state.waste.length === 0) return false
         movingCards = [state.waste[state.waste.length - 1]]
       } else if (from.type === 'foundation' && from.pileIndex !== undefined) {
         const fPile = state.foundations[from.pileIndex]
-        if (fPile.length === 0) return
+        if (fPile.length === 0) return false
         movingCards = [fPile[fPile.length - 1]]
       } else if (from.type === 'tableau' && from.pileIndex !== undefined && from.cardIndex !== undefined) {
         const tPile = state.tableau[from.pileIndex]
         movingCards = tPile.slice(from.cardIndex)
       }
 
-      if (movingCards.length === 0 || !movingCards[0].faceUp) return
+      if (movingCards.length === 0 || !movingCards[0].faceUp) return false
 
       // Validate destination
       let isValid = false
       if (to.type === 'foundation' && to.pileIndex !== undefined) {
         if (movingCards.length === 1) {
-          isValid = canMoveToFoundation(movingCards[0], state.foundations[to.pileIndex])
+          isValid = canMoveToFoundation(movingCards[0], state.foundations[to.pileIndex], to.pileIndex)
         }
       } else if (to.type === 'tableau' && to.pileIndex !== undefined) {
         isValid = canMoveToTableau(movingCards[0], state.tableau[to.pileIndex])
       }
 
       if (!isValid) {
-        setSelectedLocation(null)
-        return
+        return false
       }
 
       // Execute move
@@ -299,6 +298,23 @@ export function useSolitaire(options?: { isEink?: boolean }) {
 
         return next
       })
+
+      return true
+    },
+    [state]
+  )
+
+  const isCardSelectable = useCallback(
+    (loc: CardLocation): boolean => {
+      if (loc.type === 'waste') return state.waste.length > 0
+      if (loc.type === 'foundation' && loc.pileIndex !== undefined) {
+        return state.foundations[loc.pileIndex].length > 0
+      }
+      if (loc.type === 'tableau' && loc.pileIndex !== undefined && loc.cardIndex !== undefined) {
+        const card = state.tableau[loc.pileIndex][loc.cardIndex]
+        return Boolean(card && card.faceUp)
+      }
+      return false
     },
     [state]
   )
@@ -311,34 +327,34 @@ export function useSolitaire(options?: { isEink?: boolean }) {
 
       if (!selectedLocation) {
         // Select this card if valid
-        if (loc.type === 'waste' && state.waste.length > 0) {
+        if (isCardSelectable(loc)) {
           setSelectedLocation(loc)
-        } else if (loc.type === 'foundation' && loc.pileIndex !== undefined) {
-          if (state.foundations[loc.pileIndex].length > 0) {
-            setSelectedLocation(loc)
-          }
-        } else if (loc.type === 'tableau' && loc.pileIndex !== undefined && loc.cardIndex !== undefined) {
-          const card = state.tableau[loc.pileIndex][loc.cardIndex]
-          if (card && card.faceUp) {
-            setSelectedLocation(loc)
-          }
         }
-      } else {
-        // If clicking the exact same card, deselect
-        if (
-          selectedLocation.type === loc.type &&
-          selectedLocation.pileIndex === loc.pileIndex &&
-          selectedLocation.cardIndex === loc.cardIndex
-        ) {
-          setSelectedLocation(null)
-          return
-        }
+        return
+      }
 
-        // Try moving from selected to this target
-        handleMove(selectedLocation, loc)
+      // If clicking the exact same card, deselect
+      if (
+        selectedLocation.type === loc.type &&
+        selectedLocation.pileIndex === loc.pileIndex &&
+        selectedLocation.cardIndex === loc.cardIndex
+      ) {
+        setSelectedLocation(null)
+        return
+      }
+
+      // Try moving from selected to this target
+      const moved = handleMove(selectedLocation, loc)
+      if (!moved) {
+        // If move was invalid, smoothly switch selection to the newly clicked card!
+        if (isCardSelectable(loc)) {
+          setSelectedLocation(loc)
+        } else {
+          setSelectedLocation(null)
+        }
       }
     },
-    [state, selectedLocation, handleMove]
+    [state, selectedLocation, handleMove, isCardSelectable]
   )
 
   // Undo move

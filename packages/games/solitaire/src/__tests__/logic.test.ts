@@ -24,20 +24,33 @@ describe('solitaire logic', () => {
     })
   })
 
-  it('validates moves to foundation', () => {
+  it('validates moves to foundation and respects suit slots', () => {
     const aceOfHearts: CardData = { id: 'h1', suit: 'hearts', rank: 1, color: 'red', faceUp: true }
+    const aceOfSpades: CardData = { id: 's1', suit: 'spades', rank: 1, color: 'black', faceUp: true }
     const twoOfHearts: CardData = { id: 'h2', suit: 'hearts', rank: 2, color: 'red', faceUp: true }
     const twoOfSpades: CardData = { id: 's2', suit: 'spades', rank: 2, color: 'black', faceUp: true }
 
-    // Ace can go to empty foundation
-    expect(canMoveToFoundation(aceOfHearts, [])).toBe(true)
-    // 2 cannot go to empty foundation
-    expect(canMoveToFoundation(twoOfHearts, [])).toBe(false)
+    // Slots: 0=spades, 1=hearts, 2=clubs, 3=diamonds
+    // Ace of hearts CANNOT go into slot 0 (Spades) or 2 (Clubs) or 3 (Diamonds)
+    expect(canMoveToFoundation(aceOfHearts, [], 0)).toBe(false)
+    expect(canMoveToFoundation(aceOfHearts, [], 1)).toBe(true)
+    expect(canMoveToFoundation(aceOfHearts, [], 2)).toBe(false)
+    expect(canMoveToFoundation(aceOfHearts, [], 3)).toBe(false)
 
-    // 2 of hearts can go on Ace of hearts
-    expect(canMoveToFoundation(twoOfHearts, [aceOfHearts])).toBe(true)
+    // Ace of spades can ONLY go into slot 0 (Spades)
+    expect(canMoveToFoundation(aceOfSpades, [], 0)).toBe(true)
+    expect(canMoveToFoundation(aceOfSpades, [], 1)).toBe(false)
+
+    // 2 cannot go to empty foundation
+    expect(canMoveToFoundation(twoOfHearts, [], 1)).toBe(false)
+
+    // 2 of hearts can go on Ace of hearts in Hearts slot (1)
+    expect(canMoveToFoundation(twoOfHearts, [aceOfHearts], 1)).toBe(true)
     // 2 of spades cannot go on Ace of hearts
-    expect(canMoveToFoundation(twoOfSpades, [aceOfHearts])).toBe(false)
+    expect(canMoveToFoundation(twoOfSpades, [aceOfHearts], 1)).toBe(false)
+
+    // Generic check without foundation index (backwards compatibility)
+    expect(canMoveToFoundation(aceOfHearts, [])).toBe(true)
   })
 
   it('validates moves to tableau', () => {

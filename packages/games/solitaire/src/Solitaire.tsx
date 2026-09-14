@@ -199,6 +199,7 @@ export function Solitaire({ setHeader, setIsActive, locale = 'en', isEink = fals
               onStockClick={handleStockClick}
               onCardClick={handleCardClick}
               onDoubleClick={handleAutoMoveToFoundation}
+              onMove={handleMove}
               onEmptyTableauClick={colIdx => {
                 if (selectedLocation) {
                   handleMove(selectedLocation, { type: 'tableau', pileIndex: colIdx })
