@@ -64,12 +64,20 @@ export function Game2048({ setHeader, setIsActive, locale = 'en', isEink = false
     return () => setHeader?.(null)
   }, [setHeader])
 
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false)
+
   const handleNewGameClick = () => {
     if (isGameActive) {
       setPendingAction({ type: 'newGame' })
     } else {
       resetGame()
+      setIsSettingsOpen(false)
     }
+  }
+
+  const handleUndoClick = () => {
+    undoMove()
+    setIsSettingsOpen(false)
   }
 
   const handleSizeClick = (size: GridSize) => {
@@ -89,6 +97,7 @@ export function Game2048({ setHeader, setIsActive, locale = 'en', isEink = false
       resetGame()
     }
     setPendingAction(null)
+    setIsSettingsOpen(false)
   }
 
   const handleCancelAction = () => {
@@ -105,12 +114,14 @@ export function Game2048({ setHeader, setIsActive, locale = 'en', isEink = false
       >
         <BoardLayout
           variant="square"
+          isSettingsOpen={isSettingsOpen}
+          onSettingsOpenChange={setIsSettingsOpen}
           board={
             <Board2048
               tiles={tiles}
               size={gridSize}
-              isEink={isEink}
               onMove={handleMove}
+              isEink={isEink}
             />
           }
           overlay={
@@ -144,29 +155,6 @@ export function Game2048({ setHeader, setIsActive, locale = 'en', isEink = false
               ariaLabel={t.swipeHint}
             />
           }
-          controls={
-            <ControlsBar>
-              <Button
-                id="g2048-new-game-btn"
-                variant="primary"
-                size="sm"
-                onClick={handleNewGameClick}
-              >
-                {t.newGame}
-              </Button>
-
-              <Button
-                id="g2048-undo-btn"
-                variant="secondary"
-                size="sm"
-                icon={<UndoIcon />}
-                onClick={undoMove}
-                disabled={!canUndo}
-              >
-                {t.undo}
-              </Button>
-            </ControlsBar>
-          }
           settingsTitle={t.settings}
           settingsAriaLabel={t.settings}
           dpadToggleLabel={t.dpadLabel}
@@ -178,6 +166,7 @@ export function Game2048({ setHeader, setIsActive, locale = 'en', isEink = false
               label: t.gridSizeLabel,
               control: (
                 <PillGroup<GridSize>
+                  size="sm"
                   options={GRID_SIZES.map(s => ({
                     value: s,
                     label: s === 3 ? t.grid3 : s === 4 ? t.grid4 : t.grid5,
@@ -186,6 +175,32 @@ export function Game2048({ setHeader, setIsActive, locale = 'en', isEink = false
                   value={gridSize}
                   onChange={handleSizeClick}
                 />
+              ),
+            },
+            {
+              id: 'actions',
+              control: (
+                <div className="g2048-settings-actions">
+                  <Button
+                    id="g2048-new-game-btn"
+                    variant="primary"
+                    size="sm"
+                    onClick={handleNewGameClick}
+                  >
+                    {t.newGame}
+                  </Button>
+
+                  <Button
+                    id="g2048-undo-btn"
+                    variant="secondary"
+                    size="sm"
+                    icon={<UndoIcon />}
+                    onClick={handleUndoClick}
+                    disabled={!canUndo}
+                  >
+                    {t.undo}
+                  </Button>
+                </div>
               ),
             },
           ]}

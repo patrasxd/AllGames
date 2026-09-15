@@ -212,7 +212,7 @@
   animation: none !important;
 }
 
-/* ─── Responsive Controls ─────────────────────────────────── */
+/* ─── Responsive Controls & Settings Actions ─────────────── */
 .g2048-desktop-controls {
   display: flex;
   align-items: center;
@@ -222,5 +222,21 @@
   .g2048-desktop-controls {
     display: none !important;
   }
+}
+
+.g2048-settings-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--all-space-2, 8px);
+  width: 100%;
+}
+
+.all-dialog .g2048-settings-actions {
+  margin-top: var(--all-space-1, 4px);
+}
+
+.all-dialog .g2048-settings-actions .all-btn {
+  flex: 1 1 0;
 }
 

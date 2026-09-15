@@ -112,6 +112,39 @@ describe('Game2048 Component Integration', () => {
     expect(within(plDialog).getByRole('button', { name: /5x5/i })).toBeInTheDocument()
   })
 
+  it('supports New Game and Undo from inside the settings menu', async () => {
+    render(<Game2048 locale="en" />)
+
+    // Make moves using D-Pad
+    const upBtn = screen.getByRole('button', { name: /Move Up/i })
+    const leftBtn = screen.getByRole('button', { name: /Move Left/i })
+    fireEvent.click(leftBtn)
+    fireEvent.click(upBtn)
+
+    // Open Settings dialog
+    const settingsBtn = screen.getByRole('button', { name: /Settings/i })
+    fireEvent.click(settingsBtn)
+
+    const dialog = screen.getByRole('dialog', { name: /Settings/i })
+    expect(dialog).toBeInTheDocument()
+
+    // Undo button inside settings dialog
+    const undoBtn = within(dialog).getByRole('button', { name: /Undo/i })
+    expect(undoBtn).toBeInTheDocument()
+
+    // New game button inside settings dialog
+    const newGameBtn = within(dialog).getByRole('button', { name: /New Game/i })
+    expect(newGameBtn).toBeInTheDocument()
+
+    // Clicking Undo in settings triggers undo and closes settings
+    if (!undoBtn.hasAttribute('disabled')) {
+      fireEvent.click(undoBtn)
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog', { name: /Settings/i })).toBeNull()
+      })
+    }
+  })
+
   it('renders properly in E-ink mode', () => {
     render(<Game2048 locale="en" isEink={true} />)
 
@@ -122,3 +155,4 @@ describe('Game2048 Component Integration', () => {
     expect(tiles.length).toBeGreaterThanOrEqual(1)
   })
 })
+
