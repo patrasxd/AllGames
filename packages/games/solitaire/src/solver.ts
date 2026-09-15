@@ -13,11 +13,11 @@ import { canMoveToFoundation, canMoveToTableau } from './logic'
  * Returns false if budget exhausted — treat as "unknown/unsolvable" and re-deal.
  */
 
-const MAX_NODES = 5000
+const MAX_NODES = 10000
 
 type State = SolitaireState
 
-function stateKey(s: State): string {
+export function stateKey(s: State): string {
   const fKey = s.foundations.map(f => f.length).join(',')
   const tKey = s.tableau
     .map(pile =>
@@ -25,7 +25,8 @@ function stateKey(s: State): string {
     )
     .join('|')
   const wTop = s.waste.length > 0 ? s.waste[s.waste.length - 1].id : '-'
-  return `${fKey}:${wTop}:${tKey}`
+  const sKey = s.stock.map(c => c.id).join('')
+  return `${fKey}:${wTop}:${sKey}:${tKey}`
 }
 
 function cloneState(s: State): State {
@@ -141,19 +142,24 @@ function isWon(s: State): boolean {
   return s.foundations.every(f => f.length === 13)
 }
 
-export function isSolvable(initialState: State): boolean {
+export { MAX_NODES }
+
+export function isSolvable(initialState: State, maxNodes = MAX_NODES): boolean {
   const stack: State[] = [cloneState(initialState)]
   const visited = new Set<string>()
   visited.add(stateKey(initialState))
   let nodes = 0
 
-  while (stack.length > 0 && nodes < MAX_NODES) {
+  while (stack.length > 0 && nodes < maxNodes) {
     const current = stack.pop()!
     nodes++
 
     if (isWon(current)) return true
 
-    for (const ns of expand(current)) {
+    const succs = expand(current)
+    // Push in reverse order so that earlier successors (foundation moves!) are popped first
+    for (let i = succs.length - 1; i >= 0; i--) {
+      const ns = succs[i]
       const key = stateKey(ns)
       if (!visited.has(key)) {
         visited.add(key)

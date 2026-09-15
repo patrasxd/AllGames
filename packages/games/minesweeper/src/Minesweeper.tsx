@@ -118,7 +118,6 @@ export function Minesweeper({ setHeader, setIsActive, locale = 'en', isEink = fa
         label={isPl ? 'Rekord' : 'Record'}
         items={[
           { key: 'best', label: isPl ? 'Rekord' : 'Best', value: bestTime !== null ? `${bestTime}s` : '--' },
-          { key: 'time', label: isPl ? 'Czas' : 'Time', value: `${elapsedSeconds}s` },
           { key: 'mines', label: isPl ? 'Miny' : 'Mines', value: remainingMines },
         ]}
         onReset={bestTime !== null ? resetBestTime : undefined}
@@ -126,7 +125,7 @@ export function Minesweeper({ setHeader, setIsActive, locale = 'en', isEink = fa
         resetId="ms-reset-best-btn"
       />
     )
-  }, [setHeader, bestTime, elapsedSeconds, remainingMines, isPl, resetBestTime])
+  }, [setHeader, bestTime, remainingMines, isPl, resetBestTime])
 
   useEffect(() => {
     renderHeader()
