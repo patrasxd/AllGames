@@ -24,6 +24,9 @@ export const game2048Translations = {
     dpadHide: 'Hide D-Pad',
     dpadShow: 'Show D-Pad',
     dpadLabel: 'D-Pad',
+    dpadActive: 'On',
+    dpadInactive: 'Off',
+    settings: 'Settings',
   },
   pl: {
     title: '2048',
@@ -50,5 +53,8 @@ export const game2048Translations = {
     dpadHide: 'Ukryj D-Pad',
     dpadShow: 'Pokaż D-Pad',
     dpadLabel: 'D-Pad',
+    dpadActive: 'Włączony',
+    dpadInactive: 'Wyłączony',
+    settings: 'Ustawienia',
   },
 } as const

@@ -57,6 +57,23 @@
   width: 100%;
 }
 
+.snake-desktop-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--all-space-2, 0.5rem);
+}
+
+@media (max-width: 767px) {
+  .snake-desktop-controls {
+    display: none !important;
+  }
+
+  /* When D-Pad is active on mobile, hide the bottom bar so D-Pad has clean dedicated space */
+  .all-board-layout--has-dpad .snake-bottom-bar {
+    display: none !important;
+  }
+}
+
 /* ─── Motion Settings & Reduced Motion ───────────────────── */
 @media (prefers-reduced-motion: reduce) {
   .snake-overlay {

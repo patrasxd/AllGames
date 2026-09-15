@@ -35,6 +35,9 @@ export const snakeTranslations = {
     dpadHide: 'Hide D-Pad',
     dpadShow: 'Show D-Pad',
     dpadLabel: 'D-Pad',
+    dpadActive: 'On',
+    dpadInactive: 'Off',
+    settings: 'Settings',
   },
   pl: {
     title: 'Wąż',
@@ -72,5 +75,9 @@ export const snakeTranslations = {
     dpadHide: 'Ukryj D-Pad',
     dpadShow: 'Pokaż D-Pad',
     dpadLabel: 'D-Pad',
+    dpadActive: 'Włączony',
+    dpadInactive: 'Wyłączony',
+    settings: 'Ustawienia',
   },
 } as const
+

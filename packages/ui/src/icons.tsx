@@ -1,4 +1,18 @@
 import type { SVGProps } from 'react'
+export {
+  PlayIcon,
+  PauseIcon,
+  StopIcon,
+  SettingsIcon,
+  GearIcon,
+  DpadIcon,
+  UndoIcon,
+  RotateCcwIcon,
+  RestartIcon,
+  CloseIcon,
+  XIcon,
+  HintIcon,
+} from '@all/ui'
 
 export function ComputerIcon(props: SVGProps<SVGSVGElement>) {
   return (
@@ -61,47 +75,6 @@ export function TwoPlayersIcon(props: SVGProps<SVGSVGElement>) {
       <circle cx="9" cy="7" r="4" />
       <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
       <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-    </svg>
-  )
-}
-
-export function UndoIcon(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      {...props}
-    >
-      <polyline points="1 4 1 10 7 10" />
-      <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
-    </svg>
-  )
-}
-
-export function HintIcon(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      {...props}
-    >
-      <line x1="9" y1="18" x2="15" y2="18" />
-      <line x1="10" y1="22" x2="14" y2="22" />
-      <path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14" />
     </svg>
   )
 }
@@ -184,25 +157,6 @@ export function TrashIcon(props: SVGProps<SVGSVGElement>) {
     >
       <polyline points="3 6 5 6 21 6" />
       <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-    </svg>
-  )
-}
-
-export function DpadIcon(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      {...props}
-    >
-      <path d="M9 3h6v5h5v6h-5v7H9v-7H4V8h5V3z" />
     </svg>
   )
 }

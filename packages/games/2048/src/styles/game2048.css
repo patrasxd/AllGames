@@ -211,3 +211,16 @@
   transition: none !important;
   animation: none !important;
 }
+
+/* ─── Responsive Controls ─────────────────────────────────── */
+.g2048-desktop-controls {
+  display: flex;
+  align-items: center;
+}
+
+@media (max-width: 767px) {
+  .g2048-desktop-controls {
+    display: none !important;
+  }
+}
+

@@ -90,7 +90,7 @@ export function GamePage() {
       exit="exit"
     >
       <div className="game-page-inner">
-        <div className="container" style={{ width: '100%' }}>
+        <div className="container game-page-top-bar">
           <BackLink
             id={`back-btn-${slug}`}
             label={t.backToGames}
@@ -98,6 +98,7 @@ export function GamePage() {
             aria-label={t.backToGamesAria}
             title={t.backToGames}
           />
+          <div id="game-page-top-actions" className="game-page-top-actions" />
         </div>
 
         {/* ── Game area — fills remaining viewport height ── */}

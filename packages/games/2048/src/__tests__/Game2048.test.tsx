@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor, within } from '@testing-library/react'
 import React from 'react'
 import { Game2048 } from '../Game2048'
 
@@ -72,23 +72,26 @@ describe('Game2048 Component Integration', () => {
     fireEvent.click(rightBtn)
     fireEvent.click(upBtn)
 
-    // Click 5x5 board size pill
-    const size5Btn = screen.getByRole('button', { name: /5x5/i })
+    // Open Settings dialog
+    const settingsBtn = screen.getByRole('button', { name: /Settings/i })
+    expect(settingsBtn).toBeInTheDocument()
+    fireEvent.click(settingsBtn)
+
+    // Click 5x5 board size pill in settings dialog
+    const dialog = screen.getByRole('dialog', { name: /Settings/i })
+    const size5Btn = within(dialog).getByRole('button', { name: /5x5/i })
     expect(size5Btn).toBeInTheDocument()
     fireEvent.click(size5Btn)
 
     // Check confirmation dialog
-    const dialog = screen.queryByRole('dialog')
-    if (dialog) {
-      expect(screen.getByText(/Reset game\?/i)).toBeInTheDocument()
+    expect(screen.getByRole('dialog', { name: /Reset game\?/i })).toBeInTheDocument()
 
-      const cancelBtn = screen.getByRole('button', { name: /Cancel/i })
-      fireEvent.click(cancelBtn)
+    const cancelBtn = screen.getByRole('button', { name: /Cancel/i })
+    fireEvent.click(cancelBtn)
 
-      await waitFor(() => {
-        expect(screen.queryByRole('dialog')).toBeNull()
-      })
-    }
+    await waitFor(() => {
+      expect(screen.queryByText(/Reset game\?/i)).toBeNull()
+    })
   })
 
   it('renders in Polish locale with appropriate translations', () => {
@@ -96,9 +99,17 @@ describe('Game2048 Component Integration', () => {
 
     expect(screen.getByRole('button', { name: /Nowa gra/i })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Cofnij/i })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /3x3/i })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /4x4/i })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /5x5/i })).toBeInTheDocument()
+    
+    // Settings button is labeled in Polish
+    const settingsBtn = screen.getByRole('button', { name: /Ustawienia/i })
+    expect(settingsBtn).toBeInTheDocument()
+    fireEvent.click(settingsBtn)
+
+    // Options inside settings dialog
+    const plDialog = screen.getByRole('dialog', { name: /Ustawienia/i })
+    expect(within(plDialog).getByRole('button', { name: /3x3/i })).toBeInTheDocument()
+    expect(within(plDialog).getByRole('button', { name: /4x4/i })).toBeInTheDocument()
+    expect(within(plDialog).getByRole('button', { name: /5x5/i })).toBeInTheDocument()
   })
 
   it('renders properly in E-ink mode', () => {

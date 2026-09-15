@@ -4,7 +4,7 @@ import { useSnake } from './hooks/useSnake'
 import { SnakeCanvas } from './components/SnakeCanvas'
 import type { GameComponentProps, SpeedMode, MapMode } from './types'
 import { snakeTranslations } from './i18n'
-import { BoardLayout, Button, Badge, PillGroup, ControlsBar } from '@all/ui'
+import { BoardLayout, Button, Badge, PillGroup, ControlsBar, PlayIcon, PauseIcon } from '@all/ui'
 import { StatsHeader, GameResultOverlay, GameStartOverlay, DPad } from '@allgames/ui'
 import './styles/snake.css'
 
@@ -139,6 +139,7 @@ export function Snake({ setHeader, locale = 'en', isEink = false }: GameComponen
                 id="snake-pause-btn"
                 variant="secondary"
                 size="sm"
+                icon={<PauseIcon />}
                 onClick={pauseGame}
               >
                 {t.pauseBtn}
@@ -150,39 +151,58 @@ export function Snake({ setHeader, locale = 'en', isEink = false }: GameComponen
                 id="snake-resume-bottom-btn"
                 variant="primary"
                 size="sm"
+                icon={<PlayIcon />}
                 onClick={resumeGame}
               >
                 {t.resumeBtn}
               </Button>
             )}
-
-            {/* Map Selector */}
-            <PillGroup<MapMode>
-              label={t.mapLabel}
-              size="sm"
-              options={maps.map(m => ({
-                value: m,
-                label: m === 'classic' ? t.mapClassicShort : m === 'obstacles' ? t.mapObstaclesShort : t.mapBigShort,
-                id: `snake-map-${m}`,
-              }))}
-              value={mapMode}
-              onChange={setMapMode}
-            />
-
-            {/* Speed Selector */}
-            <PillGroup<SpeedMode>
-              label={t.speedLabel}
-              size="sm"
-              options={speeds.map(s => ({
-                value: s,
-                label: s === 'relaxed' ? t.speedRelaxed : s === 'normal' ? t.speedNormal : t.speedFast,
-                id: `snake-speed-${s}`,
-              }))}
-              value={speed}
-              onChange={setSpeed}
-            />
           </ControlsBar>
         }
+        onSettingsOpenChange={(open) => {
+          if (open && status === 'PLAYING') {
+            pauseGame()
+          }
+        }}
+        settingsTitle={t.settings}
+        settingsAriaLabel={t.settings}
+        dpadToggleLabel={t.dpadLabel}
+        dpadActiveLabel={t.dpadActive}
+        dpadInactiveLabel={t.dpadInactive}
+        settings={[
+          {
+            id: 'map',
+            label: t.mapLabel,
+            control: (
+              <PillGroup<MapMode>
+                size="sm"
+                options={maps.map(m => ({
+                  value: m,
+                  label: m === 'classic' ? t.mapClassicShort : m === 'obstacles' ? t.mapObstaclesShort : t.mapBigShort,
+                  id: `snake-map-${m}`,
+                }))}
+                value={mapMode}
+                onChange={setMapMode}
+              />
+            ),
+          },
+          {
+            id: 'speed',
+            label: t.speedLabel,
+            control: (
+              <PillGroup<SpeedMode>
+                size="sm"
+                options={speeds.map(s => ({
+                  value: s,
+                  label: s === 'relaxed' ? t.speedRelaxed : s === 'normal' ? t.speedNormal : t.speedFast,
+                  id: `snake-speed-${s}`,
+                }))}
+                value={speed}
+                onChange={setSpeed}
+              />
+            ),
+          },
+        ]}
       />
     </div>
   )

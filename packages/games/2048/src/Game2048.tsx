@@ -4,8 +4,8 @@ import { use2048 } from './hooks/use2048'
 import { Board2048 } from './components/Board2048'
 import type { GameComponentProps, GridSize } from './types'
 import { game2048Translations } from './i18n'
-import { BoardLayout, ConfirmDialog, Button, PillGroup, ControlsBar } from '@all/ui'
-import { StatsHeader, GameResultOverlay, UndoIcon, DPad } from '@allgames/ui'
+import { BoardLayout, ConfirmDialog, Button, PillGroup, ControlsBar, UndoIcon } from '@all/ui'
+import { StatsHeader, GameResultOverlay, DPad } from '@allgames/ui'
 import './styles/game2048.css'
 
 const GRID_SIZES: GridSize[] = [3, 4, 5]
@@ -165,19 +165,30 @@ export function Game2048({ setHeader, setIsActive, locale = 'en', isEink = false
               >
                 {t.undo}
               </Button>
-
-              <PillGroup<GridSize>
-                label={t.gridSizeLabel}
-                options={GRID_SIZES.map(s => ({
-                  value: s,
-                  label: s === 3 ? t.grid3 : s === 4 ? t.grid4 : t.grid5,
-                  id: `g2048-size-${s}`,
-                }))}
-                value={gridSize}
-                onChange={handleSizeClick}
-              />
             </ControlsBar>
           }
+          settingsTitle={t.settings}
+          settingsAriaLabel={t.settings}
+          dpadToggleLabel={t.dpadLabel}
+          dpadActiveLabel={t.dpadActive}
+          dpadInactiveLabel={t.dpadInactive}
+          settings={[
+            {
+              id: 'size',
+              label: t.gridSizeLabel,
+              control: (
+                <PillGroup<GridSize>
+                  options={GRID_SIZES.map(s => ({
+                    value: s,
+                    label: s === 3 ? t.grid3 : s === 4 ? t.grid4 : t.grid5,
+                    id: `g2048-size-${s}`,
+                  }))}
+                  value={gridSize}
+                  onChange={handleSizeClick}
+                />
+              ),
+            },
+          ]}
         />
 
         {/* Reset Confirmation Dialog */}

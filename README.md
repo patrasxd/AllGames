@@ -113,8 +113,10 @@ export interface GameComponentProps {
 - **Animations**: SVG line stroke drawing (`pathLength`), smooth framer-motion transitions, subtle button scaling, and hover border drawing.
 - **Grain Overlay**: SVG turbulence fractal noise overlay simulating textured sketchbook paper.
 - **Viewport Layout**: Game pages are engineered for 100% viewport fit (no scrolling), displaying header stats alongside the game title.
+- **Controls & Settings Pattern**: For touch games with a D-Pad (e.g., Snake, 2048), only immediate in-game actions (Pause, Resume, Undo, New Game) remain directly on the persistent controls bar. Secondary modifiers (map selection, speed, board dimensions, D-Pad toggle) are housed in an accessible `@all/ui` Settings `Dialog` opened by a single gear icon button in the controls bar, keeping mobile viewports decluttered.
 
 ---
+
 
 ## Internationalization (i18n)
 

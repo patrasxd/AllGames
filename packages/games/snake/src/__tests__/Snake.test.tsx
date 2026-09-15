@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { render, screen, fireEvent, act } from '@testing-library/react'
+import { render, screen, fireEvent, act, within } from '@testing-library/react'
 import React from 'react'
 import { Snake } from '../Snake'
 
@@ -87,22 +87,44 @@ describe('Snake Component Integration', () => {
     })
   })
 
-  it('allows switching map modes and speed modes via PillGroups', () => {
+  it('allows switching map modes and speed modes via Settings dialog', () => {
     render(<Snake locale="en" />)
 
-    // Check Map options
-    const obstaclesBtn = screen.getByRole('button', { name: /Obstacles/i })
+    // Open settings dialog
+    const settingsBtn = screen.getByRole('button', { name: /Settings/i })
+    expect(settingsBtn).toBeInTheDocument()
+    act(() => {
+      fireEvent.click(settingsBtn)
+    })
+
+    // Check Map options inside settings
+    const dialog = screen.getByRole('dialog', { name: /Settings/i })
+    const obstaclesBtn = within(dialog).getByRole('button', { name: /Obstacles/i })
     expect(obstaclesBtn).toBeInTheDocument()
     act(() => {
       fireEvent.click(obstaclesBtn)
     })
 
-    // Check Speed options
-    const fastBtn = screen.getByRole('button', { name: /Fast/i })
+    // Check Speed options inside settings
+    const fastBtn = within(dialog).getByRole('button', { name: /Fast/i })
     expect(fastBtn).toBeInTheDocument()
     act(() => {
       fireEvent.click(fastBtn)
     })
+
+    // Close settings dialog
+    const closeBtn = within(dialog).getByRole('button', { name: /Close dialog/i })
+    act(() => {
+      fireEvent.click(closeBtn)
+    })
+
+    // Reopen settings dialog and verify selections persisted
+    act(() => {
+      fireEvent.click(settingsBtn)
+    })
+    const reopenedDialog = screen.getByRole('dialog', { name: /Settings/i })
+    expect(within(reopenedDialog).getByRole('button', { name: /Obstacles/i })).toHaveAttribute('aria-pressed', 'true')
+    expect(within(reopenedDialog).getByRole('button', { name: /Fast/i })).toHaveAttribute('aria-pressed', 'true')
   })
 
   it('displays GameResultOverlay when snake collides with wall', () => {
