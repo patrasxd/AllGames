@@ -5,16 +5,16 @@ import { Grid10x10 } from './components/Grid10x10'
 import { PlacementControls } from './components/PlacementControls'
 import type { GameComponentProps, BattleshipDifficulty, BattleshipMode } from './types'
 import { battleshipTranslations } from './i18n'
-import { BoardLayout, Dialog, Button } from '@all/ui'
+import { BoardLayout, ConfirmDialog, Button } from '@all/ui'
 import { ModeSelect, StatsHeader, PillGroup, ControlsBar, ComputerIcon, TwoPlayersIcon } from '@allgames/ui'
 import './styles/battleship.css'
 
 const DIFFICULTIES: BattleshipDifficulty[] = ['easy', 'medium', 'hard']
 
-export function Battleship({ setHeader, locale = 'en', isEink = false }: GameComponentProps) {
+export function Battleship({ setHeader, setIsActive, locale = 'en', isEink = false }: GameComponentProps) {
   const [hasChosenMode, setHasChosenMode] = useState(false)
   const [pendingAction, setPendingAction] = useState<
-    { type: 'difficulty'; value: BattleshipDifficulty } | { type: 'mode' } | null
+    { type: 'difficulty'; value: BattleshipDifficulty } | { type: 'mode' } | { type: 'newGame' } | null
   >(null)
 
   const t = battleshipTranslations[locale] || battleshipTranslations.en
@@ -46,8 +46,13 @@ export function Battleship({ setHeader, locale = 'en', isEink = false }: GameCom
     resetBest,
   } = useBattleship({ isEink })
 
-  const isBattleActive = phase === 'battle' && p1Shots > 0 && winner === null
+  const isBattleActive = ((phase === 'battle' && p1Shots > 0) || (phase === 'placement' && (p1State.ships.length > 0 || p2State.ships.length > 0))) && winner === null
   const p2Hits = p1State.grid.flat().filter(c => c === 'hit' || c === 'sunk').length
+
+  useEffect(() => {
+    setIsActive?.(isBattleActive)
+    return () => setIsActive?.(false)
+  }, [isBattleActive, setIsActive])
 
   const renderHeader = useCallback(() => {
     if (!setHeader) return
@@ -97,6 +102,14 @@ export function Battleship({ setHeader, locale = 'en', isEink = false }: GameCom
     setHasChosenMode(true)
   }
 
+  const handleNewGameClick = () => {
+    if (isBattleActive) {
+      setPendingAction({ type: 'newGame' })
+    } else {
+      resetGame()
+    }
+  }
+
   const handleChangeModeClick = () => {
     if (isBattleActive) {
       setPendingAction({ type: 'mode' })
@@ -121,6 +134,8 @@ export function Battleship({ setHeader, locale = 'en', isEink = false }: GameCom
       setDifficulty(pendingAction.value)
     } else if (pendingAction.type === 'mode') {
       setHasChosenMode(false)
+      resetGame()
+    } else if (pendingAction.type === 'newGame') {
       resetGame()
     }
     setPendingAction(null)
@@ -277,7 +292,7 @@ export function Battleship({ setHeader, locale = 'en', isEink = false }: GameCom
                     <Button
                       id="bs-new-game-btn"
                       variant="primary"
-                      onClick={() => resetGame()}
+                      onClick={handleNewGameClick}
                     >
                       {t.newGame}
                     </Button>
@@ -339,27 +354,23 @@ export function Battleship({ setHeader, locale = 'en', isEink = false }: GameCom
             </BoardLayout>
 
             {/* Reset Confirmation Modal */}
-            <Dialog
+            <ConfirmDialog
               open={pendingAction !== null}
-              onOpenChange={(open) => {
-                if (!open) handleCancelAction()
-              }}
+              onClose={handleCancelAction}
               title={t.confirmResetTitle}
               description={
                 pendingAction?.type === 'difficulty'
                   ? t.confirmDifficultyDesc
+                  : pendingAction?.type === 'newGame'
+                  ? t.confirmNewGameDesc
                   : t.confirmModeDesc
               }
-              footer={
-                <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', width: '100%' }}>
-                  <Button id="bs-modal-cancel" variant="secondary" onClick={handleCancelAction}>
-                    {t.cancelBtn}
-                  </Button>
-                  <Button id="bs-modal-confirm" variant="danger" onClick={handleConfirmAction}>
-                    {t.confirmBtn}
-                  </Button>
-                </div>
-              }
+              confirmLabel={pendingAction?.type === 'newGame' ? t.newGame : t.confirmBtn}
+              cancelLabel={t.cancelBtn}
+              confirmVariant="danger"
+              confirmId="bs-modal-confirm"
+              cancelId="bs-modal-cancel"
+              onConfirm={handleConfirmAction}
             />
           </motion.div>
         )}

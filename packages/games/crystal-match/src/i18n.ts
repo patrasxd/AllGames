@@ -27,6 +27,9 @@ export interface CrystalMatchTranslations {
   resetProgress: string
   confirmResetProgress: string
   confirmResetDesc: string
+  confirmRestartTitle: string
+  confirmRestartDesc: string
+  confirmLevelSelectDesc: string
   cancelBtn: string
   confirmBtn: string
   rulesTitle: string
@@ -68,6 +71,9 @@ export const crystalMatchTranslations: Record<Locale, CrystalMatchTranslations> 
     resetProgress: 'Reset Progress',
     confirmResetProgress: 'Reset All Levels?',
     confirmResetDesc: 'This will reset your unlocked levels and star ratings back to Level 1.',
+    confirmRestartTitle: 'Restart Level?',
+    confirmRestartDesc: 'Restarting this level will discard your current score and moves. Continue?',
+    confirmLevelSelectDesc: 'Leaving this level will discard your current progress. Continue?',
     cancelBtn: 'Cancel',
     confirmBtn: 'Reset',
     rulesTitle: 'How to Play Crystal Match',
@@ -107,6 +113,9 @@ export const crystalMatchTranslations: Record<Locale, CrystalMatchTranslations> 
     resetProgress: 'Reset Postępu',
     confirmResetProgress: 'Zresetować Poziomy?',
     confirmResetDesc: 'Spowoduje to wyzerowanie odblokowanych poziomów i powrót do Poziomu 1.',
+    confirmRestartTitle: 'Zrestartować poziom?',
+    confirmRestartDesc: 'Zresetowanie tego poziomu spowoduje utratę obecnych punktów i ruchów. Kontynuować?',
+    confirmLevelSelectDesc: 'Opuszczenie poziomu spowoduje utratę bieżącego postępu. Kontynuować?',
     cancelBtn: 'Anuluj',
     confirmBtn: 'Resetuj',
     rulesTitle: 'Zasady gry Crystal Match',

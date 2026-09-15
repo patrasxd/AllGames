@@ -15,7 +15,7 @@ import {
 } from './components/Icons'
 import type { GameComponentProps } from './types'
 import { crystalMatchTranslations } from './i18n'
-import { BoardLayout, Dialog, Button, ControlsBar } from '@all/ui'
+import { BoardLayout, Dialog, ConfirmDialog, Button, ControlsBar } from '@all/ui'
 import { StatsHeader, GameResultOverlay, GameStartOverlay } from '@allgames/ui'
 import './styles/crystal-match.css'
 
@@ -48,11 +48,12 @@ function RestartIcon() {
   )
 }
 
-export function CrystalMatch({ setHeader, locale = 'en', isEink = false }: GameComponentProps) {
+export function CrystalMatch({ setHeader, setIsActive, locale = 'en', isEink = false }: GameComponentProps) {
   const t = crystalMatchTranslations[locale] || crystalMatchTranslations.en
   const isPl = locale === 'pl'
 
   const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false)
+  const [pendingAction, setPendingAction] = useState<'restart' | 'levels' | null>(null)
 
   const {
     level,
@@ -82,6 +83,28 @@ export function CrystalMatch({ setHeader, locale = 'en', isEink = false }: GameC
 
   const isAnimating = gameStatus === 'animating'
   const totalStars = Object.values(progress.levelStars).reduce((sum, s) => sum + s, 0)
+  const isGameActive = (movesLeft < config.maxMoves || score > 0) && gameStatus === 'playing'
+
+  useEffect(() => {
+    setIsActive?.(isGameActive)
+    return () => setIsActive?.(false)
+  }, [isGameActive, setIsActive])
+
+  const handleRestartClick = () => {
+    if (isGameActive) {
+      setPendingAction('restart')
+    } else {
+      restartLevel()
+    }
+  }
+
+  const handleLevelsClick = () => {
+    if (isGameActive) {
+      setPendingAction('levels')
+    } else {
+      setIsLevelModalOpen(true)
+    }
+  }
 
   // Injected Header Stats
   const renderHeader = useCallback(() => {
@@ -295,7 +318,7 @@ export function CrystalMatch({ setHeader, locale = 'en', isEink = false }: GameC
                 id="cm-levels-btn"
                 variant="secondary"
                 size="sm"
-                onClick={() => setIsLevelModalOpen(true)}
+                onClick={handleLevelsClick}
               >
                 {t.levelSelect}
               </Button>
@@ -314,7 +337,7 @@ export function CrystalMatch({ setHeader, locale = 'en', isEink = false }: GameC
                 id="cm-restart-btn"
                 variant="secondary"
                 size="sm"
-                onClick={restartLevel}
+                onClick={handleRestartClick}
                 icon={<RestartIcon />}
               >
                 {t.restart}
@@ -372,37 +395,42 @@ export function CrystalMatch({ setHeader, locale = 'en', isEink = false }: GameC
           isPl={isPl}
         />
 
+        {/* Restart / Level Select Confirmation Dialog */}
+        <ConfirmDialog
+          open={pendingAction !== null}
+          title={pendingAction === 'restart' ? t.confirmRestartTitle : t.levelSelect}
+          description={pendingAction === 'restart' ? t.confirmRestartDesc : t.confirmLevelSelectDesc}
+          confirmLabel={pendingAction === 'restart' ? t.restart : t.confirmBtn}
+          cancelLabel={t.cancelBtn}
+          confirmVariant="danger"
+          confirmId="cm-confirm-action-btn"
+          cancelId="cm-cancel-action-btn"
+          onConfirm={() => {
+            if (pendingAction === 'restart') {
+              restartLevel()
+            } else if (pendingAction === 'levels') {
+              setIsLevelModalOpen(true)
+            }
+            setPendingAction(null)
+          }}
+          onClose={() => setPendingAction(null)}
+        />
+
         {/* Reset Progress Confirmation Dialog */}
-        <Dialog
-          isOpen={isResetConfirmOpen}
+        <ConfirmDialog
+          open={isResetConfirmOpen}
           onClose={() => setIsResetConfirmOpen(false)}
           title={t.confirmResetProgress}
           description={t.confirmResetDesc}
-          maxWidth="sm"
-          className="cm-dialog"
-          footer={
-            <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', width: '100%' }}>
-              <Button
-                id="cm-reset-cancel"
-                variant="secondary"
-                size="sm"
-                onClick={() => setIsResetConfirmOpen(false)}
-              >
-                {t.cancelBtn}
-              </Button>
-              <Button
-                id="cm-reset-confirm"
-                variant="primary"
-                size="sm"
-                onClick={() => {
-                  resetAllProgress()
-                  setIsResetConfirmOpen(false)
-                }}
-              >
-                {t.confirmBtn}
-              </Button>
-            </div>
-          }
+          confirmLabel={t.confirmBtn}
+          cancelLabel={t.cancelBtn}
+          confirmVariant="danger"
+          confirmId="cm-reset-confirm"
+          cancelId="cm-reset-cancel"
+          onConfirm={() => {
+            resetAllProgress()
+            setIsResetConfirmOpen(false)
+          }}
         />
       </motion.div>
     </div>

@@ -5,7 +5,7 @@ import { SudokuBoard } from './components/SudokuBoard'
 import { Numpad } from './components/Numpad'
 import type { GameComponentProps, SudokuDifficulty } from './types'
 import { sudokuTranslations } from './i18n'
-import { BoardLayout, Dialog, Button } from '@all/ui'
+import { BoardLayout, ConfirmDialog, Button } from '@all/ui'
 import {
   StatsHeader,
   PillGroup,
@@ -17,8 +17,10 @@ import './styles/sudoku.css'
 
 const DIFFICULTIES: SudokuDifficulty[] = ['easy', 'medium', 'hard']
 
-export function Sudoku({ setHeader, locale = 'en', isEink = false }: GameComponentProps) {
-  const [pendingDifficulty, setPendingDifficulty] = useState<SudokuDifficulty | null>(null)
+export function Sudoku({ setHeader, setIsActive, locale = 'en', isEink = false }: GameComponentProps) {
+  const [pendingAction, setPendingAction] = useState<
+    { type: 'difficulty'; value: SudokuDifficulty } | { type: 'newGame' } | null
+  >(null)
 
   const t = sudokuTranslations[locale] || sudokuTranslations.en
   const isPl = locale === 'pl'
@@ -43,6 +45,11 @@ export function Sudoku({ setHeader, locale = 'en', isEink = false }: GameCompone
   } = useSudoku({ isEink })
 
   const isGameActive = elapsedSeconds > 0 && gameStatus === 'playing'
+
+  useEffect(() => {
+    setIsActive?.(isGameActive)
+    return () => setIsActive?.(false)
+  }, [isGameActive, setIsActive])
 
   const renderHeader = useCallback(() => {
     if (!setHeader) return
@@ -74,24 +81,35 @@ export function Sudoku({ setHeader, locale = 'en', isEink = false }: GameCompone
     return () => setHeader?.(null)
   }, [setHeader])
 
+  const handleNewGameClick = () => {
+    if (isGameActive) {
+      setPendingAction({ type: 'newGame' })
+    } else {
+      resetGame()
+    }
+  }
+
   const handleDifficultyClick = (d: SudokuDifficulty) => {
     if (d === difficulty) return
     if (isGameActive) {
-      setPendingDifficulty(d)
+      setPendingAction({ type: 'difficulty', value: d })
     } else {
       setDifficulty(d)
     }
   }
 
-  const handleConfirmDifficulty = () => {
-    if (pendingDifficulty) {
-      setDifficulty(pendingDifficulty)
-      setPendingDifficulty(null)
+  const handleConfirmAction = () => {
+    if (!pendingAction) return
+    if (pendingAction.type === 'difficulty') {
+      setDifficulty(pendingAction.value)
+    } else if (pendingAction.type === 'newGame') {
+      resetGame()
     }
+    setPendingAction(null)
   }
 
-  const handleCancelDifficulty = () => {
-    setPendingDifficulty(null)
+  const handleCancelAction = () => {
+    setPendingAction(null)
   }
 
   return (
@@ -143,7 +161,7 @@ export function Sudoku({ setHeader, locale = 'en', isEink = false }: GameCompone
               <Button
                 id="sdk-new-game-btn"
                 variant="primary"
-                onClick={() => resetGame()}
+                onClick={handleNewGameClick}
               >
                 {t.newGame}
               </Button>
@@ -163,29 +181,22 @@ export function Sudoku({ setHeader, locale = 'en', isEink = false }: GameCompone
         />
 
         {/* Reset Confirmation Dialog */}
-        <Dialog
-          isOpen={Boolean(pendingDifficulty)}
-          onClose={handleCancelDifficulty}
+        <ConfirmDialog
+          open={Boolean(pendingAction)}
+          onClose={handleCancelAction}
           title={t.confirmResetTitle}
-          description={t.confirmDifficultyDesc}
-        >
-          <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '16px' }}>
-            <Button
-              id="sdk-modal-cancel"
-              variant="secondary"
-              onClick={handleCancelDifficulty}
-            >
-              Cancel
-            </Button>
-            <Button
-              id="sdk-modal-confirm"
-              variant="primary"
-              onClick={handleConfirmDifficulty}
-            >
-              Continue
-            </Button>
-          </div>
-        </Dialog>
+          description={
+            pendingAction?.type === 'newGame'
+              ? t.confirmNewGameDesc
+              : t.confirmDifficultyDesc
+          }
+          confirmLabel={pendingAction?.type === 'newGame' ? t.newGame : t.confirmBtn}
+          cancelLabel={t.cancelBtn}
+          confirmVariant="danger"
+          confirmId="sdk-modal-confirm"
+          cancelId="sdk-modal-cancel"
+          onConfirm={handleConfirmAction}
+        />
       </div>
     </div>
   )

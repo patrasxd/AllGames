@@ -4,16 +4,16 @@ import { useMemory } from './hooks/useMemory'
 import { MemoryBoard } from './components/MemoryBoard'
 import type { GameComponentProps, MemoryDifficulty, MemoryGameMode } from './types'
 import { memoryTranslations } from './i18n'
-import { BoardLayout, Dialog, Button, PillGroup, ControlsBar } from '@all/ui'
+import { BoardLayout, ConfirmDialog, Button, PillGroup, ControlsBar } from '@all/ui'
 import { ModeSelect, StatsHeader, GameResultOverlay, SinglePlayerIcon, TwoPlayersIcon, formatTime } from '@allgames/ui'
 import './styles/memory.css'
 
 const DIFFICULTIES: MemoryDifficulty[] = ['easy', 'medium', 'hard']
 
-export function Memory({ setHeader, locale = 'en', isEink = false }: GameComponentProps) {
+export function Memory({ setHeader, setIsActive, locale = 'en', isEink = false }: GameComponentProps) {
   const [hasChosenMode, setHasChosenMode] = useState(false)
   const [pendingAction, setPendingAction] = useState<
-    { type: 'difficulty'; value: MemoryDifficulty } | { type: 'mode' } | null
+    { type: 'difficulty'; value: MemoryDifficulty } | { type: 'mode' } | { type: 'newGame' } | null
   >(null)
 
   const t = memoryTranslations[locale] || memoryTranslations.en
@@ -39,6 +39,11 @@ export function Memory({ setHeader, locale = 'en', isEink = false }: GameCompone
   } = useMemory({ isEink })
 
   const isGameActive = (moves > 0 || gameStatus === 'playing') && gameStatus !== 'ended'
+
+  useEffect(() => {
+    setIsActive?.(isGameActive)
+    return () => setIsActive?.(false)
+  }, [isGameActive, setIsActive])
 
   const renderHeader = useCallback(() => {
     if (!setHeader) return
@@ -90,6 +95,14 @@ export function Memory({ setHeader, locale = 'en', isEink = false }: GameCompone
     setHasChosenMode(true)
   }
 
+  const handleNewGameClick = () => {
+    if (isGameActive) {
+      setPendingAction({ type: 'newGame' })
+    } else {
+      resetGame()
+    }
+  }
+
   const handleChangeModeClick = () => {
     if (isGameActive) {
       setPendingAction({ type: 'mode' })
@@ -114,6 +127,8 @@ export function Memory({ setHeader, locale = 'en', isEink = false }: GameCompone
       setDifficulty(pendingAction.value)
     } else if (pendingAction.type === 'mode') {
       setHasChosenMode(false)
+      resetGame()
+    } else if (pendingAction.type === 'newGame') {
       resetGame()
     }
     setPendingAction(null)
@@ -251,7 +266,7 @@ export function Memory({ setHeader, locale = 'en', isEink = false }: GameCompone
                     id="memory-new-game-btn"
                     variant="primary"
                     size="sm"
-                    onClick={() => resetGame()}
+                    onClick={handleNewGameClick}
                   >
                     {t.newGame}
                   </Button>
@@ -280,36 +295,23 @@ export function Memory({ setHeader, locale = 'en', isEink = false }: GameCompone
             />
 
             {/* Reset Confirmation Dialog */}
-            <Dialog
-              isOpen={Boolean(pendingAction)}
+            <ConfirmDialog
+              open={Boolean(pendingAction)}
               onClose={handleCancelAction}
               title={t.confirmResetTitle}
               description={
                 pendingAction?.type === 'difficulty'
                   ? t.confirmDifficultyDesc
+                  : pendingAction?.type === 'newGame'
+                  ? t.confirmNewGameDesc
                   : t.confirmModeDesc
               }
-              maxWidth="sm"
-              footer={
-                <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', width: '100%' }}>
-                  <Button
-                    id="memory-modal-cancel"
-                    variant="secondary"
-                    size="sm"
-                    onClick={handleCancelAction}
-                  >
-                    {t.cancelBtn}
-                  </Button>
-                  <Button
-                    id="memory-modal-confirm"
-                    variant="primary"
-                    size="sm"
-                    onClick={handleConfirmAction}
-                  >
-                    {t.confirmBtn}
-                  </Button>
-                </div>
-              }
+              confirmLabel={pendingAction?.type === 'newGame' ? t.newGame : t.confirmBtn}
+              cancelLabel={t.cancelBtn}
+              confirmVariant="danger"
+              confirmId="memory-modal-confirm"
+              cancelId="memory-modal-cancel"
+              onConfirm={handleConfirmAction}
             />
           </motion.div>
         )}

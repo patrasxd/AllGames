@@ -20,6 +20,7 @@ export interface GameComponentProps {
   isEink?: boolean
   onSave?: (data: unknown) => void
   setHeader?: (content: ReactNode) => void
+  setIsActive?: (active: boolean) => void
 }
 
 export type GridSize = 3 | 4 | 5

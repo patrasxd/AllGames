@@ -17,6 +17,7 @@ export interface GameMetadata {
 
 export interface GameComponentProps {
   setHeader?: (header: ReactNode) => void
+  setIsActive?: (active: boolean) => void
   locale?: Locale
   isEink?: boolean
 }

@@ -4,14 +4,16 @@ import { use2048 } from './hooks/use2048'
 import { Board2048 } from './components/Board2048'
 import type { GameComponentProps, GridSize } from './types'
 import { game2048Translations } from './i18n'
-import { BoardLayout, Dialog, Button, PillGroup, ControlsBar } from '@all/ui'
+import { BoardLayout, ConfirmDialog, Button, PillGroup, ControlsBar } from '@all/ui'
 import { StatsHeader, GameResultOverlay, UndoIcon, DPad } from '@allgames/ui'
 import './styles/game2048.css'
 
 const GRID_SIZES: GridSize[] = [3, 4, 5]
 
-export function Game2048({ setHeader, locale = 'en', isEink = false }: GameComponentProps) {
-  const [pendingSize, setPendingSize] = useState<GridSize | null>(null)
+export function Game2048({ setHeader, setIsActive, locale = 'en', isEink = false }: GameComponentProps) {
+  const [pendingAction, setPendingAction] = useState<
+    { type: 'size'; value: GridSize } | { type: 'newGame' } | null
+  >(null)
 
   const t = game2048Translations[locale] || game2048Translations.en
   const isPl = locale === 'pl'
@@ -32,6 +34,11 @@ export function Game2048({ setHeader, locale = 'en', isEink = false }: GameCompo
   } = use2048({ isEink })
 
   const isGameActive = (score > 0 || canUndo) && gameStatus === 'playing'
+
+  useEffect(() => {
+    setIsActive?.(isGameActive)
+    return () => setIsActive?.(false)
+  }, [isGameActive, setIsActive])
 
   const renderHeader = useCallback(() => {
     if (!setHeader) return
@@ -57,24 +64,35 @@ export function Game2048({ setHeader, locale = 'en', isEink = false }: GameCompo
     return () => setHeader?.(null)
   }, [setHeader])
 
+  const handleNewGameClick = () => {
+    if (isGameActive) {
+      setPendingAction({ type: 'newGame' })
+    } else {
+      resetGame()
+    }
+  }
+
   const handleSizeClick = (size: GridSize) => {
     if (size === gridSize) return
     if (isGameActive) {
-      setPendingSize(size)
+      setPendingAction({ type: 'size', value: size })
     } else {
       setGridSize(size)
     }
   }
 
-  const handleConfirmSize = () => {
-    if (pendingSize) {
-      setGridSize(pendingSize)
-      setPendingSize(null)
+  const handleConfirmAction = () => {
+    if (!pendingAction) return
+    if (pendingAction.type === 'size') {
+      setGridSize(pendingAction.value)
+    } else if (pendingAction.type === 'newGame') {
+      resetGame()
     }
+    setPendingAction(null)
   }
 
-  const handleCancelSize = () => {
-    setPendingSize(null)
+  const handleCancelAction = () => {
+    setPendingAction(null)
   }
 
   return (
@@ -132,7 +150,7 @@ export function Game2048({ setHeader, locale = 'en', isEink = false }: GameCompo
                 id="g2048-new-game-btn"
                 variant="primary"
                 size="sm"
-                onClick={() => resetGame()}
+                onClick={handleNewGameClick}
               >
                 {t.newGame}
               </Button>
@@ -163,32 +181,21 @@ export function Game2048({ setHeader, locale = 'en', isEink = false }: GameCompo
         />
 
         {/* Reset Confirmation Dialog */}
-        <Dialog
-          isOpen={Boolean(pendingSize)}
-          onClose={handleCancelSize}
+        <ConfirmDialog
+          open={Boolean(pendingAction)}
+          onClose={handleCancelAction}
           title={t.confirmResetTitle}
-          description={t.confirmModeDesc}
-          maxWidth="sm"
-          footer={
-            <>
-              <Button
-                id="g2048-modal-cancel"
-                variant="secondary"
-                size="sm"
-                onClick={handleCancelSize}
-              >
-                {t.cancelBtn}
-              </Button>
-              <Button
-                id="g2048-modal-confirm"
-                variant="primary"
-                size="sm"
-                onClick={handleConfirmSize}
-              >
-                {t.confirmBtn}
-              </Button>
-            </>
+          description={
+            pendingAction?.type === 'newGame'
+              ? t.confirmNewGameDesc
+              : t.confirmModeDesc
           }
+          confirmLabel={pendingAction?.type === 'newGame' ? t.newGame : t.confirmBtn}
+          cancelLabel={t.cancelBtn}
+          confirmVariant="danger"
+          confirmId="g2048-modal-confirm"
+          cancelId="g2048-modal-cancel"
+          onConfirm={handleConfirmAction}
         />
       </motion.div>
     </div>

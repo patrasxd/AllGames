@@ -5,7 +5,7 @@ import { ChessBoard } from './components/ChessBoard'
 import { PromotionModal } from './components/PromotionModal'
 import type { GameComponentProps, ChessGameMode, Locale, ChessDifficulty } from './types'
 import { chessTranslations } from './i18n'
-import { BoardLayout, Dialog, Button, PillGroup, ControlsBar } from '@all/ui'
+import { BoardLayout, ConfirmDialog, Button, PillGroup, ControlsBar } from '@all/ui'
 import { ModeSelect, StatsHeader, GameResultOverlay, ComputerIcon, TwoPlayersIcon } from '@allgames/ui'
 import './styles/chess.css'
 
@@ -26,10 +26,10 @@ function ThinkingDots() {
 
 const DIFFICULTIES: ChessDifficulty[] = ['easy', 'medium', 'hard']
 
-export function Chess({ setHeader, locale = 'en', isEink = false }: GameComponentProps) {
+export function Chess({ setHeader, setIsActive, locale = 'en', isEink = false }: GameComponentProps) {
   const [hasChosenMode, setHasChosenMode] = useState(false)
   const [pendingAction, setPendingAction] = useState<
-    { type: 'difficulty'; value: ChessDifficulty } | { type: 'mode' } | null
+    { type: 'difficulty'; value: ChessDifficulty } | { type: 'mode' } | { type: 'newGame' } | null
   >(null)
 
   const t = chessTranslations[locale] || chessTranslations.en
@@ -68,6 +68,11 @@ export function Chess({ setHeader, locale = 'en', isEink = false }: GameComponen
     !isCheckmate &&
     !isStalemate
 
+  useEffect(() => {
+    setIsActive?.(isGameActive)
+    return () => setIsActive?.(false)
+  }, [isGameActive, setIsActive])
+
   const renderHeader = useCallback(() => {
     if (!setHeader) return
     if (!hasChosenMode) {
@@ -104,6 +109,14 @@ export function Chess({ setHeader, locale = 'en', isEink = false }: GameComponen
     setHasChosenMode(true)
   }
 
+  const handleNewGameClick = () => {
+    if (isGameActive) {
+      setPendingAction({ type: 'newGame' })
+    } else {
+      resetGame()
+    }
+  }
+
   const handleChangeModeClick = () => {
     if (isGameActive) {
       setPendingAction({ type: 'mode' })
@@ -128,6 +141,8 @@ export function Chess({ setHeader, locale = 'en', isEink = false }: GameComponen
       setDifficulty(pendingAction.value)
     } else if (pendingAction.type === 'mode') {
       setHasChosenMode(false)
+      resetGame()
+    } else if (pendingAction.type === 'newGame') {
       resetGame()
     }
     setPendingAction(null)
@@ -247,7 +262,7 @@ export function Chess({ setHeader, locale = 'en', isEink = false }: GameComponen
                   id="chess-new-game-btn"
                   variant="primary"
                   size="sm"
-                  onClick={resetGame}
+                  onClick={handleNewGameClick}
                 >
                   {t.newGame}
                 </Button>
@@ -290,36 +305,23 @@ export function Chess({ setHeader, locale = 'en', isEink = false }: GameComponen
       )}
 
       {/* Reset Confirmation Modal */}
-      <Dialog
-        isOpen={Boolean(pendingAction)}
+      <ConfirmDialog
+        open={Boolean(pendingAction)}
         onClose={handleCancelAction}
         title={t.confirmResetTitle}
         description={
           pendingAction?.type === 'difficulty'
             ? t.confirmDifficultyDesc
+            : pendingAction?.type === 'newGame'
+            ? t.confirmNewGameDesc
             : t.confirmModeDesc
         }
-        maxWidth="sm"
-        footer={
-          <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', width: '100%' }}>
-            <Button
-              id="chess-modal-cancel"
-              variant="secondary"
-              size="sm"
-              onClick={handleCancelAction}
-            >
-              {t.cancelBtn}
-            </Button>
-            <Button
-              id="chess-modal-confirm"
-              variant="primary"
-              size="sm"
-              onClick={handleConfirmAction}
-            >
-              {t.confirmBtn}
-            </Button>
-          </div>
-        }
+        confirmLabel={pendingAction?.type === 'newGame' ? t.newGame : t.confirmBtn}
+        cancelLabel={t.cancelBtn}
+        confirmVariant="danger"
+        confirmId="chess-modal-confirm"
+        cancelId="chess-modal-cancel"
+        onConfirm={handleConfirmAction}
       />
     </div>
   )

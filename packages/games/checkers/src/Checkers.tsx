@@ -4,7 +4,7 @@ import { useCheckers } from './hooks/useCheckers'
 import { CheckersBoard } from './components/CheckersBoard'
 import type { GameComponentProps, GameMode, Locale, CheckersDifficulty } from './types'
 import { checkersTranslations } from './i18n'
-import { BoardLayout, Dialog, Button, PillGroup, ControlsBar } from '@all/ui'
+import { BoardLayout, ConfirmDialog, Button, PillGroup, ControlsBar } from '@all/ui'
 import { ModeSelect, StatsHeader, GameResultOverlay, ComputerIcon, TwoPlayersIcon } from '@allgames/ui'
 import './styles/checkers.css'
 
@@ -25,10 +25,10 @@ function ThinkingDots() {
 
 const DIFFICULTIES: CheckersDifficulty[] = ['easy', 'medium', 'hard']
 
-export function Checkers({ setHeader, locale = 'en', isEink = false }: GameComponentProps) {
+export function Checkers({ setHeader, setIsActive, locale = 'en', isEink = false }: GameComponentProps) {
   const [hasChosenMode, setHasChosenMode] = useState(false)
   const [pendingAction, setPendingAction] = useState<
-    { type: 'difficulty'; value: CheckersDifficulty } | { type: 'mode' } | null
+    { type: 'difficulty'; value: CheckersDifficulty } | { type: 'mode' } | { type: 'newGame' } | null
   >(null)
 
   const t = checkersTranslations[locale] || checkersTranslations.en
@@ -61,6 +61,11 @@ export function Checkers({ setHeader, locale = 'en', isEink = false }: GameCompo
       board[3].some(Boolean) ||
       board[4].some(Boolean)) &&
     !winner
+
+  useEffect(() => {
+    setIsActive?.(isGameActive)
+    return () => setIsActive?.(false)
+  }, [isGameActive, setIsActive])
 
   const renderHeader = useCallback(() => {
     if (!setHeader) return
@@ -98,6 +103,14 @@ export function Checkers({ setHeader, locale = 'en', isEink = false }: GameCompo
     setHasChosenMode(true)
   }
 
+  const handleNewGameClick = () => {
+    if (isGameActive) {
+      setPendingAction({ type: 'newGame' })
+    } else {
+      resetGame()
+    }
+  }
+
   const handleChangeModeClick = () => {
     if (isGameActive) {
       setPendingAction({ type: 'mode' })
@@ -122,6 +135,8 @@ export function Checkers({ setHeader, locale = 'en', isEink = false }: GameCompo
       setDifficulty(pendingAction.value)
     } else if (pendingAction.type === 'mode') {
       setHasChosenMode(false)
+      resetGame()
+    } else if (pendingAction.type === 'newGame') {
       resetGame()
     }
     setPendingAction(null)
@@ -245,7 +260,7 @@ export function Checkers({ setHeader, locale = 'en', isEink = false }: GameCompo
                   id="checkers-new-game-btn"
                   variant="primary"
                   size="sm"
-                  onClick={resetGame}
+                  onClick={handleNewGameClick}
                 >
                   {t.newGame}
                 </Button>
@@ -278,36 +293,23 @@ export function Checkers({ setHeader, locale = 'en', isEink = false }: GameCompo
       </AnimatePresence>
 
       {/* Reset Confirmation Dialog */}
-      <Dialog
-        isOpen={Boolean(pendingAction)}
+      <ConfirmDialog
+        open={Boolean(pendingAction)}
         onClose={handleCancelAction}
         title={t.confirmResetTitle}
         description={
           pendingAction?.type === 'difficulty'
             ? t.confirmDifficultyDesc
+            : pendingAction?.type === 'newGame'
+            ? t.confirmNewGameDesc
             : t.confirmModeDesc
         }
-        maxWidth="sm"
-        footer={
-          <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', width: '100%' }}>
-            <Button
-              id="checkers-modal-cancel"
-              variant="secondary"
-              size="sm"
-              onClick={handleCancelAction}
-            >
-              {t.cancelBtn}
-            </Button>
-            <Button
-              id="checkers-modal-confirm"
-              variant="primary"
-              size="sm"
-              onClick={handleConfirmAction}
-            >
-              {t.confirmBtn}
-            </Button>
-          </div>
-        }
+        confirmLabel={pendingAction?.type === 'newGame' ? t.newGame : t.confirmBtn}
+        cancelLabel={t.cancelBtn}
+        confirmVariant="danger"
+        confirmId="checkers-modal-confirm"
+        cancelId="checkers-modal-cancel"
+        onConfirm={handleConfirmAction}
       />
     </div>
   )

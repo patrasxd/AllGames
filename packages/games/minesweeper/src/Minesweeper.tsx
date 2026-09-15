@@ -4,7 +4,7 @@ import { useMinesweeper } from './hooks/useMinesweeper'
 import { MinesweeperBoard } from './components/MinesweeperBoard'
 import type { GameComponentProps, MinesweeperDifficulty, GameStatus } from './types'
 import { minesweeperTranslations } from './i18n'
-import { BoardLayout, Dialog, Button, PillGroup, ControlsBar } from '@all/ui'
+import { BoardLayout, ConfirmDialog, Button, PillGroup, ControlsBar } from '@all/ui'
 import { StatsHeader, GameResultOverlay, pad3 } from '@allgames/ui'
 import './styles/minesweeper.css'
 
@@ -76,8 +76,10 @@ function SketchFace({ status, isShocked }: { status: GameStatus; isShocked: bool
 
 const DIFFICULTIES: MinesweeperDifficulty[] = ['beginner', 'intermediate', 'expert']
 
-export function Minesweeper({ setHeader, locale = 'en', isEink = false }: GameComponentProps) {
-  const [pendingDifficulty, setPendingDifficulty] = useState<MinesweeperDifficulty | null>(null)
+export function Minesweeper({ setHeader, setIsActive, locale = 'en', isEink = false }: GameComponentProps) {
+  const [pendingAction, setPendingAction] = useState<
+    { type: 'difficulty'; value: MinesweeperDifficulty } | { type: 'newGame' } | null
+  >(null)
 
   const t = minesweeperTranslations[locale] || minesweeperTranslations.en
   const isPl = locale === 'pl'
@@ -104,6 +106,11 @@ export function Minesweeper({ setHeader, locale = 'en', isEink = false }: GameCo
 
   const isGameActive = gameStatus === 'playing'
 
+  useEffect(() => {
+    setIsActive?.(isGameActive)
+    return () => setIsActive?.(false)
+  }, [isGameActive, setIsActive])
+
   const renderHeader = useCallback(() => {
     if (!setHeader) return
     setHeader(
@@ -129,24 +136,35 @@ export function Minesweeper({ setHeader, locale = 'en', isEink = false }: GameCo
     return () => setHeader?.(null)
   }, [setHeader])
 
+  const handleFaceClick = () => {
+    if (isGameActive) {
+      setPendingAction({ type: 'newGame' })
+    } else {
+      resetGame()
+    }
+  }
+
   const handleDifficultyClick = (d: MinesweeperDifficulty) => {
     if (d === difficulty) return
     if (isGameActive) {
-      setPendingDifficulty(d)
+      setPendingAction({ type: 'difficulty', value: d })
     } else {
       setDifficulty(d)
     }
   }
 
-  const handleConfirmDifficulty = () => {
-    if (pendingDifficulty) {
-      setDifficulty(pendingDifficulty)
-      setPendingDifficulty(null)
+  const handleConfirmAction = () => {
+    if (!pendingAction) return
+    if (pendingAction.type === 'difficulty') {
+      setDifficulty(pendingAction.value)
+    } else if (pendingAction.type === 'newGame') {
+      resetGame()
     }
+    setPendingAction(null)
   }
 
-  const handleCancelDifficulty = () => {
-    setPendingDifficulty(null)
+  const handleCancelAction = () => {
+    setPendingAction(null)
   }
 
   return (
@@ -169,7 +187,7 @@ export function Minesweeper({ setHeader, locale = 'en', isEink = false }: GameCo
                 type="button"
                 id="ms-face-btn"
                 className="ms-face-btn"
-                onClick={() => resetGame()}
+                onClick={handleFaceClick}
                 aria-label={t.clickSmileDesc}
                 title={t.clickSmileDesc}
               >
@@ -253,32 +271,21 @@ export function Minesweeper({ setHeader, locale = 'en', isEink = false }: GameCo
         />
 
         {/* Reset Confirmation Dialog */}
-        <Dialog
-          isOpen={Boolean(pendingDifficulty)}
-          onClose={handleCancelDifficulty}
+        <ConfirmDialog
+          open={Boolean(pendingAction)}
+          onClose={handleCancelAction}
           title={t.confirmResetTitle}
-          description={t.confirmDifficultyDesc}
-          maxWidth="sm"
-          footer={
-            <>
-              <Button
-                id="ms-modal-cancel"
-                variant="secondary"
-                size="sm"
-                onClick={handleCancelDifficulty}
-              >
-                {t.cancelBtn}
-              </Button>
-              <Button
-                id="ms-modal-confirm"
-                variant="primary"
-                size="sm"
-                onClick={handleConfirmDifficulty}
-              >
-                {t.confirmBtn}
-              </Button>
-            </>
+          description={
+            pendingAction?.type === 'newGame'
+              ? t.confirmNewGameDesc
+              : t.confirmDifficultyDesc
           }
+          confirmLabel={pendingAction?.type === 'newGame' ? t.newGame : t.confirmBtn}
+          cancelLabel={t.cancelBtn}
+          confirmVariant="danger"
+          confirmId="ms-modal-confirm"
+          cancelId="ms-modal-cancel"
+          onConfirm={handleConfirmAction}
         />
       </motion.div>
     </div>
