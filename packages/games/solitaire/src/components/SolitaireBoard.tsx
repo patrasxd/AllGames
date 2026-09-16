@@ -18,14 +18,14 @@ interface SolitaireBoardProps {
 
 /**
  * Computes dynamic vertical stacking offset for each card in a tableau column.
- * Compresses steps adaptively as piles grow so cards never get pushed off-screen.
+ * Compresses steps adaptively as piles grow so cards stay compact and visible.
  */
 function getTableauCardOffset(column: { faceUp: boolean }[], cardIndex: number): number {
   const total = column.length
-  // Face-down cards only need to peek enough to show depth (7px - 14px)
-  const faceDownStep = total > 14 ? 7 : total > 10 ? 9 : total > 7 ? 12 : 14
-  // Face-up cards need to display their rank + mini suit (16px - 26px)
-  const faceUpStep = total > 14 ? 16 : total > 11 ? 19 : total > 8 ? 22 : 26
+  // Face-down cards only need to peek enough to show depth (6px - 13px)
+  const faceDownStep = total > 14 ? 6 : total > 11 ? 7 : total > 8 ? 9 : total > 5 ? 11 : 13
+  // Face-up cards need to display their rank + mini suit (15px - 24px)
+  const faceUpStep = total > 14 ? 15 : total > 11 ? 17 : total > 8 ? 19 : total > 5 ? 21 : 24
 
   let offset = 0
   for (let i = 0; i < cardIndex; i++) {
@@ -377,6 +377,10 @@ export const SolitaireBoard = memo(function SolitaireBoard({
           const isEmpty = column.length === 0
           const isTarget = isHintTo('tableau', colIdx)
           const isDragOver = dragOverTarget?.type === 'tableau' && dragOverTarget?.pileIndex === colIdx
+          const lastOffset = column.length > 0 ? getTableauCardOffset(column, column.length - 1) : 0
+          const minColHeight = column.length > 0
+            ? `calc(${lastOffset}px + clamp(62px, 14vw, 95px))`
+            : undefined
 
           return (
             <div
@@ -384,6 +388,7 @@ export const SolitaireBoard = memo(function SolitaireBoard({
               className={`sol-tableau-col ${isEmpty ? 'sol-tableau-col--empty' : ''} ${
                 isTarget ? 'sol-tableau-col--hint-target' : ''
               } ${isDragOver ? 'sol-tableau-col--drag-over' : ''}`}
+              style={minColHeight ? { minHeight: minColHeight } : undefined}
               data-sol-drop-type="tableau"
               data-sol-drop-index={colIdx}
               onDragOver={e => handleDragOver(e, { type: 'tableau', pileIndex: colIdx })}
