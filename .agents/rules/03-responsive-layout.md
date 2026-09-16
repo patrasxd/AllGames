@@ -12,16 +12,40 @@ Active games must intelligently use the full available viewport across:
 ## Critical Anti-Patterns to Eliminate
 
 1. **Arbitrary Board Clamping**:
-   - Discovered bug: Chess and Checkers hardcoding `width: min(390px, min(92vw, calc(100vh - 280px)))`.
-   - On a desktop display, this leaves over 70% of screen space wasted.
-   - On a mobile landscape display (e.g. 400px viewport height), `calc(100vh - 280px)` crushes the board to ~120px!
+   - Do NOT hardcode arbitrary max constraints like `width: min(390px, ...)`.
+   - On desktop, boards must scale up to fill their container comfortably without giant empty dead zones.
+   - On mobile, boards must not shrink to tiny stamps; use fluid clamping (e.g. `clamp(...)` matching available column/row units) so boards remain readable and touchable.
 2. **Page Scrolling during Gameplay**:
-   - The game board and primary controls must fit inside the viewport without page scrollbars.
-   - Layout calculations must account for the shell header height (~56px).
+   - The game board, HUD, and primary controls must fit inside the viewport without page-level scrollbars.
+   - Internal scrolling is permitted only inside specific multi-board lists or score history where content genuinely exceeds mobile viewport height.
 3. **Touch Targets**:
-   - DPad buttons, cell touch targets, and action buttons must have minimum physical hit target of 44x44px (`min-width: 44px; min-height: 44px`).
+   - Cell touch targets, D-Pad buttons, and action buttons must have a minimum physical hit target of 44x44px (`min-width: 44px; min-height: 44px`) or comfortable touch-action manipulation.
 4. **Swipe Gestures vs Browser Navigation**:
    - Swipeable boards (2048, Snake) MUST declare `touch-action: none` on the board container, never `manipulation` (which allows browser pull-to-refresh to intercept vertical swipes).
 
-## Reusable Templates
-Rather than calculating custom `min(..., ...)` formulas in each game's CSS, games should use standard layout templates (SquareBoardTemplate, CanvasGameTemplate, DeckBoardTemplate).
+## Shared Responsive Templates (`@all/ui`)
+
+Rather than calculating viewport layout from scratch in each game, games must use the shared templates from `@all/ui`:
+
+### 1. `BoardLayout`
+The primary template for turn-based, board, grid, and card games.
+- **Props**:
+  - `variant`:
+    - `'square'`: 1:1 aspect ratio board, automatically constrained to available width/height without scrolling (Chess, Checkers, Tic-Tac-Toe, 2048, Snake, Crystal Match, Memory).
+    - `'wide'` / `'fluid'`: Flexible width stage for dual-boards, wide layouts, or variable dimensions (Battleship, Sudoku, Solitaire, Minesweeper).
+    - `'stacked'`: Stacked orientation.
+  - `align`: `'center'` (default for square boards) or `'top'` (default for wide/fluid).
+  - `hud`: Top HUD bar (status, turn indicators, scores).
+  - `board` (or children): Main board or interactive workspace.
+  - `controls`: Bottom controls bar (`<ControlsBar>...</ControlsBar>`).
+  - `dpad`: Optional on-screen D-Pad for directional games (Snake, 2048).
+  - `overlay`: Modal overlays (e.g. `<GameResultOverlay>` or `<GameStartOverlay>`).
+  - `sidePanel`: Optional desktop side panel for move logs, captured pieces, or inventory.
+
+### 2. `FullBleedLayout`
+For real-time canvas, physics, and arcade games (Wing Rush):
+- **Props**:
+  - `stage`: Full-bleed canvas element filling the entire viewport.
+  - `hud`: Floating top HUD overlay.
+  - `controls`: Floating bottom controls bar.
+  - `overlay`: Floating modal overlays for game start and game over states.
