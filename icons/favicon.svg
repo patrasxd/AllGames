@@ -1,13 +1,27 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <rect width="64" height="64" rx="10" fill="#0a0a0a"/>
-  <!-- Grid lines -->
-  <line x1="22" y1="10" x2="22" y2="54" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
-  <line x1="42" y1="10" x2="42" y2="54" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
-  <line x1="10" y1="22" x2="54" y2="22" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
-  <line x1="10" y1="42" x2="54" y2="42" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
-  <!-- X in top-left -->
-  <line x1="13" y1="13" x2="19" y2="19" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
-  <line x1="19" y1="13" x2="13" y2="19" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
-  <!-- O in center -->
-  <circle cx="32" cy="32" r="6" fill="none" stroke="#ffffff" stroke-width="2"/>
+  <defs>
+    <style>
+      .bg { fill: #0a0a0c; stroke: #26262a; stroke-width: 1.5; }
+      .stroke-primary { stroke: #f0f0f2; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+      .fill-primary { fill: #ffffff; }
+      .stroke-secondary { stroke: #888890; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+      @media (prefers-color-scheme: light) {
+        .bg { fill: #f8f8f6; stroke: #d0d0ce; }
+        .stroke-primary { stroke: #121214; }
+        .fill-primary { fill: #121214; }
+        .stroke-secondary { stroke: #66666e; }
+      }
+    </style>
+  </defs>
+
+  <!-- Base container -->
+  <rect class="bg" x="1" y="1" width="62" height="62" rx="15" />
+
+  <!-- D-Pad & Action mark -->
+  <g transform="translate(32, 32)">
+    <!-- D-Pad arm outline -->
+    <path class="stroke-primary" d="M-5 -15 H5 V-5 H15 V5 H5 V15 H-5 V5 H-15 V-5 H-5 Z" />
+    <!-- Center pivot dot -->
+    <circle class="fill-primary" cx="0" cy="0" r="1.8" />
+  </g>
 </svg>
