@@ -58,6 +58,8 @@ export function useSudoku(options?: { isEink?: boolean }) {
   const [elapsedSeconds, setElapsedSeconds] = useState(0)
   const [bestTime, setBestTime] = useState<number | null>(() => loadBestTime(difficulty))
 
+  const [canUndo, setCanUndo] = useState(false)
+
   const historyRef = useRef<MoveHistory[]>([])
   const timerRef = useRef<number | null>(null)
 
@@ -92,6 +94,7 @@ export function useSudoku(options?: { isEink?: boolean }) {
       setElapsedSeconds(0)
       setGameStatus('playing')
       historyRef.current = []
+      setCanUndo(false)
       setBestTime(loadBestTime(diffToUse))
     },
     [difficulty]
@@ -127,6 +130,15 @@ export function useSudoku(options?: { isEink?: boolean }) {
       if (targetCell.isInitial) return
 
       if (pencilMode) {
+        // Save history for undo
+        historyRef.current.push({
+          row: r,
+          col: c,
+          prevValue: targetCell.value,
+          prevNotes: new Set(targetCell.notes),
+          prevError: targetCell.isError,
+        })
+
         // Toggle note
         setBoard(prev => {
           const next = prev.map(row => row.map(cell => ({ ...cell, notes: new Set(cell.notes) })))
@@ -138,6 +150,7 @@ export function useSudoku(options?: { isEink?: boolean }) {
           }
           return next
         })
+        setCanUndo(true)
         return
       }
 
@@ -152,6 +165,7 @@ export function useSudoku(options?: { isEink?: boolean }) {
         prevNotes: new Set(targetCell.notes),
         prevError: targetCell.isError,
       })
+      setCanUndo(true)
 
       const newBoard = board.map((row, rowIdx) =>
         row.map((cell, colIdx) => {
@@ -206,6 +220,7 @@ export function useSudoku(options?: { isEink?: boolean }) {
       prevNotes: new Set(targetCell.notes),
       prevError: targetCell.isError,
     })
+    setCanUndo(true)
 
     setBoard(prev =>
       prev.map((row, rowIdx) =>
@@ -228,6 +243,7 @@ export function useSudoku(options?: { isEink?: boolean }) {
     if (gameStatus !== 'playing' || historyRef.current.length === 0) return
 
     const lastMove = historyRef.current.pop()!
+    setCanUndo(historyRef.current.length > 0)
     setBoard(prev =>
       prev.map((row, rowIdx) =>
         row.map((cell, colIdx) => {
@@ -258,7 +274,9 @@ export function useSudoku(options?: { isEink?: boolean }) {
   // Keyboard navigation & inputs
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
+      if (gameStatus !== 'playing') return
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return
+      if (e.target instanceof HTMLElement && e.target.closest('[role="dialog"]')) return
 
       if (e.key >= '1' && e.key <= '9') {
         e.preventDefault()
@@ -288,7 +306,8 @@ export function useSudoku(options?: { isEink?: boolean }) {
       if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'w', 's', 'a', 'd'].includes(e.key)) {
         e.preventDefault()
         setSelectedCell(prev => {
-          const [r, c] = prev ?? [0, 0]
+          if (!prev) return [0, 0]
+          const [r, c] = prev
           switch (e.key) {
             case 'ArrowUp':
             case 'w':
@@ -311,7 +330,7 @@ export function useSudoku(options?: { isEink?: boolean }) {
 
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [handleInputNumber, handleErase, handleUndo])
+  }, [gameStatus, handleInputNumber, handleErase, handleUndo])
 
   return {
     board,
@@ -322,6 +341,7 @@ export function useSudoku(options?: { isEink?: boolean }) {
     gameStatus,
     elapsedSeconds,
     bestTime,
+    canUndo,
     setSelectedCell,
     setPencilMode,
     handleInputNumber,

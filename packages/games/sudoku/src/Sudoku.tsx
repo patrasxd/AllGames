@@ -5,14 +5,16 @@ import { SudokuBoard } from './components/SudokuBoard'
 import { Numpad } from './components/Numpad'
 import type { GameComponentProps, SudokuDifficulty } from './types'
 import { sudokuTranslations } from './i18n'
-import { BoardLayout, ConfirmDialog, Button } from '@all/ui'
 import {
-  StatsHeader,
+  BoardLayout,
+  ConfirmDialog,
+  Button,
   PillGroup,
   ControlsBar,
-  GameResultOverlay,
+  StatsHeader,
   formatTime,
-} from '@allgames/ui'
+} from '@all/ui'
+import { GameResultOverlay } from '@allgames/ui'
 import './styles/sudoku.css'
 
 const DIFFICULTIES: SudokuDifficulty[] = ['easy', 'medium', 'hard']
@@ -34,6 +36,7 @@ export function Sudoku({ setHeader, setIsActive, locale = 'en', isEink = false }
     gameStatus,
     elapsedSeconds,
     bestTime,
+    canUndo,
     setSelectedCell,
     setPencilMode,
     handleInputNumber,
@@ -44,7 +47,7 @@ export function Sudoku({ setHeader, setIsActive, locale = 'en', isEink = false }
     resetBest,
   } = useSudoku({ isEink })
 
-  const isGameActive = elapsedSeconds > 0 && gameStatus === 'playing'
+  const isGameActive = (elapsedSeconds > 0 || canUndo || mistakes > 0) && gameStatus === 'playing'
 
   useEffect(() => {
     setIsActive?.(isGameActive)
@@ -113,92 +116,95 @@ export function Sudoku({ setHeader, setIsActive, locale = 'en', isEink = false }
   }
 
   return (
-    <div className="sdk-root">
-      <div className="sdk-game">
-        <BoardLayout
-          variant="square"
-          board={
-            <div>
-              {/* Board */}
-              <SudokuBoard
-                board={board}
-                selectedCell={selectedCell}
+    <>
+      <BoardLayout
+        variant="fluid"
+        align="center"
+        className="sdk-root"
+        board={
+          <div className="sdk-workspace-layout">
+            {/* Board */}
+            <SudokuBoard
+              board={board}
+              selectedCell={selectedCell}
+              isEink={isEink}
+              onSelectCell={(r, c) => setSelectedCell([r, c])}
+            />
+
+            {/* Numpad & Action Tools */}
+            <Numpad
+              pencilMode={pencilMode}
+              canUndo={canUndo}
+              locale={locale}
+              onNumber={handleInputNumber}
+              onErase={handleErase}
+              onTogglePencil={() => setPencilMode(p => !p)}
+              onUndo={handleUndo}
+            />
+          </div>
+        }
+        overlay={
+          <AnimatePresence>
+            {(gameStatus === 'won' || gameStatus === 'lost') && (
+              <GameResultOverlay
+                status={gameStatus}
+                title={gameStatus === 'won' ? t.youWon : t.youLost}
+                stats={[
+                  { label: isPl ? 'Czas' : 'Time', value: formatTime(elapsedSeconds) },
+                  { label: isPl ? 'Błędy' : 'Mistakes', value: `${mistakes}/3` },
+                ]}
                 isEink={isEink}
-                onSelectCell={(r, c) => setSelectedCell([r, c])}
+                playAgainText={t.tryAgain}
+                onPlayAgain={() => resetGame()}
+                playAgainId="sdk-retry-btn"
               />
+            )}
+          </AnimatePresence>
+        }
+        controls={
+          <ControlsBar>
+            <Button
+              id="sdk-new-game-btn"
+              variant="primary"
+              size="sm"
+              onClick={handleNewGameClick}
+            >
+              {t.newGame}
+            </Button>
 
-              {/* Numpad & Action Tools */}
-              <Numpad
-                pencilMode={pencilMode}
-                locale={locale}
-                onNumber={handleInputNumber}
-                onErase={handleErase}
-                onTogglePencil={() => setPencilMode(p => !p)}
-                onUndo={handleUndo}
-              />
-            </div>
-          }
-          overlay={
-            <AnimatePresence>
-              {(gameStatus === 'won' || gameStatus === 'lost') && (
-                <GameResultOverlay
-                  status={gameStatus}
-                  title={gameStatus === 'won' ? t.youWon : t.youLost}
-                  stats={[
-                    { label: isPl ? 'Czas' : 'Time', value: formatTime(elapsedSeconds) },
-                    { label: isPl ? 'Błędy' : 'Mistakes', value: `${mistakes}/3` },
-                  ]}
-                  isEink={isEink}
-                  playAgainText={t.tryAgain}
-                  onPlayAgain={() => resetGame()}
-                  playAgainId="sdk-retry-btn"
-                />
-              )}
-            </AnimatePresence>
-          }
-          controls={
-            <ControlsBar>
-              <Button
-                id="sdk-new-game-btn"
-                variant="primary"
-                onClick={handleNewGameClick}
-              >
-                {t.newGame}
-              </Button>
+            <PillGroup<SudokuDifficulty>
+              label={t.difficultyLabel}
+              size="sm"
+              options={DIFFICULTIES.map(d => ({
+                value: d,
+                label: d === 'easy' ? t.easy : d === 'medium' ? t.medium : t.hard,
+                id: `sdk-diff-${d}`,
+              }))}
+              value={difficulty}
+              onChange={handleDifficultyClick}
+            />
+          </ControlsBar>
+        }
+      />
 
-              <PillGroup<SudokuDifficulty>
-                label={t.difficultyLabel}
-                options={DIFFICULTIES.map(d => ({
-                  value: d,
-                  label: d === 'easy' ? t.easy : d === 'medium' ? t.medium : t.hard,
-                  id: `sdk-diff-${d}`,
-                }))}
-                value={difficulty}
-                onChange={handleDifficultyClick}
-              />
-            </ControlsBar>
-          }
-        />
-
-        {/* Reset Confirmation Dialog */}
-        <ConfirmDialog
-          open={Boolean(pendingAction)}
-          onClose={handleCancelAction}
-          title={t.confirmResetTitle}
-          description={
-            pendingAction?.type === 'newGame'
-              ? t.confirmNewGameDesc
-              : t.confirmDifficultyDesc
-          }
-          confirmLabel={pendingAction?.type === 'newGame' ? t.newGame : t.confirmBtn}
-          cancelLabel={t.cancelBtn}
-          confirmVariant="danger"
-          confirmId="sdk-modal-confirm"
-          cancelId="sdk-modal-cancel"
-          onConfirm={handleConfirmAction}
-        />
-      </div>
-    </div>
+      {/* Reset Confirmation Dialog */}
+      <ConfirmDialog
+        open={Boolean(pendingAction)}
+        onClose={handleCancelAction}
+        title={t.confirmResetTitle}
+        description={
+          pendingAction?.type === 'newGame'
+            ? t.confirmNewGameDesc
+            : t.confirmDifficultyDesc
+        }
+        confirmLabel={pendingAction?.type === 'newGame' ? t.newGame : t.confirmBtn}
+        cancelLabel={t.cancelBtn}
+        confirmVariant="danger"
+        confirmId="sdk-modal-confirm"
+        cancelId="sdk-modal-cancel"
+        onConfirm={handleConfirmAction}
+      />
+    </>
   )
 }
 export default Sudoku

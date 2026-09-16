@@ -30,16 +30,25 @@ export const SudokuCell = memo(function SudokuCell({
   if (cell.col % 3 === 2 && cell.col !== 8) cellClass += ' sdk-cell--border-right'
   if (cell.row % 3 === 2 && cell.row !== 8) cellClass += ' sdk-cell--border-bottom'
 
+  const notesArray = Array.from(cell.notes).sort()
+  const ariaDescription = [
+    `Row ${cell.row + 1}, Column ${cell.col + 1}`,
+    cell.isInitial ? 'Clue' : '',
+    cell.value ? `Value ${cell.value}` : 'Empty',
+    cell.isError ? 'Error' : '',
+    notesArray.length > 0 ? `Notes: ${notesArray.join(', ')}` : '',
+  ]
+    .filter(Boolean)
+    .join(', ')
+
   return (
     <div
       className={cellClass}
       onClick={onClick}
       role="gridcell"
-      tabIndex={0}
+      tabIndex={isSelected || (cell.row === 0 && cell.col === 0) ? 0 : -1}
       aria-selected={isSelected}
-      aria-label={`Row ${cell.row + 1}, Column ${cell.col + 1}${
-        cell.value ? `, Value ${cell.value}` : ', Empty'
-      }`}
+      aria-label={ariaDescription}
       onKeyDown={e => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault()
