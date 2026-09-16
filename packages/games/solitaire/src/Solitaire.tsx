@@ -4,22 +4,24 @@ import { useSolitaire } from './hooks/useSolitaire'
 import { SolitaireBoard } from './components/SolitaireBoard'
 import type { GameComponentProps, DrawMode } from './types'
 import { solitaireTranslations } from './i18n'
-import { BoardLayout, ConfirmDialog, Button } from '@all/ui'
 import {
-  StatsHeader,
+  BoardLayout,
+  ConfirmDialog,
+  Button,
   PillGroup,
   ControlsBar,
-  GameResultOverlay,
+  StatsHeader,
+  formatTime,
   UndoIcon,
   HintIcon,
-  formatTime,
-} from '@allgames/ui'
+} from '@all/ui'
+import { GameResultOverlay } from '@allgames/ui'
 import './styles/solitaire.css'
 
 function FinishIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M5 12l5 5L20 7" />
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+      <polyline points="20 6 9 17 4 12" />
     </svg>
   )
 }
@@ -59,6 +61,17 @@ export function Solitaire({ setHeader, setIsActive, locale = 'en', isEink = fals
     setIsActive?.(isGameActive)
     return () => setIsActive?.(false)
   }, [isGameActive, setIsActive])
+
+  // Native beforeunload protection when a game is in progress
+  useEffect(() => {
+    if (!isGameActive) return
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault()
+      e.returnValue = ''
+    }
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+  }, [isGameActive])
 
   const handleNewGameClick = () => {
     if (isGameActive) {
@@ -116,81 +129,11 @@ export function Solitaire({ setHeader, setIsActive, locale = 'en', isEink = fals
 
   return (
     <div className="sol-root">
-      <div className="sol-game">
-        <BoardLayout
-          variant="wide"
-          controls={
-            <ControlsBar>
-              <Button
-                id="sol-new-game-btn"
-                variant="primary"
-                onClick={handleNewGameClick}
-              >
-                {t.newGame}
-              </Button>
-
-              <Button
-                id="sol-undo-btn"
-                variant="secondary"
-                icon={<UndoIcon />}
-                onClick={handleUndo}
-              >
-                {t.undo}
-              </Button>
-
-              <Button
-                id="sol-hint-btn"
-                variant="secondary"
-                icon={<HintIcon />}
-                onClick={handleHint}
-              >
-                {t.hint}
-              </Button>
-
-              {isEligibleForAutoFinish && !state.isWon && (
-                <Button
-                  id="sol-finish-btn"
-                  variant="secondary"
-                  icon={<FinishIcon />}
-                  onClick={handleAutoComplete}
-                >
-                  {t.autoComplete}
-                </Button>
-              )}
-
-              <PillGroup<DrawMode>
-                label={t.drawModeLabel}
-                options={DRAW_MODES.map(m => ({
-                  value: m,
-                  label: m === 1 ? t.draw1 : t.draw3,
-                  id: `sol-draw-${m}-btn`,
-                }))}
-                value={drawMode}
-                onChange={handleDrawModeClick}
-              />
-            </ControlsBar>
-          }
-          overlay={
-            <AnimatePresence>
-              {state.isWon && (
-                <GameResultOverlay
-                  status="won"
-                  title={t.youWon}
-                  stats={[
-                    { label: t.score, value: state.score },
-                    { label: t.time, value: formatTime(elapsedSeconds) },
-                    { label: t.moves, value: state.moves },
-                  ]}
-                  isEink={isEink}
-                  playAgainText={t.playAgain}
-                  onPlayAgain={() => resetGame()}
-                  playAgainId="sol-play-again-btn"
-                />
-              )}
-            </AnimatePresence>
-          }
-        >
-          <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+      <BoardLayout
+        variant="wide"
+        align="top"
+        board={
+          <div className="sol-board-stage">
             <SolitaireBoard
               state={state}
               selectedLocation={selectedLocation}
@@ -212,39 +155,114 @@ export function Solitaire({ setHeader, setIsActive, locale = 'en', isEink = fals
               }}
             />
           </div>
-        </BoardLayout>
+        }
+        controls={
+          <ControlsBar>
+            <Button
+              id="sol-new-game-btn"
+              variant="primary"
+              size="sm"
+              onClick={handleNewGameClick}
+            >
+              {t.newGame}
+            </Button>
 
-        {/* New Game Confirmation Modal */}
-        <ConfirmDialog
-          open={showNewGameConfirm}
-          title={t.confirmResetTitle}
-          description={t.confirmNewGameDesc}
-          confirmLabel={t.newGame}
-          cancelLabel={t.cancelBtn}
-          confirmVariant="danger"
-          confirmId="sol-new-game-confirm"
-          cancelId="sol-new-game-cancel"
-          onConfirm={() => {
-            setShowNewGameConfirm(false)
-            resetGame()
-          }}
-          onClose={() => setShowNewGameConfirm(false)}
-        />
+            <Button
+              id="sol-undo-btn"
+              variant="secondary"
+              size="sm"
+              icon={<UndoIcon />}
+              onClick={handleUndo}
+            >
+              {t.undo}
+            </Button>
 
-        {/* Draw Mode Change Confirmation Modal */}
-        <ConfirmDialog
-          open={pendingDrawMode !== null}
-          title={t.confirmResetTitle}
-          description={t.confirmDrawDesc}
-          confirmLabel={t.continueBtn}
-          cancelLabel={t.cancelBtn}
-          confirmVariant="danger"
-          confirmId="sol-modal-confirm"
-          cancelId="sol-modal-cancel"
-          onConfirm={handleConfirmDrawMode}
-          onClose={handleCancelDrawMode}
-        />
-      </div>
+            <Button
+              id="sol-hint-btn"
+              variant="secondary"
+              size="sm"
+              icon={<HintIcon />}
+              onClick={handleHint}
+            >
+              {t.hint}
+            </Button>
+
+            {isEligibleForAutoFinish && !state.isWon && (
+              <Button
+                id="sol-finish-btn"
+                variant="secondary"
+                size="sm"
+                icon={<FinishIcon />}
+                onClick={handleAutoComplete}
+              >
+                {t.autoComplete}
+              </Button>
+            )}
+
+            <PillGroup<DrawMode>
+              label={t.drawModeLabel}
+              size="sm"
+              options={DRAW_MODES.map(m => ({
+                value: m,
+                label: m === 1 ? t.draw1 : t.draw3,
+                id: `sol-draw-${m}-btn`,
+              }))}
+              value={drawMode}
+              onChange={handleDrawModeClick}
+            />
+          </ControlsBar>
+        }
+        overlay={
+          <AnimatePresence>
+            {state.isWon && (
+              <GameResultOverlay
+                status="won"
+                title={t.youWon}
+                stats={[
+                  { label: t.score, value: state.score },
+                  { label: t.time, value: formatTime(elapsedSeconds) },
+                  { label: t.moves, value: state.moves },
+                ]}
+                isEink={isEink}
+                playAgainText={t.playAgain}
+                onPlayAgain={() => resetGame()}
+                playAgainId="sol-play-again-btn"
+              />
+            )}
+          </AnimatePresence>
+        }
+      />
+
+      {/* New Game Confirmation Modal */}
+      <ConfirmDialog
+        open={showNewGameConfirm}
+        title={t.confirmResetTitle}
+        description={t.confirmNewGameDesc}
+        confirmLabel={t.newGame}
+        cancelLabel={t.cancelBtn}
+        confirmVariant="danger"
+        confirmId="sol-new-game-confirm"
+        cancelId="sol-new-game-cancel"
+        onConfirm={() => {
+          setShowNewGameConfirm(false)
+          resetGame()
+        }}
+        onClose={() => setShowNewGameConfirm(false)}
+      />
+
+      {/* Draw Mode Change Confirmation Modal */}
+      <ConfirmDialog
+        open={pendingDrawMode !== null}
+        title={t.confirmResetTitle}
+        description={t.confirmDrawDesc}
+        confirmLabel={t.continueBtn}
+        cancelLabel={t.cancelBtn}
+        confirmVariant="danger"
+        confirmId="sol-modal-confirm"
+        cancelId="sol-modal-cancel"
+        onConfirm={handleConfirmDrawMode}
+        onClose={handleCancelDrawMode}
+      />
     </div>
   )
 }

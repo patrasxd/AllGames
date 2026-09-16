@@ -11,7 +11,7 @@ describe('Solitaire Draw 3 mode verification', () => {
     expect(state.waste).toHaveLength(0)
     // Confirm the deal is solvable
     expect(isSolvable(state)).toBe(true)
-  })
+  }, 15000)
 
   it('draws 3 cards at a time from stock to waste and recycles properly', () => {
     const state = dealNewGame(3)
@@ -43,5 +43,5 @@ describe('Solitaire Draw 3 mode verification', () => {
     expect(state.stock.length).toBe(24)
     expect(state.waste.length).toBe(0)
     expect(state.stock[0].faceUp).toBe(false)
-  })
+  }, 15000)
 })

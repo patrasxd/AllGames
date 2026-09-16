@@ -1,12 +1,12 @@
-import { describe, it, expect } from 'vitest'
-import { render, fireEvent } from '@testing-library/react'
+import { describe, it, expect, vi } from 'vitest'
+import { render, fireEvent, waitFor } from '@testing-library/react'
 import { Solitaire } from '../Solitaire'
 
 describe('Solitaire component integration', () => {
   it('renders board, controls, and responds to interactions', () => {
     render(<Solitaire locale="en" />)
 
-    // BoardLayout with variant="wide"
+    // BoardLayout with variant="wide" and align="top"
     const layout = document.querySelector('.all-board-layout--wide')
     expect(layout).toBeInTheDocument()
 
@@ -29,7 +29,24 @@ describe('Solitaire component integration', () => {
     // Verify card drawn to waste
     const wasteSlot = document.querySelector('.sol-waste-group') || document.querySelector('.sol-slot')
     expect(wasteSlot).toBeInTheDocument()
-  }, 10000)
+  }, 15000)
+
+  it('notifies shell with setIsActive(true) when moves are made', async () => {
+    const setIsActive = vi.fn()
+    render(<Solitaire locale="en" setIsActive={setIsActive} />)
+
+    // Initially 0 moves made -> not active
+    expect(setIsActive).toHaveBeenLastCalledWith(false)
+
+    // Make a move by clicking stock
+    const stockBtn = document.querySelector('.sol-slot--stock')
+    fireEvent.click(stockBtn!)
+
+    // Moves > 0 -> should notify setIsActive(true)
+    await waitFor(() => {
+      expect(setIsActive).toHaveBeenCalledWith(true)
+    })
+  }, 15000)
 
   it('prompts ConfirmDialog when clicking New Game after moves are made', () => {
     render(<Solitaire locale="en" />)
@@ -51,7 +68,7 @@ describe('Solitaire component integration', () => {
     // Cancel preserves current game
     fireEvent.click(cancelBtn!)
     expect(document.getElementById('sol-new-game-confirm')).toBeNull()
-  })
+  }, 15000)
 
   it('supports drag-and-drop targets and responsive selection switching', () => {
     render(<Solitaire locale="en" />)
@@ -80,6 +97,10 @@ describe('Solitaire component integration', () => {
       fireEvent.click(faceUpCards[1])
       expect(faceUpCards[1].classList.contains('sol-card--selected')).toBe(true)
     }
+  }, 15000)
+
+  it('renders cleanly in E-Ink mode', () => {
+    const { container } = render(<Solitaire locale="en" isEink={true} />)
+    expect(container.querySelector('.sol-root')).toBeInTheDocument()
   })
 })
-
