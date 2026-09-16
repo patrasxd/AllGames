@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="pl" style="background-color: #0a0a0a; color: #efefef;">
+<html lang="pl">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -15,11 +15,6 @@
           var t = localStorage.getItem('allgames:theme') || 'dark';
           document.documentElement.setAttribute('data-theme', t);
           document.documentElement.setAttribute('data-all-theme', t);
-          var isLight = t === 'light' || t === 'e-ink-light';
-          var bg = isLight ? '#f2f1ec' : '#0a0a0a';
-          var fg = isLight ? '#111111' : '#efefef';
-          document.documentElement.style.backgroundColor = bg;
-          document.documentElement.style.color = fg;
           if (t.indexOf('e-ink') !== -1) {
             document.documentElement.setAttribute('data-eink', 'true');
           }
@@ -27,7 +22,7 @@
       })();
     </script>
   </head>
-  <body style="background-color: inherit; color: inherit;">
+  <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
