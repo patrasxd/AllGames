@@ -17,7 +17,7 @@ export default defineConfig({
       manifest: {
         name: 'AllGames',
         short_name: 'AllGames',
-        description: 'A minimalist collection of casual browser games.',
+        description: 'Simple browser games. No registration, no ads. Your progress stays on this device.',
         theme_color: '#0a0a0a',
         background_color: '#0a0a0a',
         display: 'standalone',

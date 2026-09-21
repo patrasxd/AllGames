@@ -4,6 +4,7 @@ import { useI18n } from '../i18n'
 import { getLocalizedText, getLocalizedTags } from '../types/game'
 import type { GameMetadata } from '../types/game'
 import { Badge } from '@allgames/ui'
+import { setLastActiveCardId } from '@all/ui'
 
 interface GameCardProps {
   metadata: GameMetadata
@@ -31,7 +32,10 @@ export function GameCard({ metadata, index }: GameCardProps) {
   const description = getLocalizedText(metadata.description, locale)
   const tags = getLocalizedTags(metadata.tags, locale)
 
-  const handleClick = () => navigate(`/games/${metadata.slug}`)
+  const handleClick = () => {
+    setLastActiveCardId(`game-card-${metadata.slug}`)
+    navigate(`/games/${metadata.slug}`)
+  }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ' ') {

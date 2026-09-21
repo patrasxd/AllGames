@@ -1,7 +1,7 @@
 import { Suspense, useCallback, useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Button, BackLink, ConfirmDialog } from '@all/ui'
+import { Button, BackLink, ConfirmDialog, setLastActiveCardId } from '@all/ui'
 import { findGame } from '../games/registry'
 import { useI18n } from '../i18n'
 import { useTheme } from '../hooks/useTheme'
@@ -43,7 +43,10 @@ function NotFound({ slug }: { slug: string }) {
       <Button
         variant="secondary"
         size="sm"
-        onClick={() => navigate('/')}
+        onClick={() => {
+          if (slug) setLastActiveCardId(`game-card-${slug}`)
+          navigate('/')
+        }}
         style={{ marginTop: '1rem' }}
       >
         {t.backToGames}
@@ -73,13 +76,22 @@ export function GamePage() {
     setHeaderExtra(content)
   }, [setHeaderExtra])
 
+  useEffect(() => {
+    if (slug) {
+      setLastActiveCardId(`game-card-${slug}`)
+    }
+  }, [slug])
+
   const handleBack = useCallback(() => {
+    if (slug) {
+      setLastActiveCardId(`game-card-${slug}`)
+    }
     if (isGameActive) {
       setShowLeaveConfirm(true)
     } else {
       navigate('/')
     }
-  }, [isGameActive, navigate])
+  }, [isGameActive, navigate, slug])
 
   return (
     <motion.div
@@ -135,6 +147,9 @@ export function GamePage() {
         confirmId="leave-game-confirm-btn"
         cancelId="leave-game-cancel-btn"
         onConfirm={() => {
+          if (slug) {
+            setLastActiveCardId(`game-card-${slug}`)
+          }
           setShowLeaveConfirm(false)
           navigate('/')
         }}

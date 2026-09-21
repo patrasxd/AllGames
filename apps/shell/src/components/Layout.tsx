@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { Button, AppHeader } from '@all/ui'
+import { AppHeader, clearLastActiveCardId } from '@all/ui'
 import { HeaderMenu } from './HeaderMenu'
 import { useI18n } from '../i18n'
 import { findGame } from '../games/registry'
@@ -35,9 +35,13 @@ export function Layout({ children }: LayoutProps) {
 
   useEffect(() => {
     setHeaderExtra(null)
-    window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
-    if (document.documentElement) {
-      document.documentElement.scrollTop = 0
+    // Only force scroll-to-top when navigating into a game or subpage.
+    // When navigating to home ('/'), allow useCardScrollRestoration to position the last active card.
+    if (location.pathname !== '/') {
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+      if (document.documentElement) {
+        document.documentElement.scrollTop = 0
+      }
     }
   }, [location.pathname])
 
@@ -53,7 +57,11 @@ export function Layout({ children }: LayoutProps) {
           <button
             type="button"
             className="header-logo"
-            onClick={() => navigate('/')}
+            onClick={() => {
+              clearLastActiveCardId()
+              window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+              navigate('/')
+            }}
             aria-label={t.backToHomeAria}
           >
             AllGames
