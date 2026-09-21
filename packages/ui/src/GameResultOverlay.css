@@ -13,6 +13,7 @@
 
 /* AllUI Card overrides — keep text centered & limit width */
 .gr-card {
+  position: relative;
   width: 100%;
   text-align: center;
   display: flex;
@@ -21,6 +22,40 @@
   gap: var(--all-space-3, 12px);
   overflow-y: auto;
   max-height: calc(100dvh - 120px);
+}
+
+.gr-card-header-actions {
+  position: absolute;
+  top: var(--all-space-2, 8px);
+  right: var(--all-space-2, 8px);
+  z-index: 2;
+}
+
+/* ─── Minimized Floating Dock ─── */
+.gr-overlay-minimized {
+  position: absolute;
+  bottom: var(--all-space-4, 16px);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: var(--all-space-2, 8px);
+  padding: var(--all-space-2, 8px) var(--all-space-3, 12px);
+  background: var(--all-surface-1);
+  border: var(--all-border-width, 1.5px) solid var(--all-border);
+  border-radius: var(--all-radius-full, 9999px);
+  box-shadow: var(--all-shadow-lg, 0 10px 15px -3px rgba(0, 0, 0, 0.2));
+  backdrop-filter: blur(8px);
+  max-width: min(460px, calc(100% - 2rem));
+  z-index: 60;
+  pointer-events: auto;
+}
+
+.gr-minimized-badge {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px;
 }
 
 /* ─── Title ─── */

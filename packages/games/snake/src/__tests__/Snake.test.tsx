@@ -173,10 +173,84 @@ describe('Snake Component Integration', () => {
     expect(screen.getByRole('button', { name: 'W górę' })).toBeInTheDocument()
   })
 
+  it('notifies shell with setIsActive and prompts confirmation when changing map mode while active', () => {
+    const setIsActive = vi.fn()
+    render(<Snake locale="en" setIsActive={setIsActive} />)
+
+    // Initially inactive
+    expect(setIsActive).toHaveBeenLastCalledWith(false)
+
+    // Start game -> active
+    act(() => {
+      fireEvent.click(screen.getByRole('button', { name: /^start$/i }))
+    })
+    expect(setIsActive).toHaveBeenLastCalledWith(true)
+
+    // Open settings drawer
+    const settingsBtn = screen.getByRole('button', { name: /settings/i })
+    act(() => {
+      fireEvent.click(settingsBtn)
+    })
+
+    // Try to switch map mode to 'Obstacles'
+    const settingsDialog = screen.getByRole('dialog', { name: /Settings/i })
+    const obstaclesBtn = within(settingsDialog).getByRole('button', { name: /^obstacles$/i })
+    act(() => {
+      fireEvent.click(obstaclesBtn)
+    })
+
+    // ConfirmDialog should be displayed
+    const confirmDialog = screen.getByRole('dialog', { name: /Start new game\?/i })
+    expect(confirmDialog).toBeInTheDocument()
+    expect(within(confirmDialog).getByText(/Start new game\?/i)).toBeInTheDocument()
+
+    // Clicking cancel keeps game state
+    const cancelBtn = within(confirmDialog).getByRole('button', { name: /cancel/i })
+    act(() => {
+      fireEvent.click(cancelBtn)
+    })
+    expect(screen.queryByText(/Start new game\?/i)).toBeNull()
+  })
+
+  it('allows minimizing GameResultOverlay to view the board', () => {
+    render(<Snake locale="en" />)
+
+    // Start game
+    act(() => {
+      fireEvent.click(screen.getByRole('button', { name: /^start$/i }))
+    })
+
+    // Advance timers until collision occurs
+    act(() => {
+      vi.advanceTimersByTime(3000)
+    })
+
+    // Full overlay dialog is displayed
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
+
+    // Click "View board" button
+    const viewBoardBtn = screen.getByRole('button', { name: /View board/i })
+    act(() => {
+      fireEvent.click(viewBoardBtn)
+    })
+
+    // Dialog should be minimized to region with "Show result" button
+    expect(screen.queryByRole('dialog')).toBeNull()
+    const restoreBtn = screen.getByRole('button', { name: /Show result/i })
+    expect(restoreBtn).toBeInTheDocument()
+
+    // Clicking "Show result" restores dialog
+    act(() => {
+      fireEvent.click(restoreBtn)
+    })
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
+  })
+
   it('renders correctly with isEink={true}', () => {
     const { container } = render(<Snake locale="en" isEink={true} />)
     const board = container.querySelector('.snake-board-wrapper')
     expect(board).toBeInTheDocument()
   })
 })
+
 

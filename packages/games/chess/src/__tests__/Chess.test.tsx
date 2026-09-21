@@ -114,6 +114,53 @@ describe('Chess Component Integration', () => {
     expect(screen.getByText(/Ruch: Białe/i)).toBeInTheDocument()
   })
 
+  it('handles checkmate correctly attributing win to Black and supports View board minimize', async () => {
+    render(<Chess locale="en" />)
+
+    // Select 2 Players mode
+    fireEvent.click(screen.getByRole('button', { name: /2 Players/i }))
+    await waitFor(() => expect(screen.getByRole('button', { name: /New Game/i })).toBeInTheDocument())
+
+    // Move 1 White: f2 (6,5) -> f3 (5,5)
+    fireEvent.click(document.getElementById('chess-sq-6-5')!)
+    fireEvent.click(document.getElementById('chess-sq-5-5')!)
+
+    // Move 1 Black: e7 (1,4) -> e5 (3,4)
+    fireEvent.click(document.getElementById('chess-sq-1-4')!)
+    fireEvent.click(document.getElementById('chess-sq-3-4')!)
+
+    // Move 2 White: g2 (6,6) -> g4 (4,6)
+    fireEvent.click(document.getElementById('chess-sq-6-6')!)
+    fireEvent.click(document.getElementById('chess-sq-4-6')!)
+
+    // Move 2 Black: Qd8 (0,3) -> Qh4 (4,7) - Checkmate!
+    fireEvent.click(document.getElementById('chess-sq-0-3')!)
+    fireEvent.click(document.getElementById('chess-sq-4-7')!)
+
+    // GameResultOverlay should appear
+    await waitFor(() => {
+      expect(screen.getByRole('dialog')).toBeInTheDocument()
+    })
+
+    // It must attribute the win to Black, NOT White!
+    expect(screen.getByText(/Checkmate — Black won!/i)).toBeInTheDocument()
+
+    // Test View board minimize
+    const viewBoardBtn = screen.getByRole('button', { name: /View board/i })
+    expect(viewBoardBtn).toBeInTheDocument()
+    fireEvent.click(viewBoardBtn)
+
+    // Dialog is collapsed to floating dock, exposing the board
+    expect(screen.queryByRole('dialog')).toBeNull()
+    const showResultBtn = screen.getByRole('button', { name: /Show result/i })
+    expect(showResultBtn).toBeInTheDocument()
+
+    // Clicking Show result reopens dialog
+    fireEvent.click(showResultBtn)
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
+    expect(screen.getByText(/Checkmate — Black won!/i)).toBeInTheDocument()
+  })
+
   it('renders properly in E-ink mode', async () => {
     render(<Chess locale="en" isEink={true} />)
 

@@ -233,7 +233,7 @@ export function Chess({ setHeader, setIsActive, locale = 'en', isEink = false }:
                       isStalemate || winner === 'draw'
                         ? 'draw'
                         : mode === 'ai'
-                        ? turn === 'black'
+                        ? winner === 'white'
                           ? 'won'
                           : 'lost'
                         : 'won'
@@ -242,16 +242,18 @@ export function Chess({ setHeader, setIsActive, locale = 'en', isEink = false }:
                       isStalemate || winner === 'draw'
                         ? t.stalemate
                         : mode === 'ai'
-                        ? turn === 'black'
+                        ? winner === 'white'
                           ? t.youWon
                           : t.computerWon
-                        : t.playerWon(turn === 'black' ? t.white : t.black)
+                        : t.playerWon(winner === 'white' ? t.white : t.black)
                     }
                     subtitle={isCheckmate ? t.checkmate : t.gameOver}
                     isEink={isEink}
                     playAgainText={t.newGame}
                     onPlayAgain={resetGame}
                     playAgainId="chess-play-again-btn"
+                    viewBoardText={t.viewBoard}
+                    showResultText={t.showResult}
                   />
                 )}
               </AnimatePresence>

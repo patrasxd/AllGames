@@ -1,14 +1,14 @@
-import { useEffect, useCallback } from 'react'
+import { useEffect, useCallback, useState } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import { useSnake } from './hooks/useSnake'
 import { SnakeCanvas } from './components/SnakeCanvas'
 import type { GameComponentProps, SpeedMode, MapMode } from './types'
 import { snakeTranslations } from './i18n'
-import { BoardLayout, Button, Badge, PillGroup, ControlsBar, PlayIcon, PauseIcon } from '@all/ui'
+import { BoardLayout, Button, Badge, PillGroup, ControlsBar, ConfirmDialog, PlayIcon, PauseIcon } from '@all/ui'
 import { StatsHeader, GameResultOverlay, GameStartOverlay, DPad } from '@allgames/ui'
 import './styles/snake.css'
 
-export function Snake({ setHeader, locale = 'en', isEink = false }: GameComponentProps) {
+export function Snake({ setHeader, setIsActive, locale = 'en', isEink = false }: GameComponentProps) {
   const t = snakeTranslations[locale] || snakeTranslations.en
   const isPl = locale === 'pl'
 
@@ -32,6 +32,35 @@ export function Snake({ setHeader, locale = 'en', isEink = false }: GameComponen
     setMapMode,
     resetHighScore,
   } = useSnake({ isEink })
+
+  const isGameActive = status === 'PLAYING' || status === 'PAUSED'
+
+  useEffect(() => {
+    setIsActive?.(isGameActive)
+    return () => setIsActive?.(false)
+  }, [isGameActive, setIsActive])
+
+  const [pendingMapMode, setPendingMapMode] = useState<MapMode | null>(null)
+
+  const handleMapModeChange = (m: MapMode) => {
+    if (m === mapMode) return
+    if (isGameActive) {
+      setPendingMapMode(m)
+    } else {
+      setMapMode(m)
+    }
+  }
+
+  const handleConfirmMapChange = () => {
+    if (pendingMapMode) {
+      setMapMode(pendingMapMode)
+      setPendingMapMode(null)
+    }
+  }
+
+  const handleCancelMapChange = () => {
+    setPendingMapMode(null)
+  }
 
   const renderHeader = useCallback(() => {
     if (!setHeader) return
@@ -182,7 +211,7 @@ export function Snake({ setHeader, locale = 'en', isEink = false }: GameComponen
                   id: `snake-map-${m}`,
                 }))}
                 value={mapMode}
-                onChange={setMapMode}
+                onChange={handleMapModeChange}
               />
             ),
           },
@@ -203,6 +232,20 @@ export function Snake({ setHeader, locale = 'en', isEink = false }: GameComponen
             ),
           },
         ]}
+      />
+
+      {/* Map Mode Change Confirmation Dialog */}
+      <ConfirmDialog
+        open={Boolean(pendingMapMode)}
+        onClose={handleCancelMapChange}
+        title={t.confirmResetTitle}
+        description={t.confirmMapDesc}
+        confirmLabel={t.confirmBtn}
+        cancelLabel={t.cancelBtn}
+        confirmVariant="danger"
+        confirmId="snake-modal-confirm"
+        cancelId="snake-modal-cancel"
+        onConfirm={handleConfirmMapChange}
       />
     </div>
   )
