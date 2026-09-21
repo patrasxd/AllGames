@@ -1,9 +1,10 @@
 import type { GemType, LevelConfig, LevelGoal, ObstacleType, Tile } from '../types'
+import { fillWithoutMatches, findValidMoves, newGemId } from './engine'
 
 const ALL_GEMS: GemType[] = ['ruby', 'sapphire', 'emerald', 'topaz', 'amethyst', 'amber']
 
 // Seeded PRNG for deterministic level generation
-function createPRNG(seed: number) {
+export function createPRNG(seed: number) {
   let s = seed % 2147483647
   if (s <= 0) s += 2147483646
   return () => {
@@ -27,8 +28,10 @@ export function generateLevel(levelIndex: number): LevelConfig {
   const goals: LevelGoal[] = []
   const initialObstacles: { row: number; col: number; obstacle: ObstacleType }[] = []
 
-  let maxMoves = Math.max(20, Math.min(30, 26 - Math.floor(levelIndex / 8) + Math.floor(rand() * 4)))
-  let targetScore = Math.min(4200, 1800 + (levelIndex - 1) * 220)
+  let maxMoves = Math.max(23, Math.min(30, 26 - Math.floor(levelIndex / 20) + Math.floor(rand() * 4)))
+  // Ramps up to level 12 (as before), then keeps growing slowly instead of flat-lining.
+  let targetScore =
+    levelIndex <= 12 ? 1800 + (levelIndex - 1) * 220 : Math.min(6500, 4200 + (levelIndex - 12) * 35)
 
   if (levelIndex === 1) {
     // Level 1: Tutorial Level - Collect specific gems and score (cannot be won in 1 move)
@@ -54,13 +57,12 @@ export function generateLevel(levelIndex: number): LevelConfig {
     // Level 3: Introduction to Ice
     maxMoves = 22
     targetScore = 2200
-    // 8 Ice tiles in the middle
-    for (let r = 2; r <= 5; r++) {
-      for (let c = 3; c <= 4; c++) {
-        initialObstacles.push({ row: r, col: c, obstacle: 'ice' })
-      }
+    // 8 Ice tiles in a checkerboard diamond. Frozen gems cannot be swapped, so the ice is
+    // spread out: every ice cell has free neighbours to build a match with.
+    for (const [r, c] of [[2, 2], [2, 4], [3, 3], [3, 5], [4, 2], [4, 4], [5, 3], [5, 5]]) {
+      initialObstacles.push({ row: r, col: c, obstacle: 'ice' })
     }
-    goals.push({ type: 'ice', target: 8, current: 0 })
+    goals.push({ type: 'ice', target: 6, current: 0 })
     goals.push({ type: 'score', target: targetScore, current: 0 })
   } else if (levelIndex === 4) {
     // Level 4: Introduction to Stone Walls
@@ -93,23 +95,43 @@ export function generateLevel(levelIndex: number): LevelConfig {
           initialObstacles.push({ row: 7 - i, col: 7 - j, obstacle: 'empty' })
         }
       }
+    } else if (shapeType === 2) {
+      // Notched top edge
+      initialObstacles.push({ row: 0, col: 3, obstacle: 'empty' })
+      initialObstacles.push({ row: 0, col: 4, obstacle: 'empty' })
+    } else if (shapeType === 3) {
+      // Side pockets
+      initialObstacles.push({ row: 3, col: 0, obstacle: 'empty' })
+      initialObstacles.push({ row: 4, col: 0, obstacle: 'empty' })
+      initialObstacles.push({ row: 3, col: 7, obstacle: 'empty' })
+      initialObstacles.push({ row: 4, col: 7, obstacle: 'empty' })
     }
 
     // Place Ice & Stones
-    const iceCount = Math.min(20, 6 + Math.floor(levelIndex * 0.8))
-    const stoneCount = Math.min(6, Math.floor(levelIndex / 4))
+    const iceCount = Math.min(22, 6 + Math.floor(levelIndex * 0.8))
+    const stoneCount = Math.min(8, Math.floor(levelIndex / 4))
     const placed = new Set<string>()
     initialObstacles.forEach(o => placed.add(`${o.row}-${o.col}`))
 
+    // Frozen gems cannot be swapped, so ice cells must not touch each other (a line made only of
+    // frozen gems could never be built by the player).
+    const iceCells = new Set<string>()
+    const touchesIce = (r: number, c: number) =>
+      [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dr, dc]) => iceCells.has(`${r + dr}-${c + dc}`))
+
     let addedIce = 0
-    while (addedIce < iceCount && placed.size < 50) {
+    let doubleCount = 0
+    let attempts = 0
+    while (addedIce < iceCount && attempts++ < 600) {
       const r = Math.floor(rand() * rows)
       const c = Math.floor(rand() * cols)
       const key = `${r}-${c}`
-      if (!placed.has(key)) {
+      if (!placed.has(key) && !touchesIce(r, c)) {
         placed.add(key)
-        const isDouble = levelIndex >= 10 && rand() > 0.5
+        iceCells.add(key)
+        const isDouble = levelIndex >= 10 && rand() > (levelIndex >= 30 ? 0.6 : 0.75)
         initialObstacles.push({ row: r, col: c, obstacle: isDouble ? 'double-ice' : 'ice' })
+        if (isDouble) doubleCount++
         addedIce++
       }
     }
@@ -126,9 +148,16 @@ export function generateLevel(levelIndex: number): LevelConfig {
       }
     }
 
+    // Ice-heavy boards spend moves on cells that are hard to reach (double ice needs two hits),
+    // so they get a few extra moves and a lower points bar. Keeps a level's total work fair.
+    maxMoves = Math.min(32, maxMoves + Math.floor(addedIce / 8) + Math.floor(doubleCount / 5))
+    targetScore = Math.round((targetScore * (1 - Math.min(0.2, doubleCount * 0.02))) / 10) * 10
+
     const primaryGem = gemColors[Math.floor(rand() * gemColors.length)]
     if (addedIce > 0) {
-      goals.push({ type: 'ice', target: Math.min(16, addedIce), current: 0 })
+      // Not every ice cell is required: frozen gems can't be swapped, so leftovers in awkward spots
+      // would otherwise decide the level by luck.
+      goals.push({ type: 'ice', target: Math.min(14, Math.ceil(addedIce * 0.65)), current: 0 })
     } else {
       goals.push({ type: 'gems', target: 12 + Math.floor(levelIndex * 0.7), current: 0, gemType: primaryGem })
     }
@@ -147,147 +176,47 @@ export function generateLevel(levelIndex: number): LevelConfig {
     gemColors,
     goals,
     starThresholds: [star1, star2, star3],
+    seed: levelIndex * 7919 + 17,
     initialObstacles,
   }
 }
 
-// Generate an initial board with NO existing matches and at least 2 valid moves
-export function createInitialBoard(config: LevelConfig): Tile[][] {
+// Generate the starting board: no existing matches, at least one valid move.
+// Seeded, so a level always starts the same way (restarts replay the same puzzle).
+export function createInitialBoard(config: LevelConfig, rand?: () => number): Tile[][] {
   const { rows, cols, gemColors, initialObstacles } = config
+  const random = rand ?? createPRNG(config.seed ?? Math.floor(Math.random() * 2147483646) + 1)
   const obstacleMap = new Map<string, ObstacleType>()
   initialObstacles?.forEach(o => obstacleMap.set(`${o.row}-${o.col}`, o.obstacle))
 
-  let board: Tile[][] = []
-  let attempts = 0
-
-  do {
-    board = []
-    for (let r = 0; r < rows; r++) {
-      const row: Tile[] = []
-      for (let c = 0; c < cols; c++) {
-        const forbidden: GemType[] = []
-        // Avoid 3 horizontal
-        if (c >= 2 && row[c - 1].gem && row[c - 2].gem && row[c - 1].gem === row[c - 2].gem) {
-          forbidden.push(row[c - 1].gem!)
-        }
-        // Avoid 3 vertical
-        if (r >= 2 && board[r - 1][c].gem && board[r - 2][c].gem && board[r - 1][c].gem === board[r - 2][c].gem) {
-          forbidden.push(board[r - 1][c].gem!)
-        }
-
-        const validGems = gemColors.filter(g => !forbidden.includes(g))
-        const gem = validGems.length > 0
-          ? validGems[Math.floor(Math.random() * validGems.length)]
-          : gemColors[Math.floor(Math.random() * gemColors.length)]
-
-        const obstacle = obstacleMap.get(`${r}-${c}`) || 'none'
-        const isSolidOrEmpty = obstacle === 'empty' || obstacle === 'stone'
-
-        row.push({
-          id: `tile-${r}-${c}-${Math.random().toString(36).substring(2, 7)}`,
-          row: r,
-          col: c,
-          gem: isSolidOrEmpty ? null : gem,
-          special: 'none',
-          obstacle,
-        })
-      }
-      board.push(row)
+  const board: Tile[][] = []
+  for (let r = 0; r < rows; r++) {
+    const row: Tile[] = []
+    for (let c = 0; c < cols; c++) {
+      row.push({
+        id: newGemId('g'),
+        row: r,
+        col: c,
+        gem: null,
+        special: 'none',
+        obstacle: obstacleMap.get(`${r}-${c}`) || 'none',
+      })
     }
-    attempts++
-  } while (attempts < 15 && !hasPossibleMoves(board));
+    board.push(row)
+  }
 
+  for (let attempt = 0; attempt < 200; attempt++) {
+    fillWithoutMatches(board, gemColors, random)
+    if (findValidMoves(board).length > 0) break
+  }
   return board
 }
 
-// Find first valid move on the board for hints / tutorial
+// Hint / bot helpers (real moves only: a swap must create a match or fire a special combo).
 export function findFirstValidMove(board: Tile[][]): { r1: number; c1: number; r2: number; c2: number } | null {
-  const rows = board.length
-  const cols = board[0].length
-
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      const current = board[r][c]
-      if (!current.gem || current.obstacle === 'stone' || current.obstacle === 'empty') continue
-
-      if (current.special === 'prism') {
-        if (c + 1 < cols && board[r][c + 1].gem) return { r1: r, c1: c, r2: r, c2: c + 1 }
-        if (r + 1 < rows && board[r + 1][c].gem) return { r1: r, c1: c, r2: r + 1, c2: c }
-      }
-
-      if (c + 1 < cols && checkSwapProducesMatch(board, r, c, r, c + 1)) {
-        return { r1: r, c1: c, r2: r, c2: c + 1 }
-      }
-      if (r + 1 < rows && checkSwapProducesMatch(board, r, c, r + 1, c)) {
-        return { r1: r, c1: c, r2: r + 1, c2: c }
-      }
-    }
-  }
-  return null
+  return findValidMoves(board)[0]?.move ?? null
 }
 
-// Check if any valid match-3 move exists on the board
 export function hasPossibleMoves(board: Tile[][]): boolean {
-  return findFirstValidMove(board) !== null
-}
-
-function checkSwapProducesMatch(
-  board: Tile[][],
-  r1: number,
-  c1: number,
-  r2: number,
-  c2: number
-): boolean {
-  const g1 = board[r1][c1].gem
-  const g2 = board[r2][c2].gem
-  if (!g1 || !g2 || g1 === g2) return false
-
-  // Either tile is special
-  if (board[r1][c1].special !== 'none' || board[r2][c2].special !== 'none') {
-    return true
-  }
-
-  // Check matches at (r1, c1) with g2
-  if (isMatchAt(board, r1, c1, g2, r2, c2)) return true
-  // Check matches at (r2, c2) with g1
-  if (isMatchAt(board, r2, c2, g1, r1, c1)) return true
-
-  return false
-}
-
-function isMatchAt(
-  board: Tile[][],
-  r: number,
-  c: number,
-  gem: GemType,
-  ignoreR: number,
-  ignoreC: number
-): boolean {
-  const rows = board.length
-  const cols = board[0].length
-
-  const getGem = (row: number, col: number): GemType | null => {
-    if (row < 0 || row >= rows || col < 0 || col >= cols) return null
-    if (row === ignoreR && col === ignoreC) return null
-    if (row === r && col === c) return gem
-    return board[row][col].gem
-  }
-
-  // Horizontal count
-  let hCount = 1
-  let col = c - 1
-  while (getGem(r, col) === gem) { hCount++; col--; }
-  col = c + 1
-  while (getGem(r, col) === gem) { hCount++; col++; }
-  if (hCount >= 3) return true
-
-  // Vertical count
-  let vCount = 1
-  let row = r - 1
-  while (getGem(row, c) === gem) { vCount++; row--; }
-  row = r + 1
-  while (getGem(row, c) === gem) { vCount++; row++; }
-  if (vCount >= 3) return true
-
-  return false
+  return findValidMoves(board).length > 0
 }

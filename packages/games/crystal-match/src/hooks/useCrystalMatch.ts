@@ -4,21 +4,39 @@ import type {
   LevelConfig,
   LevelGoal,
   GameStatus,
-  Particle,
+  Burst,
   ComboPopup,
   PlayerProgress,
   GemType,
-  SwapAnimation,
+  Locale,
 } from '../types'
-import { generateLevel, createInitialBoard, hasPossibleMoves, findFirstValidMove } from '../logic/generator'
+import { generateLevel, createInitialBoard } from '../logic/generator'
 import {
   findMatches,
-  handleSpecialCombination,
+  findBestMove,
+  evaluateSwap,
+  swapTiles,
+  clearMatched,
   applyGravityAndRefill,
   reshuffleBoard,
+  hasValidMove,
+  isIceLocked,
+  cascadeScore,
+  updateGoals,
+  goalsMet,
+  type MatchResult,
 } from '../logic/engine'
+import { crystalMatchTranslations } from '../i18n'
 
 const SAVE_KEY = 'allgames:crystal-match:progress'
+
+// Animation pacing (ms). Movement itself is a spring in CrystalBoard; these only
+// decide how long the logic waits so the player can follow each step.
+const SWAP_MS = 190
+const CLEAR_MS = 190
+const FALL_MS = 340
+
+const wait = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms))
 
 function loadSavedProgress(): PlayerProgress {
   try {
@@ -37,12 +55,7 @@ function loadSavedProgress(): PlayerProgress {
   } catch {
     // storage error
   }
-  return {
-    unlockedLevel: 1,
-    levelStars: {},
-    levelHighScores: {},
-    totalScore: 0,
-  }
+  return { unlockedLevel: 1, levelStars: {}, levelHighScores: {}, totalScore: 0 }
 }
 
 function saveProgress(progress: PlayerProgress) {
@@ -62,7 +75,12 @@ const GEM_COLORS: Record<GemType, string> = {
   amber: '#f97316',
 }
 
-export function useCrystalMatch(options?: { isEink?: boolean }) {
+let burstCounter = 0
+
+export function useCrystalMatch(options?: { isEink?: boolean; locale?: Locale }) {
+  const isEink = options?.isEink ?? false
+  const t = crystalMatchTranslations[options?.locale ?? 'en'] || crystalMatchTranslations.en
+
   const [progress, setProgress] = useState<PlayerProgress>(loadSavedProgress)
   const [level, setLevel] = useState<number>(() => loadSavedProgress().unlockedLevel)
   const [config, setConfig] = useState<LevelConfig>(() => generateLevel(level))
@@ -73,10 +91,8 @@ export function useCrystalMatch(options?: { isEink?: boolean }) {
   const [goals, setGoals] = useState<LevelGoal[]>(config.goals)
   const [gameStatus, setGameStatus] = useState<GameStatus>('playing')
 
-  const [swapAnimation, setSwapAnimation] = useState<SwapAnimation | null>(null)
-
   const [combo, setCombo] = useState<number>(0)
-  const [particles, setParticles] = useState<Particle[]>([])
+  const [bursts, setBursts] = useState<Burst[]>([])
   const [comboPopups, setComboPopups] = useState<ComboPopup[]>([])
   const [isLevelModalOpen, setIsLevelModalOpen] = useState(false)
   const [isLevelIntroOpen, setIsLevelIntroOpen] = useState(true)
@@ -85,32 +101,41 @@ export function useCrystalMatch(options?: { isEink?: boolean }) {
 
   const isProcessingRef = useRef(false)
   const hintTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const aliveRef = useRef(true)
+  // Bumped whenever a level is (re)started so a cascade still running for the old
+  // level cannot write into the new one.
+  const runIdRef = useRef(0)
 
-  // Initialize level
+  useEffect(() => {
+    aliveRef.current = true
+    return () => {
+      aliveRef.current = false
+    }
+  }, [])
+
   const initLevel = useCallback((lvl: number) => {
+    runIdRef.current += 1
+    isProcessingRef.current = false
     const newConfig = generateLevel(lvl)
-    const newBoard = createInitialBoard(newConfig)
-
     setLevel(lvl)
     setConfig(newConfig)
-    setBoard(newBoard)
+    setBoard(createInitialBoard(newConfig))
     setMovesLeft(newConfig.maxMoves)
     setScore(0)
     setGoals(newConfig.goals.map(g => ({ ...g, current: 0 })))
     setGameStatus('playing')
-    setSwapAnimation(null)
     setCombo(0)
-    setParticles([])
+    setBursts([])
     setComboPopups([])
     setIsLevelIntroOpen(true)
     setHintCoords(null)
   }, [])
 
-  // Auto-find hint after 3.5s of inactivity
+  // Show a hint after 3.5s without input
   const scheduleHint = useCallback((currentBoard: Tile[][]) => {
     if (hintTimerRef.current) clearTimeout(hintTimerRef.current)
     hintTimerRef.current = setTimeout(() => {
-      const move = findFirstValidMove(currentBoard)
+      const move = findBestMove(currentBoard)
       if (move) setHintCoords(move)
     }, 3500)
   }, [])
@@ -127,163 +152,91 @@ export function useCrystalMatch(options?: { isEink?: boolean }) {
     }
   }, [board, gameStatus, isLevelIntroOpen, scheduleHint])
 
-  // Spawn gentle, subtle particle effect
-  const spawnParticles = useCallback((coords: { row: number; col: number }[], currentBoard: Tile[][]) => {
-    if (options?.isEink) return
-    const newParticles: Particle[] = []
-    coords.forEach(({ row, col }) => {
-      const gem = currentBoard[row]?.[col]?.gem
-      const color = gem ? GEM_COLORS[gem] : '#f59e0b'
-      for (let i = 0; i < 3; i++) {
-        newParticles.push({
-          id: `p-${Date.now()}-${Math.random()}`,
-          x: (col / 8) * 100 + 6.25 + (Math.random() * 4 - 2),
-          y: (row / 8) * 100 + 6.25 + (Math.random() * 4 - 2),
-          vx: (Math.random() - 0.5) * 2,
-          vy: (Math.random() - 0.5) * 2,
-          color,
-          size: Math.random() * 3 + 2,
-          alpha: 1,
-          life: 16,
-        })
-      }
-    })
-    setParticles(prev => [...prev.slice(-20), ...newParticles])
-  }, [options?.isEink])
-
-  // Spawn combo message
-  const triggerComboPopup = useCallback((comboCount: number, row: number, col: number) => {
-    if (comboCount < 2) return
-    const texts = ['Sweet!', 'Tasty!', 'Delicious!', 'Crystal Master!']
-    const text = texts[Math.min(texts.length - 1, comboCount - 2)]
-    const newPopup: ComboPopup = {
-      id: `combo-${Date.now()}`,
-      text: `${text} x${comboCount}`,
-      x: (col / 8) * 100 + 5,
-      y: (row / 8) * 100 + 5,
-    }
-    setComboPopups(prev => [...prev.slice(-2), newPopup])
-    setTimeout(() => {
-      setComboPopups(prev => prev.filter(p => p.id !== newPopup.id))
-    }, 1400)
-  }, [])
-
-  // Particle life tick with stable boolean trigger (Archetype 6)
-  const hasParticles = particles.length > 0
-  useEffect(() => {
-    if (!hasParticles) return
-    const interval = setInterval(() => {
-      setParticles(prev => {
-        if (prev.length === 0) return prev
-        return prev
-          .map(p => ({
-            ...p,
-            x: p.x + p.vx,
-            y: p.y + p.vy,
-            alpha: p.life / 16,
-            life: p.life - 1,
-          }))
-          .filter(p => p.life > 0)
+  // One-shot sparkles: the elements animate themselves, we only add and later drop them
+  const spawnBursts = useCallback(
+    (result: MatchResult, currentBoard: Tile[][]) => {
+      if (isEink) return
+      const created: Burst[] = result.matchedCoords.slice(0, 16).map(({ row, col }) => {
+        const gem = currentBoard[row]?.[col]?.gem
+        burstCounter += 1
+        return { id: `b${burstCounter}`, row, col, color: gem ? GEM_COLORS[gem] : GEM_COLORS.topaz }
       })
-    }, 35)
-    return () => clearInterval(interval)
-  }, [hasParticles])
+      setBursts(prev => [...prev.slice(-24), ...created])
+      const ids = new Set(created.map(b => b.id))
+      setTimeout(() => {
+        if (aliveRef.current) setBursts(prev => prev.filter(b => !ids.has(b.id)))
+      }, 520)
+    },
+    [isEink]
+  )
 
-  // Check goal completion
-  const checkGoalsCompleted = useCallback((currentGoals: LevelGoal[], currentScore: number): boolean => {
-    return currentGoals.every(g => {
-      if (g.type === 'score') return currentScore >= g.target
-      return g.current >= g.target
-    })
-  }, [])
+  const triggerComboPopup = useCallback(
+    (comboCount: number, row: number, col: number) => {
+      if (comboCount < 2) return
+      const words = t.comboWords
+      const word = words[Math.min(words.length - 1, comboCount - 2)]
+      const popup: ComboPopup = {
+        id: `combo-${Date.now()}-${comboCount}`,
+        text: `${word} x${comboCount}`,
+        x: (col / config.cols) * 100 + 5,
+        y: (row / config.rows) * 100 + 5,
+      }
+      setComboPopups(prev => [...prev.slice(-2), popup])
+      setTimeout(() => {
+        if (aliveRef.current) setComboPopups(prev => prev.filter(p => p.id !== popup.id))
+      }, 1400)
+    },
+    [t, config.cols, config.rows]
+  )
 
-  // Cascade resolution loop with calm, smooth pacing
+  /** Resolves matches, gravity and refills until the board is stable, then decides win / loss. */
   const runCascade = useCallback(
     async (
-      initialBoard: Tile[][],
-      initialScore: number,
-      initialGoals: LevelGoal[],
-      initialMoves: number
+      startBoard: Tile[][],
+      startScore: number,
+      startGoals: LevelGoal[],
+      movesAfter: number,
+      first: MatchResult,
+      runId: number
     ) => {
-      let currentBoard = initialBoard
-      let currentScore = initialScore
-      let currentGoals = initialGoals
-      let cascadeCount = 0
+      const stale = () => !aliveRef.current || runIdRef.current !== runId
 
-      while (true) {
-        const matchResult = findMatches(currentBoard)
-        if (matchResult.matchedCoords.length === 0) break
+      let currentBoard = startBoard
+      let currentScore = startScore
+      let currentGoals = startGoals
+      let result = first
+      let step = 0
 
-        cascadeCount++
-        setCombo(cascadeCount)
+      while (result.matchedCoords.length > 0) {
+        step++
+        setCombo(step)
+        spawnBursts(result, currentBoard)
+        if (step >= 2) triggerComboPopup(step, result.matchedCoords[0].row, result.matchedCoords[0].col)
 
-        // Spawn subtle particles and combo popup
-        spawnParticles(matchResult.matchedCoords, currentBoard)
-        if (matchResult.matchedCoords[0] && cascadeCount >= 2) {
-          triggerComboPopup(cascadeCount, matchResult.matchedCoords[0].row, matchResult.matchedCoords[0].col)
-        }
-
-        // Score update with controlled multiplier
-        const scoreGain = Math.round(matchResult.scoreEarned * (1 + (cascadeCount - 1) * 0.25))
-        currentScore += scoreGain
+        currentScore += cascadeScore(result, step)
+        currentGoals = updateGoals(currentGoals, result, currentScore)
         setScore(currentScore)
-
-        // Update goals
-        currentGoals = currentGoals.map(g => {
-          if (g.type === 'score') {
-            return { ...g, current: currentScore }
-          }
-          if (g.type === 'ice') {
-            return { ...g, current: Math.min(g.target, g.current + matchResult.clearedObstacles.length) }
-          }
-          if (g.type === 'gems' && g.gemType) {
-            const cleared = matchResult.gemsClearedByType[g.gemType] || 0
-            return { ...g, current: Math.min(g.target, g.current + cleared) }
-          }
-          return g
-        })
         setGoals(currentGoals)
 
-        // Highlight matched tiles for smooth fade
-        const clearedBoard = currentBoard.map((row, r) =>
-          row.map((tile, c) => {
-            const isMatched = matchResult.matchedCoords.some(coord => coord.row === r && coord.col === c)
-            const isObstacleCleared = matchResult.clearedObstacles.some(coord => coord.row === r && coord.col === c)
-            let nextObstacle = tile.obstacle
-            if (isObstacleCleared) {
-              if (tile.obstacle === 'double-ice') nextObstacle = 'ice'
-              else if (tile.obstacle === 'ice' || tile.obstacle === 'stone') nextObstacle = 'none'
-            }
-            return {
-              ...tile,
-              gem: isMatched ? null : tile.gem,
-              special: isMatched ? 'none' : tile.special,
-              obstacle: nextObstacle,
-              isMatched,
-            }
-          })
-        )
-        setBoard(clearedBoard)
+        // Gems vanish (exit animation); ice and stones update in place, they never move
+        const cleared = clearMatched(currentBoard, result)
+        setBoard(cleared)
+        await wait(CLEAR_MS)
+        if (stale()) return
 
-        // Smooth match dissolve delay
-        await new Promise(r => setTimeout(r, 260))
-
-        // Apply gravity & refill
-        const { nextBoard } = applyGravityAndRefill(clearedBoard, config, matchResult.specialSpawns)
-        currentBoard = nextBoard
+        // Everything above falls; new gems drop in from the top
+        currentBoard = applyGravityAndRefill(cleared, config).nextBoard
         setBoard(currentBoard)
+        await wait(FALL_MS)
+        if (stale()) return
 
-        // Smooth fall glide delay
-        await new Promise(r => setTimeout(r, 280))
+        result = findMatches(currentBoard)
       }
 
-      // Check win / loss status
-      const isWon = checkGoalsCompleted(currentGoals, currentScore)
-      if (isWon) {
+      if (goalsMet(currentGoals, currentScore)) {
         setGameStatus('won')
         // Award bonus for remaining moves to reward efficient play
-        const movesBonus = initialMoves * 60
-        const totalLevelScore = currentScore + movesBonus
+        const totalLevelScore = currentScore + movesAfter * 60
         setScore(totalLevelScore)
 
         let stars = 1
@@ -291,7 +244,7 @@ export function useCrystalMatch(options?: { isEink?: boolean }) {
         else if (totalLevelScore >= config.starThresholds[1]) stars = 2
 
         setProgress(prev => {
-          const nextProg: PlayerProgress = {
+          const next: PlayerProgress = {
             unlockedLevel: Math.max(prev.unlockedLevel, level + 1),
             levelStars: { ...prev.levelStars, [level]: Math.max(prev.levelStars[level] || 0, stars) },
             levelHighScores: {
@@ -300,87 +253,64 @@ export function useCrystalMatch(options?: { isEink?: boolean }) {
             },
             totalScore: prev.totalScore + totalLevelScore,
           }
-          saveProgress(nextProg)
-          return nextProg
+          saveProgress(next)
+          return next
         })
-      } else if (initialMoves <= 0) {
+      } else if (movesAfter <= 0) {
         setGameStatus('lost')
       } else {
-        if (!hasPossibleMoves(currentBoard)) {
-          const reshuffled = reshuffleBoard(currentBoard, config)
-          setBoard(reshuffled)
+        if (!hasValidMove(currentBoard)) {
+          // Nothing playable: shuffle the same gems (they glide to their new cells)
+          currentBoard = reshuffleBoard(currentBoard, config)
+          setBoard(currentBoard)
+          await wait(FALL_MS)
+          if (stale()) return
         }
         setGameStatus('playing')
       }
 
-      isProcessingRef.current = false
+      if (!stale()) isProcessingRef.current = false
     },
-    [config, level, checkGoalsCompleted, spawnParticles, triggerComboPopup]
+    [config, level, spawnBursts, triggerComboPopup]
   )
 
-  // Swap action with smooth slide and revert animation
+  /**
+   * A swap is played out visibly: the two gems slide over each other. If it does
+   * nothing they slide back, otherwise the cascade takes over from the swapped board.
+   */
   const handleSwap = useCallback(
     async (r1: number, c1: number, r2: number, c2: number) => {
       if (gameStatus !== 'playing' || isProcessingRef.current || movesLeft <= 0) return
-      if (board[r1][c1].obstacle === 'stone' || board[r2][c2].obstacle === 'stone') return
-      if (board[r1][c1].obstacle === 'empty' || board[r2][c2].obstacle === 'empty') return
+      const a = board[r1][c1]
+      const b = board[r2][c2]
+      if (a.obstacle === 'stone' || b.obstacle === 'stone' || a.obstacle === 'empty' || b.obstacle === 'empty') return
+      if (!a.gem || !b.gem) return
+      if (isIceLocked(a) || isIceLocked(b)) return // frozen gems do not move
 
       isProcessingRef.current = true
+      const runId = runIdRef.current
       setGameStatus('animating')
       setHintCoords(null)
 
-      // Start visual slide animation
-      setSwapAnimation({ r1, c1, r2, c2, phase: 'sliding' })
-      await new Promise(r => setTimeout(r, 205))
+      const swapped = swapTiles(board, r1, c1, r2, c2)
+      setBoard(swapped)
+      await wait(SWAP_MS)
+      if (!aliveRef.current || runIdRef.current !== runId) return
 
-      // Check special combination
-      const specialCombo = handleSpecialCombination(board, r1, c1, r2, c2)
-      if (specialCombo) {
-        const nextMoves = movesLeft - 1
-        setMovesLeft(nextMoves)
-
-        const swappedBoard = board.map(row => row.map(tile => ({ ...tile })))
-        const tempGem = swappedBoard[r1][c1].gem
-        const tempSpecial = swappedBoard[r1][c1].special
-        swappedBoard[r1][c1].gem = swappedBoard[r2][c2].gem
-        swappedBoard[r1][c1].special = swappedBoard[r2][c2].special
-        swappedBoard[r2][c2].gem = tempGem
-        swappedBoard[r2][c2].special = tempSpecial
-
-        setSwapAnimation(null)
-        setBoard(swappedBoard)
-
-        runCascade(swappedBoard, score, goals, nextMoves)
-        return
-      }
-
-      // Check if swap produces matches
-      const swappedBoard = board.map(row => row.map(tile => ({ ...tile })))
-      const tempGem = swappedBoard[r1][c1].gem
-      const tempSpecial = swappedBoard[r1][c1].special
-      swappedBoard[r1][c1].gem = swappedBoard[r2][c2].gem
-      swappedBoard[r1][c1].special = swappedBoard[r2][c2].special
-      swappedBoard[r2][c2].gem = tempGem
-      swappedBoard[r2][c2].special = tempSpecial
-
-      const matchResult = findMatches(swappedBoard)
-      if (matchResult.matchedCoords.length === 0) {
-        // Invalid swap -> smoothly slide back!
-        setSwapAnimation({ r1, c1, r2, c2, phase: 'reverting' })
-        await new Promise(r => setTimeout(r, 205))
-        setSwapAnimation(null)
+      const outcome = evaluateSwap(board, r1, c1, r2, c2)
+      if (!outcome) {
+        // Nothing happens: slide back and keep the move
+        setBoard(board)
+        await wait(SWAP_MS)
+        if (!aliveRef.current || runIdRef.current !== runId) return
         setGameStatus('playing')
         isProcessingRef.current = false
         return
       }
 
-      // Valid match: instantly settle swapped board with no reverse transition
       const nextMoves = movesLeft - 1
       setMovesLeft(nextMoves)
-      setSwapAnimation(null)
-      setBoard(swappedBoard)
-
-      runCascade(swappedBoard, score, goals, nextMoves)
+      runCascade(swapped, score, goals, nextMoves, outcome, runId)
     },
     [board, gameStatus, movesLeft, score, goals, runCascade]
   )
@@ -402,12 +332,7 @@ export function useCrystalMatch(options?: { isEink?: boolean }) {
   )
 
   const resetAllProgress = useCallback(() => {
-    const empty: PlayerProgress = {
-      unlockedLevel: 1,
-      levelStars: {},
-      levelHighScores: {},
-      totalScore: 0,
-    }
+    const empty: PlayerProgress = { unlockedLevel: 1, levelStars: {}, levelHighScores: {}, totalScore: 0 }
     saveProgress(empty)
     setProgress(empty)
     initLevel(1)
@@ -422,7 +347,7 @@ export function useCrystalMatch(options?: { isEink?: boolean }) {
     goals,
     gameStatus,
     combo,
-    particles,
+    bursts,
     comboPopups,
     progress,
     isLevelModalOpen,
@@ -432,7 +357,6 @@ export function useCrystalMatch(options?: { isEink?: boolean }) {
     isHowToPlayOpen,
     setIsHowToPlayOpen,
     hintCoords,
-    swapAnimation,
     handleSwap,
     nextLevel,
     restartLevel,

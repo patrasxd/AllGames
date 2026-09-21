@@ -29,23 +29,22 @@ export type SpecialType = 'none' | 'line-h' | 'line-v' | 'bomb' | 'prism'
 export type ObstacleType = 'none' | 'ice' | 'double-ice' | 'stone' | 'empty'
 
 export interface Tile {
+  /**
+   * Identity of the GEM sitting in this cell. It travels with the gem when the
+   * gem is swapped, falls or is reshuffled, which is what lets the renderer
+   * animate movement. Cells that hold no gem (holes, stones) keep a static id.
+   */
   id: string
   row: number
   col: number
   gem: GemType | null
   special: SpecialType
+  /** Static layer of the CELL (ice under the gem, stone / hole). Never moves with gems. */
   obstacle: ObstacleType
-  isMatched?: boolean
-  isFalling?: boolean
-  animOffset?: { x: number; y: number }
-}
-
-export interface SwapAnimation {
-  r1: number
-  c1: number
-  r2: number
-  c2: number
-  phase: 'sliding' | 'reverting'
+  /** Refilled gems only: how many rows above its final cell the gem enters from. */
+  spawnDrop?: number
+  /** Special gem created by a match: plays a pop-in instead of falling. */
+  spawnPop?: boolean
 }
 
 export type GoalType = 'score' | 'ice' | 'gems'
@@ -65,21 +64,19 @@ export interface LevelConfig {
   gemColors: GemType[]
   goals: LevelGoal[]
   starThresholds: [number, number, number]
+  /** Seed of the starting board, so a level always begins the same way. */
+  seed?: number
   initialObstacles?: { row: number; col: number; obstacle: ObstacleType }[]
 }
 
 export type GameStatus = 'playing' | 'animating' | 'won' | 'lost'
 
-export interface Particle {
+/** One-shot sparkle at a cleared cell. Animates itself, so it needs no per-frame state. */
+export interface Burst {
   id: string
-  x: number
-  y: number
-  vx: number
-  vy: number
+  row: number
+  col: number
   color: string
-  size: number
-  alpha: number
-  life: number
 }
 
 export interface ComboPopup {

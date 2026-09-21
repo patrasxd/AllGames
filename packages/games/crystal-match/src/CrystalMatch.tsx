@@ -12,6 +12,8 @@ import {
   CrystalBombIcon,
   RainbowPrismIcon,
   StarIcon,
+  MovesIcon,
+  LockIcon,
 } from './components/Icons'
 import type { GameComponentProps } from './types'
 import { crystalMatchTranslations } from './i18n'
@@ -63,7 +65,7 @@ export function CrystalMatch({ setHeader, setIsActive, locale = 'en', isEink = f
     score,
     goals,
     gameStatus,
-    particles,
+    bursts,
     comboPopups,
     progress,
     isLevelModalOpen,
@@ -73,13 +75,12 @@ export function CrystalMatch({ setHeader, setIsActive, locale = 'en', isEink = f
     isHowToPlayOpen,
     setIsHowToPlayOpen,
     hintCoords,
-    swapAnimation,
     handleSwap,
     nextLevel,
     restartLevel,
     selectLevel,
     resetAllProgress,
-  } = useCrystalMatch({ isEink })
+  } = useCrystalMatch({ isEink, locale })
 
   const isAnimating = gameStatus === 'animating'
   const totalStars = Object.values(progress.levelStars).reduce((sum, s) => sum + s, 0)
@@ -191,9 +192,8 @@ export function CrystalMatch({ setHeader, setIsActive, locale = 'en', isEink = f
               board={board}
               isEink={isEink}
               isAnimating={isAnimating}
-              particles={particles}
+              bursts={bursts}
               comboPopups={comboPopups}
-              swapAnimation={swapAnimation}
               hintCoords={hintCoords}
               onSwap={handleSwap}
             />
@@ -239,11 +239,17 @@ export function CrystalMatch({ setHeader, setIsActive, locale = 'en', isEink = f
                               : ''}
                           </span>
                         </div>
-                        <span style={{ color: 'var(--all-text-muted, var(--text-muted))' }}>
-                          {movesLeft} {t.moves.toLowerCase()}
-                        </span>
                       </div>
                     ))}
+                    {/* The move limit belongs to the level, not to a single goal: show it once, styled like the goals */}
+                    <div className="cm-intro-goal-card" data-testid="cm-intro-moves">
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <MovesIcon size={18} />
+                        <span>
+                          {t.moves}: {config.maxMoves}
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </GameStartOverlay>
               )}
@@ -252,6 +258,8 @@ export function CrystalMatch({ setHeader, setIsActive, locale = 'en', isEink = f
               {gameStatus === 'won' && (() => {
                 const starsWon = score >= config.starThresholds[2] ? 3 : score >= config.starThresholds[1] ? 2 : 1
                 const starTip = starsWon === 3 ? t.tip3Stars : starsWon === 2 ? t.tip2Stars : t.tip1Star
+                // Score needed for the next star; nothing to show once all three are earned
+                const nextStarAt = starsWon === 3 ? null : config.starThresholds[starsWon]
 
                 return (
                   <GameResultOverlay
@@ -264,7 +272,7 @@ export function CrystalMatch({ setHeader, setIsActive, locale = 'en', isEink = f
                     playAgainId="cm-next-level-btn"
                     stats={[
                       { label: t.score, value: score },
-                      { label: t.moves, value: movesLeft },
+                      { label: t.movesLeft, value: movesLeft },
                       {
                         label: t.stars,
                         value: (
@@ -275,10 +283,7 @@ export function CrystalMatch({ setHeader, setIsActive, locale = 'en', isEink = f
                           </div>
                         ),
                       },
-                      {
-                        label: t.starTargets,
-                        value: `${config.starThresholds[1]} / ${config.starThresholds[2]}`,
-                      },
+                      ...(nextStarAt !== null ? [{ label: t.nextStar, value: nextStarAt }] : []),
                     ]}
                     secondaryAction={{
                       label: t.levelSelect,
@@ -381,6 +386,14 @@ export function CrystalMatch({ setHeader, setIsActive, locale = 'en', isEink = f
             <div className="cm-rules-item">
               <RainbowPrismIcon size={16} />
               <span>{t.rule4}</span>
+            </div>
+            <div className="cm-rules-item">
+              <IceGoalIcon size={16} />
+              <span>{t.rule5}</span>
+            </div>
+            <div className="cm-rules-item">
+              <LockIcon size={16} />
+              <span>{t.rule6}</span>
             </div>
           </div>
         </Dialog>

@@ -17,6 +17,17 @@ export function TargetScoreIcon({ size = 14 }: { size?: number }) {
   )
 }
 
+export function MovesIcon({ size = 14 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="#a78bfa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="m17 3 4 4-4 4" />
+      <path d="M3 7h18" />
+      <path d="m7 21-4-4 4-4" />
+      <path d="M21 17H3" />
+    </svg>
+  )
+}
+
 export function SparkleIcon({ size = 16 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

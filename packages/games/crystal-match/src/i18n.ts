@@ -21,6 +21,8 @@ export interface CrystalMatchTranslations {
   outOfMoves: string
   scoreGoal: (target: number) => string
   iceGoal: (current: number, target: number) => string
+  /** Praise shown on cascades, from a 2x chain upward. */
+  comboWords: string[]
   stoneGoal: (current: number, target: number) => string
   gemGoal: (current: number, target: number, gem: string) => string
   stars: string
@@ -37,10 +39,13 @@ export interface CrystalMatchTranslations {
   rule2: string
   rule3: string
   rule4: string
+  rule5: string
+  rule6: string
   tip1Star: string
   tip2Stars: string
   tip3Stars: string
-  starTargets: string
+  nextStar: string
+  movesLeft: string
 }
 
 export const crystalMatchTranslations: Record<Locale, CrystalMatchTranslations> = {
@@ -65,6 +70,7 @@ export const crystalMatchTranslations: Record<Locale, CrystalMatchTranslations> 
     outOfMoves: 'No moves left',
     scoreGoal: target => `Reach ${target} pts`,
     iceGoal: (curr, target) => `Break Ice: ${curr}/${target}`,
+    comboWords: ['Nice!', 'Bright!', 'Brilliant!', 'Crystal Master!'],
     stoneGoal: (curr, target) => `Break Stones: ${curr}/${target}`,
     gemGoal: (curr, target, gem) => `Collect ${gem}: ${curr}/${target}`,
     stars: 'Stars',
@@ -81,10 +87,13 @@ export const crystalMatchTranslations: Record<Locale, CrystalMatchTranslations> 
     rule2: 'Match 4: Creates a Line Blaster that clears a whole row or column.',
     rule3: 'Match 5 (T/L shape): Creates a Crystal Bomb with a 3x3 blast.',
     rule4: 'Match 5 in a line: Creates a Rainbow Prism that clears all crystals of one color.',
+    rule5: 'Ice: Crystals on ice are frozen and cannot be swapped. Match them with their neighbors to break the ice (double ice takes two hits).',
+    rule6: 'Stones: Cannot be moved. Match next to a stone to break it.',
     tip1Star: 'Tip: Save moves or match 4-5 crystals for special blasters to reach 2 and 3 stars!',
     tip2Stars: 'Great job! Chain special combos or finish in fewer moves to claim 3 stars!',
     tip3Stars: 'Masterful play! Perfect 3-star rating!',
-    starTargets: '2★ / 3★ Targets',
+    nextStar: 'Next ★',
+    movesLeft: 'Moves left',
   },
   pl: {
     gameTitle: 'Crystal Match',
@@ -107,6 +116,7 @@ export const crystalMatchTranslations: Record<Locale, CrystalMatchTranslations> 
     outOfMoves: 'Brak ruchów',
     scoreGoal: target => `Zdobądź ${target} pkt`,
     iceGoal: (curr, target) => `Rozbij Lód: ${curr}/${target}`,
+    comboWords: ['Ładnie!', 'Lśniąco!', 'Genialnie!', 'Mistrz kryształów!'],
     stoneGoal: (curr, target) => `Zniszcz Skały: ${curr}/${target}`,
     gemGoal: (curr, target, gem) => `Zbierz ${gem}: ${curr}/${target}`,
     stars: 'Gwiazdki',
@@ -123,9 +133,12 @@ export const crystalMatchTranslations: Record<Locale, CrystalMatchTranslations> 
     rule2: 'Połącz 4: Tworzy kryształ laserowy, który czyści cały wiersz lub kolumnę.',
     rule3: 'Połącz 5 (w kształcie T lub L): Tworzy bombę wybuchającą w promieniu 3x3.',
     rule4: 'Połącz 5 w linii: Tworzy tęczowy pryzmat niszczący wszystkie kryształy wybranego koloru.',
+    rule5: 'Lód: Kryształy na lodzie są zamrożone i nie da się ich przesuwać. Połącz je z sąsiadami, aby rozbić lód (podwójny lód wymaga dwóch trafień).',
+    rule6: 'Kamienie: Nie da się ich przesunąć. Połącz kryształy obok kamienia, aby go rozbić.',
     tip1Star: 'Wskazówka: Oszczędzaj ruchy lub twórz lasery i bomby (połącz 4-5), aby zdobyć 2 i 3 gwiazdki!',
     tip2Stars: 'Świetny wynik! Twórz potężne kombinacje lub kończ poziom szybciej, aby zdobyć 3 gwiazdki!',
     tip3Stars: 'Mistrzowska gra! Zdobyto komplet 3 gwiazdek!',
-    starTargets: 'Progi 2★ / 3★',
+    nextStar: 'Kolejna ★',
+    movesLeft: 'Pozostałe ruchy',
   },
 }

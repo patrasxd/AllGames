@@ -115,15 +115,39 @@
   overflow: hidden;
 }
 
-.cm-board-grid {
-  display: grid;
-  gap: 3px;
+.cm-board-stage {
+  position: relative;
   width: 100%;
   height: 100%;
 }
 
+.cm-board-grid {
+  display: grid;
+  gap: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Overlay layers share the grid's box exactly and never take input */
+.cm-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.cm-layer--grid {
+  display: grid;
+  gap: 0;
+}
+
+.cm-layer--gems,
+.cm-layer--fx {
+  overflow: visible;
+}
+
 /* ─── Tiles & Gems ────────────────────────────────────────── */
 .cm-tile {
+  margin: 1.5px;
   background: var(--all-surface-2, var(--surface-2));
   border: 1px solid var(--all-border, var(--border));
   border-radius: 3px;
@@ -143,22 +167,22 @@
   background: var(--all-border, var(--border));
 }
 
+.cm-tile--locked {
+  cursor: not-allowed;
+}
+
+.cm-tile--locked:hover:not(:disabled) {
+  background: var(--all-surface-2, var(--surface-2));
+}
+
 .cm-tile--selected {
   border-color: #f59e0b !important;
   box-shadow: 0 0 10px rgba(245, 158, 11, 0.6) !important;
-  transform: scale(1.06) !important;
-  z-index: 10;
 }
 
 .cm-tile--hint {
   border-color: #f59e0b !important;
   animation: cmHintPulse 1.2s infinite ease-in-out;
-}
-
-.cm-tile--sliding,
-.cm-tile--reverting {
-  transition: transform 200ms cubic-bezier(0.25, 1, 0.5, 1) !important;
-  z-index: 15;
 }
 
 .cm-tile--empty {
@@ -170,22 +194,27 @@
 
 .cm-tile--stone {
   cursor: not-allowed;
-  background: var(--all-surface-3, var(--surface-3, #334155)) !important;
-  border-color: var(--all-border-2, #475569) !important;
+  background: transparent !important;
+  border-color: transparent !important;
 }
 
-.cm-tile--matched {
-  animation: cmSmoothPop 240ms ease-out forwards;
-}
-
-.cm-gem-container {
-  width: 86%;
-  height: 86%;
+/* A gem is positioned by translating a cell-sized box; framer-motion drives x / y */
+.cm-gem {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: calc(100% / var(--cm-cols, 8));
+  height: calc(100% / var(--cm-rows, 8));
   display: flex;
   align-items: center;
   justify-content: center;
-  pointer-events: none;
-  transition: transform 240ms ease;
+  will-change: transform;
+}
+
+/* Sized against the cell (not padding: a % padding would resolve against the whole board) */
+.cm-gem > .cm-gem-svg {
+  width: 84%;
+  height: 84%;
 }
 
 .cm-gem-svg {
@@ -224,41 +253,57 @@
 }
 
 /* ─── Obstacles (Ice & Stones) ────────────────────────────── */
-.cm-obstacle {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 2;
-  border-radius: 2px;
+/* Ice sits under the gem and never moves; frost is a light sheen over it. */
+.cm-ice,
+.cm-cover {
+  margin: 1.5px;
+  border-radius: 3px;
+  box-sizing: border-box;
 }
 
-.cm-obstacle--ice {
-  background: rgba(147, 197, 253, 0.35);
+.cm-ice--ice {
+  background: rgba(147, 197, 253, 0.28);
   border: 1.5px solid #93c5fd;
-  backdrop-filter: blur(1px);
 }
 
-.cm-obstacle--double-ice {
-  background: rgba(147, 197, 253, 0.6);
+.cm-ice--double-ice {
+  background: rgba(147, 197, 253, 0.5);
   border: 2px solid #bfdbfe;
-  backdrop-filter: blur(2px);
 }
 
-.cm-obstacle--stone {
-  position: absolute;
-  inset: 1px;
+.cm-cover--ice {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.28) 0%, rgba(255, 255, 255, 0) 55%);
+}
+
+.cm-cover--double-ice {
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 55%),
+    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.16) 0 2px, transparent 2px 7px);
+  border: 1px solid rgba(219, 234, 254, 0.7);
+}
+
+.cm-cover--stone {
+  margin: 2px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 /* ─── Floating Particles & Combo Popups ───────────────────── */
-.cm-particle {
+.cm-burst {
   position: absolute;
-  border-radius: 50%;
+  width: 0;
+  height: 0;
   pointer-events: none;
-  transform: translate(-50%, -50%);
-  z-index: 20;
+}
+
+.cm-burst-dot {
+  position: absolute;
+  left: -2px;
+  top: -2px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
 }
 
 .cm-combo-popup {
@@ -281,16 +326,10 @@
   100% { opacity: 0; transform: translateY(-24px) scale(0.95); }
 }
 
-@keyframes cmSmoothPop {
-  0%   { transform: scale(1); opacity: 1; }
-  40%  { transform: scale(1.12); opacity: 0.9; filter: brightness(1.25); }
-  100% { transform: scale(0.4); opacity: 0; }
-}
-
 @keyframes cmHintPulse {
-  0%   { transform: scale(1); box-shadow: 0 0 0 rgba(245, 158, 11, 0); }
-  50%  { transform: scale(1.04); box-shadow: 0 0 10px rgba(245, 158, 11, 0.7); }
-  100% { transform: scale(1); box-shadow: 0 0 0 rgba(245, 158, 11, 0); }
+  0%   { box-shadow: 0 0 0 rgba(245, 158, 11, 0); }
+  50%  { box-shadow: 0 0 10px rgba(245, 158, 11, 0.7); }
+  100% { box-shadow: 0 0 0 rgba(245, 158, 11, 0); }
 }
 
 
@@ -402,12 +441,7 @@
 
 /* ─── Reduced Motion ──────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
-  .cm-tile--sliding,
-  .cm-tile--reverting {
-    transition: none !important;
-  }
   .cm-tile--hint,
-  .cm-tile--matched,
   .cm-special-beam,
   .cm-special-bomb,
   .cm-special-prism,
@@ -416,12 +450,7 @@
   }
 }
 
-[data-motion='none'] .cm-tile--sliding,
-[data-motion='none'] .cm-tile--reverting {
-  transition: none !important;
-}
 [data-motion='none'] .cm-tile--hint,
-[data-motion='none'] .cm-tile--matched,
 [data-motion='none'] .cm-special-beam,
 [data-motion='none'] .cm-special-bomb,
 [data-motion='none'] .cm-special-prism,
@@ -449,10 +478,25 @@
   box-shadow: none !important;
 }
 
-[data-theme^='e-ink'] .cm-obstacle--ice,
-[data-eink='true'] .cm-obstacle--ice {
+[data-theme^='e-ink'] .cm-ice--ice,
+[data-theme^='e-ink'] .cm-ice--double-ice,
+[data-eink='true'] .cm-ice--ice,
+[data-eink='true'] .cm-ice--double-ice {
   border: 2px dashed var(--all-border, var(--border)) !important;
   background: none !important;
+}
+
+[data-theme^='e-ink'] .cm-ice--double-ice,
+[data-eink='true'] .cm-ice--double-ice {
+  border-style: solid !important;
+}
+
+[data-theme^='e-ink'] .cm-cover--ice,
+[data-theme^='e-ink'] .cm-cover--double-ice,
+[data-eink='true'] .cm-cover--ice,
+[data-eink='true'] .cm-cover--double-ice {
+  background: none !important;
+  border: none !important;
 }
 
 [data-theme^='e-ink'] .cm-level-card--current,
