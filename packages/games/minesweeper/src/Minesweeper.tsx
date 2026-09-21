@@ -4,8 +4,8 @@ import { useMinesweeper } from './hooks/useMinesweeper'
 import { MinesweeperBoard } from './components/MinesweeperBoard'
 import type { GameComponentProps, MinesweeperDifficulty, GameStatus } from './types'
 import { minesweeperTranslations } from './i18n'
-import { BoardLayout, ConfirmDialog, Button, PillGroup, ControlsBar } from '@all/ui'
-import { StatsHeader, GameResultOverlay, pad3 } from '@allgames/ui'
+import { BoardLayout, ConfirmDialog, Button, PillGroup, ControlsBar, StatsHeader } from '@all/ui'
+import { GameResultOverlay, pad3 } from '@allgames/ui'
 import './styles/minesweeper.css'
 
 /* ─── Sketched Vector Icons ──────────────────────────────── */

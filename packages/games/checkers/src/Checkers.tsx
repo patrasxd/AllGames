@@ -4,8 +4,8 @@ import { useCheckers } from './hooks/useCheckers'
 import { CheckersBoard } from './components/CheckersBoard'
 import type { GameComponentProps, GameMode, Locale, CheckersDifficulty } from './types'
 import { checkersTranslations } from './i18n'
-import { BoardLayout, ConfirmDialog, Button, PillGroup, ControlsBar } from '@all/ui'
-import { ModeSelect, StatsHeader, GameResultOverlay, ComputerIcon, TwoPlayersIcon } from '@allgames/ui'
+import { BoardLayout, ConfirmDialog, Button, PillGroup, ControlsBar, ModeSelect, StatsHeader } from '@all/ui'
+import { GameResultOverlay, ComputerIcon, TwoPlayersIcon } from '@allgames/ui'
 import './styles/checkers.css'
 
 function ThinkingDots() {

@@ -4,8 +4,8 @@ import { use2048 } from './hooks/use2048'
 import { Board2048 } from './components/Board2048'
 import type { GameComponentProps, GridSize } from './types'
 import { game2048Translations } from './i18n'
-import { BoardLayout, ConfirmDialog, Button, PillGroup, ControlsBar, UndoIcon } from '@all/ui'
-import { StatsHeader, GameResultOverlay, DPad } from '@allgames/ui'
+import { BoardLayout, ConfirmDialog, Button, PillGroup, ControlsBar, UndoIcon, StatsHeader } from '@all/ui'
+import { GameResultOverlay, DPad } from '@allgames/ui'
 import './styles/game2048.css'
 
 const GRID_SIZES: GridSize[] = [3, 4, 5]

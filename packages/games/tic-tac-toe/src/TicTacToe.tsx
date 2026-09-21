@@ -4,9 +4,9 @@ import { useGame } from './hooks/useGame'
 import { Board } from './components/Board'
 import type { GameComponentProps, GameMetadata, DifficultyLevel } from './types'
 import type { GameMode, Player } from './logic'
-import { BoardLayout, Dialog, Button, PillGroup, ControlsBar } from '@all/ui'
+import { BoardLayout, Dialog, Button, PillGroup, ControlsBar, ModeSelect, StatsHeader } from '@all/ui'
 import { gameTranslations, type Locale } from './i18n'
-import { ModeSelect, StatsHeader, ComputerIcon, TwoPlayersIcon } from '@allgames/ui'
+import { ComputerIcon, TwoPlayersIcon } from '@allgames/ui'
 import './styles/tictactoe.css'
 
 export interface GameMetadataExtended extends GameMetadata {

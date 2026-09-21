@@ -4,8 +4,8 @@ import { useSnake } from './hooks/useSnake'
 import { SnakeCanvas } from './components/SnakeCanvas'
 import type { GameComponentProps, SpeedMode, MapMode } from './types'
 import { snakeTranslations } from './i18n'
-import { BoardLayout, Button, Badge, PillGroup, ControlsBar, ConfirmDialog, PlayIcon, PauseIcon } from '@all/ui'
-import { StatsHeader, GameResultOverlay, GameStartOverlay, DPad } from '@allgames/ui'
+import { BoardLayout, Button, Badge, PillGroup, ControlsBar, ConfirmDialog, PlayIcon, PauseIcon, StatsHeader } from '@all/ui'
+import { GameResultOverlay, GameStartOverlay, DPad } from '@allgames/ui'
 import './styles/snake.css'
 
 export function Snake({ setHeader, setIsActive, locale = 'en', isEink = false }: GameComponentProps) {

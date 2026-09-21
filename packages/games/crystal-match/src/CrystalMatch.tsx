@@ -17,8 +17,8 @@ import {
 } from './components/Icons'
 import type { GameComponentProps } from './types'
 import { crystalMatchTranslations } from './i18n'
-import { BoardLayout, Dialog, ConfirmDialog, Button, ControlsBar } from '@all/ui'
-import { StatsHeader, GameResultOverlay, GameStartOverlay } from '@allgames/ui'
+import { BoardLayout, Dialog, ConfirmDialog, Button, ControlsBar, StatsHeader } from '@all/ui'
+import { GameResultOverlay, GameStartOverlay } from '@allgames/ui'
 import './styles/crystal-match.css'
 
 function CheckIcon() {

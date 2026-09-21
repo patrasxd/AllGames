@@ -1,6 +1,4 @@
 export * from './icons'
-export * from './ModeSelect'
-export * from './StatsHeader'
 export * from './GameModal'
 export * from './PillGroup'
 export * from './GameButton'

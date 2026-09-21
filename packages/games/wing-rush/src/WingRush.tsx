@@ -4,8 +4,8 @@ import { useWingRush } from './hooks/useWingRush'
 import { WingRushCanvas } from './components/WingRushCanvas'
 import type { GameComponentProps, Difficulty } from './types'
 import { wingRushTranslations } from './i18n'
-import { FullBleedLayout, PillGroup } from '@all/ui'
-import { StatsHeader, GameResultOverlay, GameStartOverlay } from '@allgames/ui'
+import { FullBleedLayout, PillGroup, StatsHeader } from '@all/ui'
+import { GameResultOverlay, GameStartOverlay } from '@allgames/ui'
 import './styles/wing-rush.css'
 
 const DIFF_SHORT: Record<Difficulty, string> = { easy: 'EZY', normal: 'NRM', hard: 'HRD' }

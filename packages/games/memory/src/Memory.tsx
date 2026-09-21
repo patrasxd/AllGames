@@ -4,8 +4,8 @@ import { useMemory } from './hooks/useMemory'
 import { MemoryBoard } from './components/MemoryBoard'
 import type { GameComponentProps, MemoryDifficulty, MemoryGameMode } from './types'
 import { memoryTranslations } from './i18n'
-import { BoardLayout, ConfirmDialog, Button, PillGroup, ControlsBar } from '@all/ui'
-import { ModeSelect, StatsHeader, GameResultOverlay, SinglePlayerIcon, TwoPlayersIcon, formatTime } from '@allgames/ui'
+import { BoardLayout, ConfirmDialog, Button, PillGroup, ControlsBar, ModeSelect, StatsHeader } from '@all/ui'
+import { GameResultOverlay, SinglePlayerIcon, TwoPlayersIcon, formatTime } from '@allgames/ui'
 import './styles/memory.css'
 
 const DIFFICULTIES: MemoryDifficulty[] = ['easy', 'medium', 'hard']

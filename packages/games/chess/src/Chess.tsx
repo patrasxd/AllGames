@@ -5,8 +5,8 @@ import { ChessBoard } from './components/ChessBoard'
 import { PromotionModal } from './components/PromotionModal'
 import type { GameComponentProps, ChessGameMode, Locale, ChessDifficulty } from './types'
 import { chessTranslations } from './i18n'
-import { BoardLayout, ConfirmDialog, Button, PillGroup, ControlsBar } from '@all/ui'
-import { ModeSelect, StatsHeader, GameResultOverlay, ComputerIcon, TwoPlayersIcon } from '@allgames/ui'
+import { BoardLayout, ConfirmDialog, Button, PillGroup, ControlsBar, ModeSelect, StatsHeader } from '@all/ui'
+import { GameResultOverlay, ComputerIcon, TwoPlayersIcon } from '@allgames/ui'
 import './styles/chess.css'
 
 function ThinkingDots() {
