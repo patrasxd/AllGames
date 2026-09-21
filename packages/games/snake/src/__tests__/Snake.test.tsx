@@ -146,7 +146,7 @@ describe('Snake Component Integration', () => {
     expect(screen.getByText(/Game Over/i)).toBeInTheDocument()
 
     // Play again button restarts game
-    const restartBtn = screen.getByRole('button', { name: /Play again/i })
+    const restartBtn = within(gameOverDialog).getByRole('button', { name: /Play again/i })
     expect(restartBtn).toBeInTheDocument()
     act(() => {
       fireEvent.click(restartBtn)
@@ -212,7 +212,7 @@ describe('Snake Component Integration', () => {
     expect(screen.queryByText(/Start new game\?/i)).toBeNull()
   })
 
-  it('allows minimizing GameResultOverlay to view the board', () => {
+  it('allows dismissing GameResultOverlay to view the board', () => {
     render(<Snake locale="en" />)
 
     // Start game
@@ -228,22 +228,14 @@ describe('Snake Component Integration', () => {
     // Full overlay dialog is displayed
     expect(screen.getByRole('dialog')).toBeInTheDocument()
 
-    // Click "View board" button
-    const viewBoardBtn = screen.getByRole('button', { name: /View board/i })
+    // Click close button
+    const closeBtn = screen.getByRole('button', { name: /Close dialog/i })
     act(() => {
-      fireEvent.click(viewBoardBtn)
+      fireEvent.click(closeBtn)
     })
 
-    // Dialog should be minimized to region with "Show result" button
+    // Dialog is dismissed, board is fully visible
     expect(screen.queryByRole('dialog')).toBeNull()
-    const restoreBtn = screen.getByRole('button', { name: /Show result/i })
-    expect(restoreBtn).toBeInTheDocument()
-
-    // Clicking "Show result" restores dialog
-    act(() => {
-      fireEvent.click(restoreBtn)
-    })
-    expect(screen.getByRole('dialog')).toBeInTheDocument()
   })
 
   it('renders correctly with isEink={true}', () => {

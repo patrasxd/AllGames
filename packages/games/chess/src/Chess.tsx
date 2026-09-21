@@ -252,8 +252,6 @@ export function Chess({ setHeader, setIsActive, locale = 'en', isEink = false }:
                     playAgainText={t.newGame}
                     onPlayAgain={resetGame}
                     playAgainId="chess-play-again-btn"
-                    viewBoardText={t.viewBoard}
-                    showResultText={t.showResult}
                   />
                 )}
               </AnimatePresence>

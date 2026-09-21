@@ -145,20 +145,13 @@ describe('Chess Component Integration', () => {
     // It must attribute the win to Black, NOT White!
     expect(screen.getByText(/Checkmate — Black won!/i)).toBeInTheDocument()
 
-    // Test View board minimize
-    const viewBoardBtn = screen.getByRole('button', { name: /View board/i })
-    expect(viewBoardBtn).toBeInTheDocument()
-    fireEvent.click(viewBoardBtn)
+    // Test close button dismisses dialog to view the board
+    const closeBtn = screen.getByRole('button', { name: /Close dialog/i })
+    expect(closeBtn).toBeInTheDocument()
+    fireEvent.click(closeBtn)
 
-    // Dialog is collapsed to floating dock, exposing the board
+    // Dialog is dismissed, exposing the entire board
     expect(screen.queryByRole('dialog')).toBeNull()
-    const showResultBtn = screen.getByRole('button', { name: /Show result/i })
-    expect(showResultBtn).toBeInTheDocument()
-
-    // Clicking Show result reopens dialog
-    fireEvent.click(showResultBtn)
-    expect(screen.getByRole('dialog')).toBeInTheDocument()
-    expect(screen.getByText(/Checkmate — Black won!/i)).toBeInTheDocument()
   })
 
   it('renders properly in E-ink mode', async () => {

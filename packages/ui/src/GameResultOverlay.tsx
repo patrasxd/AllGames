@@ -1,6 +1,6 @@
-import { memo, useState, type ReactNode } from 'react'
+import { memo, useState, useEffect, type ReactNode } from 'react'
 import { motion } from 'framer-motion'
-import { Card, Button, Badge, IconButton, EyeIcon, EyeOffIcon } from '@all/ui'
+import { Card, Button, IconButton, CloseIcon } from '@all/ui'
 import './GameResultOverlay.css'
 
 export interface ResultStatItem {
@@ -22,16 +22,15 @@ export interface GameResultOverlayProps {
     onClick: () => void
     id?: string
   }
-  canMinimize?: boolean
-  viewBoardText?: string
-  showResultText?: string
+  onClose?: () => void
+  closeAriaLabel?: string
 }
 
 /**
  * GameResultOverlay
  *
  * Renders a centered result card using AllUI tokens.
- * Supports a minimized "View Board" mode so the user can inspect the final board position.
+ * Features a top-right close button so the player can dismiss the dialog and view the final board.
  * This component renders as a plain `motion.div` — it has NO backdrop of its own.
  * The backdrop (semi-transparent bg) must be provided by the parent layout slot:
  *   - FullBleedLayout: use the `overlay` prop → `.all-fullbleed-layout__overlay`
@@ -47,48 +46,24 @@ export const GameResultOverlay = memo(function GameResultOverlay({
   onPlayAgain,
   playAgainId,
   secondaryAction,
-  canMinimize = true,
-  viewBoardText = 'View board',
-  showResultText = 'Show result',
+  onClose,
+  closeAriaLabel = 'Close dialog',
 }: GameResultOverlayProps) {
-  const [isMinimized, setIsMinimized] = useState(false)
+  const [isDismissed, setIsDismissed] = useState(false)
 
-  if (isMinimized) {
-    return (
-      <motion.div
-        className={`gr-overlay-minimized gr-overlay-minimized--${status}`}
-        initial={!isEink ? { opacity: 0, y: 16 } : false}
-        animate={{ opacity: 1, y: 0 }}
-        exit={!isEink ? { opacity: 0, y: 16 } : undefined}
-        transition={{ duration: 0.2 }}
-        role="region"
-        aria-label={title}
-      >
-        <Badge
-          variant={status === 'won' ? 'success' : status === 'lost' ? 'danger' : 'neutral'}
-          className="gr-minimized-badge"
-        >
-          {title}
-        </Badge>
-        <Button
-          id="gr-restore-btn"
-          variant="secondary"
-          size="sm"
-          icon={<EyeIcon />}
-          onClick={() => setIsMinimized(false)}
-        >
-          {showResultText}
-        </Button>
-        <Button
-          id={playAgainId}
-          variant="primary"
-          size="sm"
-          onClick={onPlayAgain}
-        >
-          {playAgainText}
-        </Button>
-      </motion.div>
-    )
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsDismissed(true)
+        onClose?.()
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [onClose])
+
+  if (isDismissed) {
+    return null
   }
 
   return (
@@ -102,19 +77,20 @@ export const GameResultOverlay = memo(function GameResultOverlay({
       aria-modal="true"
     >
       <Card variant="elevated" padding="lg" className="gr-card">
-        {canMinimize && (
-          <div className="gr-card-header-actions">
-            <IconButton
-              id="gr-minimize-btn"
-              variant="ghost"
-              size="sm"
-              icon={<EyeOffIcon />}
-              onClick={() => setIsMinimized(true)}
-              aria-label="Minimize"
-              title="Minimize"
-            />
-          </div>
-        )}
+        <div className="gr-card-header-actions">
+          <IconButton
+            id="gr-close-btn"
+            variant="ghost"
+            size="sm"
+            icon={<CloseIcon />}
+            onClick={() => {
+              setIsDismissed(true)
+              onClose?.()
+            }}
+            aria-label={closeAriaLabel}
+            title={closeAriaLabel}
+          />
+        </div>
         <h3 className="gr-title">{title}</h3>
         {subtitle && <p className="gr-subtitle">{subtitle}</p>}
         {stats && stats.length > 0 && (
@@ -138,17 +114,6 @@ export const GameResultOverlay = memo(function GameResultOverlay({
               {secondaryAction.label}
             </Button>
           )}
-          {canMinimize && (
-            <Button
-              id="gr-view-board-btn"
-              variant="secondary"
-              size="sm"
-              icon={<EyeIcon />}
-              onClick={() => setIsMinimized(true)}
-            >
-              {viewBoardText}
-            </Button>
-          )}
           <Button
             id={playAgainId}
             variant="primary"
@@ -162,4 +127,5 @@ export const GameResultOverlay = memo(function GameResultOverlay({
     </motion.div>
   )
 })
+
 

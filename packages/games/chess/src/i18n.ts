@@ -46,8 +46,6 @@ export const chessTranslations = {
     bishop: 'Bishop',
     knight: 'Knight',
     boardAria: 'Chess board',
-    viewBoard: 'View board',
-    showResult: 'Show result',
   },
   pl: {
     title: 'Szachy',
@@ -96,7 +94,5 @@ export const chessTranslations = {
     bishop: 'Goniec',
     knight: 'Skoczek',
     boardAria: 'Szachownica',
-    viewBoard: 'Zobacz planszę',
-    showResult: 'Pokaż wynik',
   },
 } as const

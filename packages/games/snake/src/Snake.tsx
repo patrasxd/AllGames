@@ -186,6 +186,18 @@ export function Snake({ setHeader, setIsActive, locale = 'en', isEink = false }:
                 {t.resumeBtn}
               </Button>
             )}
+
+            {status === 'GAME_OVER' && (
+              <Button
+                id="snake-play-again-bottom-btn"
+                variant="primary"
+                size="sm"
+                icon={<PlayIcon />}
+                onClick={startGame}
+              >
+                {t.restartBtn}
+              </Button>
+            )}
           </ControlsBar>
         }
         onSettingsOpenChange={(open) => {

@@ -12,8 +12,6 @@ export {
   CloseIcon,
   XIcon,
   HintIcon,
-  EyeIcon,
-  EyeOffIcon,
 } from '@all/ui'
 
 export function ComputerIcon(props: SVGProps<SVGSVGElement>) {
