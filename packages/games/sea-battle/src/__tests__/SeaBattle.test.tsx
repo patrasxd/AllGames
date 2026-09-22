@@ -1,10 +1,10 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
-import { Battleship } from '../Battleship'
+import { SeaBattle } from '../SeaBattle'
 
-describe('Battleship component integration', () => {
+describe('SeaBattle component integration', () => {
   it('renders mode selection and transitions to placement then battle', async () => {
-    render(<Battleship locale="en" />)
+    render(<SeaBattle locale="en" />)
 
     // Initially shows mode select options
     const vsComputerBtn = document.getElementById('mode-opt-ai')
@@ -42,7 +42,7 @@ describe('Battleship component integration', () => {
 
   it('notifies shell with setIsActive(true) as soon as battle is active', async () => {
     const setIsActive = vi.fn()
-    render(<Battleship locale="en" setIsActive={setIsActive} />)
+    render(<SeaBattle locale="en" setIsActive={setIsActive} />)
 
     fireEvent.click(document.getElementById('mode-opt-ai')!)
 
@@ -59,7 +59,7 @@ describe('Battleship component integration', () => {
   })
 
   it('allows firing on enemy grid and updating battle stats', async () => {
-    render(<Battleship locale="en" />)
+    render(<SeaBattle locale="en" />)
 
     // Select VS Computer
     fireEvent.click(document.getElementById('mode-opt-ai')!)
@@ -91,7 +91,7 @@ describe('Battleship component integration', () => {
   })
 
   it('shows confirmation dialog when starting new game during active battle', async () => {
-    render(<Battleship locale="en" />)
+    render(<SeaBattle locale="en" />)
 
     fireEvent.click(document.getElementById('mode-opt-ai')!)
 
@@ -132,7 +132,7 @@ describe('Battleship component integration', () => {
   })
 
   it('supports 2-player duel mode', async () => {
-    render(<Battleship locale="en" />)
+    render(<SeaBattle locale="en" />)
 
     const twoPlayersBtn = document.getElementById('mode-opt-2p')
     expect(twoPlayersBtn).toBeInTheDocument()
@@ -153,7 +153,7 @@ describe('Battleship component integration', () => {
   })
 
   it('renders cleanly with isEink={true}', () => {
-    const { container } = render(<Battleship isEink={true} locale="en" />)
+    const { container } = render(<SeaBattle isEink={true} locale="en" />)
     expect(container.querySelector('.bs-root')).toBeInTheDocument()
   })
 })

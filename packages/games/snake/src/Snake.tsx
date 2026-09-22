@@ -10,7 +10,6 @@ import './styles/snake.css'
 
 export function Snake({ setHeader, setIsActive, locale = 'en', isEink = false }: GameComponentProps) {
   const t = snakeTranslations[locale] || snakeTranslations.en
-  const isPl = locale === 'pl'
 
   const {
     snake,
@@ -66,17 +65,17 @@ export function Snake({ setHeader, setIsActive, locale = 'en', isEink = false }:
     if (!setHeader) return
     setHeader(
       <StatsHeader
-        label={isPl ? 'Rekord' : 'Record'}
+        label={t.record}
         items={[
-          { key: 'best', label: isPl ? 'Rekord' : 'Best', value: highScore },
-          { key: 'score', label: isPl ? 'Wynik' : 'Score', value: score },
+          { key: 'best', label: t.highScore, value: highScore },
+          { key: 'score', label: t.score, value: score },
         ]}
         onReset={highScore > 0 ? resetHighScore : undefined}
-        resetAriaLabel={isPl ? 'Resetuj rekord' : 'Reset record'}
+        resetAriaLabel={t.resetStatsAria}
         resetId="snake-reset-stats-btn"
       />
     )
-  }, [setHeader, highScore, score, isPl, resetHighScore])
+  }, [setHeader, highScore, score, t, resetHighScore])
 
   useEffect(() => {
     renderHeader()
@@ -139,8 +138,8 @@ export function Snake({ setHeader, setIsActive, locale = 'en', isEink = false }:
                 title={t.gameOver}
                 subtitle={isNewHighScore ? t.newHighScore : undefined}
                 stats={[
-                  { label: isPl ? 'Wynik' : 'Score', value: score },
-                  { label: isPl ? 'Rekord' : 'Best', value: highScore },
+                  { label: t.score, value: score },
+                  { label: t.highScore, value: highScore },
                 ]}
                 isEink={isEink}
                 playAgainText={t.restartBtn}

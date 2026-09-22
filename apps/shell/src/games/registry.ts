@@ -10,7 +10,7 @@ import { metadata as minesweeperMetadata } from '@allgames/minesweeper/metadata'
 import { metadata as game2048Metadata } from '@allgames/2048/metadata'
 import { metadata as memoryMetadata } from '@allgames/memory/metadata'
 import { metadata as sudokuMetadata } from '@allgames/sudoku/metadata'
-import { metadata as battleshipMetadata } from '@allgames/battleship/metadata'
+import { metadata as seaBattleMetadata } from '@allgames/sea-battle/metadata'
 import { metadata as solitaireMetadata } from '@allgames/solitaire/metadata'
 import { metadata as crystalMatchMetadata } from '@allgames/crystal-match/metadata'
 import { metadata as wingRushMetadata } from '@allgames/wing-rush/metadata'
@@ -68,8 +68,8 @@ export const GAMES: GameRegistryEntry[] = [
     load: lazyGame(() => import('@allgames/sudoku')),
   },
   {
-    metadata: battleshipMetadata,
-    load: lazyGame(() => import('@allgames/battleship')),
+    metadata: seaBattleMetadata,
+    load: lazyGame(() => import('@allgames/sea-battle')),
   },
   {
     metadata: solitaireMetadata,

@@ -9,7 +9,7 @@ interface LevelSelectModalProps {
   currentLevel: number
   onSelectLevel: (lvl: number) => void
   onClose: () => void
-  isPl?: boolean
+  title: string
 }
 
 export const LevelSelectModal = memo(function LevelSelectModal({
@@ -18,7 +18,7 @@ export const LevelSelectModal = memo(function LevelSelectModal({
   currentLevel,
   onSelectLevel,
   onClose,
-  isPl = false,
+  title,
 }: LevelSelectModalProps) {
   // Show unlocked levels + 6 upcoming preview levels
   const maxDisplayLevel = Math.max(12, progress.unlockedLevel + 6)
@@ -28,7 +28,7 @@ export const LevelSelectModal = memo(function LevelSelectModal({
     <Dialog
       isOpen={isOpen}
       onClose={onClose}
-      title={isPl ? 'Wybór Poziomu' : 'Select Level'}
+      title={title}
       maxWidth="md"
       className="cm-dialog"
     >

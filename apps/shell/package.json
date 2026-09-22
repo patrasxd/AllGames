@@ -17,7 +17,7 @@
     "@allgames/2048": "*",
     "@allgames/memory": "*",
     "@allgames/sudoku": "*",
-    "@allgames/battleship": "*",
+    "@allgames/sea-battle": "*",
     "@allgames/solitaire": "*",
     "@allgames/crystal-match": "*",
     "@allgames/wing-rush": "*",

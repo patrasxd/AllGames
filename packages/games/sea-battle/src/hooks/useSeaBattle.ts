@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import type {
-  BattleshipDifficulty,
-  BattleshipMode,
+  SeaBattleDifficulty,
+  SeaBattleMode,
   PlayerGridState,
   GamePhase,
   PlacedShip,
@@ -9,11 +9,11 @@ import type {
 import { autoPlaceFleet, processShot, createEmptyGrid } from '../logic'
 import { getAIMove } from '../ai'
 
-const DIFFICULTY_KEY = 'allgames:battleship:difficulty'
-const MODE_KEY = 'allgames:battleship:mode'
-const BEST_SHOTS_KEY_PREFIX = 'allgames:battleship:best:'
+const DIFFICULTY_KEY = 'allgames:sea-battle:difficulty'
+const MODE_KEY = 'allgames:sea-battle:mode'
+const BEST_SHOTS_KEY_PREFIX = 'allgames:sea-battle:best:'
 
-function loadDifficulty(): BattleshipDifficulty {
+function loadDifficulty(): SeaBattleDifficulty {
   try {
     const raw = localStorage.getItem(DIFFICULTY_KEY)
     if (raw === 'easy' || raw === 'medium' || raw === 'hard') return raw
@@ -23,7 +23,7 @@ function loadDifficulty(): BattleshipDifficulty {
   }
 }
 
-function saveDifficulty(diff: BattleshipDifficulty) {
+function saveDifficulty(diff: SeaBattleDifficulty) {
   try {
     localStorage.setItem(DIFFICULTY_KEY, diff)
   } catch {
@@ -31,7 +31,7 @@ function saveDifficulty(diff: BattleshipDifficulty) {
   }
 }
 
-function loadMode(): BattleshipMode {
+function loadMode(): SeaBattleMode {
   try {
     const raw = localStorage.getItem(MODE_KEY)
     if (raw === 'ai' || raw === '2p') return raw
@@ -41,7 +41,7 @@ function loadMode(): BattleshipMode {
   }
 }
 
-function saveMode(mode: BattleshipMode) {
+function saveMode(mode: SeaBattleMode) {
   try {
     localStorage.setItem(MODE_KEY, mode)
   } catch {
@@ -49,7 +49,7 @@ function saveMode(mode: BattleshipMode) {
   }
 }
 
-function loadBestShots(diff: BattleshipDifficulty): number | null {
+function loadBestShots(diff: SeaBattleDifficulty): number | null {
   try {
     const raw = localStorage.getItem(`${BEST_SHOTS_KEY_PREFIX}${diff}`)
     return raw ? Number(raw) : null
@@ -58,7 +58,7 @@ function loadBestShots(diff: BattleshipDifficulty): number | null {
   }
 }
 
-function saveBestShots(diff: BattleshipDifficulty, shots: number) {
+function saveBestShots(diff: SeaBattleDifficulty, shots: number) {
   try {
     localStorage.setItem(`${BEST_SHOTS_KEY_PREFIX}${diff}`, String(shots))
   } catch {
@@ -74,11 +74,11 @@ function createEmptyPlayerState(): PlayerGridState {
   }
 }
 
-export function useBattleship(options?: { isEink?: boolean }) {
+export function useSeaBattle(options?: { isEink?: boolean }) {
   const isEink = options?.isEink ?? false
 
-  const [mode, setModeState] = useState<BattleshipMode>(loadMode)
-  const [difficulty, setDifficultyState] = useState<BattleshipDifficulty>(loadDifficulty)
+  const [mode, setModeState] = useState<SeaBattleMode>(loadMode)
+  const [difficulty, setDifficultyState] = useState<SeaBattleDifficulty>(loadDifficulty)
   const [phase, setPhase] = useState<GamePhase>('mode-select')
 
   // Placement state
@@ -114,7 +114,7 @@ export function useBattleship(options?: { isEink?: boolean }) {
   }, [])
 
   const resetGame = useCallback(
-    (newDiff?: BattleshipDifficulty, newMode?: BattleshipMode) => {
+    (newDiff?: SeaBattleDifficulty, newMode?: SeaBattleMode) => {
       const diffToUse = newDiff ?? difficulty
       const modeToUse = newMode ?? mode
 
@@ -153,7 +153,7 @@ export function useBattleship(options?: { isEink?: boolean }) {
   )
 
   const setDifficulty = useCallback(
-    (d: BattleshipDifficulty) => {
+    (d: SeaBattleDifficulty) => {
       setDifficultyState(d)
       saveDifficulty(d)
       resetGame(d, mode)
@@ -162,7 +162,7 @@ export function useBattleship(options?: { isEink?: boolean }) {
   )
 
   const changeMode = useCallback(
-    (m: BattleshipMode) => {
+    (m: SeaBattleMode) => {
       setModeState(m)
       saveMode(m)
       resetGame(difficulty, m)
@@ -386,3 +386,5 @@ export function useBattleship(options?: { isEink?: boolean }) {
     resetBest,
   }
 }
+
+export const useBattleship = useSeaBattle

@@ -1,6 +1,6 @@
 import React from 'react'
 import type { GameMetadata } from './types'
-function BattleshipIcon() {
+function SeaBattleIcon() {
   return (
     <svg
       width="28"
@@ -18,7 +18,7 @@ function BattleshipIcon() {
       {/* Crosshair lines */}
       <line x1="12" y1="2.5" x2="12" y2="21.5" strokeWidth="1.2" strokeDasharray="1.5 1.5" />
       <line x1="2.5" y1="12" x2="21.5" y2="12" strokeWidth="1.2" strokeDasharray="1.5 1.5" />
-      {/* Battleship silhouette */}
+      {/* Warship silhouette */}
       <path d="M4 14l2 3h12l2-3H4z" fill="var(--surface)" />
       <path d="M8 14v-3h4v3M10 11V8h2v3" />
       {/* Gun turrets */}
@@ -29,16 +29,16 @@ function BattleshipIcon() {
 }
 
 export const metadata: GameMetadata = {
-  slug: 'battleship',
+  slug: 'sea-battle',
   name: {
-    en: 'Battleship',
+    en: 'Sea Battle',
     pl: 'Statki',
   },
   description: {
     en: 'Deploy your fleet and sink all enemy ships on the radar.',
     pl: 'Rozmieść swoją flotę i zatop wszystkie okręty wroga.',
   },
-  icon: <BattleshipIcon />,
+  icon: <SeaBattleIcon />,
   tags: {
     en: ['1 player', '2 players', 'strategy', 'classic'],
     pl: ['1 gracz', '2 graczy', 'strategiczna', 'klasyczna'],

@@ -102,7 +102,6 @@ export function TicTacToe({ setHeader, locale = 'en', isEink = false }: GameComp
   >(null)
 
   const t = gameTranslations[locale] || gameTranslations.en
-  const isPl = locale === 'pl'
 
   const {
     board,
@@ -134,17 +133,17 @@ export function TicTacToe({ setHeader, locale = 'en', isEink = false }: GameComp
     const isAI = mode === 'ai'
     setHeader(
       <StatsHeader
-        label={isPl ? 'Statystyki' : 'Stats'}
+        label={t.stats}
         items={[
-          { key: 'x', label: isAI ? (isPl ? 'Ty' : 'You') : 'X', value: stats.X },
-          { key: 'd', label: isPl ? 'R' : 'D', value: stats.draw },
-          { key: 'o', label: isAI ? 'AI' : 'O', value: stats.O },
+          { key: 'x', label: isAI ? t.you : 'X', value: stats.X },
+          { key: 'd', label: t.drawShort, value: stats.draw },
+          { key: 'o', label: isAI ? t.ai : 'O', value: stats.O },
         ]}
         onReset={resetStats}
-        resetAriaLabel={isPl ? 'Resetuj statystyki' : 'Reset stats'}
+        resetAriaLabel={t.resetStatsAria}
       />
     )
-  }, [setHeader, hasChosenMode, mode, stats, isPl, resetStats])
+  }, [setHeader, hasChosenMode, mode, stats, t, resetStats])
 
   useEffect(() => {
     renderHeader()

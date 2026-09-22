@@ -74,7 +74,7 @@ export default defineConfig({
       '@allgames/2048',
       '@allgames/memory',
       '@allgames/sudoku',
-      '@allgames/battleship',
+      '@allgames/sea-battle',
       '@allgames/solitaire',
       '@allgames/ui',
     ],

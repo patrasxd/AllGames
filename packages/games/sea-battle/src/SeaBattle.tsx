@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useBattleship } from './hooks/useBattleship'
+import { useSeaBattle } from './hooks/useSeaBattle'
 import { Grid10x10 } from './components/Grid10x10'
 import { PlacementControls } from './components/PlacementControls'
-import type { GameComponentProps, BattleshipDifficulty, BattleshipMode } from './types'
-import { battleshipTranslations } from './i18n'
+import type { GameComponentProps, SeaBattleDifficulty, SeaBattleMode } from './types'
+import { seaBattleTranslations } from './i18n'
 import {
   BoardLayout,
   ConfirmDialog,
@@ -19,18 +19,17 @@ import {
   ComputerIcon,
   TwoPlayersIcon,
 } from '@allgames/ui'
-import './styles/battleship.css'
+import './styles/sea-battle.css'
 
-const DIFFICULTIES: BattleshipDifficulty[] = ['easy', 'medium', 'hard']
+const DIFFICULTIES: SeaBattleDifficulty[] = ['easy', 'medium', 'hard']
 
-export function Battleship({ setHeader, setIsActive, locale = 'en', isEink = false }: GameComponentProps) {
+export function SeaBattle({ setHeader, setIsActive, locale = 'en', isEink = false }: GameComponentProps) {
   const [hasChosenMode, setHasChosenMode] = useState(false)
   const [pendingAction, setPendingAction] = useState<
-    { type: 'difficulty'; value: BattleshipDifficulty } | { type: 'mode' } | { type: 'newGame' } | null
+    { type: 'difficulty'; value: SeaBattleDifficulty } | { type: 'mode' } | { type: 'newGame' } | null
   >(null)
 
-  const t = battleshipTranslations[locale] || battleshipTranslations.en
-  const isPl = locale === 'pl'
+  const t = seaBattleTranslations[locale] || seaBattleTranslations.en
 
   const {
     mode,
@@ -56,7 +55,7 @@ export function Battleship({ setHeader, setIsActive, locale = 'en', isEink = fal
     handleFire,
     resetGame,
     resetBest,
-  } = useBattleship({ isEink })
+  } = useSeaBattle({ isEink })
 
   // Active game session condition for leave confirmation and status
   const isBattleActive =
@@ -93,7 +92,7 @@ export function Battleship({ setHeader, setIsActive, locale = 'en', isEink = fal
     if (mode === '2p') {
       setHeader(
         <StatsHeader
-          label={isPl ? 'Statystyki' : 'Stats'}
+          label={t.stats}
           items={[
             { key: 'p1', label: 'P1', value: `${p1Hits}/20` },
             { key: 'p2', label: 'P2', value: `${p2Hits}/20` },
@@ -105,18 +104,18 @@ export function Battleship({ setHeader, setIsActive, locale = 'en', isEink = fal
 
     setHeader(
       <StatsHeader
-        label={isPl ? 'Rekord' : 'Record'}
+        label={t.record}
         items={[
-          { key: 'best', label: isPl ? 'Rekord' : 'Best', value: bestShots ?? '--' },
-          { key: 'shots', label: isPl ? 'Strzały' : 'Shots', value: p1Shots },
-          { key: 'hits', label: isPl ? 'Trafienia' : 'Hits', value: `${p1Hits}/20` },
+          { key: 'best', label: t.bestShots, value: bestShots ?? '--' },
+          { key: 'shots', label: t.shots, value: p1Shots },
+          { key: 'hits', label: t.hits, value: `${p1Hits}/20` },
         ]}
         onReset={bestShots !== null ? resetBest : undefined}
-        resetAriaLabel={isPl ? 'Resetuj rekord' : 'Reset record'}
+        resetAriaLabel={t.resetStatsAria}
         resetId="bs-reset-best-btn"
       />
     )
-  }, [setHeader, hasChosenMode, phase, mode, p1Shots, p1Hits, bestShots, p2Hits, isPl, resetBest])
+  }, [setHeader, hasChosenMode, phase, mode, p1Shots, p1Hits, bestShots, p2Hits, t, resetBest])
 
   useEffect(() => {
     renderHeader()
@@ -126,7 +125,7 @@ export function Battleship({ setHeader, setIsActive, locale = 'en', isEink = fal
     return () => setHeader?.(null)
   }, [setHeader])
 
-  const handleModeSelect = (m: BattleshipMode) => {
+  const handleModeSelect = (m: SeaBattleMode) => {
     changeMode(m)
     setHasChosenMode(true)
   }
@@ -148,7 +147,7 @@ export function Battleship({ setHeader, setIsActive, locale = 'en', isEink = fal
     }
   }
 
-  const handleDifficultyClick = (d: BattleshipDifficulty) => {
+  const handleDifficultyClick = (d: SeaBattleDifficulty) => {
     if (d === difficulty) return
     if (isBattleActive) {
       setPendingAction({ type: 'difficulty', value: d })
@@ -184,12 +183,12 @@ export function Battleship({ setHeader, setIsActive, locale = 'en', isEink = fal
     winner === null && !isAIThinking && turnCountdown === null && (mode === 'ai' ? currentTurn === 'p1' : true)
   const handoffPlayerLabel =
     passDevicePlayer === 'p1'
-      ? isPl ? 'Gracz 1' : 'Player 1'
+      ? t.player1
       : passDevicePlayer === 'p2'
-      ? isPl ? 'Gracz 2' : 'Player 2'
+      ? t.player2
       : currentTurn === 'p1'
-      ? isPl ? 'Gracz 1' : 'Player 1'
-      : isPl ? 'Gracz 2' : 'Player 2'
+      ? t.player1
+      : t.player2
   const isPassDeviceVisible = passDevicePlayer !== null && turnCountdown !== null
 
   return (
@@ -203,7 +202,7 @@ export function Battleship({ setHeader, setIsActive, locale = 'en', isEink = fal
             exit={{ opacity: 0, scale: 0.97 }}
             style={{ width: '100%', display: 'flex', justifyContent: 'center' }}
           >
-            <ModeSelect<BattleshipMode>
+            <ModeSelect<SeaBattleMode>
               label={t.chooseMode}
               options={[
                 {
@@ -249,7 +248,7 @@ export function Battleship({ setHeader, setIsActive, locale = 'en', isEink = fal
                 <div className="bs-placement-stage">
                   {isPassDeviceVisible ? (
                     <div className="bs-turn-handoff" aria-live="polite">
-                      <div className="bs-turn-handoff__label">{isPl ? 'Przekaż urządzenie' : 'Pass device to'}</div>
+                      <div className="bs-turn-handoff__label">{t.passDevice}</div>
                       <div className="bs-turn-handoff__player">{handoffPlayerLabel}</div>
                       <div className="bs-turn-handoff__timer">{turnCountdown}s</div>
                     </div>
@@ -297,9 +296,9 @@ export function Battleship({ setHeader, setIsActive, locale = 'en', isEink = fal
                           ? winner === 'p1'
                             ? t.youWon
                             : t.youLost
-                          : t.playerWon(winner === 'p1' ? (isPl ? 'Gracz 1' : 'Player 1') : (isPl ? 'Gracz 2' : 'Player 2'))
+                          : t.playerWon(winner === 'p1' ? t.player1 : t.player2)
                         : turnCountdown !== null
-                        ? `${isPl ? 'Przekaż urządzenie do:' : 'Pass device to'} ${handoffPlayerLabel}`
+                        ? `${t.passDevice} ${handoffPlayerLabel}`
                         : isAIThinking
                         ? t.computerTurn
                         : lastShotInfo
@@ -318,7 +317,7 @@ export function Battleship({ setHeader, setIsActive, locale = 'en', isEink = fal
                       {winner !== null
                         ? `${t.shots}: ${p1Shots}`
                         : turnCountdown !== null
-                        ? `${isPl ? 'Następna tura za' : 'Next turn in'} ${turnCountdown}s`
+                        ? `${t.nextTurnIn} ${turnCountdown}s`
                         : mode === 'ai'
                         ? `${t.difficultyLabel}: ${difficulty.toUpperCase()}`
                         : `${t.player1Turn} vs ${t.player2Turn}`}
@@ -329,7 +328,7 @@ export function Battleship({ setHeader, setIsActive, locale = 'en', isEink = fal
               board={
                 isPassDeviceVisible ? (
                   <div className="bs-turn-handoff" aria-live="polite">
-                    <div className="bs-turn-handoff__label">{isPl ? 'Przekaż urządzenie' : 'Pass device to'}</div>
+                    <div className="bs-turn-handoff__label">{t.passDevice}</div>
                     <div className="bs-turn-handoff__player">{handoffPlayerLabel}</div>
                     <div className="bs-turn-handoff__timer">{turnCountdown}s</div>
                   </div>
@@ -380,7 +379,7 @@ export function Battleship({ setHeader, setIsActive, locale = 'en', isEink = fal
                     </Button>
 
                     {mode === 'ai' && (
-                      <PillGroup<BattleshipDifficulty>
+                      <PillGroup<SeaBattleDifficulty>
                         label={t.difficultyLabel}
                         size="sm"
                         options={DIFFICULTIES.map(d => ({
@@ -405,9 +404,9 @@ export function Battleship({ setHeader, setIsActive, locale = 'en', isEink = fal
                           ? winner === 'p1'
                             ? t.youWon
                             : t.youLost
-                          : t.playerWon(winner === 'p1' ? (isPl ? 'Gracz 1' : 'Player 1') : (isPl ? 'Gracz 2' : 'Player 2'))
+                          : t.playerWon(winner === 'p1' ? t.player1 : t.player2)
                       }
-                      subtitle={isPl ? 'Bitwa zakończona' : 'Battle ended'}
+                      subtitle={t.battleEnded}
                       isEink={isEink}
                       playAgainText={t.newGame}
                       onPlayAgain={resetGame}
@@ -415,13 +414,13 @@ export function Battleship({ setHeader, setIsActive, locale = 'en', isEink = fal
                       stats={
                         mode === 'ai'
                           ? [
-                              { label: isPl ? 'Strzały' : 'Shots', value: p1Shots },
-                              { label: isPl ? 'Trafienia' : 'Hits', value: `${p1Hits}/20` },
-                              ...(bestShots !== null ? [{ label: isPl ? 'Rekord' : 'Best', value: bestShots }] : []),
+                              { label: t.shots, value: p1Shots },
+                              { label: t.hits, value: `${p1Hits}/20` },
+                              ...(bestShots !== null ? [{ label: t.bestShots, value: bestShots }] : []),
                             ]
                           : [
-                              { label: isPl ? 'Trafienia P1' : 'P1 Hits', value: `${p1Hits}/20` },
-                              { label: isPl ? 'Trafienia P2' : 'P2 Hits', value: `${p2Hits}/20` },
+                              { label: t.p1HitsLabel, value: `${p1Hits}/20` },
+                              { label: t.p2HitsLabel, value: `${p2Hits}/20` },
                             ]
                       }
                     />
@@ -455,4 +454,5 @@ export function Battleship({ setHeader, setIsActive, locale = 'en', isEink = fal
     </div>
   )
 }
-export default Battleship
+export const Battleship = SeaBattle
+export default SeaBattle

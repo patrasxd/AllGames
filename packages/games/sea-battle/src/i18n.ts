@@ -1,6 +1,6 @@
-export const battleshipTranslations = {
+export const seaBattleTranslations = {
   en: {
-    title: 'Battleship',
+    title: 'Sea Battle',
     chooseMode: 'Choose game mode',
     vsComputer: 'Vs Computer',
     vsComputerDesc: 'Play against smart naval computer opponent',
@@ -34,6 +34,8 @@ export const battleshipTranslations = {
     accuracy: 'Accuracy',
     hits: 'Hits',
     bestShots: 'Best',
+    stats: 'Stats',
+    record: 'Record',
     shipsLeft: 'Ships Remaining',
     newGame: 'New game',
     changeMode: 'Change mode',
@@ -45,6 +47,13 @@ export const battleshipTranslations = {
     cancelBtn: 'Cancel',
     resetStatsAria: 'Reset record',
     gridAria: '10x10 Naval Grid',
+    player1: 'Player 1',
+    player2: 'Player 2',
+    passDevice: 'Pass device to',
+    battleEnded: 'Battle ended',
+    nextTurnIn: 'Next turn in',
+    p1HitsLabel: 'P1 Hits',
+    p2HitsLabel: 'P2 Hits',
     ships: {
       battleship: 'Battleship (4)',
       cruiser: 'Cruiser (3)',
@@ -87,6 +96,8 @@ export const battleshipTranslations = {
     accuracy: 'Celność',
     hits: 'Trafienia',
     bestShots: 'Rekord',
+    stats: 'Statystyki',
+    record: 'Rekord',
     shipsLeft: 'Pozostałe statki',
     newGame: 'Nowa gra',
     changeMode: 'Zmień tryb',
@@ -98,6 +109,13 @@ export const battleshipTranslations = {
     cancelBtn: 'Anuluj',
     resetStatsAria: 'Resetuj rekord',
     gridAria: 'Plansza morska 10x10',
+    player1: 'Gracz 1',
+    player2: 'Gracz 2',
+    passDevice: 'Przekaż urządzenie',
+    battleEnded: 'Bitwa zakończona',
+    nextTurnIn: 'Następna tura za',
+    p1HitsLabel: 'Trafienia P1',
+    p2HitsLabel: 'Trafienia P2',
     ships: {
       battleship: 'Czteromasztowiec (4)',
       cruiser: 'Trzymasztowiec (3)',
@@ -106,3 +124,5 @@ export const battleshipTranslations = {
     },
   },
 } as const
+
+export const battleshipTranslations = seaBattleTranslations

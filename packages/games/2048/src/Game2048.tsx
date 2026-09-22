@@ -16,7 +16,6 @@ export function Game2048({ setHeader, setIsActive, locale = 'en', isEink = false
   >(null)
 
   const t = game2048Translations[locale] || game2048Translations.en
-  const isPl = locale === 'pl'
 
   const {
     tiles,
@@ -44,17 +43,17 @@ export function Game2048({ setHeader, setIsActive, locale = 'en', isEink = false
     if (!setHeader) return
     setHeader(
       <StatsHeader
-        label={isPl ? 'Rekord' : 'Record'}
+        label={t.record}
         items={[
-          { key: 'best', label: isPl ? 'Rekord' : 'Best', value: bestScore },
-          { key: 'score', label: isPl ? 'Wynik' : 'Score', value: score },
+          { key: 'best', label: t.bestScore, value: bestScore },
+          { key: 'score', label: t.score, value: score },
         ]}
         onReset={bestScore > 0 ? resetBestScore : undefined}
-        resetAriaLabel={isPl ? 'Resetuj rekord' : 'Reset record'}
+        resetAriaLabel={t.resetStatsAria}
         resetId="g2048-reset-best-btn"
       />
     )
-  }, [setHeader, bestScore, score, isPl, resetBestScore])
+  }, [setHeader, bestScore, score, t, resetBestScore])
 
   useEffect(() => {
     renderHeader()

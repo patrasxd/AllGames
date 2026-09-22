@@ -52,7 +52,6 @@ function RestartIcon() {
 
 export function CrystalMatch({ setHeader, setIsActive, locale = 'en', isEink = false }: GameComponentProps) {
   const t = crystalMatchTranslations[locale] || crystalMatchTranslations.en
-  const isPl = locale === 'pl'
 
   const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false)
   const [pendingAction, setPendingAction] = useState<'restart' | 'levels' | null>(null)
@@ -112,16 +111,16 @@ export function CrystalMatch({ setHeader, setIsActive, locale = 'en', isEink = f
     if (!setHeader) return
     setHeader(
       <StatsHeader
-        label={isPl ? 'Postęp' : 'Progress'}
+        label={t.goals}
         items={[
           { key: 'level', label: 'LVL', value: level },
-          { key: 'score', label: isPl ? 'Wynik' : 'Score', value: score },
+          { key: 'score', label: t.score, value: score },
           { key: 'moves', label: 'MOV', value: movesLeft },
-          { key: 'stars', label: isPl ? 'Gwiazdki' : 'Stars', value: totalStars },
+          { key: 'stars', label: t.stars, value: totalStars },
         ]}
       />
     )
-  }, [setHeader, isPl, level, score, movesLeft, totalStars])
+  }, [setHeader, t, level, score, movesLeft, totalStars])
 
   useEffect(() => {
     renderHeader()
@@ -405,7 +404,7 @@ export function CrystalMatch({ setHeader, setIsActive, locale = 'en', isEink = f
           currentLevel={level}
           onSelectLevel={selectLevel}
           onClose={() => setIsLevelModalOpen(false)}
-          isPl={isPl}
+          title={t.levelSelect}
         />
 
         {/* Restart / Level Select Confirmation Dialog */}

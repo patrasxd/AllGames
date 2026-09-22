@@ -33,7 +33,6 @@ export function Chess({ setHeader, setIsActive, locale = 'en', isEink = false }:
   >(null)
 
   const t = chessTranslations[locale] || chessTranslations.en
-  const isPl = locale === 'pl'
 
   const {
     board,
@@ -83,18 +82,18 @@ export function Chess({ setHeader, setIsActive, locale = 'en', isEink = false }:
     const isAI = mode === 'ai'
     setHeader(
       <StatsHeader
-        label={isPl ? 'Statystyki' : 'Stats'}
+        label={t.stats}
         items={[
-          { key: 'w', label: isAI ? (isPl ? 'W' : 'W') : (isPl ? 'B' : 'W'), value: stats.white },
-          { key: 'd', label: isPl ? 'R' : 'D', value: stats.draw },
-          { key: 'b', label: isAI ? (isPl ? 'P' : 'L') : (isPl ? 'C' : 'B'), value: stats.black },
+          { key: 'w', label: isAI ? t.winShort : t.whiteShort, value: stats.white },
+          { key: 'd', label: t.drawShort, value: stats.draw },
+          { key: 'b', label: isAI ? t.lossShort : t.blackShort, value: stats.black },
         ]}
         onReset={resetStats}
-        resetAriaLabel={isPl ? 'Resetuj statystyki' : 'Reset stats'}
+        resetAriaLabel={t.resetStatsAria}
         resetId="chess-reset-stats-btn"
       />
     )
-  }, [setHeader, hasChosenMode, mode, stats, isPl, resetStats])
+  }, [setHeader, hasChosenMode, mode, stats, t, resetStats])
 
   useEffect(() => {
     renderHeader()

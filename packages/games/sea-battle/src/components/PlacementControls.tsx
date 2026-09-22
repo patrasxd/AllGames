@@ -1,6 +1,6 @@
 import { memo } from 'react'
 import type { Locale } from '../types'
-import { battleshipTranslations } from '../i18n'
+import { seaBattleTranslations } from '../i18n'
 import { ControlsBar, Button } from '@all/ui'
 import { ShuffleIcon, TrashIcon } from '@allgames/ui'
 
@@ -19,7 +19,7 @@ export const PlacementControls = memo(function PlacementControls({
   onClear,
   onStart,
 }: PlacementControlsProps) {
-  const t = battleshipTranslations[locale] || battleshipTranslations.en
+  const t = seaBattleTranslations[locale] || seaBattleTranslations.en
 
   return (
     <ControlsBar className="bs-placement-bar">

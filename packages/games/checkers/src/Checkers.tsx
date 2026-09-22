@@ -32,7 +32,6 @@ export function Checkers({ setHeader, setIsActive, locale = 'en', isEink = false
   >(null)
 
   const t = checkersTranslations[locale] || checkersTranslations.en
-  const isPl = locale === 'pl'
 
   const {
     board,
@@ -54,6 +53,7 @@ export function Checkers({ setHeader, setIsActive, locale = 'en', isEink = false
   } = useCheckers({ isEink })
 
   const isGameActive =
+    hasChosenMode &&
     (turn !== 'white' ||
       piecesCount.white !== 12 ||
       piecesCount.black !== 12 ||
@@ -77,18 +77,18 @@ export function Checkers({ setHeader, setIsActive, locale = 'en', isEink = false
     const isAI = mode === 'ai'
     setHeader(
       <StatsHeader
-        label={isPl ? 'Statystyki' : 'Stats'}
+        label={t.stats}
         items={[
-          { key: 'w', label: isAI ? (isPl ? 'W' : 'W') : (isPl ? 'B' : 'W'), value: stats.white },
-          { key: 'd', label: isPl ? 'R' : 'D', value: stats.draw },
-          { key: 'b', label: isAI ? (isPl ? 'P' : 'L') : (isPl ? 'C' : 'B'), value: stats.black },
+          { key: 'w', label: isAI ? t.winShort : t.whiteShort, value: stats.white },
+          { key: 'd', label: t.drawShort, value: stats.draw },
+          { key: 'b', label: isAI ? t.lossShort : t.blackShort, value: stats.black },
         ]}
         onReset={resetStats}
-        resetAriaLabel={isPl ? 'Resetuj statystyki' : 'Reset stats'}
+        resetAriaLabel={t.resetStatsAria}
         resetId="checkers-reset-stats-btn"
       />
     )
-  }, [setHeader, hasChosenMode, mode, stats, isPl, resetStats])
+  }, [setHeader, hasChosenMode, mode, stats, t, resetStats])
 
   useEffect(() => {
     renderHeader()

@@ -33,7 +33,6 @@ export function Solitaire({ setHeader, setIsActive, locale = 'en', isEink = fals
   const [showNewGameConfirm, setShowNewGameConfirm] = useState(false)
 
   const t = solitaireTranslations[locale] || solitaireTranslations.en
-  const isPl = locale === 'pl'
 
   const {
     state,
@@ -85,19 +84,19 @@ export function Solitaire({ setHeader, setIsActive, locale = 'en', isEink = fals
     if (!setHeader) return
     setHeader(
       <StatsHeader
-        label={isPl ? 'Rekord' : 'Record'}
+        label={t.record}
         items={[
-          { key: 'best', label: isPl ? 'Rekord' : 'Best', value: bestScore ?? '--' },
-          { key: 'score', label: isPl ? 'Wynik' : 'Score', value: state.score },
-          { key: 'time', label: isPl ? 'Czas' : 'Time', value: formatTime(elapsedSeconds) },
-          { key: 'moves', label: isPl ? 'Ruchy' : 'Moves', value: state.moves },
+          { key: 'best', label: t.bestScore, value: bestScore ?? '--' },
+          { key: 'score', label: t.score, value: state.score },
+          { key: 'time', label: t.time, value: formatTime(elapsedSeconds) },
+          { key: 'moves', label: t.moves, value: state.moves },
         ]}
         onReset={bestScore !== null ? resetBest : undefined}
-        resetAriaLabel={isPl ? 'Resetuj rekord' : 'Reset record'}
+        resetAriaLabel={t.resetStatsAria}
         resetId="sol-reset-best-btn"
       />
     )
-  }, [setHeader, state.score, bestScore, elapsedSeconds, state.moves, isPl, resetBest])
+  }, [setHeader, state.score, bestScore, elapsedSeconds, state.moves, t, resetBest])
 
   useEffect(() => {
     renderHeader()

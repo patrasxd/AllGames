@@ -17,28 +17,27 @@ export function Memory({ setHeader, setIsActive, locale = 'en', isEink = false }
   >(null)
 
   const t = memoryTranslations[locale] || memoryTranslations.en
-  const isPl = locale === 'pl'
 
   const {
     cards,
     difficulty,
     mode,
+    scores,
     moves,
     matchedPairsCount,
     totalPairs,
-    elapsedSeconds,
     currentTurn,
-    scores,
     gameStatus,
+    elapsedSeconds,
     bestScore,
-    handleCardClick,
-    resetGame,
     setDifficulty,
     changeMode,
+    handleCardClick,
+    resetGame,
     resetBest,
   } = useMemory({ isEink })
 
-  const isGameActive = (moves > 0 || gameStatus === 'playing') && gameStatus !== 'ended'
+  const isGameActive = hasChosenMode && (moves > 0 || gameStatus === 'playing') && gameStatus !== 'ended'
 
   useEffect(() => {
     setIsActive?.(isGameActive)
@@ -55,11 +54,11 @@ export function Memory({ setHeader, setIsActive, locale = 'en', isEink = false }
     if (mode === '2p') {
       setHeader(
         <StatsHeader
-          label={isPl ? 'Statystyki' : 'Stats'}
+          label={t.stats}
           items={[
             { key: 'p1', label: 'P1', value: scores.p1 },
             { key: 'p2', label: 'P2', value: scores.p2 },
-            { key: 'pairs', label: isPl ? 'Pary' : 'Pairs', value: `${matchedPairsCount}/${totalPairs}` },
+            { key: 'pairs', label: t.pairs, value: `${matchedPairsCount}/${totalPairs}` },
           ]}
         />
       )
@@ -68,19 +67,19 @@ export function Memory({ setHeader, setIsActive, locale = 'en', isEink = false }
 
     setHeader(
       <StatsHeader
-        label={isPl ? 'Rekord' : 'Record'}
+        label={t.record}
         items={[
-          { key: 'best', label: isPl ? 'Rekord' : 'Best', value: bestScore ? `${bestScore.moves}m` : '--' },
-          { key: 'moves', label: isPl ? 'Ruchy' : 'Moves', value: moves },
-          { key: 'pairs', label: isPl ? 'Pary' : 'Pairs', value: `${matchedPairsCount}/${totalPairs}` },
-          { key: 'time', label: isPl ? 'Czas' : 'Time', value: formatTime(elapsedSeconds) },
+          { key: 'best', label: t.best, value: bestScore ? `${bestScore.moves}m` : '--' },
+          { key: 'moves', label: t.moves, value: moves },
+          { key: 'pairs', label: t.pairs, value: `${matchedPairsCount}/${totalPairs}` },
+          { key: 'time', label: t.time, value: formatTime(elapsedSeconds) },
         ]}
         onReset={bestScore !== null ? resetBest : undefined}
-        resetAriaLabel={isPl ? 'Resetuj rekord' : 'Reset record'}
+        resetAriaLabel={t.resetStatsAria}
         resetId="memory-reset-best-btn"
       />
     )
-  }, [setHeader, hasChosenMode, mode, scores, matchedPairsCount, totalPairs, bestScore, moves, elapsedSeconds, isPl, resetBest])
+  }, [setHeader, hasChosenMode, mode, scores, matchedPairsCount, totalPairs, bestScore, moves, elapsedSeconds, t, resetBest])
 
   useEffect(() => {
     renderHeader()
@@ -237,7 +236,7 @@ export function Memory({ setHeader, setIsActive, locale = 'en', isEink = false }
                         mode === '2p'
                           ? undefined
                           : bestScore && moves <= bestScore.moves
-                          ? (isPl ? 'Nowy rekord!' : 'New Best Score!')
+                          ? t.newBest
                           : undefined
                       }
                       isEink={isEink}

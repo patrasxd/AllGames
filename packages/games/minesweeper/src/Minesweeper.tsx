@@ -82,7 +82,6 @@ export function Minesweeper({ setHeader, setIsActive, locale = 'en', isEink = fa
   >(null)
 
   const t = minesweeperTranslations[locale] || minesweeperTranslations.en
-  const isPl = locale === 'pl'
 
   const {
     board,
@@ -115,17 +114,17 @@ export function Minesweeper({ setHeader, setIsActive, locale = 'en', isEink = fa
     if (!setHeader) return
     setHeader(
       <StatsHeader
-        label={isPl ? 'Rekord' : 'Record'}
+        label={t.bestTime}
         items={[
-          { key: 'best', label: isPl ? 'Rekord' : 'Best', value: bestTime !== null ? `${bestTime}s` : '--' },
-          { key: 'mines', label: isPl ? 'Miny' : 'Mines', value: remainingMines },
+          { key: 'best', label: t.bestTime, value: bestTime !== null ? `${bestTime}${t.sec}` : t.noRecord },
+          { key: 'mines', label: t.minesLeft, value: remainingMines },
         ]}
         onReset={bestTime !== null ? resetBestTime : undefined}
-        resetAriaLabel={isPl ? 'Resetuj rekord' : 'Reset record'}
+        resetAriaLabel={t.resetStatsAria}
         resetId="ms-reset-best-btn"
       />
     )
-  }, [setHeader, bestTime, remainingMines, isPl, resetBestTime])
+  }, [setHeader, bestTime, remainingMines, t, resetBestTime])
 
   useEffect(() => {
     renderHeader()

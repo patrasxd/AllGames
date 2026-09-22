@@ -1,8 +1,8 @@
-import type { BattleshipDifficulty, CellState } from './types'
+import type { SeaBattleDifficulty, CellState } from './types'
 
 export function getAIMove(
   grid: CellState[][],
-  difficulty: BattleshipDifficulty
+  difficulty: SeaBattleDifficulty
 ): [number, number] {
   const unrevealed: [number, number][] = []
   const activeHits: [number, number][] = []

@@ -25,7 +25,6 @@ export function Sudoku({ setHeader, setIsActive, locale = 'en', isEink = false }
   >(null)
 
   const t = sudokuTranslations[locale] || sudokuTranslations.en
-  const isPl = locale === 'pl'
 
   const {
     board,
@@ -58,23 +57,23 @@ export function Sudoku({ setHeader, setIsActive, locale = 'en', isEink = false }
     if (!setHeader) return
     setHeader(
       <StatsHeader
-        label={isPl ? 'Rekord' : 'Record'}
+        label={t.record}
         items={[
-          { key: 'best', label: isPl ? 'Rekord' : 'Best', value: bestTime !== null ? formatTime(bestTime) : '--:--' },
-          { key: 'time', label: isPl ? 'Czas' : 'Time', value: formatTime(elapsedSeconds) },
+          { key: 'best', label: t.bestTime, value: bestTime !== null ? formatTime(bestTime) : '--:--' },
+          { key: 'time', label: t.time, value: formatTime(elapsedSeconds) },
           {
             key: 'mistakes',
-            label: isPl ? 'Błędy' : 'Mistakes',
+            label: t.mistakes,
             value: `${mistakes}/3`,
             className: mistakes > 0 ? 'sdk-mistakes-val--warn' : '',
           },
         ]}
         onReset={bestTime !== null ? resetBest : undefined}
-        resetAriaLabel={isPl ? 'Resetuj rekord' : 'Reset record'}
+        resetAriaLabel={t.resetStatsAria}
         resetId="sdk-reset-best-btn"
       />
     )
-  }, [setHeader, elapsedSeconds, bestTime, mistakes, isPl, resetBest])
+  }, [setHeader, elapsedSeconds, bestTime, mistakes, t, resetBest])
 
   useEffect(() => {
     renderHeader()
@@ -150,8 +149,8 @@ export function Sudoku({ setHeader, setIsActive, locale = 'en', isEink = false }
                 status={gameStatus}
                 title={gameStatus === 'won' ? t.youWon : t.youLost}
                 stats={[
-                  { label: isPl ? 'Czas' : 'Time', value: formatTime(elapsedSeconds) },
-                  { label: isPl ? 'Błędy' : 'Mistakes', value: `${mistakes}/3` },
+                  { label: t.time, value: formatTime(elapsedSeconds) },
+                  { label: t.mistakes, value: `${mistakes}/3` },
                 ]}
                 isEink={isEink}
                 playAgainText={t.tryAgain}

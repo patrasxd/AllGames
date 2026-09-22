@@ -14,6 +14,8 @@ export const memoryTranslations = {
     pairs: 'Pairs',
     time: 'Time',
     best: 'Best',
+    record: 'Record',
+    stats: 'Stats',
     player1: 'Player 1',
     player2: 'Player 2',
     turn1p: 'Find matching pairs',
@@ -31,6 +33,7 @@ export const memoryTranslations = {
     cancelBtn: 'Cancel',
     resetStatsAria: 'Reset best score',
     boardAria: 'Memory cards grid',
+    newBest: 'New Best Score!',
   },
   pl: {
     title: 'Pary / Memory',
@@ -47,6 +50,8 @@ export const memoryTranslations = {
     pairs: 'Pary',
     time: 'Czas',
     best: 'Rekord',
+    record: 'Rekord',
+    stats: 'Statystyki',
     player1: 'Gracz 1',
     player2: 'Gracz 2',
     turn1p: 'Znajdź pasujące pary',
@@ -64,5 +69,6 @@ export const memoryTranslations = {
     cancelBtn: 'Anuluj',
     resetStatsAria: 'Resetuj rekord',
     boardAria: 'Plansza z kartami memory',
+    newBest: 'Nowy rekord!',
   },
 } as const

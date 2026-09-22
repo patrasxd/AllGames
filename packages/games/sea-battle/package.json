@@ -1,5 +1,5 @@
 {
-  "name": "@allgames/battleship",
+  "name": "@allgames/sea-battle",
   "version": "0.1.0",
   "type": "module",
   "main": "./src/index.tsx",

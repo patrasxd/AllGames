@@ -4,6 +4,7 @@ export interface WingRushTranslations {
   gameTitle: string
   score: string
   bestScore: string
+  level: string
   difficulty: string
   difficultyLabels: Record<Difficulty, string>
   readyPrompt: string
@@ -26,6 +27,7 @@ export const wingRushTranslations: Record<Locale, WingRushTranslations> = {
     gameTitle: 'Wing Rush',
     score: 'Score',
     bestScore: 'Best',
+    level: 'Level',
     difficulty: 'Difficulty',
     difficultyLabels: {
       easy: 'Easy',
@@ -50,6 +52,7 @@ export const wingRushTranslations: Record<Locale, WingRushTranslations> = {
     gameTitle: 'Wing Rush',
     score: 'Wynik',
     bestScore: 'Rekord',
+    level: 'Poziom',
     difficulty: 'Trudność',
     difficultyLabels: {
       easy: 'Łatwy',

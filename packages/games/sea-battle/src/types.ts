@@ -23,8 +23,11 @@ export interface GameComponentProps {
   setIsActive?: (active: boolean) => void
 }
 
-export type BattleshipDifficulty = 'easy' | 'medium' | 'hard'
-export type BattleshipMode = 'ai' | '2p'
+export type SeaBattleDifficulty = 'easy' | 'medium' | 'hard'
+export type SeaBattleMode = 'ai' | '2p'
+
+export type BattleshipDifficulty = SeaBattleDifficulty
+export type BattleshipMode = SeaBattleMode
 
 export type Orientation = 'horizontal' | 'vertical'
 

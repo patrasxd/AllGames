@@ -12,7 +12,6 @@ const DIFF_SHORT: Record<Difficulty, string> = { easy: 'EZY', normal: 'NRM', har
 
 export function WingRush({ setHeader, locale = 'en', isEink = false, theme = 'dark' }: GameComponentProps) {
   const t = wingRushTranslations[locale] || wingRushTranslations.en
-  const isPl = locale === 'pl'
 
   const {
     difficulty,
@@ -33,9 +32,9 @@ export function WingRush({ setHeader, locale = 'en', isEink = false, theme = 'da
     if (!setHeader) return
     setHeader(
       <StatsHeader
-        label={isPl ? 'Poziom' : 'Level'}
+        label={t.level}
         items={[
-          { key: 'best', label: isPl ? 'Rekord' : 'Best', value: bestScore },
+          { key: 'best', label: t.bestScore, value: bestScore },
           {
             key: 'difficulty',
             label: 'Diff',
@@ -44,7 +43,7 @@ export function WingRush({ setHeader, locale = 'en', isEink = false, theme = 'da
         ]}
       />
     )
-  }, [setHeader, isPl, bestScore, difficulty])
+  }, [setHeader, t, bestScore, difficulty])
 
   useEffect(() => {
     renderHeader()
