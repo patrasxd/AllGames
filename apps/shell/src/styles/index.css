@@ -44,16 +44,16 @@
 }
 
 [data-theme='light'] {
-  --bg:         #f2f1ec;
+  --bg:         #f8fafc;
   --surface:    #ffffff;
-  --surface-2:  #ebebeb;
-  --border:     #dcdcdc;
-  --border-2:   #c0c0c0;
-  --text:       #111111;
-  --text-muted: #aaaaaa;
-  --text-dim:   #777777;
-  --accent:     #000000;
-  --accent-dim: #333333;
+  --surface-2:  #f1f5f9;
+  --border:     #e2e8f0;
+  --border-2:   #cbd5e1;
+  --text:       #0f172a;
+  --text-muted: #64748b;
+  --text-dim:   #475569;
+  --accent:     #0f172a;
+  --accent-dim: #334155;
 }
 
 /* ─── E-reader (E-ink) Mode ───────────────────────────────── */
@@ -199,6 +199,10 @@
 }
 
 /* Remove tap highlight on all interactive elements (mobile) */
+*, *::before, *::after {
+  -webkit-tap-highlight-color: transparent;
+}
+
 a, button, [role="button"], canvas, [tabindex] {
   -webkit-tap-highlight-color: transparent;
 }
@@ -213,6 +217,7 @@ html {
   overflow: hidden;
   background-color: var(--bg);
   color: var(--text);
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -225,6 +230,21 @@ body {
   overflow: hidden;
   overscroll-behavior: none;
   -webkit-overflow-scrolling: touch;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Allow text selection where users legitimately need it */
+input, textarea, [contenteditable='true'], pre, code, .selectable-text {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+/* Prevent blue focus outline on mouse/touch clicks while preserving keyboard focus-visible accessibility */
+:focus:not(:focus-visible) {
+  outline: none;
 }
 
 /* Noise grain overlay */
@@ -299,6 +319,7 @@ main {
   top: 0;
   z-index: 100;
   height: 64px;
+  flex-shrink: 0;
   box-sizing: border-box;
   padding: 0;
   display: flex;
@@ -469,11 +490,11 @@ main {
 }
 
 .header-menu-label {
-  font-size: 0.5625rem;
+  font-size: 0.75rem;
   font-weight: 600;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: var(--text-dim);
   padding-left: var(--space-1);
 }
 
@@ -1046,6 +1067,7 @@ main {
   cursor: pointer;
   transition: background 150ms ease, color 150ms ease;
   user-select: none;
+  white-space: nowrap;
 }
 
 .game-pill-btn:last-child {
