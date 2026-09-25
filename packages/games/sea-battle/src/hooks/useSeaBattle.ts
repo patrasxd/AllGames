@@ -1,11 +1,5 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
-import type {
-  SeaBattleDifficulty,
-  SeaBattleMode,
-  PlayerGridState,
-  GamePhase,
-  PlacedShip,
-} from '../types'
+import { useState, useCallback, useRef } from 'react'
+import type { SeaBattleDifficulty, SeaBattleMode, PlayerGridState, GamePhase, PlacedShip } from '../types'
 import { autoPlaceFleet, processShot, createEmptyGrid } from '../logic'
 import { getAIMove } from '../ai'
 
@@ -149,7 +143,7 @@ export function useSeaBattle(options?: { isEink?: boolean }) {
         turnTimerRef.current = null
       }
     },
-    [difficulty, mode, clearTurnCountdown]
+    [difficulty, mode, clearTurnCountdown],
   )
 
   const setDifficulty = useCallback(
@@ -158,7 +152,7 @@ export function useSeaBattle(options?: { isEink?: boolean }) {
       saveDifficulty(d)
       resetGame(d, mode)
     },
-    [mode, resetGame]
+    [mode, resetGame],
   )
 
   const changeMode = useCallback(
@@ -167,7 +161,7 @@ export function useSeaBattle(options?: { isEink?: boolean }) {
       saveMode(m)
       resetGame(difficulty, m)
     },
-    [difficulty, resetGame]
+    [difficulty, resetGame],
   )
 
   const autoDeployCurrent = useCallback(() => {
@@ -201,7 +195,7 @@ export function useSeaBattle(options?: { isEink?: boolean }) {
       }
 
       turnTimerRef.current = window.setInterval(() => {
-        setTurnCountdown(prev => {
+        setTurnCountdown((prev) => {
           if (prev === null || prev <= 1) {
             window.clearInterval(turnTimerRef.current ?? undefined)
             turnTimerRef.current = null
@@ -224,7 +218,7 @@ export function useSeaBattle(options?: { isEink?: boolean }) {
       }
 
       turnTimerRef.current = window.setInterval(() => {
-        setTurnCountdown(prev => {
+        setTurnCountdown((prev) => {
           if (prev === null || prev <= 1) {
             window.clearInterval(turnTimerRef.current ?? undefined)
             turnTimerRef.current = null
@@ -249,11 +243,11 @@ export function useSeaBattle(options?: { isEink?: boolean }) {
     const delay = isEink ? 150 : 650
 
     aiTimerRef.current = window.setTimeout(() => {
-      setP1State(prevP1 => {
+      setP1State((prevP1) => {
         const [ar, ac] = getAIMove(prevP1.grid, difficulty)
         const shotResult = processShot(prevP1, ar, ac)
 
-        if (shotResult.nextState.ships.every(s => s.isSunk)) {
+        if (shotResult.nextState.ships.every((s) => s.isSunk)) {
           setWinner('p2')
           setIsAIThinking(false)
           return shotResult.nextState
@@ -273,24 +267,27 @@ export function useSeaBattle(options?: { isEink?: boolean }) {
     }, delay)
   }, [winner, difficulty, isEink])
 
-  const beginTurnHandoff = useCallback((nextPlayer: 'p1' | 'p2') => {
-    clearTurnCountdown()
-    setPassDevicePlayer(nextPlayer)
-    setCurrentTurn(nextPlayer)
-    setTurnCountdown(5)
+  const beginTurnHandoff = useCallback(
+    (nextPlayer: 'p1' | 'p2') => {
+      clearTurnCountdown()
+      setPassDevicePlayer(nextPlayer)
+      setCurrentTurn(nextPlayer)
+      setTurnCountdown(5)
 
-    turnTimerRef.current = window.setInterval(() => {
-      setTurnCountdown(prev => {
-        if (prev === null || prev <= 1) {
-          window.clearInterval(turnTimerRef.current ?? undefined)
-          turnTimerRef.current = null
-          setPassDevicePlayer(null)
-          return null
-        }
-        return prev - 1
-      })
-    }, 1000)
-  }, [clearTurnCountdown])
+      turnTimerRef.current = window.setInterval(() => {
+        setTurnCountdown((prev) => {
+          if (prev === null || prev <= 1) {
+            window.clearInterval(turnTimerRef.current ?? undefined)
+            turnTimerRef.current = null
+            setPassDevicePlayer(null)
+            return null
+          }
+          return prev - 1
+        })
+      }, 1000)
+    },
+    [clearTurnCountdown],
+  )
 
   const handleFire = useCallback(
     (row: number, col: number) => {
@@ -305,11 +302,11 @@ export function useSeaBattle(options?: { isEink?: boolean }) {
 
       if (currentTurn === 'p1') {
         setP2State(shotResult.nextState)
-        setP1Shots(s => s + 1)
-        if (shotResult.hit) setP1Hits(h => h + 1)
+        setP1Shots((s) => s + 1)
+        if (shotResult.hit) setP1Hits((h) => h + 1)
 
         // Check if player 1 won
-        if (shotResult.nextState.ships.every(s => s.isSunk)) {
+        if (shotResult.nextState.ships.every((s) => s.isSunk)) {
           setWinner('p1')
           clearTurnCountdown()
 
@@ -336,7 +333,7 @@ export function useSeaBattle(options?: { isEink?: boolean }) {
         // Player 2 (Human in 2P mode)
         setP1State(shotResult.nextState)
 
-        if (shotResult.nextState.ships.every(s => s.isSunk)) {
+        if (shotResult.nextState.ships.every((s) => s.isSunk)) {
           setWinner('p2')
           clearTurnCountdown()
           return
@@ -347,7 +344,21 @@ export function useSeaBattle(options?: { isEink?: boolean }) {
         }
       }
     },
-    [phase, winner, isAIThinking, turnCountdown, currentTurn, p1State, p2State, mode, p1Shots, difficulty, executeAIMove, beginTurnHandoff, clearTurnCountdown]
+    [
+      phase,
+      winner,
+      isAIThinking,
+      turnCountdown,
+      currentTurn,
+      p1State,
+      p2State,
+      mode,
+      p1Shots,
+      difficulty,
+      executeAIMove,
+      beginTurnHandoff,
+      clearTurnCountdown,
+    ],
   )
 
   const resetBest = useCallback(() => {

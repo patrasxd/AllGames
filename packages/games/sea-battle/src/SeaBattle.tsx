@@ -5,20 +5,8 @@ import { Grid10x10 } from './components/Grid10x10'
 import { PlacementControls } from './components/PlacementControls'
 import type { GameComponentProps, SeaBattleDifficulty, SeaBattleMode } from './types'
 import { seaBattleTranslations } from './i18n'
-import {
-  BoardLayout,
-  ConfirmDialog,
-  Button,
-  PillGroup,
-  ControlsBar,
-  StatsHeader,
-  ModeSelect,
-} from '@all/ui'
-import {
-  GameResultOverlay,
-  ComputerIcon,
-  TwoPlayersIcon,
-} from '@allgames/ui'
+import { BoardLayout, ConfirmDialog, Button, PillGroup, ControlsBar, StatsHeader, ModeSelect } from '@all/ui'
+import { GameResultOverlay, ComputerIcon, TwoPlayersIcon } from '@allgames/ui'
 import './styles/sea-battle.css'
 
 const DIFFICULTIES: SeaBattleDifficulty[] = ['easy', 'medium', 'hard']
@@ -59,11 +47,10 @@ export function SeaBattle({ setHeader, setIsActive, locale = 'en', isEink = fals
 
   // Active game session condition for leave confirmation and status
   const isBattleActive =
-    (phase === 'battle' ||
-      (phase === 'placement' && (p1State.ships.length > 0 || p2State.ships.length > 0))) &&
+    (phase === 'battle' || (phase === 'placement' && (p1State.ships.length > 0 || p2State.ships.length > 0))) &&
     winner === null
 
-  const p2Hits = p1State.grid.flat().filter(c => c === 'hit' || c === 'sunk').length
+  const p2Hits = p1State.grid.flat().filter((c) => c === 'hit' || c === 'sunk').length
 
   // Notify shell of active game session (triggers shell leave confirmation dialog)
   useEffect(() => {
@@ -97,7 +84,7 @@ export function SeaBattle({ setHeader, setIsActive, locale = 'en', isEink = fals
             { key: 'p1', label: 'P1', value: `${p1Hits}/20` },
             { key: 'p2', label: 'P2', value: `${p2Hits}/20` },
           ]}
-        />
+        />,
       )
       return
     }
@@ -113,7 +100,7 @@ export function SeaBattle({ setHeader, setIsActive, locale = 'en', isEink = fals
         onReset={bestShots !== null ? resetBest : undefined}
         resetAriaLabel={t.resetStatsAria}
         resetId="bs-reset-best-btn"
-      />
+      />,
     )
   }, [setHeader, hasChosenMode, phase, mode, p1Shots, p1Hits, bestShots, p2Hits, t, resetBest])
 
@@ -185,10 +172,10 @@ export function SeaBattle({ setHeader, setIsActive, locale = 'en', isEink = fals
     passDevicePlayer === 'p1'
       ? t.player1
       : passDevicePlayer === 'p2'
-      ? t.player2
-      : currentTurn === 'p1'
-      ? t.player1
-      : t.player2
+        ? t.player2
+        : currentTurn === 'p1'
+          ? t.player1
+          : t.player2
   const isPassDeviceVisible = passDevicePlayer !== null && turnCountdown !== null
 
   return (
@@ -236,9 +223,7 @@ export function SeaBattle({ setHeader, setIsActive, locale = 'en', isEink = fals
                 !isPassDeviceVisible ? (
                   <div className="bs-status">
                     <div className="bs-status-text">
-                      {mode === '2p' && activePlacementPlayer === 'p2'
-                        ? t.player2Fleet
-                        : t.placementPhase}
+                      {mode === '2p' && activePlacementPlayer === 'p2' ? t.player2Fleet : t.placementPhase}
                     </div>
                     <div className="bs-status-sub">{t.placementDesc}</div>
                   </div>
@@ -298,29 +283,29 @@ export function SeaBattle({ setHeader, setIsActive, locale = 'en', isEink = fals
                             : t.youLost
                           : t.playerWon(winner === 'p1' ? t.player1 : t.player2)
                         : turnCountdown !== null
-                        ? `${t.passDevice} ${handoffPlayerLabel}`
-                        : isAIThinking
-                        ? t.computerTurn
-                        : lastShotInfo
-                        ? lastShotInfo.sunkShip
-                          ? t.hitAndSunk(lastShotInfo.sunkShip.name)
-                          : lastShotInfo.hit
-                          ? t.hit
-                          : t.miss
-                        : mode === 'ai'
-                        ? t.yourTurn
-                        : currentTurn === 'p1'
-                        ? t.player1Turn
-                        : t.player2Turn}
+                          ? `${t.passDevice} ${handoffPlayerLabel}`
+                          : isAIThinking
+                            ? t.computerTurn
+                            : lastShotInfo
+                              ? lastShotInfo.sunkShip
+                                ? t.hitAndSunk(lastShotInfo.sunkShip.name)
+                                : lastShotInfo.hit
+                                  ? t.hit
+                                  : t.miss
+                              : mode === 'ai'
+                                ? t.yourTurn
+                                : currentTurn === 'p1'
+                                  ? t.player1Turn
+                                  : t.player2Turn}
                     </div>
                     <div className="bs-status-sub">
                       {winner !== null
                         ? `${t.shots}: ${p1Shots}`
                         : turnCountdown !== null
-                        ? `${t.nextTurnIn} ${turnCountdown}s`
-                        : mode === 'ai'
-                        ? `${t.difficultyLabel}: ${difficulty.toUpperCase()}`
-                        : `${t.player1Turn} vs ${t.player2Turn}`}
+                          ? `${t.nextTurnIn} ${turnCountdown}s`
+                          : mode === 'ai'
+                            ? `${t.difficultyLabel}: ${difficulty.toUpperCase()}`
+                            : `${t.player1Turn} vs ${t.player2Turn}`}
                     </div>
                   </div>
                 ) : undefined
@@ -360,21 +345,11 @@ export function SeaBattle({ setHeader, setIsActive, locale = 'en', isEink = fals
               controls={
                 !isPassDeviceVisible ? (
                   <ControlsBar>
-                    <Button
-                      id="bs-new-game-btn"
-                      variant="primary"
-                      size="sm"
-                      onClick={handleNewGameClick}
-                    >
+                    <Button id="bs-new-game-btn" variant="primary" size="sm" onClick={handleNewGameClick}>
                       {t.newGame}
                     </Button>
 
-                    <Button
-                      id="bs-change-mode-btn"
-                      variant="secondary"
-                      size="sm"
-                      onClick={handleChangeModeClick}
-                    >
+                    <Button id="bs-change-mode-btn" variant="secondary" size="sm" onClick={handleChangeModeClick}>
                       {t.changeMode}
                     </Button>
 
@@ -382,7 +357,7 @@ export function SeaBattle({ setHeader, setIsActive, locale = 'en', isEink = fals
                       <PillGroup<SeaBattleDifficulty>
                         label={t.difficultyLabel}
                         size="sm"
-                        options={DIFFICULTIES.map(d => ({
+                        options={DIFFICULTIES.map((d) => ({
                           value: d,
                           label: d === 'easy' ? t.easy : d === 'medium' ? t.medium : t.hard,
                           id: `bs-diff-${d}`,
@@ -438,8 +413,8 @@ export function SeaBattle({ setHeader, setIsActive, locale = 'en', isEink = fals
                 pendingAction?.type === 'difficulty'
                   ? t.confirmDifficultyDesc
                   : pendingAction?.type === 'newGame'
-                  ? t.confirmNewGameDesc
-                  : t.confirmModeDesc
+                    ? t.confirmNewGameDesc
+                    : t.confirmModeDesc
               }
               confirmLabel={pendingAction?.type === 'newGame' ? t.newGame : t.confirmBtn}
               cancelLabel={t.cancelBtn}

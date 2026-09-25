@@ -50,21 +50,11 @@ export const GameStartOverlay = memo(function GameStartOverlay({
         {children}
         <div className="gr-actions">
           {secondaryAction && (
-            <Button
-              id={secondaryAction.id}
-              variant="secondary"
-              size="sm"
-              onClick={secondaryAction.onClick}
-            >
+            <Button id={secondaryAction.id} variant="secondary" size="sm" onClick={secondaryAction.onClick}>
               {secondaryAction.label}
             </Button>
           )}
-          <Button
-            id={startId}
-            variant="primary"
-            size="sm"
-            onClick={onStart}
-          >
+          <Button id={startId} variant="primary" size="sm" onClick={onStart}>
             {startText}
           </Button>
         </div>

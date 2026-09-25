@@ -41,7 +41,7 @@ export function WingRush({ setHeader, locale = 'en', isEink = false, theme = 'da
             value: DIFF_SHORT[difficulty],
           },
         ]}
-      />
+      />,
     )
   }, [setHeader, t, bestScore, difficulty])
 
@@ -63,7 +63,7 @@ export function WingRush({ setHeader, locale = 'en', isEink = false, theme = 'da
             size="sm"
             value={difficulty}
             onChange={changeDifficulty}
-            options={(['easy', 'normal', 'hard'] as Difficulty[]).map(diff => ({
+            options={(['easy', 'normal', 'hard'] as Difficulty[]).map((diff) => ({
               value: diff,
               label: t.difficultyLabels[diff],
             }))}

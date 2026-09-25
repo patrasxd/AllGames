@@ -42,12 +42,7 @@ describe('solitaire solver', () => {
         color: (suit === 'hearts' || suit === 'diamonds' ? 'red' : 'black') as any,
         faceUp: true,
       }))
-    state.foundations = [
-      winCards('spades'),
-      winCards('hearts'),
-      winCards('clubs'),
-      winCards('diamonds'),
-    ]
+    state.foundations = [winCards('spades'), winCards('hearts'), winCards('clubs'), winCards('diamonds')]
     expect(isSolvable(state, 10)).toBe(true)
   })
 

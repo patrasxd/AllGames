@@ -16,14 +16,14 @@ interface BoardProps {
 
 // Win line coords in 300×300 viewBox
 const WIN_LINE_POSITIONS: Record<string, { x1: number; y1: number; x2: number; y2: number }> = {
-  '0,1,2': { x1: 10,  y1: 50,  x2: 290, y2: 50  },
-  '3,4,5': { x1: 10,  y1: 150, x2: 290, y2: 150 },
-  '6,7,8': { x1: 10,  y1: 250, x2: 290, y2: 250 },
-  '0,3,6': { x1: 50,  y1: 10,  x2: 50,  y2: 290 },
-  '1,4,7': { x1: 150, y1: 10,  x2: 150, y2: 290 },
-  '2,5,8': { x1: 250, y1: 10,  x2: 250, y2: 290 },
-  '0,4,8': { x1: 10,  y1: 10,  x2: 290, y2: 290 },
-  '2,4,6': { x1: 290, y1: 10,  x2: 10,  y2: 290 },
+  '0,1,2': { x1: 10, y1: 50, x2: 290, y2: 50 },
+  '3,4,5': { x1: 10, y1: 150, x2: 290, y2: 150 },
+  '6,7,8': { x1: 10, y1: 250, x2: 290, y2: 250 },
+  '0,3,6': { x1: 50, y1: 10, x2: 50, y2: 290 },
+  '1,4,7': { x1: 150, y1: 10, x2: 150, y2: 290 },
+  '2,5,8': { x1: 250, y1: 10, x2: 250, y2: 290 },
+  '0,4,8': { x1: 10, y1: 10, x2: 290, y2: 290 },
+  '2,4,6': { x1: 290, y1: 10, x2: 10, y2: 290 },
 }
 
 function WinLine({ line, isEink }: { line: [number, number, number]; isEink: boolean }) {
@@ -34,7 +34,15 @@ function WinLine({ line, isEink }: { line: [number, number, number]; isEink: boo
   if (isEink) {
     return (
       <svg className="ttt-win-line" viewBox="0 0 300 300" preserveAspectRatio="none" aria-hidden="true">
-        <line x1={pos.x1} y1={pos.y1} x2={pos.x2} y2={pos.y2} stroke="var(--all-text, var(--text, #ffffff))" strokeWidth={6} strokeLinecap="round" />
+        <line
+          x1={pos.x1}
+          y1={pos.y1}
+          x2={pos.x2}
+          y2={pos.y2}
+          stroke="var(--all-text, var(--text, #ffffff))"
+          strokeWidth={6}
+          strokeLinecap="round"
+        />
       </svg>
     )
   }
@@ -42,8 +50,10 @@ function WinLine({ line, isEink }: { line: [number, number, number]; isEink: boo
   return (
     <svg className="ttt-win-line" viewBox="0 0 300 300" preserveAspectRatio="none" aria-hidden="true">
       <motion.line
-        x1={pos.x1} y1={pos.y1}
-        x2={pos.x2} y2={pos.y2}
+        x1={pos.x1}
+        y1={pos.y1}
+        x2={pos.x2}
+        y2={pos.y2}
         stroke="var(--all-text, var(--text, #ffffff))"
         strokeWidth={6}
         strokeLinecap="round"
@@ -65,10 +75,34 @@ function GridLines({ isEink }: { isEink: boolean }) {
   if (isEink) {
     return (
       <svg className="ttt-grid" viewBox="0 0 3 3" preserveAspectRatio="none" aria-hidden="true">
-        <path d="M 1 0.05 Q 1.02 1.5 1 2.95" stroke={strokeColor} strokeWidth="0.04" strokeLinecap="round" fill="none" />
-        <path d="M 2 0.05 Q 2.01 1.5 2 2.95" stroke={strokeColor} strokeWidth="0.04" strokeLinecap="round" fill="none" />
-        <path d="M 0.05 1 Q 1.5 1.02 2.95 1" stroke={strokeColor} strokeWidth="0.04" strokeLinecap="round" fill="none" />
-        <path d="M 0.05 2 Q 1.5 2.01 2.95 2" stroke={strokeColor} strokeWidth="0.04" strokeLinecap="round" fill="none" />
+        <path
+          d="M 1 0.05 Q 1.02 1.5 1 2.95"
+          stroke={strokeColor}
+          strokeWidth="0.04"
+          strokeLinecap="round"
+          fill="none"
+        />
+        <path
+          d="M 2 0.05 Q 2.01 1.5 2 2.95"
+          stroke={strokeColor}
+          strokeWidth="0.04"
+          strokeLinecap="round"
+          fill="none"
+        />
+        <path
+          d="M 0.05 1 Q 1.5 1.02 2.95 1"
+          stroke={strokeColor}
+          strokeWidth="0.04"
+          strokeLinecap="round"
+          fill="none"
+        />
+        <path
+          d="M 0.05 2 Q 1.5 2.01 2.95 2"
+          stroke={strokeColor}
+          strokeWidth="0.04"
+          strokeLinecap="round"
+          fill="none"
+        />
       </svg>
     )
   }

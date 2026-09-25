@@ -9,14 +9,8 @@ interface SudokuBoardProps {
   onSelectCell: (row: number, col: number) => void
 }
 
-export const SudokuBoard = memo(function SudokuBoard({
-  board,
-  selectedCell,
-  isEink,
-  onSelectCell,
-}: SudokuBoardProps) {
-  const selectedValue =
-    selectedCell !== null ? board[selectedCell[0]][selectedCell[1]].value : null
+export const SudokuBoard = memo(function SudokuBoard({ board, selectedCell, isEink, onSelectCell }: SudokuBoardProps) {
+  const selectedValue = selectedCell !== null ? board[selectedCell[0]][selectedCell[1]].value : null
 
   return (
     <div className="sdk-board-wrapper">
@@ -33,10 +27,7 @@ export const SudokuBoard = memo(function SudokuBoard({
                 (Math.floor(selectedCell[0] / 3) === Math.floor(r / 3) &&
                   Math.floor(selectedCell[1] / 3) === Math.floor(c / 3)))
 
-            const isSameNumber =
-              selectedValue !== null &&
-              !isSelected &&
-              cell.value === selectedValue
+            const isSameNumber = selectedValue !== null && !isSelected && cell.value === selectedValue
 
             return (
               <SudokuCell
@@ -49,7 +40,7 @@ export const SudokuBoard = memo(function SudokuBoard({
                 onClick={() => onSelectCell(r, c)}
               />
             )
-          })
+          }),
         )}
       </div>
     </div>

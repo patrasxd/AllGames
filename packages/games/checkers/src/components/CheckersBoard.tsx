@@ -23,7 +23,7 @@ export function CheckersBoard({
   onSquareClick,
 }: CheckersBoardProps) {
   const t = checkersTranslations[locale] || checkersTranslations.en
-  const validDestinations = new Set(validMoves.map(m => `${m.to.row},${m.to.col}`))
+  const validDestinations = new Set(validMoves.map((m) => `${m.to.row},${m.to.col}`))
 
   return (
     <div className="checkers-board-wrapper">
@@ -45,26 +45,16 @@ export function CheckersBoard({
                   isSelected ? 'checkers-square--selected' : ''
                 } ${isValidDestination ? 'checkers-square--target' : ''}`}
                 onClick={() => onSquareClick(row, col)}
-                aria-label={t.squareAria(
-                  row,
-                  col,
-                  piece ? `${piece.color} ${piece.isKing ? 'king' : 'piece'}` : ''
-                )}
+                aria-label={t.squareAria(row, col, piece ? `${piece.color} ${piece.isKing ? 'king' : 'piece'}` : '')}
                 id={`checkers-sq-${row}-${col}`}
               >
                 {/* Target move indicator dot */}
                 {isValidDestination && <span className="checkers-target-dot" aria-hidden="true" />}
 
-                {piece && (
-                  <CheckersPiece
-                    piece={piece}
-                    isSelected={isSelected}
-                    isEink={isEink}
-                  />
-                )}
+                {piece && <CheckersPiece piece={piece} isSelected={isSelected} isEink={isEink} />}
               </button>
             )
-          })
+          }),
         )}
       </div>
     </div>

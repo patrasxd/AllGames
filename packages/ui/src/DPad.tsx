@@ -61,11 +61,7 @@ export function DPad({
 
   if (variant === 'cross') {
     return (
-      <nav
-        className={`game-dpad game-dpad--cross ${className}`.trim()}
-        aria-label={ariaLabel}
-        role="group"
-      >
+      <nav className={`game-dpad game-dpad--cross ${className}`.trim()} aria-label={ariaLabel} role="group">
         <button
           type="button"
           id="dpad-up"
@@ -125,11 +121,7 @@ export function DPad({
 
   // Compact inverted-T layout (Default)
   return (
-    <nav
-      className={`game-dpad game-dpad--compact ${className}`.trim()}
-      aria-label={ariaLabel}
-      role="group"
-    >
+    <nav className={`game-dpad game-dpad--compact ${className}`.trim()} aria-label={ariaLabel} role="group">
       <div className="game-dpad-row game-dpad-row--top">
         <button
           type="button"

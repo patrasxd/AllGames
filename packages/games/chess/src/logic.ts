@@ -25,7 +25,7 @@ export function createInitialChessBoard(): ChessBoardState {
 }
 
 export function cloneChessBoard(board: ChessBoardState): ChessBoardState {
-  return board.map(row => row.map(cell => (cell ? { ...cell } : null)))
+  return board.map((row) => row.map((cell) => (cell ? { ...cell } : null)))
 }
 
 export function isInsideBoard(r: number, c: number): boolean {
@@ -63,8 +63,14 @@ export function isSquareAttacked(board: ChessBoardState, target: SquareCoord, by
 
   // 2. Knight attacks
   const knightOffsets = [
-    [-2, -1], [-2, 1], [-1, -2], [-1, 2],
-    [1, -2], [1, 2], [2, -1], [2, 1]
+    [-2, -1],
+    [-2, 1],
+    [-1, -2],
+    [-1, 2],
+    [1, -2],
+    [1, 2],
+    [2, -1],
+    [2, 1],
   ]
   for (const [dr, dc] of knightOffsets) {
     const kr = target.row + dr
@@ -76,7 +82,12 @@ export function isSquareAttacked(board: ChessBoardState, target: SquareCoord, by
   }
 
   // 3. Bishop / Queen diagonal rays
-  const diagDirs = [[-1, -1], [-1, 1], [1, -1], [1, 1]]
+  const diagDirs = [
+    [-1, -1],
+    [-1, 1],
+    [1, -1],
+    [1, 1],
+  ]
   for (const [dr, dc] of diagDirs) {
     let step = 1
     while (true) {
@@ -93,7 +104,12 @@ export function isSquareAttacked(board: ChessBoardState, target: SquareCoord, by
   }
 
   // 4. Rook / Queen straight rays
-  const straightDirs = [[-1, 0], [1, 0], [0, -1], [0, 1]]
+  const straightDirs = [
+    [-1, 0],
+    [1, 0],
+    [0, -1],
+    [0, 1],
+  ]
   for (const [dr, dc] of straightDirs) {
     let step = 1
     while (true) {
@@ -138,7 +154,7 @@ export function isKingInCheck(board: ChessBoardState, color: PieceColor): boolea
 export function getPseudoLegalMoves(
   board: ChessBoardState,
   from: SquareCoord,
-  enPassantTarget: SquareCoord | null
+  enPassantTarget: SquareCoord | null,
 ): ChessMove[] {
   const piece = board[from.row][from.col]
   if (!piece) return []
@@ -192,8 +208,14 @@ export function getPseudoLegalMoves(
 
     case 'knight': {
       const knightOffsets = [
-        [-2, -1], [-2, 1], [-1, -2], [-1, 2],
-        [1, -2], [1, 2], [2, -1], [2, 1]
+        [-2, -1],
+        [-2, 1],
+        [-1, -2],
+        [-1, 2],
+        [1, -2],
+        [1, 2],
+        [2, -1],
+        [2, 1],
       ]
       for (const [dr, dc] of knightOffsets) {
         const tr = row + dr
@@ -265,7 +287,10 @@ export function getPseudoLegalMoves(
         const kingsideRook = board[row][7]
         if (kingsideRook && kingsideRook.type === 'rook' && !kingsideRook.hasMoved) {
           if (!board[row][5] && !board[row][6]) {
-            if (!isSquareAttacked(board, { row, col: 5 }, opponent) && !isSquareAttacked(board, { row, col: 6 }, opponent)) {
+            if (
+              !isSquareAttacked(board, { row, col: 5 }, opponent) &&
+              !isSquareAttacked(board, { row, col: 6 }, opponent)
+            ) {
               moves.push({ from, to: { row, col: 6 }, piece, isCastling: 'kingside' })
             }
           }
@@ -274,7 +299,10 @@ export function getPseudoLegalMoves(
         const queensideRook = board[row][0]
         if (queensideRook && queensideRook.type === 'rook' && !queensideRook.hasMoved) {
           if (!board[row][1] && !board[row][2] && !board[row][3]) {
-            if (!isSquareAttacked(board, { row, col: 2 }, opponent) && !isSquareAttacked(board, { row, col: 3 }, opponent)) {
+            if (
+              !isSquareAttacked(board, { row, col: 2 }, opponent) &&
+              !isSquareAttacked(board, { row, col: 3 }, opponent)
+            ) {
               moves.push({ from, to: { row, col: 2 }, piece, isCastling: 'queenside' })
             }
           }
@@ -325,7 +353,7 @@ export function applyChessMove(board: ChessBoardState, move: ChessMove) {
 export function getLegalMoves(
   board: ChessBoardState,
   playerColor: PieceColor,
-  enPassantTarget: SquareCoord | null
+  enPassantTarget: SquareCoord | null,
 ): ChessMove[] {
   const legal: ChessMove[] = []
 
@@ -362,12 +390,12 @@ const PIECE_VALUES: Record<PieceType, number> = {
 // Center control bonuses
 const CENTER_BONUS: number[][] = [
   [-10, -5, -5, -5, -5, -5, -5, -10],
-  [-5,   0,  0,  0,  0,  0,  0,  -5],
-  [-5,   0, 10, 15, 15, 10,  0,  -5],
-  [-5,   0, 15, 25, 25, 15,  0,  -5],
-  [-5,   0, 15, 25, 25, 15,  0,  -5],
-  [-5,   0, 10, 15, 15, 10,  0,  -5],
-  [-5,   0,  0,  0,  0,  0,  0,  -5],
+  [-5, 0, 0, 0, 0, 0, 0, -5],
+  [-5, 0, 10, 15, 15, 10, 0, -5],
+  [-5, 0, 15, 25, 25, 15, 0, -5],
+  [-5, 0, 15, 25, 25, 15, 0, -5],
+  [-5, 0, 10, 15, 15, 10, 0, -5],
+  [-5, 0, 0, 0, 0, 0, 0, -5],
   [-10, -5, -5, -5, -5, -5, -5, -10],
 ]
 
@@ -394,7 +422,7 @@ function evaluateChessBoard(board: ChessBoardState): number {
 export function getBestChessAIMove(
   board: ChessBoardState,
   enPassantTarget: SquareCoord | null,
-  difficulty: 'easy' | 'medium' | 'hard' = 'medium'
+  difficulty: 'easy' | 'medium' | 'hard' = 'medium',
 ): ChessMove | null {
   const legalMoves = getLegalMoves(board, 'black', enPassantTarget)
   if (legalMoves.length === 0) return null
@@ -431,7 +459,7 @@ function minimaxChess(
   depth: number,
   alpha: number,
   beta: number,
-  isMaximizing: boolean
+  isMaximizing: boolean,
 ): number {
   if (depth === 0) return evaluateChessBoard(board)
 

@@ -106,8 +106,8 @@ describe('2048 logic unit tests', () => {
     expect(res.moved).toBe(true)
     expect(res.scoreGained).toBe(0)
     expect(res.tiles.length).toBe(2)
-    expect(res.tiles.find(t => t.value === 2)?.col).toBe(0)
-    expect(res.tiles.find(t => t.value === 4)?.col).toBe(1)
+    expect(res.tiles.find((t) => t.value === 2)?.col).toBe(0)
+    expect(res.tiles.find((t) => t.value === 4)?.col).toBe(1)
   })
 
   it('evaluates hasMovesAvailable correctly', () => {

@@ -106,7 +106,7 @@ describe('Checkers logic', () => {
 
     // King can move backwards
     const kingMoves = getSimpleMovesForPiece(board, { row: 0, col: 1 })
-    expect(kingMoves.some(m => m.to.row === 1)).toBe(true)
+    expect(kingMoves.some((m) => m.to.row === 1)).toBe(true)
   })
 
   it('detects consecutive / multi-jumps', () => {

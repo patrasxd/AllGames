@@ -1,9 +1,6 @@
 import type { SeaBattleDifficulty, CellState } from './types'
 
-export function getAIMove(
-  grid: CellState[][],
-  difficulty: SeaBattleDifficulty
-): [number, number] {
+export function getAIMove(grid: CellState[][], difficulty: SeaBattleDifficulty): [number, number] {
   const unrevealed: [number, number][] = []
   const activeHits: [number, number][] = []
 
@@ -76,7 +73,12 @@ export function getAIMove(
 
   // Standard Target Mode: Adjacent neighbors of any hit
   const adjacentCandidates: [number, number][] = []
-  const deltas = [[-1, 0], [1, 0], [0, -1], [0, 1]]
+  const deltas = [
+    [-1, 0],
+    [1, 0],
+    [0, -1],
+    [0, 1],
+  ]
 
   for (const [hr, hc] of activeHits) {
     for (const [dr, dc] of deltas) {

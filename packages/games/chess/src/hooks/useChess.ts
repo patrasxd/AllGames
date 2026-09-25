@@ -117,11 +117,14 @@ export function useChess(options?: { isEink?: boolean }) {
     setIsAIThinking(false)
   }, [])
 
-  const setDifficulty = useCallback((d: ChessDifficulty) => {
-    setDifficultyState(d)
-    saveDifficulty(d)
-    resetGame()
-  }, [resetGame])
+  const setDifficulty = useCallback(
+    (d: ChessDifficulty) => {
+      setDifficultyState(d)
+      saveDifficulty(d)
+      resetGame()
+    },
+    [resetGame],
+  )
 
   // King check status
   const inCheck: PieceColor | null = isKingInCheck(board, turn) ? turn : null
@@ -131,22 +134,22 @@ export function useChess(options?: { isEink?: boolean }) {
 
   // Valid moves for currently selected square
   const validMovesForSelected: ChessMove[] = selectedCoord
-    ? legalMoves.filter(m => m.from.row === selectedCoord.row && m.from.col === selectedCoord.col)
+    ? legalMoves.filter((m) => m.from.row === selectedCoord.row && m.from.col === selectedCoord.col)
     : []
 
   const recordWin = useCallback(
     (w: PieceColor | 'draw') => {
       if (mode === 'ai') {
-        setAIStats(s => {
+        setAIStats((s) => {
           const updated = { ...s, [w]: s[w] + 1 }
           saveAIStats(updated)
           return updated
         })
       } else {
-        setSessionStats(s => ({ ...s, [w]: s[w] + 1 }))
+        setSessionStats((s) => ({ ...s, [w]: s[w] + 1 }))
       }
     },
-    [mode]
+    [mode],
   )
 
   // Execute a completed move and update board & game state
@@ -186,7 +189,7 @@ export function useChess(options?: { isEink?: boolean }) {
         setTurn(nextPlayer)
       }
     },
-    [board, turn, recordWin]
+    [board, turn, recordWin],
   )
 
   // AI Move calculation effect
@@ -237,9 +240,7 @@ export function useChess(options?: { isEink?: boolean }) {
 
       // If clicking on a valid destination square
       if (selectedCoord) {
-        const matchingMove = validMovesForSelected.find(
-          m => m.to.row === row && m.to.col === col
-        )
+        const matchingMove = validMovesForSelected.find((m) => m.to.row === row && m.to.col === col)
 
         if (matchingMove) {
           // Check if move requires pawn promotion choice
@@ -262,7 +263,7 @@ export function useChess(options?: { isEink?: boolean }) {
         setSelectedCoord(null)
       }
     },
-    [winner, isAIThinking, pendingPromotion, mode, turn, board, selectedCoord, validMovesForSelected, executeMove]
+    [winner, isAIThinking, pendingPromotion, mode, turn, board, selectedCoord, validMovesForSelected, executeMove],
   )
 
   const choosePromotion = useCallback(
@@ -274,7 +275,7 @@ export function useChess(options?: { isEink?: boolean }) {
       }
       executeMove(move)
     },
-    [pendingPromotion, executeMove]
+    [pendingPromotion, executeMove],
   )
 
   const changeMode = useCallback((newMode: ChessGameMode) => {

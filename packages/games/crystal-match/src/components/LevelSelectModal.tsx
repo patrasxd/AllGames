@@ -25,15 +25,9 @@ export const LevelSelectModal = memo(function LevelSelectModal({
   const levels = Array.from({ length: maxDisplayLevel }, (_, i) => i + 1)
 
   return (
-    <Dialog
-      isOpen={isOpen}
-      onClose={onClose}
-      title={title}
-      maxWidth="md"
-      className="cm-dialog"
-    >
+    <Dialog isOpen={isOpen} onClose={onClose} title={title} maxWidth="md" className="cm-dialog">
       <div className="cm-level-grid">
-        {levels.map(lvl => {
+        {levels.map((lvl) => {
           const isUnlocked = lvl <= progress.unlockedLevel
           const isCurrent = lvl === currentLevel
           const stars = progress.levelStars[lvl] || 0
@@ -54,9 +48,7 @@ export const LevelSelectModal = memo(function LevelSelectModal({
               disabled={!isUnlocked}
               aria-label={`Level ${lvl}${isUnlocked ? ` - ${stars} stars` : ' locked'}`}
             >
-              <div className="cm-level-num">
-                {isUnlocked ? lvl : <LockIcon />}
-              </div>
+              <div className="cm-level-num">{isUnlocked ? lvl : <LockIcon />}</div>
 
               {isUnlocked && (
                 <div className="cm-level-stars">
@@ -66,9 +58,7 @@ export const LevelSelectModal = memo(function LevelSelectModal({
                 </div>
               )}
 
-              {isUnlocked && highScore && (
-                <div className="cm-level-score">{highScore}</div>
-              )}
+              {isUnlocked && highScore && <div className="cm-level-score">{highScore}</div>}
             </button>
           )
         })}

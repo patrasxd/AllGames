@@ -95,7 +95,9 @@
 }
 
 @media (max-width: 420px) {
-  .ttt-mode-options { grid-template-columns: 1fr; }
+  .ttt-mode-options {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* ─── Compact Stats — rendered in page header ─────────────── */
@@ -135,9 +137,15 @@
   line-height: 1;
 }
 
-.ttt-stats-header-value--win  { color: var(--text); }
-.ttt-stats-header-value--draw { color: var(--text-dim); }
-.ttt-stats-header-value--loss { color: var(--text-muted); }
+.ttt-stats-header-value--win {
+  color: var(--text);
+}
+.ttt-stats-header-value--draw {
+  color: var(--text-dim);
+}
+.ttt-stats-header-value--loss {
+  color: var(--text-muted);
+}
 
 .ttt-stats-header-key {
   font-size: 0.5rem;
@@ -166,7 +174,9 @@
   line-height: 1;
   margin-left: 0.25rem;
   margin-top: -0.25rem;
-  transition: color 150ms ease, border-color 150ms ease;
+  transition:
+    color 150ms ease,
+    border-color 150ms ease;
   align-self: flex-start;
 }
 

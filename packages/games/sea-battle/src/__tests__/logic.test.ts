@@ -1,11 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import {
-  createEmptyGrid,
-  canPlaceShip,
-  autoPlaceFleet,
-  processShot,
-  STANDARD_FLEET,
-} from '../logic'
+import { createEmptyGrid, canPlaceShip, autoPlaceFleet, processShot, STANDARD_FLEET } from '../logic'
 import type { PlayerGridState } from '../types'
 
 describe('battleship logic', () => {
@@ -13,7 +7,7 @@ describe('battleship logic', () => {
     const grid = createEmptyGrid()
     expect(grid).toHaveLength(10)
     expect(grid[0]).toHaveLength(10)
-    expect(grid.every(row => row.every(cell => cell === 'empty'))).toBe(true)
+    expect(grid.every((row) => row.every((cell) => cell === 'empty'))).toBe(true)
   })
 
   it('validates ship placement boundaries and buffer zones', () => {
@@ -38,7 +32,7 @@ describe('battleship logic', () => {
   it('autoPlaceFleet places all 10 standard ships', () => {
     const { ships, grid } = autoPlaceFleet()
     expect(ships).toHaveLength(STANDARD_FLEET.length)
-    const shipCellCount = grid.flat().filter(c => c === 'ship').length
+    const shipCellCount = grid.flat().filter((c) => c === 'ship').length
     const expectedTotalSize = STANDARD_FLEET.reduce((sum, s) => sum + s.size, 0)
     expect(shipCellCount).toBe(expectedTotalSize)
   })

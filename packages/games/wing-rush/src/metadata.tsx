@@ -1,5 +1,4 @@
 import React from 'react'
-import type { GameComponentProps } from './types'
 export interface GameMetadata {
   slug: string
   name: { en: string; pl: string }

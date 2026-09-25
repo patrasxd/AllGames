@@ -1,10 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import {
-  createInitialBird,
-  stepBirdPhysics,
-  stepPipePosition,
-  DIFFICULTY_CONFIGS,
-} from '../logic/engine'
+import { createInitialBird, stepBirdPhysics, stepPipePosition, DIFFICULTY_CONFIGS } from '../logic/engine'
 import type { Pipe } from '../types'
 
 describe('Wing Rush Delta-Time Physics Scaling', () => {
@@ -22,12 +17,12 @@ describe('Wing Rush Delta-Time Physics Scaling', () => {
     const step2 = stepBirdPhysics(bird, config, 2.0)
     expect(step2.vy).toBeCloseTo(config.gravity * 2, 5)
     // vy = 0 + g*2, y = y0 + vy * 2 = y0 + 2*g*2 = y0 + 4*g
-    expect(step2.y).toBeCloseTo(bird.y + (config.gravity * 2) * 2, 5)
+    expect(step2.y).toBeCloseTo(bird.y + config.gravity * 2 * 2, 5)
 
     // Half frame at 120fps (dt = 0.5)
     const stepHalf = stepBirdPhysics(bird, config, 0.5)
     expect(stepHalf.vy).toBeCloseTo(config.gravity * 0.5, 5)
-    expect(stepHalf.y).toBeCloseTo(bird.y + (config.gravity * 0.5) * 0.5, 5)
+    expect(stepHalf.y).toBeCloseTo(bird.y + config.gravity * 0.5 * 0.5, 5)
 
     // Verify velocity change is directly proportional to dt
     expect(step2.vy / step1.vy).toBeCloseTo(2.0, 5)

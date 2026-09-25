@@ -31,14 +31,20 @@ function XMark({ isWinning, isEink }: { isWinning: boolean; isEink: boolean }) {
   return (
     <svg viewBox="0 0 80 80" width="60" height="60" aria-hidden="true">
       <motion.line
-        x1="18" y1="18" x2="62" y2="62"
+        x1="18"
+        y1="18"
+        x2="62"
+        y2="62"
         {...stroke}
         initial={{ pathLength: 0, opacity: 0 }}
         animate={{ pathLength: 1, opacity: 1 }}
         transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
       />
       <motion.line
-        x1="62" y1="18" x2="18" y2="62"
+        x1="62"
+        y1="18"
+        x2="18"
+        y2="62"
         {...stroke}
         initial={{ pathLength: 0, opacity: 0 }}
         animate={{ pathLength: 1, opacity: 1 }}
@@ -52,7 +58,9 @@ function XMark({ isWinning, isEink }: { isWinning: boolean; isEink: boolean }) {
  * SVG O mark — animated with stroke unless in E-ink mode.
  */
 function OMark({ isWinning, isEink }: { isWinning: boolean; isEink: boolean }) {
-  const color = isWinning ? 'var(--all-accent, var(--accent, #6366f1))' : 'var(--all-text-dim, var(--text-dim, #888888))'
+  const color = isWinning
+    ? 'var(--all-accent, var(--accent, #6366f1))'
+    : 'var(--all-text-dim, var(--text-dim, #888888))'
 
   if (isEink) {
     return (
@@ -65,7 +73,9 @@ function OMark({ isWinning, isEink }: { isWinning: boolean; isEink: boolean }) {
   return (
     <svg viewBox="0 0 80 80" width="60" height="60" aria-hidden="true">
       <motion.circle
-        cx="40" cy="40" r="24"
+        cx="40"
+        cy="40"
+        r="24"
         fill="none"
         stroke={color}
         strokeWidth={4}
@@ -79,15 +89,7 @@ function OMark({ isWinning, isEink }: { isWinning: boolean; isEink: boolean }) {
   )
 }
 
-export function GameCell({
-  value,
-  index,
-  isWinning,
-  canClick,
-  locale = 'en',
-  isEink = false,
-  onClick,
-}: CellProps) {
+export function GameCell({ value, index, isWinning, canClick, locale = 'en', isEink = false, onClick }: CellProps) {
   const t = gameTranslations[locale] || gameTranslations.en
 
   return (

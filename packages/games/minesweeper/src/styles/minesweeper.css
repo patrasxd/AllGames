@@ -70,7 +70,9 @@
   justify-content: center;
   color: var(--all-text, var(--text, #f0f0f5));
   cursor: pointer;
-  transition: transform 100ms ease, background 150ms ease;
+  transition:
+    transform 100ms ease,
+    background 150ms ease;
   user-select: none;
   padding: 0;
 }
@@ -122,7 +124,9 @@
   border-radius: 2px;
   color: var(--all-text-muted, var(--text-muted, #8b8b9e));
   cursor: pointer;
-  transition: background 150ms ease, color 150ms ease;
+  transition:
+    background 150ms ease,
+    color 150ms ease;
   padding: 0;
 }
 
@@ -180,7 +184,9 @@
   border-radius: 2px;
   margin: auto;
   transform-origin: center center;
-  transition: width 150ms ease, height 150ms ease;
+  transition:
+    width 150ms ease,
+    height 150ms ease;
 }
 
 /* ─── Individual Cells ────────────────────────────────────── */
@@ -224,7 +230,9 @@
 
 .ms-cell--hidden {
   background: var(--all-surface-2, var(--surface-2, #282834));
-  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.12), inset -1px -1px 0 rgba(0, 0, 0, 0.25);
+  box-shadow:
+    inset 1px 1px 0 rgba(255, 255, 255, 0.12),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.25);
 }
 
 .ms-cell--hidden:hover {
@@ -291,7 +299,9 @@
   text-transform: uppercase;
   color: var(--all-text-muted, var(--text-muted, #8b8b9e));
   cursor: pointer;
-  transition: background 150ms ease, color 150ms ease;
+  transition:
+    background 150ms ease,
+    color 150ms ease;
 }
 
 .ms-touch-btn:last-child {
@@ -311,7 +321,9 @@
 /* ─── Light Theme Overrides ───────────────────────────────── */
 [data-theme='light'] .ms-cell--hidden {
   background: var(--all-surface-2, #e5e7eb);
-  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.8), inset -1px -1px 0 rgba(0, 0, 0, 0.15);
+  box-shadow:
+    inset 1px 1px 0 rgba(255, 255, 255, 0.8),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.15);
 }
 
 [data-theme='light'] .ms-cell--hidden:hover {

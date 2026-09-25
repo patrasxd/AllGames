@@ -40,7 +40,8 @@ export const snakeTranslations = {
     dpadInactive: 'Off',
     settings: 'Settings',
     confirmResetTitle: 'Start new game?',
-    confirmMapDesc: 'Changing the map mode will end the current game. Your current score will be lost. Are you sure you want to proceed?',
+    confirmMapDesc:
+      'Changing the map mode will end the current game. Your current score will be lost. Are you sure you want to proceed?',
     confirmBtn: 'Change mode',
     cancelBtn: 'Cancel',
   },
@@ -85,9 +86,9 @@ export const snakeTranslations = {
     dpadInactive: 'Wyłączony',
     settings: 'Ustawienia',
     confirmResetTitle: 'Rozpocząć nową grę?',
-    confirmMapDesc: 'Zmiana mapy zakończy bieżącą rozgrywkę. Twój bieżący wynik zostanie utracony. Czy na pewno chcesz kontynuować?',
+    confirmMapDesc:
+      'Zmiana mapy zakończy bieżącą rozgrywkę. Twój bieżący wynik zostanie utracony. Czy na pewno chcesz kontynuować?',
     confirmBtn: 'Zmień tryb',
     cancelBtn: 'Anuluj',
   },
 } as const
-

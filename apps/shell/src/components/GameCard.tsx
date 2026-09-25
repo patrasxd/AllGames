@@ -3,8 +3,7 @@ import { motion } from 'framer-motion'
 import { useI18n } from '../i18n'
 import { getLocalizedText, getLocalizedTags } from '../types/game'
 import type { GameMetadata } from '../types/game'
-import { Badge } from '@allgames/ui'
-import { setLastActiveCardId } from '@all/ui'
+import { Badge, setLastActiveCardId } from '@all/ui'
 
 interface GameCardProps {
   metadata: GameMetadata
@@ -95,12 +94,7 @@ export function GameCard({ metadata, index, isReturning = false }: GameCardProps
         viewBox="0 0 300 220" matches the rendered card proportions.
         Perimeter = 2*(298+218) = 1032 — used as stroke-dasharray.
       */}
-      <svg
-        className="game-card-sketch-border"
-        viewBox="0 0 300 220"
-        preserveAspectRatio="none"
-        aria-hidden="true"
-      >
+      <svg className="game-card-sketch-border" viewBox="0 0 300 220" preserveAspectRatio="none" aria-hidden="true">
         <rect x="1" y="1" width="298" height="218" rx="3" />
       </svg>
 
@@ -114,13 +108,24 @@ export function GameCard({ metadata, index, isReturning = false }: GameCardProps
 
       <div className="game-card-footer">
         <div className="game-card-tags" aria-label={t.gameTagsAria}>
-          {tags.map(tag => (
-            <Badge key={tag} size="sm">{tag}</Badge>
+          {tags.map((tag) => (
+            <Badge key={tag} size="sm">
+              {tag}
+            </Badge>
           ))}
         </div>
         <span className="game-card-play" aria-hidden="true">
           {t.play}
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 12 12"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <path d="M2 6h8M6 2l4 4-4 4" />
           </svg>
         </span>

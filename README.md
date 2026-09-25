@@ -56,20 +56,20 @@ The application adheres to strict privacy and usability standards: zero third-pa
 
 AllGames features **12 fully playable games**, spanning arcade classics, logic puzzles, and strategic board games:
 
-| Game | Slug | Players / AI | Template | Description |
-| :--- | :--- | :--- | :--- | :--- |
-| **Wing Rush** | `wing-rush` | 1P | `FullBleedLayout` | Minimalist physics arcade. Tap to flap wings, weave through architectural gates, and beat high scores. |
-| **Crystal Match** | `crystal-match` | 1P | `BoardLayout` | Cascading match-3 puzzle saga. Swap crystals, trigger explosive combos, and beat tiered level targets. |
-| **Tic-Tac-Toe** | `tic-tac-toe` | 1P / 2P | `BoardLayout` | Classic 3x3 grid with local 2-player mode and 3-difficulty Minimax AI. |
-| **Snake** | `snake` | 1P | `BoardLayout` | Retro snake with 3 map layouts (Border, Open, Obstacles), speed presets, and high score tracking. |
-| **Checkers** | `checkers` | 1P / 2P | `BoardLayout` | Traditional 8x8 checkers supporting local pass-and-play or Minimax computer opponent. |
-| **Chess** | `chess` | 1P / 2P | `BoardLayout` | Full FIDE rules (castling, en passant, pawn promotion) with local 2P or Minimax AI. |
-| **Minesweeper** | `minesweeper` | 1P | `BoardLayout` | Safe first click guarantee, quick-flagging, 3 board dimensions, and timer records. |
-| **2048** | `2048` | 1P | `BoardLayout` | Number sliding puzzle supporting 3x3, 4x4, and 5x5 grids, swipe gestures, move undo, and best scores. |
-| **Memory** | `memory` | 1P / 2P | `BoardLayout` | Hand-drawn vector sketch icon matching with 3 board densities and turn-based 2-player mode. |
-| **Sudoku** | `sudoku` | 1P | `BoardLayout` | Procedurally generated puzzles across 3 difficulties with pencil notes, mistake counter, and timer. |
-| **Sea Battle** | `sea-battle` | 1P / 2P | `BoardLayout` | Tactical radar grid battleship with fleet auto-deployment and 3-tier computer AI. |
-| **Solitaire** | `solitaire` | 1P | `BoardLayout` | Classic Klondike (Draw 1 / Draw 3), smart move hints, undo stack, auto-finish, and Vegas scoring. |
+| Game              | Slug            | Players / AI | Template          | Description                                                                                            |
+| :---------------- | :-------------- | :----------- | :---------------- | :----------------------------------------------------------------------------------------------------- |
+| **Wing Rush**     | `wing-rush`     | 1P           | `FullBleedLayout` | Minimalist physics arcade. Tap to flap wings, weave through architectural gates, and beat high scores. |
+| **Crystal Match** | `crystal-match` | 1P           | `BoardLayout`     | Cascading match-3 puzzle saga. Swap crystals, trigger explosive combos, and beat tiered level targets. |
+| **Tic-Tac-Toe**   | `tic-tac-toe`   | 1P / 2P      | `BoardLayout`     | Classic 3x3 grid with local 2-player mode and 3-difficulty Minimax AI.                                 |
+| **Snake**         | `snake`         | 1P           | `BoardLayout`     | Retro snake with 3 map layouts (Border, Open, Obstacles), speed presets, and high score tracking.      |
+| **Checkers**      | `checkers`      | 1P / 2P      | `BoardLayout`     | Traditional 8x8 checkers supporting local pass-and-play or Minimax computer opponent.                  |
+| **Chess**         | `chess`         | 1P / 2P      | `BoardLayout`     | Full FIDE rules (castling, en passant, pawn promotion) with local 2P or Minimax AI.                    |
+| **Minesweeper**   | `minesweeper`   | 1P           | `BoardLayout`     | Safe first click guarantee, quick-flagging, 3 board dimensions, and timer records.                     |
+| **2048**          | `2048`          | 1P           | `BoardLayout`     | Number sliding puzzle supporting 3x3, 4x4, and 5x5 grids, swipe gestures, move undo, and best scores.  |
+| **Memory**        | `memory`        | 1P / 2P      | `BoardLayout`     | Hand-drawn vector sketch icon matching with 3 board densities and turn-based 2-player mode.            |
+| **Sudoku**        | `sudoku`        | 1P           | `BoardLayout`     | Procedurally generated puzzles across 3 difficulties with pencil notes, mistake counter, and timer.    |
+| **Sea Battle**    | `sea-battle`    | 1P / 2P      | `BoardLayout`     | Tactical radar grid battleship with fleet auto-deployment and 3-tier computer AI.                      |
+| **Solitaire**     | `solitaire`     | 1P           | `BoardLayout`     | Classic Klondike (Draw 1 / Draw 3), smart move hints, undo stack, auto-finish, and Vegas scoring.      |
 
 ---
 
@@ -167,16 +167,16 @@ export const metadata: GameMetadata = {
   slug: 'tic-tac-toe',
   name: {
     en: 'Tic-Tac-Toe',
-    pl: 'Kółko i krzyżyk'
+    pl: 'Kółko i krzyżyk',
   },
   description: {
     en: 'Classic 3x3 game. Play against a friend or challenge the computer.',
-    pl: 'Klasyczne kółko i krzyżyk. Graj z przyjacielem lub zmierz się z komputerem.'
+    pl: 'Klasyczne kółko i krzyżyk. Graj z przyjacielem lub zmierz się z komputerem.',
   },
   icon: <TicTacToeIcon />,
   tags: {
     en: ['classic', '2 players', 'vs computer'],
-    pl: ['klasyczna', '2 graczy', 'vs komputer']
+    pl: ['klasyczna', '2 graczy', 'vs komputer'],
   },
   minPlayers: 1,
   maxPlayers: 2,
@@ -227,6 +227,15 @@ npm install
 # Start local development server
 npm run dev
 
+# Run ESLint linter
+npm run lint
+
+# Check code formatting with Prettier
+npm run format:check
+
+# Run static TypeScript checks
+npm run typecheck
+
 # Run full Vitest test suite across all games
 npm test
 
@@ -236,6 +245,14 @@ npm run build
 # Preview production build locally
 npm run preview
 ```
+
+### Deployment
+
+Deployment is fully automated via GitHub Actions ([`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)) on push to the `main` branch:
+
+1. **Verification**: Checks out the repository with recursive submodules (`AllUI`), performs a clean install (`npm ci`), runs ESLint linter (`npm run lint`), runs TypeScript checks (`npm run typecheck`), and executes the Vitest test suite (`npm test`). Deployment is blocked if any check fails.
+2. **Build & SPA Routing**: Builds the production bundle (`npm run build`) and copies `apps/shell/dist/index.html` to `apps/shell/dist/404.html`, ensuring deep links and page refreshes work properly under GitHub Pages without `HashRouter`.
+3. **Publishing**: Publishes the build output (`apps/shell/dist`) directly to GitHub Pages via `peaceiris/actions-gh-pages`.
 
 ---
 
@@ -258,12 +275,12 @@ npm run preview
 
 All client-side state is stored strictly in browser `localStorage` using standardized prefixes:
 
-| Key Format | Type | Description |
-| :--- | :--- | :--- |
-| `allgames:theme` | `'dark' \| 'light' \| 'e-ink-light' \| 'e-ink-dark'` | Active theme preference |
-| `allgames:language` | `'en' \| 'pl'` | User language preference |
-| `allgames:<slug>:settings` | `JSON Object` | Game settings (difficulty, board size, sound) |
-| `allgames:<slug>:stats` | `JSON Object` | High scores, win/loss records, best times |
+| Key Format                 | Type                                                 | Description                                   |
+| :------------------------- | :--------------------------------------------------- | :-------------------------------------------- |
+| `allgames:theme`           | `'dark' \| 'light' \| 'e-ink-light' \| 'e-ink-dark'` | Active theme preference                       |
+| `allgames:language`        | `'en' \| 'pl'`                                       | User language preference                      |
+| `allgames:<slug>:settings` | `JSON Object`                                        | Game settings (difficulty, board size, sound) |
+| `allgames:<slug>:stats`    | `JSON Object`                                        | High scores, win/loss records, best times     |
 
 ---
 

@@ -11,9 +11,9 @@ import './styles/game2048.css'
 const GRID_SIZES: GridSize[] = [3, 4, 5]
 
 export function Game2048({ setHeader, setIsActive, locale = 'en', isEink = false }: GameComponentProps) {
-  const [pendingAction, setPendingAction] = useState<
-    { type: 'size'; value: GridSize } | { type: 'newGame' } | null
-  >(null)
+  const [pendingAction, setPendingAction] = useState<{ type: 'size'; value: GridSize } | { type: 'newGame' } | null>(
+    null,
+  )
 
   const t = game2048Translations[locale] || game2048Translations.en
 
@@ -51,7 +51,7 @@ export function Game2048({ setHeader, setIsActive, locale = 'en', isEink = false
         onReset={bestScore > 0 ? resetBestScore : undefined}
         resetAriaLabel={t.resetStatsAria}
         resetId="g2048-reset-best-btn"
-      />
+      />,
     )
   }, [setHeader, bestScore, score, t, resetBestScore])
 
@@ -115,16 +115,9 @@ export function Game2048({ setHeader, setIsActive, locale = 'en', isEink = false
           variant="square"
           isSettingsOpen={isSettingsOpen}
           onSettingsOpenChange={setIsSettingsOpen}
-          board={
-            <Board2048
-              tiles={tiles}
-              size={gridSize}
-              onMove={handleMove}
-              isEink={isEink}
-            />
-          }
+          board={<Board2048 tiles={tiles} size={gridSize} onMove={handleMove} isEink={isEink} />}
           overlay={
-            (gameStatus === 'won' || gameStatus === 'lost') ? (
+            gameStatus === 'won' || gameStatus === 'lost' ? (
               <GameResultOverlay
                 status={gameStatus === 'won' ? 'won' : 'lost'}
                 title={gameStatus === 'won' ? t.youWon : t.youLost}
@@ -148,12 +141,7 @@ export function Game2048({ setHeader, setIsActive, locale = 'en', isEink = false
               />
             ) : null
           }
-          dpad={
-            <DPad
-              onDirection={handleMove}
-              ariaLabel={t.swipeHint}
-            />
-          }
+          dpad={<DPad onDirection={handleMove} ariaLabel={t.swipeHint} />}
           settingsTitle={t.settings}
           settingsAriaLabel={t.settings}
           dpadToggleLabel={t.dpadLabel}
@@ -166,7 +154,7 @@ export function Game2048({ setHeader, setIsActive, locale = 'en', isEink = false
               control: (
                 <PillGroup<GridSize>
                   size="sm"
-                  options={GRID_SIZES.map(s => ({
+                  options={GRID_SIZES.map((s) => ({
                     value: s,
                     label: s === 3 ? t.grid3 : s === 4 ? t.grid4 : t.grid5,
                     id: `g2048-size-${s}`,
@@ -180,12 +168,7 @@ export function Game2048({ setHeader, setIsActive, locale = 'en', isEink = false
               id: 'actions',
               control: (
                 <div className="g2048-settings-actions">
-                  <Button
-                    id="g2048-new-game-btn"
-                    variant="primary"
-                    size="sm"
-                    onClick={handleNewGameClick}
-                  >
+                  <Button id="g2048-new-game-btn" variant="primary" size="sm" onClick={handleNewGameClick}>
                     {t.newGame}
                   </Button>
 
@@ -210,11 +193,7 @@ export function Game2048({ setHeader, setIsActive, locale = 'en', isEink = false
           open={Boolean(pendingAction)}
           onClose={handleCancelAction}
           title={t.confirmResetTitle}
-          description={
-            pendingAction?.type === 'newGame'
-              ? t.confirmNewGameDesc
-              : t.confirmModeDesc
-          }
+          description={pendingAction?.type === 'newGame' ? t.confirmNewGameDesc : t.confirmModeDesc}
           confirmLabel={pendingAction?.type === 'newGame' ? t.newGame : t.confirmBtn}
           cancelLabel={t.cancelBtn}
           confirmVariant="danger"

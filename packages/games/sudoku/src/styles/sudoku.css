@@ -79,7 +79,7 @@
   border-right: none;
 }
 
-.sdk-cell:nth-last-child(-n+9) {
+.sdk-cell:nth-last-child(-n + 9) {
   border-bottom: none;
 }
 
@@ -178,7 +178,10 @@
   font-weight: 600;
   color: var(--all-text, var(--text));
   cursor: pointer;
-  transition: background 100ms ease, border-color 100ms ease, transform 100ms ease;
+  transition:
+    background 100ms ease,
+    border-color 100ms ease,
+    transform 100ms ease;
   padding: 0;
   touch-action: manipulation;
 }

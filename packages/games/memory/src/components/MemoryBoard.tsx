@@ -9,12 +9,7 @@ interface MemoryBoardProps {
   onCardClick: (cardId: string) => void
 }
 
-export const MemoryBoard = memo(function MemoryBoard({
-  cards,
-  difficulty,
-  isEink,
-  onCardClick,
-}: MemoryBoardProps) {
+export const MemoryBoard = memo(function MemoryBoard({ cards, difficulty, isEink, onCardClick }: MemoryBoardProps) {
   let cols = 4
   let rows = 4
   if (difficulty === 'easy') {
@@ -39,13 +34,8 @@ export const MemoryBoard = memo(function MemoryBoard({
           gridTemplateRows: `repeat(${rows}, 1fr)`,
         }}
       >
-        {cards.map(card => (
-          <Card
-            key={card.id}
-            card={card}
-            isEink={isEink}
-            onClick={() => onCardClick(card.id)}
-          />
+        {cards.map((card) => (
+          <Card key={card.id} card={card} isEink={isEink} onClick={() => onCardClick(card.id)} />
         ))}
       </div>
     </div>

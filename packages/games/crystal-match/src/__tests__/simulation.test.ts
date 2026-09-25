@@ -24,7 +24,7 @@ export function simulateLevel(lvl: number, run = 0) {
   let board = createInitialBoard(config)
   let movesLeft = config.maxMoves
   let score = 0
-  let goals = config.goals.map(g => ({ ...g, current: 0 }))
+  let goals = config.goals.map((g) => ({ ...g, current: 0 }))
 
   function cascade(start: Tile[][], first: ReturnType<typeof findMatches>): Tile[][] {
     let current = start
@@ -43,7 +43,7 @@ export function simulateLevel(lvl: number, run = 0) {
   while (movesLeft > 0 && !goalsMet(goals, score)) {
     if (!hasValidMove(board)) board = reshuffleBoard(board, config, rand)
     // Goal-aware greedy bot: prefers moves that advance the open goals, then score.
-    const open = goals.filter(g => g.type !== 'score' && g.current < g.target)
+    const open = goals.filter((g) => g.type !== 'score' && g.current < g.target)
     let bestValue = -1
     let move: { r1: number; c1: number; r2: number; c2: number } | null = null
     for (const cand of findValidMoves(board)) {

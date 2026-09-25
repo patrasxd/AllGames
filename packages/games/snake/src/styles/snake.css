@@ -33,8 +33,6 @@
   display: block;
 }
 
-
-
 /* ─── Controls Section & Bottom Bar ──────────────────────── */
 .snake-controls-section {
   display: flex;
@@ -101,4 +99,3 @@
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
 }
-

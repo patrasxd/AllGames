@@ -160,4 +160,3 @@ export function TrashIcon(props: SVGProps<SVGSVGElement>) {
     </svg>
   )
 }
-

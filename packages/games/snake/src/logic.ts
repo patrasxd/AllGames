@@ -9,20 +9,32 @@ export const SPEED_INTERVALS: Record<SpeedMode, number> = {
 // 4 symmetrical obstacle hurdle blocks for the 'obstacles' map mode
 export const OBSTACLES_LIST: Point[] = [
   // Top-left hurdle
-  { x: 4, y: 4 }, { x: 5, y: 4 }, { x: 6, y: 4 },
-  { x: 4, y: 5 }, { x: 4, y: 6 },
+  { x: 4, y: 4 },
+  { x: 5, y: 4 },
+  { x: 6, y: 4 },
+  { x: 4, y: 5 },
+  { x: 4, y: 6 },
 
   // Top-right hurdle
-  { x: 13, y: 4 }, { x: 14, y: 4 }, { x: 15, y: 4 },
-  { x: 15, y: 5 }, { x: 15, y: 6 },
+  { x: 13, y: 4 },
+  { x: 14, y: 4 },
+  { x: 15, y: 4 },
+  { x: 15, y: 5 },
+  { x: 15, y: 6 },
 
   // Bottom-left hurdle
-  { x: 4, y: 15 }, { x: 5, y: 15 }, { x: 6, y: 15 },
-  { x: 4, y: 14 }, { x: 4, y: 13 },
+  { x: 4, y: 15 },
+  { x: 5, y: 15 },
+  { x: 6, y: 15 },
+  { x: 4, y: 14 },
+  { x: 4, y: 13 },
 
   // Bottom-right hurdle
-  { x: 13, y: 15 }, { x: 14, y: 15 }, { x: 15, y: 15 },
-  { x: 15, y: 14 }, { x: 15, y: 13 },
+  { x: 13, y: 15 },
+  { x: 14, y: 15 },
+  { x: 15, y: 15 },
+  { x: 15, y: 14 },
+  { x: 15, y: 13 },
 ]
 
 export const MAP_CONFIGS: Record<MapMode, { gridSize: number; obstacles: Point[] }> = {
@@ -69,17 +81,17 @@ export function checkWallCollision(point: Point, gridSize: number): boolean {
 }
 
 export function checkSelfCollision(head: Point, body: Point[]): boolean {
-  return body.some(segment => segment.x === head.x && segment.y === head.y)
+  return body.some((segment) => segment.x === head.x && segment.y === head.y)
 }
 
 export function checkObstacleCollision(head: Point, obstacles: Point[]): boolean {
-  return obstacles.some(obs => obs.x === head.x && obs.y === head.y)
+  return obstacles.some((obs) => obs.x === head.x && obs.y === head.y)
 }
 
 export function spawnFood(snake: Point[], obstacles: Point[] = [], gridSize = 20): Point {
   const occupied = new Set<string>()
-  snake.forEach(p => occupied.add(`${p.x},${p.y}`))
-  obstacles.forEach(p => occupied.add(`${p.x},${p.y}`))
+  snake.forEach((p) => occupied.add(`${p.x},${p.y}`))
+  obstacles.forEach((p) => occupied.add(`${p.x},${p.y}`))
 
   const available: Point[] = []
 

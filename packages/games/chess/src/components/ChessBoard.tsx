@@ -25,7 +25,7 @@ export function ChessBoard({
   onSquareClick,
 }: ChessBoardProps) {
   const t = chessTranslations[locale] || chessTranslations.en
-  const validDests = new Map(validMoves.map(m => [`${m.to.row},${m.to.col}`, m]))
+  const validDests = new Map(validMoves.map((m) => [`${m.to.row},${m.to.col}`, m]))
 
   const checkedKingPos = inCheck ? findKing(board, inCheck) : null
 
@@ -71,23 +71,13 @@ export function ChessBoard({
                 )}
 
                 {/* Target move indicator dot or capture ring */}
-                {isValidDestination && !piece && (
-                  <span className="chess-target-dot" aria-hidden="true" />
-                )}
-                {isValidDestination && piece && (
-                  <span className="chess-target-capture-ring" aria-hidden="true" />
-                )}
+                {isValidDestination && !piece && <span className="chess-target-dot" aria-hidden="true" />}
+                {isValidDestination && piece && <span className="chess-target-capture-ring" aria-hidden="true" />}
 
-                {piece && (
-                  <ChessPiece
-                    piece={piece}
-                    isSelected={isSelected}
-                    isEink={isEink}
-                  />
-                )}
+                {piece && <ChessPiece piece={piece} isSelected={isSelected} isEink={isEink} />}
               </button>
             )
-          })
+          }),
         )}
       </div>
     </div>

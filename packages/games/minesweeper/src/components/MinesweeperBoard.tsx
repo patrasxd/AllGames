@@ -35,11 +35,11 @@ export const MinesweeperBoard = memo(function MinesweeperBoard({
   }, [rows, cols])
 
   const handleZoomIn = useCallback(() => {
-    setZoom(z => Math.min(2.2, Math.round((z + 0.2) * 10) / 10))
+    setZoom((z) => Math.min(2.2, Math.round((z + 0.2) * 10) / 10))
   }, [])
 
   const handleZoomOut = useCallback(() => {
-    setZoom(z => Math.max(0.7, Math.round((z - 0.2) * 10) / 10))
+    setZoom((z) => Math.max(0.7, Math.round((z - 0.2) * 10) / 10))
   }, [])
 
   const handleResetZoom = useCallback(() => {
@@ -56,7 +56,7 @@ export const MinesweeperBoard = memo(function MinesweeperBoard({
         initialZoomRef.current = zoom
       }
     },
-    [zoom]
+    [zoom],
   )
 
   const handleTouchMove = useCallback((e: React.TouchEvent) => {
@@ -81,7 +81,7 @@ export const MinesweeperBoard = memo(function MinesweeperBoard({
     if (e.ctrlKey || e.metaKey) {
       e.preventDefault()
       const delta = e.deltaY < 0 ? 0.15 : -0.15
-      setZoom(z => Math.min(2.2, Math.max(0.7, Math.round((z + delta) * 100) / 100)))
+      setZoom((z) => Math.min(2.2, Math.max(0.7, Math.round((z + delta) * 100) / 100)))
     }
   }, [])
 
@@ -97,7 +97,15 @@ export const MinesweeperBoard = memo(function MinesweeperBoard({
           aria-label="Zoom out"
           title="Zoom out"
         >
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+          >
             <line x1="5" y1="12" x2="19" y2="12" />
           </svg>
         </button>
@@ -120,7 +128,15 @@ export const MinesweeperBoard = memo(function MinesweeperBoard({
           aria-label="Zoom in"
           title="Zoom in"
         >
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+          >
             <line x1="12" y1="5" x2="12" y2="19" />
             <line x1="5" y1="12" x2="19" y2="12" />
           </svg>
@@ -153,12 +169,12 @@ export const MinesweeperBoard = memo(function MinesweeperBoard({
                 cell={cell}
                 isEink={isEink}
                 onClick={() => onCellClick(r, c)}
-                onContextMenu={e => onCellContextMenu(e, r, c)}
+                onContextMenu={(e) => onCellContextMenu(e, r, c)}
                 onToggleFlag={onToggleFlag ? () => onToggleFlag(r, c) : undefined}
                 onMouseDown={onCellMouseDown}
                 onMouseUp={onCellMouseUp}
               />
-            ))
+            )),
           )}
         </div>
       </div>

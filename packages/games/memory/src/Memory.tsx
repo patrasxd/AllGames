@@ -4,8 +4,8 @@ import { useMemory } from './hooks/useMemory'
 import { MemoryBoard } from './components/MemoryBoard'
 import type { GameComponentProps, MemoryDifficulty, MemoryGameMode } from './types'
 import { memoryTranslations } from './i18n'
-import { BoardLayout, ConfirmDialog, Button, PillGroup, ControlsBar, ModeSelect, StatsHeader } from '@all/ui'
-import { GameResultOverlay, SinglePlayerIcon, TwoPlayersIcon, formatTime } from '@allgames/ui'
+import { BoardLayout, ConfirmDialog, Button, PillGroup, ControlsBar, ModeSelect, StatsHeader, formatTime } from '@all/ui'
+import { GameResultOverlay, SinglePlayerIcon, TwoPlayersIcon } from '@allgames/ui'
 import './styles/memory.css'
 
 const DIFFICULTIES: MemoryDifficulty[] = ['easy', 'medium', 'hard']
@@ -60,7 +60,7 @@ export function Memory({ setHeader, setIsActive, locale = 'en', isEink = false }
             { key: 'p2', label: 'P2', value: scores.p2 },
             { key: 'pairs', label: t.pairs, value: `${matchedPairsCount}/${totalPairs}` },
           ]}
-        />
+        />,
       )
       return
     }
@@ -77,9 +77,21 @@ export function Memory({ setHeader, setIsActive, locale = 'en', isEink = false }
         onReset={bestScore !== null ? resetBest : undefined}
         resetAriaLabel={t.resetStatsAria}
         resetId="memory-reset-best-btn"
-      />
+      />,
     )
-  }, [setHeader, hasChosenMode, mode, scores, matchedPairsCount, totalPairs, bestScore, moves, elapsedSeconds, t, resetBest])
+  }, [
+    setHeader,
+    hasChosenMode,
+    mode,
+    scores,
+    matchedPairsCount,
+    totalPairs,
+    bestScore,
+    moves,
+    elapsedSeconds,
+    t,
+    resetBest,
+  ])
 
   useEffect(() => {
     renderHeader()
@@ -195,9 +207,7 @@ export function Memory({ setHeader, setIsActive, locale = 'en', isEink = false }
                   ) : (
                     <>
                       <div className="memory-status-text">
-                        {mode === '2p'
-                          ? t.turn2p(currentTurn === 'p1' ? t.player1 : t.player2)
-                          : t.turn1p}
+                        {mode === '2p' ? t.turn2p(currentTurn === 'p1' ? t.player1 : t.player2) : t.turn1p}
                       </div>
                       <div className="memory-status-sub">
                         {t.pairs}: {matchedPairsCount} / {totalPairs}
@@ -207,24 +217,13 @@ export function Memory({ setHeader, setIsActive, locale = 'en', isEink = false }
                 </div>
               }
               board={
-                <MemoryBoard
-                  cards={cards}
-                  difficulty={difficulty}
-                  isEink={isEink}
-                  onCardClick={handleCardClick}
-                />
+                <MemoryBoard cards={cards} difficulty={difficulty} isEink={isEink} onCardClick={handleCardClick} />
               }
               overlay={
                 <AnimatePresence>
                   {gameStatus === 'ended' && (
                     <GameResultOverlay
-                      status={
-                        mode === '2p'
-                          ? scores.p1 === scores.p2
-                            ? 'draw'
-                            : 'won'
-                          : 'won'
-                      }
+                      status={mode === '2p' ? (scores.p1 === scores.p2 ? 'draw' : 'won') : 'won'}
                       title={
                         mode === '2p'
                           ? scores.p1 === scores.p2
@@ -233,11 +232,7 @@ export function Memory({ setHeader, setIsActive, locale = 'en', isEink = false }
                           : t.youWon
                       }
                       subtitle={
-                        mode === '2p'
-                          ? undefined
-                          : bestScore && moves <= bestScore.moves
-                          ? t.newBest
-                          : undefined
+                        mode === '2p' ? undefined : bestScore && moves <= bestScore.moves ? t.newBest : undefined
                       }
                       isEink={isEink}
                       playAgainText={t.newGame}
@@ -261,27 +256,17 @@ export function Memory({ setHeader, setIsActive, locale = 'en', isEink = false }
               }
               controls={
                 <ControlsBar className="memory-controls-bar">
-                  <Button
-                    id="memory-new-game-btn"
-                    variant="primary"
-                    size="sm"
-                    onClick={handleNewGameClick}
-                  >
+                  <Button id="memory-new-game-btn" variant="primary" size="sm" onClick={handleNewGameClick}>
                     {t.newGame}
                   </Button>
-                  <Button
-                    id="memory-change-mode-btn"
-                    variant="secondary"
-                    size="sm"
-                    onClick={handleChangeModeClick}
-                  >
+                  <Button id="memory-change-mode-btn" variant="secondary" size="sm" onClick={handleChangeModeClick}>
                     {t.changeMode}
                   </Button>
 
                   <PillGroup<MemoryDifficulty>
                     label={t.difficultyLabel}
                     size="sm"
-                    options={DIFFICULTIES.map(d => ({
+                    options={DIFFICULTIES.map((d) => ({
                       value: d,
                       label: d === 'easy' ? t.easy : d === 'medium' ? t.medium : t.hard,
                       id: `memory-diff-${d}`,
@@ -302,8 +287,8 @@ export function Memory({ setHeader, setIsActive, locale = 'en', isEink = false }
                 pendingAction?.type === 'difficulty'
                   ? t.confirmDifficultyDesc
                   : pendingAction?.type === 'newGame'
-                  ? t.confirmNewGameDesc
-                  : t.confirmModeDesc
+                    ? t.confirmNewGameDesc
+                    : t.confirmModeDesc
               }
               confirmLabel={pendingAction?.type === 'newGame' ? t.newGame : t.confirmBtn}
               cancelLabel={t.cancelBtn}

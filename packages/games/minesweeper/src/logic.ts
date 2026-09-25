@@ -1,10 +1,4 @@
-import type {
-  MinesweeperDifficulty,
-  DifficultyConfig,
-  MinesweeperBoardState,
-  CellState,
-  GameStatus,
-} from './types'
+import type { MinesweeperDifficulty, DifficultyConfig, MinesweeperBoardState, CellState, GameStatus } from './types'
 
 export const DIFFICULTY_CONFIGS: Record<MinesweeperDifficulty, DifficultyConfig> = {
   beginner: { rows: 9, cols: 9, mines: 10 },
@@ -33,7 +27,7 @@ export function createEmptyBoard(rows: number, cols: number): MinesweeperBoardSt
 }
 
 export function cloneBoard(board: MinesweeperBoardState): MinesweeperBoardState {
-  return board.map(row => row.map(cell => ({ ...cell })))
+  return board.map((row) => row.map((cell) => ({ ...cell })))
 }
 
 function getNeighbors(rows: number, cols: number, row: number, col: number): [number, number][] {
@@ -55,7 +49,7 @@ export function populateMines(
   board: MinesweeperBoardState,
   firstClickRow: number,
   firstClickCol: number,
-  totalMines: number
+  totalMines: number,
 ): MinesweeperBoardState {
   const nextBoard = cloneBoard(board)
   const rows = nextBoard.length
@@ -108,7 +102,7 @@ export function populateMines(
 export function revealCell(
   board: MinesweeperBoardState,
   row: number,
-  col: number
+  col: number,
 ): { nextBoard: MinesweeperBoardState; status: GameStatus } {
   const nextBoard = cloneBoard(board)
   const cell = nextBoard[row][col]
@@ -172,11 +166,7 @@ export function revealCell(
   return { nextBoard, status: 'playing' }
 }
 
-export function toggleFlag(
-  board: MinesweeperBoardState,
-  row: number,
-  col: number
-): MinesweeperBoardState {
+export function toggleFlag(board: MinesweeperBoardState, row: number, col: number): MinesweeperBoardState {
   const nextBoard = cloneBoard(board)
   const cell = nextBoard[row][col]
   if (cell.isRevealed) return nextBoard
@@ -188,7 +178,7 @@ export function toggleFlag(
 export function chordReveal(
   board: MinesweeperBoardState,
   row: number,
-  col: number
+  col: number,
 ): { nextBoard: MinesweeperBoardState; status: GameStatus } {
   const rows = board.length
   const cols = board[0].length

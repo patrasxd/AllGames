@@ -150,7 +150,7 @@ describe('Memory Component Integration', () => {
       () => {
         expect(screen.getByText(/Player 2's turn/i)).toBeInTheDocument()
       },
-      { timeout: 1500 }
+      { timeout: 1500 },
     )
 
     // P2 flips the matching pair: matchPair[0] and matchPair[1]
@@ -163,7 +163,7 @@ describe('Memory Component Integration', () => {
         expect(matchPair[0]).toHaveClass('memory-card--matched')
         expect(matchPair[1]).toHaveClass('memory-card--matched')
       },
-      { timeout: 1000 }
+      { timeout: 1000 },
     )
 
     expect(screen.getByText(/Pairs: 1 \/ 8/i)).toBeInTheDocument()
@@ -197,7 +197,7 @@ describe('Memory Component Integration', () => {
         () => {
           expect(pair[0]).toHaveClass('memory-card--matched')
         },
-        { timeout: 1000 }
+        { timeout: 1000 },
       )
     }
 
@@ -206,7 +206,7 @@ describe('Memory Component Integration', () => {
       () => {
         expect(document.getElementById('memory-play-again-btn')).toBeInTheDocument()
       },
-      { timeout: 1500 }
+      { timeout: 1500 },
     )
 
     expect(screen.getAllByText(/You won!/i).length).toBeGreaterThanOrEqual(1)

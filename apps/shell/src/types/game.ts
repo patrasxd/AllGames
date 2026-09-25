@@ -1,56 +1,56 @@
-export type Locale = 'en' | 'pl';
+export type Locale = 'en' | 'pl'
 
-export type LocalizedText = string | Record<Locale, string>;
-export type LocalizedTags = string[] | Record<Locale, string[]>;
+export type LocalizedText = string | Record<Locale, string>
+export type LocalizedTags = string[] | Record<Locale, string[]>
 
 export interface GameMetadata {
   /** Unique identifier used in URL: /games/:slug */
-  slug: string;
-  name: LocalizedText;
-  description: LocalizedText;
+  slug: string
+  name: LocalizedText
+  description: LocalizedText
   /** Emoji or SVG icon */
-  icon: string | React.ReactNode;
-  tags: LocalizedTags;
-  minPlayers: 1 | 2;
-  maxPlayers: 1 | 2;
+  icon: string | React.ReactNode
+  tags: LocalizedTags
+  minPlayers: 1 | 2
+  maxPlayers: 1 | 2
 }
 
-export type GameTheme = 'dark' | 'light' | 'e-ink-light' | 'e-ink-dark';
+export type GameTheme = 'dark' | 'light' | 'e-ink-light' | 'e-ink-dark'
 
 export interface GameComponentProps {
   /** Current active locale ('en' | 'pl') */
-  locale: Locale;
+  locale: Locale
   /** Active theme ('dark' | 'light' | 'e-ink-light' | 'e-ink-dark') */
-  theme?: GameTheme;
+  theme?: GameTheme
   /** Whether E-reader (E-ink) mode is currently active */
-  isEink?: boolean;
+  isEink?: boolean
   /** Called by the game when it wants to save data */
-  onSave?: (data: unknown) => void;
+  onSave?: (data: unknown) => void
   /**
    * Game can call this to inject content (e.g. stats scoreboard) into the page header.
    * Call with null to clear. Cleared automatically when game unmounts.
    */
-  setHeader?: (content: React.ReactNode) => void;
+  setHeader?: (content: React.ReactNode) => void
   /**
    * Game can call this to signal whether a playable game session is currently in progress.
    * When true, navigating away (e.g. via BackLink) triggers a confirmation dialog.
    */
-  setIsActive?: (active: boolean) => void;
+  setIsActive?: (active: boolean) => void
 }
 
 export interface GameModule {
-  metadata: GameMetadata;
-  GameComponent: React.ComponentType<GameComponentProps>;
+  metadata: GameMetadata
+  GameComponent: React.ComponentType<GameComponentProps>
 }
 
 /** Helper to resolve LocalizedText to current locale */
 export function getLocalizedText(text: LocalizedText, locale: Locale): string {
-  if (typeof text === 'string') return text;
-  return text[locale] || text.en || '';
+  if (typeof text === 'string') return text
+  return text[locale] || text.en || ''
 }
 
 /** Helper to resolve LocalizedTags to current locale */
 export function getLocalizedTags(tags: LocalizedTags, locale: Locale): string[] {
-  if (Array.isArray(tags)) return tags;
-  return tags[locale] || tags.en || [];
+  if (Array.isArray(tags)) return tags
+  return tags[locale] || tags.en || []
 }

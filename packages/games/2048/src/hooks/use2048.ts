@@ -1,12 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import type { GridSize, TileData, Direction, Game2048Status } from '../types'
-import {
-  createInitialTiles,
-  createRandomTile,
-  moveTiles,
-  hasMovesAvailable,
-  hasReached2048,
-} from '../logic'
+import { createInitialTiles, createRandomTile, moveTiles, hasMovesAvailable, hasReached2048 } from '../logic'
 
 const GRID_SIZE_KEY = 'allgames:2048:grid-size'
 const BEST_SCORE_KEY_PREFIX = 'allgames:2048:best-score:'
@@ -76,7 +70,7 @@ export function use2048(options?: { isEink?: boolean }) {
       setBestScore(loadBestScore(sizeToUse))
       isMovingRef.current = false
     },
-    [gridSize]
+    [gridSize],
   )
 
   const setGridSize = useCallback(
@@ -85,7 +79,7 @@ export function use2048(options?: { isEink?: boolean }) {
       saveGridSize(size)
       resetGame(size)
     },
-    [resetGame]
+    [resetGame],
   )
 
   const handleMove = useCallback(
@@ -124,7 +118,7 @@ export function use2048(options?: { isEink?: boolean }) {
         isMovingRef.current = false
       }, 100)
     },
-    [tiles, score, bestScore, gridSize, gameStatus, hasDismissedWin]
+    [tiles, score, bestScore, gridSize, gameStatus, hasDismissedWin],
   )
 
   const undoMove = useCallback(() => {

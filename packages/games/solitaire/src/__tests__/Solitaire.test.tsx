@@ -84,7 +84,7 @@ describe('Solitaire component integration', () => {
     // Verify face-up cards are draggable
     const faceUpCards = document.querySelectorAll('.sol-card--face')
     expect(faceUpCards.length).toBeGreaterThan(0)
-    faceUpCards.forEach(card => {
+    faceUpCards.forEach((card) => {
       expect(card.getAttribute('draggable')).toBe('true')
     })
 

@@ -1,10 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import {
-  dealNewGame,
-  canMoveToFoundation,
-  canMoveToTableau,
-  checkWinCondition,
-} from '../logic'
+import { dealNewGame, canMoveToFoundation, canMoveToTableau, checkWinCondition } from '../logic'
 import type { CardData } from '../types'
 
 describe('solitaire logic', () => {

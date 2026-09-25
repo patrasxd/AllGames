@@ -95,7 +95,7 @@ export const GameResultOverlay = memo(function GameResultOverlay({
         {subtitle && <p className="gr-subtitle">{subtitle}</p>}
         {stats && stats.length > 0 && (
           <div className="gr-stats">
-            {stats.map(s => (
+            {stats.map((s) => (
               <div key={s.label} className="gr-stat">
                 <span className="gr-stat-val">{s.value}</span>
                 <span className="gr-stat-key">{s.label}</span>
@@ -105,21 +105,11 @@ export const GameResultOverlay = memo(function GameResultOverlay({
         )}
         <div className="gr-actions">
           {secondaryAction && (
-            <Button
-              id={secondaryAction.id}
-              variant="secondary"
-              size="sm"
-              onClick={secondaryAction.onClick}
-            >
+            <Button id={secondaryAction.id} variant="secondary" size="sm" onClick={secondaryAction.onClick}>
               {secondaryAction.label}
             </Button>
           )}
-          <Button
-            id={playAgainId}
-            variant="primary"
-            size="sm"
-            onClick={onPlayAgain}
-          >
+          <Button id={playAgainId} variant="primary" size="sm" onClick={onPlayAgain}>
             {playAgainText}
           </Button>
         </div>
@@ -127,5 +117,3 @@ export const GameResultOverlay = memo(function GameResultOverlay({
     </motion.div>
   )
 })
-
-

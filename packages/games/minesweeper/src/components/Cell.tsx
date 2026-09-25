@@ -87,7 +87,7 @@ export const Cell = memo(function Cell({
         }, 360)
       }
     },
-    [cell.isRevealed, clearLongPress, onToggleFlag, onContextMenu]
+    [cell.isRevealed, clearLongPress, onToggleFlag, onContextMenu],
   )
 
   const handleTouchMove = useCallback(
@@ -100,7 +100,7 @@ export const Cell = memo(function Cell({
         }
       }
     },
-    [clearLongPress]
+    [clearLongPress],
   )
 
   const handleTouchEnd = useCallback(
@@ -110,7 +110,7 @@ export const Cell = memo(function Cell({
         e.preventDefault()
       }
     },
-    [clearLongPress]
+    [clearLongPress],
   )
 
   const handleClick = useCallback(
@@ -123,7 +123,7 @@ export const Cell = memo(function Cell({
       }
       onClick()
     },
-    [onClick]
+    [onClick],
   )
 
   const handleMouseDown = useCallback(
@@ -132,7 +132,7 @@ export const Cell = memo(function Cell({
         onMouseDown()
       }
     },
-    [onMouseDown]
+    [onMouseDown],
   )
 
   let content = null
@@ -179,11 +179,11 @@ export const Cell = memo(function Cell({
           ? cell.hasMine
             ? ' mine'
             : cell.neighborMines > 0
-            ? ` ${cell.neighborMines} mines nearby`
-            : ' empty'
+              ? ` ${cell.neighborMines} mines nearby`
+              : ' empty'
           : cell.isFlagged
-          ? ' flagged'
-          : ' covered'
+            ? ' flagged'
+            : ' covered'
       }`}
     >
       {content}

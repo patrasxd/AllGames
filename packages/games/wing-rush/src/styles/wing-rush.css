@@ -56,7 +56,6 @@
   display: block;
 }
 
-
 /* ─── Controls Bar ────────────────────────────────────────── */
 .wr-controls {
   display: flex;
@@ -66,5 +65,3 @@
   width: auto;
   margin: 0 auto;
 }
-
-

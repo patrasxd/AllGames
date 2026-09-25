@@ -200,7 +200,9 @@
   border-radius: var(--all-radius-sm, 4px);
   padding: var(--all-space-3, 0.75rem) var(--all-space-1, 0.25rem);
   cursor: pointer;
-  transition: background var(--all-duration-fast, 150ms) ease, border-color var(--all-duration-fast, 150ms) ease;
+  transition:
+    background var(--all-duration-fast, 150ms) ease,
+    border-color var(--all-duration-fast, 150ms) ease;
 }
 
 .chess-promo-btn:hover {

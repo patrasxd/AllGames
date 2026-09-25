@@ -23,7 +23,7 @@ export function createInitialBoard(): BoardState {
 }
 
 export function cloneBoard(board: BoardState): BoardState {
-  return board.map(row => row.map(cell => (cell ? { ...cell } : null)))
+  return board.map((row) => row.map((cell) => (cell ? { ...cell } : null)))
 }
 
 export function isInside(r: number, c: number): boolean {
@@ -185,7 +185,7 @@ function evaluateBoard(board: BoardState): number {
 
       const baseVal = p.isKing ? 280 : 100
       // Positional advantage: center control & advancement
-      const centerBonus = (c >= 2 && c <= 5 && r >= 2 && r <= 5) ? 15 : 0
+      const centerBonus = c >= 2 && c <= 5 && r >= 2 && r <= 5 ? 15 : 0
       const advancement = p.color === 'black' ? r * 5 : (7 - r) * 5
       const pieceScore = baseVal + centerBonus + (p.isKing ? 0 : advancement)
 
@@ -241,13 +241,7 @@ export function getBestAIMove(board: BoardState, difficulty: 'easy' | 'medium' |
   return bestMove
 }
 
-function minimax(
-  board: BoardState,
-  depth: number,
-  alpha: number,
-  beta: number,
-  isMaximizing: boolean
-): number {
+function minimax(board: BoardState, depth: number, alpha: number, beta: number, isMaximizing: boolean): number {
   if (depth === 0) return evaluateBoard(board)
 
   const player: PlayerColor = isMaximizing ? 'black' : 'white'

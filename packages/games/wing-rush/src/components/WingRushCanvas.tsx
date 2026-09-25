@@ -184,7 +184,15 @@ export const WingRushCanvas = memo(function WingRushCanvas({
     const wingFlap = Math.sin(bird.wingPhase) * 6
     ctx.fillStyle = birdWing
     ctx.beginPath()
-    ctx.ellipse(-bird.radius * 0.3, 0, bird.radius * 0.65, bird.radius * 0.45 + wingFlap * 0.3, -Math.PI / 8, 0, Math.PI * 2)
+    ctx.ellipse(
+      -bird.radius * 0.3,
+      0,
+      bird.radius * 0.65,
+      bird.radius * 0.45 + wingFlap * 0.3,
+      -Math.PI / 8,
+      0,
+      Math.PI * 2,
+    )
     ctx.fill()
     ctx.strokeStyle = isEink ? '#000000' : 'rgba(0,0,0,0.1)'
     ctx.lineWidth = 1
@@ -218,7 +226,7 @@ export const WingRushCanvas = memo(function WingRushCanvas({
   return (
     <div
       className="wr-canvas-container"
-      onPointerDown={e => {
+      onPointerDown={(e) => {
         if (e.pointerType === 'mouse' && e.button !== 0) return
 
         const now = Date.now()
@@ -231,7 +239,7 @@ export const WingRushCanvas = memo(function WingRushCanvas({
       role="button"
       tabIndex={0}
       aria-label="Wing Rush Game Canvas"
-      onKeyDown={e => {
+      onKeyDown={(e) => {
         if (e.key === ' ' || e.key === 'ArrowUp' || e.key === 'Enter') {
           e.preventDefault()
           onFlap()

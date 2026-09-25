@@ -21,12 +21,7 @@ export function ModeSelect({ locale = 'en', onSelect }: ModeSelectProps) {
   const t = gameTranslations[locale] || gameTranslations.en
 
   return (
-    <motion.div
-      className="ttt-mode-select"
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-    >
+    <motion.div className="ttt-mode-select" variants={containerVariants} initial="hidden" animate="visible">
       <motion.p className="ttt-mode-label" variants={itemVariants}>
         {t.chooseMode}
       </motion.p>
@@ -44,7 +39,16 @@ export function ModeSelect({ locale = 'en', onSelect }: ModeSelectProps) {
         >
           <span className="ttt-mode-btn-icon" aria-hidden="true">
             {/* Two players icon */}
-            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              width="32"
+              height="32"
+              viewBox="0 0 32 32"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <circle cx="10" cy="9" r="4" />
               <path d="M2 26c0-4.4 3.6-8 8-8" />
               <circle cx="22" cy="9" r="4" />
@@ -68,7 +72,16 @@ export function ModeSelect({ locale = 'en', onSelect }: ModeSelectProps) {
         >
           <span className="ttt-mode-btn-icon" aria-hidden="true">
             {/* Computer/CPU icon */}
-            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              width="32"
+              height="32"
+              viewBox="0 0 32 32"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <rect x="8" y="8" width="16" height="16" rx="2" />
               <rect x="12" y="12" width="8" height="8" rx="1" />
               <line x1="12" y1="4" x2="12" y2="8" />

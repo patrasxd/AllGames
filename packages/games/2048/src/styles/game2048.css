@@ -86,17 +86,65 @@
 }
 
 /* Distinct tile intensities */
-.tile-2048--v2 .tile-2048-inner { background: color-mix(in srgb, var(--all-surface, #1e1e24) 90%, var(--all-text, #fff) 10%); font-weight: 500; }
-.tile-2048--v4 .tile-2048-inner { background: color-mix(in srgb, var(--all-surface, #1e1e24) 80%, var(--all-text, #fff) 20%); font-weight: 600; }
-.tile-2048--v8 .tile-2048-inner { background: color-mix(in srgb, var(--all-surface, #1e1e24) 65%, var(--all-text, #fff) 35%); font-weight: 700; border-color: var(--all-border-2, #3d3d52); }
-.tile-2048--v16 .tile-2048-inner { background: color-mix(in srgb, var(--all-surface, #1e1e24) 50%, var(--all-text, #fff) 50%); color: var(--all-bg, #111); font-weight: 700; }
-.tile-2048--v32 .tile-2048-inner { background: color-mix(in srgb, var(--all-surface, #1e1e24) 35%, var(--all-text, #fff) 65%); color: var(--all-bg, #111); font-weight: 700; }
-.tile-2048--v64 .tile-2048-inner { background: color-mix(in srgb, var(--all-surface, #1e1e24) 20%, var(--all-text, #fff) 80%); color: var(--all-bg, #111); font-weight: 800; }
-.tile-2048--v128 .tile-2048-inner { background: var(--all-text, #f0f0f5); color: var(--all-bg, #111); font-weight: 800; box-shadow: 0 0 10px color-mix(in srgb, var(--all-text, #fff) 40%, transparent); }
-.tile-2048--v256 .tile-2048-inner { background: var(--all-text, #f0f0f5); color: var(--all-bg, #111); font-weight: 800; border: 2px solid var(--all-accent, #6366f1); }
-.tile-2048--v512 .tile-2048-inner { background: var(--all-text, #f0f0f5); color: var(--all-bg, #111); font-weight: 800; border: 2px solid var(--all-accent, #6366f1); box-shadow: 0 0 14px color-mix(in srgb, var(--all-accent, #6366f1) 50%, transparent); }
-.tile-2048--v1024 .tile-2048-inner { background: var(--all-text, #f0f0f5); color: var(--all-bg, #111); font-weight: 900; border: 2.5px solid var(--all-accent, #6366f1); }
-.tile-2048--v2048 .tile-2048-inner { background: var(--all-accent, #6366f1); color: var(--all-bg, #111); font-weight: 900; box-shadow: 0 0 20px var(--all-accent, #6366f1); }
+.tile-2048--v2 .tile-2048-inner {
+  background: color-mix(in srgb, var(--all-surface, #1e1e24) 90%, var(--all-text, #fff) 10%);
+  font-weight: 500;
+}
+.tile-2048--v4 .tile-2048-inner {
+  background: color-mix(in srgb, var(--all-surface, #1e1e24) 80%, var(--all-text, #fff) 20%);
+  font-weight: 600;
+}
+.tile-2048--v8 .tile-2048-inner {
+  background: color-mix(in srgb, var(--all-surface, #1e1e24) 65%, var(--all-text, #fff) 35%);
+  font-weight: 700;
+  border-color: var(--all-border-2, #3d3d52);
+}
+.tile-2048--v16 .tile-2048-inner {
+  background: color-mix(in srgb, var(--all-surface, #1e1e24) 50%, var(--all-text, #fff) 50%);
+  color: var(--all-bg, #111);
+  font-weight: 700;
+}
+.tile-2048--v32 .tile-2048-inner {
+  background: color-mix(in srgb, var(--all-surface, #1e1e24) 35%, var(--all-text, #fff) 65%);
+  color: var(--all-bg, #111);
+  font-weight: 700;
+}
+.tile-2048--v64 .tile-2048-inner {
+  background: color-mix(in srgb, var(--all-surface, #1e1e24) 20%, var(--all-text, #fff) 80%);
+  color: var(--all-bg, #111);
+  font-weight: 800;
+}
+.tile-2048--v128 .tile-2048-inner {
+  background: var(--all-text, #f0f0f5);
+  color: var(--all-bg, #111);
+  font-weight: 800;
+  box-shadow: 0 0 10px color-mix(in srgb, var(--all-text, #fff) 40%, transparent);
+}
+.tile-2048--v256 .tile-2048-inner {
+  background: var(--all-text, #f0f0f5);
+  color: var(--all-bg, #111);
+  font-weight: 800;
+  border: 2px solid var(--all-accent, #6366f1);
+}
+.tile-2048--v512 .tile-2048-inner {
+  background: var(--all-text, #f0f0f5);
+  color: var(--all-bg, #111);
+  font-weight: 800;
+  border: 2px solid var(--all-accent, #6366f1);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--all-accent, #6366f1) 50%, transparent);
+}
+.tile-2048--v1024 .tile-2048-inner {
+  background: var(--all-text, #f0f0f5);
+  color: var(--all-bg, #111);
+  font-weight: 900;
+  border: 2.5px solid var(--all-accent, #6366f1);
+}
+.tile-2048--v2048 .tile-2048-inner {
+  background: var(--all-accent, #6366f1);
+  color: var(--all-bg, #111);
+  font-weight: 900;
+  box-shadow: 0 0 20px var(--all-accent, #6366f1);
+}
 
 /* ─── Controls & D-pad ────────────────────────────────────── */
 .g2048-controls-wrapper {
@@ -129,17 +177,50 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-[data-theme='light'] .tile-2048--v2 .tile-2048-inner { background: #eee4da; color: #776e65; }
-[data-theme='light'] .tile-2048--v4 .tile-2048-inner { background: #ede0c8; color: #776e65; }
-[data-theme='light'] .tile-2048--v8 .tile-2048-inner { background: #f2b179; color: #f9f6f2; }
-[data-theme='light'] .tile-2048--v16 .tile-2048-inner { background: #f59563; color: #f9f6f2; }
-[data-theme='light'] .tile-2048--v32 .tile-2048-inner { background: #f67c5f; color: #f9f6f2; }
-[data-theme='light'] .tile-2048--v64 .tile-2048-inner { background: #f65e3b; color: #f9f6f2; }
-[data-theme='light'] .tile-2048--v128 .tile-2048-inner { background: #edcf72; color: #f9f6f2; }
-[data-theme='light'] .tile-2048--v256 .tile-2048-inner { background: #edcc61; color: #f9f6f2; }
-[data-theme='light'] .tile-2048--v512 .tile-2048-inner { background: #edc850; color: #f9f6f2; }
-[data-theme='light'] .tile-2048--v1024 .tile-2048-inner { background: #edc53f; color: #f9f6f2; }
-[data-theme='light'] .tile-2048--v2048 .tile-2048-inner { background: #edc22e; color: #f9f6f2; }
+[data-theme='light'] .tile-2048--v2 .tile-2048-inner {
+  background: #eee4da;
+  color: #776e65;
+}
+[data-theme='light'] .tile-2048--v4 .tile-2048-inner {
+  background: #ede0c8;
+  color: #776e65;
+}
+[data-theme='light'] .tile-2048--v8 .tile-2048-inner {
+  background: #f2b179;
+  color: #f9f6f2;
+}
+[data-theme='light'] .tile-2048--v16 .tile-2048-inner {
+  background: #f59563;
+  color: #f9f6f2;
+}
+[data-theme='light'] .tile-2048--v32 .tile-2048-inner {
+  background: #f67c5f;
+  color: #f9f6f2;
+}
+[data-theme='light'] .tile-2048--v64 .tile-2048-inner {
+  background: #f65e3b;
+  color: #f9f6f2;
+}
+[data-theme='light'] .tile-2048--v128 .tile-2048-inner {
+  background: #edcf72;
+  color: #f9f6f2;
+}
+[data-theme='light'] .tile-2048--v256 .tile-2048-inner {
+  background: #edcc61;
+  color: #f9f6f2;
+}
+[data-theme='light'] .tile-2048--v512 .tile-2048-inner {
+  background: #edc850;
+  color: #f9f6f2;
+}
+[data-theme='light'] .tile-2048--v1024 .tile-2048-inner {
+  background: #edc53f;
+  color: #f9f6f2;
+}
+[data-theme='light'] .tile-2048--v2048 .tile-2048-inner {
+  background: #edc22e;
+  color: #f9f6f2;
+}
 
 /* ─── E-ink Mode ─────────────────────────────────────────── */
 [data-theme^='e-ink'] .board-2048-wrapper,
@@ -239,4 +320,3 @@
 .all-dialog .g2048-settings-actions .all-btn {
   flex: 1 1 0;
 }
-

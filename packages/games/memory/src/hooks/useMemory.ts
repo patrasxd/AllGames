@@ -1,10 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import type {
-  MemoryDifficulty,
-  MemoryGameMode,
-  CardData,
-  BestScoreRecord,
-} from '../types'
+import type { MemoryDifficulty, MemoryGameMode, CardData, BestScoreRecord } from '../types'
 import { createDeck, DIFFICULTY_PAIR_COUNTS } from '../logic'
 
 const DIFFICULTY_KEY = 'allgames:memory:difficulty'
@@ -91,7 +86,7 @@ export function useMemory(options?: { isEink?: boolean }) {
   useEffect(() => {
     if (gameStatus === 'playing') {
       timerRef.current = window.setInterval(() => {
-        setElapsedSeconds(s => s + 1)
+        setElapsedSeconds((s) => s + 1)
       }, 1000)
     } else {
       if (timerRef.current !== null) {
@@ -124,7 +119,7 @@ export function useMemory(options?: { isEink?: boolean }) {
       setScores({ p1: 0, p2: 0 })
       setBestScore(loadBestScore(diffToUse))
     },
-    [difficulty, mode]
+    [difficulty, mode],
   )
 
   const setDifficulty = useCallback(
@@ -133,7 +128,7 @@ export function useMemory(options?: { isEink?: boolean }) {
       saveDifficulty(d)
       resetGame(d, mode)
     },
-    [mode, resetGame]
+    [mode, resetGame],
   )
 
   const changeMode = useCallback(
@@ -142,14 +137,14 @@ export function useMemory(options?: { isEink?: boolean }) {
       saveMode(m)
       resetGame(difficulty, m)
     },
-    [difficulty, resetGame]
+    [difficulty, resetGame],
   )
 
   const handleCardClick = useCallback(
     (cardId: string) => {
       if (gameStatus === 'ended' || isEvaluating) return
 
-      const card = cards.find(c => c.id === cardId)
+      const card = cards.find((c) => c.id === cardId)
       if (!card || card.isFlipped || card.isMatched) return
 
       // Start timer on first card click
@@ -159,90 +154,96 @@ export function useMemory(options?: { isEink?: boolean }) {
 
       if (flippedIds.length === 0) {
         // First card flipped
-        setCards(prev =>
-          prev.map(c => (c.id === cardId ? { ...c, isFlipped: true } : c))
-        )
+        setCards((prev) => prev.map((c) => (c.id === cardId ? { ...c, isFlipped: true } : c)))
         setFlippedIds([cardId])
       } else if (flippedIds.length === 1) {
         // Second card flipped
         const firstCardId = flippedIds[0]
-        const firstCard = cards.find(c => c.id === firstCardId)!
+        const firstCard = cards.find((c) => c.id === firstCardId)!
 
         const isMatch = firstCard.symbolId === card.symbolId
 
-        setCards(prev =>
-          prev.map(c => (c.id === cardId ? { ...c, isFlipped: true } : c))
-        )
+        setCards((prev) => prev.map((c) => (c.id === cardId ? { ...c, isFlipped: true } : c)))
         setFlippedIds([firstCardId, cardId])
-        setMoves(m => m + 1)
+        setMoves((m) => m + 1)
 
         if (isMatch) {
           // Matched!
-          setTimeout(() => {
-            setCards(prev =>
-              prev.map(c =>
-                c.id === firstCardId || c.id === cardId
-                  ? { ...c, isMatched: true }
-                  : c
+          setTimeout(
+            () => {
+              setCards((prev) =>
+                prev.map((c) => (c.id === firstCardId || c.id === cardId ? { ...c, isMatched: true } : c)),
               )
-            )
-            setFlippedIds([])
+              setFlippedIds([])
 
-            const nextMatchedCount = matchedPairsCount + 1
-            setMatchedPairsCount(nextMatchedCount)
+              const nextMatchedCount = matchedPairsCount + 1
+              setMatchedPairsCount(nextMatchedCount)
 
-            if (mode === '2p') {
-              setScores(prev => ({
-                ...prev,
-                [currentTurn]: prev[currentTurn] + 1,
-              }))
-            }
-
-            // Check if all pairs matched
-            if (nextMatchedCount === totalPairs) {
-              setGameStatus('ended')
-
-              if (mode === '1p') {
-                setElapsedSeconds(time => {
-                  const finalMoves = moves + 1
-                  const currentBest = loadBestScore(difficulty)
-                  const isNewBest =
-                    currentBest === null ||
-                    finalMoves < currentBest.moves ||
-                    (finalMoves === currentBest.moves && time < currentBest.time)
-
-                  if (isNewBest) {
-                    const record = { moves: finalMoves, time }
-                    saveBestScore(difficulty, record)
-                    setBestScore(record)
-                  }
-                  return time
-                })
+              if (mode === '2p') {
+                setScores((prev) => ({
+                  ...prev,
+                  [currentTurn]: prev[currentTurn] + 1,
+                }))
               }
-            }
-          }, isEink ? 100 : 350)
+
+              // Check if all pairs matched
+              if (nextMatchedCount === totalPairs) {
+                setGameStatus('ended')
+
+                if (mode === '1p') {
+                  setElapsedSeconds((time) => {
+                    const finalMoves = moves + 1
+                    const currentBest = loadBestScore(difficulty)
+                    const isNewBest =
+                      currentBest === null ||
+                      finalMoves < currentBest.moves ||
+                      (finalMoves === currentBest.moves && time < currentBest.time)
+
+                    if (isNewBest) {
+                      const record = { moves: finalMoves, time }
+                      saveBestScore(difficulty, record)
+                      setBestScore(record)
+                    }
+                    return time
+                  })
+                }
+              }
+            },
+            isEink ? 100 : 350,
+          )
         } else {
           // Mismatch — wait to let player memorize, then flip back
           setIsEvaluating(true)
-          setTimeout(() => {
-            setCards(prev =>
-              prev.map(c =>
-                c.id === firstCardId || c.id === cardId
-                  ? { ...c, isFlipped: false }
-                  : c
+          setTimeout(
+            () => {
+              setCards((prev) =>
+                prev.map((c) => (c.id === firstCardId || c.id === cardId ? { ...c, isFlipped: false } : c)),
               )
-            )
-            setFlippedIds([])
-            setIsEvaluating(false)
+              setFlippedIds([])
+              setIsEvaluating(false)
 
-            if (mode === '2p') {
-              setCurrentTurn(prev => (prev === 'p1' ? 'p2' : 'p1'))
-            }
-          }, isEink ? 450 : 850)
+              if (mode === '2p') {
+                setCurrentTurn((prev) => (prev === 'p1' ? 'p2' : 'p1'))
+              }
+            },
+            isEink ? 450 : 850,
+          )
         }
       }
     },
-    [cards, flippedIds, gameStatus, isEvaluating, matchedPairsCount, mode, currentTurn, totalPairs, moves, difficulty, isEink]
+    [
+      cards,
+      flippedIds,
+      gameStatus,
+      isEvaluating,
+      matchedPairsCount,
+      mode,
+      currentTurn,
+      totalPairs,
+      moves,
+      difficulty,
+      isEink,
+    ],
   )
 
   const resetBest = useCallback(() => {

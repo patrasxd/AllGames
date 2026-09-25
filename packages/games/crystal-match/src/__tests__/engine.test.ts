@@ -31,25 +31,30 @@ let uid = 0
 /** Layout tokens: gem letter + optional modifier (R:i ice, R:d double ice, R:h line-h, R:b bomb, R:p prism), '.' hole, '#' stone. */
 function board(layout: string[]): Tile[][] {
   return layout.map((line, r) =>
-    line.trim().split(/\s+/).map((token, c): Tile => {
-      const base = { id: `t${++uid}`, row: r, col: c }
-      if (token === '.') return { ...base, gem: null, special: 'none', obstacle: 'empty' }
-      if (token === '#') return { ...base, gem: null, special: 'none', obstacle: 'stone' }
-      const [g, mod] = token.split(':')
-      return {
-        ...base,
-        gem: GEMS[g],
-        special: mod && SPECIALS[mod] ? SPECIALS[mod] : 'none',
-        obstacle: mod && OBSTACLES[mod] ? OBSTACLES[mod] : 'none',
-      }
-    })
+    line
+      .trim()
+      .split(/\s+/)
+      .map((token, c): Tile => {
+        const base = { id: `t${++uid}`, row: r, col: c }
+        if (token === '.') return { ...base, gem: null, special: 'none', obstacle: 'empty' }
+        if (token === '#') return { ...base, gem: null, special: 'none', obstacle: 'stone' }
+        const [g, mod] = token.split(':')
+        return {
+          ...base,
+          gem: GEMS[g],
+          special: mod && SPECIALS[mod] ? SPECIALS[mod] : 'none',
+          obstacle: mod && OBSTACLES[mod] ? OBSTACLES[mod] : 'none',
+        }
+      }),
   )
 }
 
 /** 8x8 with no matches at all, so a test only sees what it plants. */
 function calmBoard(): Tile[][] {
   const letters = ['R', 'S', 'E', 'T']
-  return board(Array.from({ length: 8 }, (_, r) => Array.from({ length: 8 }, (_, c) => letters[(r * 2 + c) % 4]).join(' ')))
+  return board(
+    Array.from({ length: 8 }, (_, r) => Array.from({ length: 8 }, (_, c) => letters[(r * 2 + c) % 4]).join(' ')),
+  )
 }
 
 describe('gravity and refill', () => {
@@ -57,7 +62,7 @@ describe('gravity and refill', () => {
     for (const lvl of [2, 4]) {
       const config = generateLevel(lvl)
       const b = createInitialBoard(config)
-      const hit = b.map(row => row.map(t => ({ ...t })))
+      const hit = b.map((row) => row.map((t) => ({ ...t })))
       for (let c = 0; c < 8; c++) if (!isBlocked(hit[5][c])) hit[5][c].gem = null
       const { nextBoard } = applyGravityAndRefill(hit, config)
       for (const row of nextBoard) {
@@ -85,7 +90,10 @@ describe('gravity and refill', () => {
     b[7][3].gem = null
     const { nextBoard } = applyGravityAndRefill(b, { gemColors: ['ruby', 'sapphire'] })
     expect(nextBoard[1][3].id).toBe(idOfTop)
-    const ids = nextBoard.flat().filter(t => t.gem).map(t => t.id)
+    const ids = nextBoard
+      .flat()
+      .filter((t) => t.gem)
+      .map((t) => t.id)
     expect(new Set(ids).size).toBe(ids.length)
     expect(nextBoard[0][3].spawnDrop).toBeGreaterThan(0)
   })
@@ -121,7 +129,7 @@ describe('ice stays put', () => {
     b[1][1].gem = null
     b[1][1].obstacle = 'stone'
     const r = findMatches(b)
-    expect(r.obstacleChanges.some(o => o.from === 'stone')).toBe(true)
+    expect(r.obstacleChanges.some((o) => o.from === 'stone')).toBe(true)
     expect(r.iceCleared).toBe(0)
   })
 
@@ -190,7 +198,7 @@ describe('gems on ice are frozen', () => {
     const outcome = evaluateSwap(b, 0, 2, 1, 2)
     expect(outcome).not.toBeNull()
     expect(outcome!.iceCleared).toBe(1)
-    expect(outcome!.matchedCoords.some(c => c.row === 0 && c.col === 1)).toBe(true)
+    expect(outcome!.matchedCoords.some((c) => c.row === 0 && c.col === 1)).toBe(true)
   })
 })
 
@@ -202,11 +210,11 @@ describe('special gems', () => {
     const target = b[3][4].gem!
     const outcome = evaluateSwap(b, 3, 3, 3, 4)
     expect(outcome).not.toBeNull()
-    const expected = b.flat().filter(t => t.gem === target).length
+    const expected = b.flat().filter((t) => t.gem === target).length
     expect(outcome!.gemsClearedByType[target]).toBe(expected)
     const swapped = swapTiles(b, 3, 3, 3, 4)
     const cleared = clearMatched(swapped, outcome!)
-    expect(cleared.flat().filter(t => t.gem === target).length).toBe(0)
+    expect(cleared.flat().filter((t) => t.gem === target).length).toBe(0)
   })
 
   it('prism + prism clears the board, bomb + bomb is 5x5, line + line is a cross', () => {
@@ -232,7 +240,7 @@ describe('special gems', () => {
     b[0][2].special = 'line-h' // matched, clears row 0
     b[0][6].special = 'bomb' // sits in that row, should explode 3x3
     const r = findMatches(b)
-    const has = (row: number, col: number) => r.matchedCoords.some(c => c.row === row && c.col === col)
+    const has = (row: number, col: number) => r.matchedCoords.some((c) => c.row === row && c.col === col)
     expect(has(0, 7)).toBe(true)
     expect(has(1, 6)).toBe(true) // bomb blast, not part of the row
     expect(has(1, 7)).toBe(true)
@@ -264,7 +272,7 @@ describe('valid moves and hints', () => {
     const fixed = reshuffleBoard(dead, { gemColors: ['ruby', 'sapphire', 'emerald', 'topaz'] })
     expect(findMatches(fixed).matchedCoords.length).toBe(0)
     expect(hasValidMove(fixed)).toBe(true)
-    expect(new Set(fixed.flat().map(t => t.id)).size).toBe(16) // same gems, just moved
+    expect(new Set(fixed.flat().map((t) => t.id)).size).toBe(16) // same gems, just moved
   })
 })
 
@@ -274,7 +282,7 @@ describe('levels', () => {
       const config = generateLevel(lvl)
       const a = createInitialBoard(config)
       const b = createInitialBoard(config)
-      const sig = (x: Tile[][]) => x.map(row => row.map(t => t.gem ?? '-').join(',')).join('|')
+      const sig = (x: Tile[][]) => x.map((row) => row.map((t) => t.gem ?? '-').join(',')).join('|')
       expect(sig(a)).toBe(sig(b))
       expect(findMatches(a).matchedCoords.length).toBe(0)
       expect(hasValidMove(a)).toBe(true)
@@ -283,7 +291,7 @@ describe('levels', () => {
   })
 
   it('difficulty keeps growing after level 12 instead of flat-lining', () => {
-    const score = (l: number) => generateLevel(l).goals.find(g => g.type === 'score')!.target
+    const score = (l: number) => generateLevel(l).goals.find((g) => g.type === 'score')!.target
     expect(score(30)).toBeGreaterThan(score(12))
     expect(score(50)).toBeGreaterThan(score(30))
   })

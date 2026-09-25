@@ -94,10 +94,13 @@ export function useWingRush() {
   }, [])
 
   // Change difficulty
-  const changeDifficulty = useCallback((diff: Difficulty) => {
-    setDifficulty(diff)
-    resetGame()
-  }, [resetGame])
+  const changeDifficulty = useCallback(
+    (diff: Difficulty) => {
+      setDifficulty(diff)
+      resetGame()
+    },
+    [resetGame],
+  )
 
   // Flap Action
   const flap = useCallback(() => {

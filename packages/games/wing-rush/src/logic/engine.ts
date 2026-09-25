@@ -68,7 +68,7 @@ function circleIntersectsRect(
   rx: number,
   ry: number,
   rw: number,
-  rh: number
+  rh: number,
 ): boolean {
   const closestX = Math.max(rx, Math.min(cx, rx + rw))
   const closestY = Math.max(ry, Math.min(cy, ry + rh))
@@ -78,13 +78,7 @@ function circleIntersectsRect(
 }
 
 // Check intersection with bird's composite body + beak hitbox
-function birdIntersectsRect(
-  bird: Bird,
-  rx: number,
-  ry: number,
-  rw: number,
-  rh: number
-): boolean {
+function birdIntersectsRect(bird: Bird, rx: number, ry: number, rw: number, rh: number): boolean {
   // 1. Main body circle (radius 12.5)
   if (circleIntersectsRect(bird.x, bird.y, 12.5, rx, ry, rw, rh)) {
     return true
@@ -162,14 +156,14 @@ export function createFlapParticles(x: number, y: number): Particle[] {
 
 export function updateParticles(particles: Particle[]): Particle[] {
   return particles
-    .map(p => ({
+    .map((p) => ({
       ...p,
       x: p.x + p.vx,
       y: p.y + p.vy,
       alpha: p.alpha - 0.035,
       size: Math.max(0.5, p.size - 0.08),
     }))
-    .filter(p => p.alpha > 0.05)
+    .filter((p) => p.alpha > 0.05)
 }
 
 export function stepBirdPhysics(bird: Bird, config: DifficultyConfig, dt: number): Bird {
@@ -192,4 +186,3 @@ export function stepPipePosition(pipe: Pipe, config: DifficultyConfig, dt: numbe
     x: pipe.x - config.pipeSpeed * dt,
   }
 }
-

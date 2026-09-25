@@ -30,8 +30,7 @@ export function generateLevel(levelIndex: number): LevelConfig {
 
   let maxMoves = Math.max(23, Math.min(30, 26 - Math.floor(levelIndex / 20) + Math.floor(rand() * 4)))
   // Ramps up to level 12 (as before), then keeps growing slowly instead of flat-lining.
-  let targetScore =
-    levelIndex <= 12 ? 1800 + (levelIndex - 1) * 220 : Math.min(6500, 4200 + (levelIndex - 12) * 35)
+  let targetScore = levelIndex <= 12 ? 1800 + (levelIndex - 1) * 220 : Math.min(6500, 4200 + (levelIndex - 12) * 35)
 
   if (levelIndex === 1) {
     // Level 1: Tutorial Level - Collect specific gems and score (cannot be won in 1 move)
@@ -59,7 +58,16 @@ export function generateLevel(levelIndex: number): LevelConfig {
     targetScore = 2200
     // 8 Ice tiles in a checkerboard diamond. Frozen gems cannot be swapped, so the ice is
     // spread out: every ice cell has free neighbours to build a match with.
-    for (const [r, c] of [[2, 2], [2, 4], [3, 3], [3, 5], [4, 2], [4, 4], [5, 3], [5, 5]]) {
+    for (const [r, c] of [
+      [2, 2],
+      [2, 4],
+      [3, 3],
+      [3, 5],
+      [4, 2],
+      [4, 4],
+      [5, 3],
+      [5, 5],
+    ]) {
       initialObstacles.push({ row: r, col: c, obstacle: 'ice' })
     }
     goals.push({ type: 'ice', target: 6, current: 0 })
@@ -111,13 +119,18 @@ export function generateLevel(levelIndex: number): LevelConfig {
     const iceCount = Math.min(22, 6 + Math.floor(levelIndex * 0.8))
     const stoneCount = Math.min(8, Math.floor(levelIndex / 4))
     const placed = new Set<string>()
-    initialObstacles.forEach(o => placed.add(`${o.row}-${o.col}`))
+    initialObstacles.forEach((o) => placed.add(`${o.row}-${o.col}`))
 
     // Frozen gems cannot be swapped, so ice cells must not touch each other (a line made only of
     // frozen gems could never be built by the player).
     const iceCells = new Set<string>()
     const touchesIce = (r: number, c: number) =>
-      [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dr, dc]) => iceCells.has(`${r + dr}-${c + dc}`))
+      [
+        [1, 0],
+        [-1, 0],
+        [0, 1],
+        [0, -1],
+      ].some(([dr, dc]) => iceCells.has(`${r + dr}-${c + dc}`))
 
     let addedIce = 0
     let doubleCount = 0
@@ -187,7 +200,7 @@ export function createInitialBoard(config: LevelConfig, rand?: () => number): Ti
   const { rows, cols, gemColors, initialObstacles } = config
   const random = rand ?? createPRNG(config.seed ?? Math.floor(Math.random() * 2147483646) + 1)
   const obstacleMap = new Map<string, ObstacleType>()
-  initialObstacles?.forEach(o => obstacleMap.set(`${o.row}-${o.col}`, o.obstacle))
+  initialObstacles?.forEach((o) => obstacleMap.set(`${o.row}-${o.col}`, o.obstacle))
 
   const board: Tile[][] = []
   for (let r = 0; r < rows; r++) {

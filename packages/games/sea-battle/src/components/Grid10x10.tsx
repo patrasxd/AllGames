@@ -29,7 +29,7 @@ export const Grid10x10 = memo(function Grid10x10({
         {/* Header Letters A-J */}
         <div className="bs-header-row">
           <div className="bs-header-corner" />
-          {LETTERS.map(letter => (
+          {LETTERS.map((letter) => (
             <div key={letter} className="bs-header-letter">
               {letter}
             </div>
@@ -64,7 +64,7 @@ export const Grid10x10 = memo(function Grid10x10({
                     role={isInteractive ? 'button' : 'gridcell'}
                     tabIndex={isInteractive ? 0 : -1}
                     aria-label={`${LETTERS[c]}${r + 1}: ${visibleCell}`}
-                    onKeyDown={e => {
+                    onKeyDown={(e) => {
                       if (isInteractive && (e.key === 'Enter' || e.key === ' ')) {
                         e.preventDefault()
                         onCellClick?.(r, c)

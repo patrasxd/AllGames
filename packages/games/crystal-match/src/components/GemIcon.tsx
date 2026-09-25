@@ -8,12 +8,7 @@ interface GemIconProps {
   size?: number | string
 }
 
-export const GemIcon = memo(function GemIcon({
-  gem,
-  special = 'none',
-  isEink = false,
-  size = '100%',
-}: GemIconProps) {
+export const GemIcon = memo(function GemIcon({ gem, special = 'none', isEink = false, size = '100%' }: GemIconProps) {
   return (
     <svg
       width={size}

@@ -1,4 +1,4 @@
-import type { CardData, SolitaireState } from './types'
+import type { SolitaireState } from './types'
 import { canMoveToFoundation, canMoveToTableau } from './logic'
 
 /**
@@ -18,23 +18,19 @@ const MAX_NODES = 10000
 type State = SolitaireState
 
 export function stateKey(s: State): string {
-  const fKey = s.foundations.map(f => f.length).join(',')
-  const tKey = s.tableau
-    .map(pile =>
-      pile.map(c => (c.faceUp ? `${c.suit[0]}${c.rank}` : 'X')).join('')
-    )
-    .join('|')
+  const fKey = s.foundations.map((f) => f.length).join(',')
+  const tKey = s.tableau.map((pile) => pile.map((c) => (c.faceUp ? `${c.suit[0]}${c.rank}` : 'X')).join('')).join('|')
   const wTop = s.waste.length > 0 ? s.waste[s.waste.length - 1].id : '-'
-  const sKey = s.stock.map(c => c.id).join('')
+  const sKey = s.stock.map((c) => c.id).join('')
   return `${fKey}:${wTop}:${sKey}:${tKey}`
 }
 
 function cloneState(s: State): State {
   return {
-    stock: s.stock.map(c => ({ ...c })),
-    waste: s.waste.map(c => ({ ...c })),
-    foundations: s.foundations.map(f => f.map(c => ({ ...c }))),
-    tableau: s.tableau.map(p => p.map(c => ({ ...c }))),
+    stock: s.stock.map((c) => ({ ...c })),
+    waste: s.waste.map((c) => ({ ...c })),
+    foundations: s.foundations.map((f) => f.map((c) => ({ ...c }))),
+    tableau: s.tableau.map((p) => p.map((c) => ({ ...c }))),
     drawMode: s.drawMode,
     moves: s.moves,
     score: s.score,
@@ -79,7 +75,10 @@ function expand(s: State): State[] {
     const fromPile = s.tableau[from]
     let firstFaceUp = -1
     for (let i = 0; i < fromPile.length; i++) {
-      if (fromPile[i].faceUp) { firstFaceUp = i; break }
+      if (fromPile[i].faceUp) {
+        firstFaceUp = i
+        break
+      }
     }
     if (firstFaceUp === -1) continue
 
@@ -89,7 +88,7 @@ function expand(s: State): State[] {
         if (from === to) continue
         const toPile = s.tableau[to]
         if (card.rank === 13 && idx === 0 && toPile.length === 0) {
-          const emptyCount = s.tableau.filter(p => p.length === 0).length
+          const emptyCount = s.tableau.filter((p) => p.length === 0).length
           if (emptyCount > 1) continue
         }
         if (canMoveToTableau(card, toPile)) {
@@ -117,7 +116,7 @@ function expand(s: State): State[] {
     successors.push(ns)
   } else if (s.waste.length > 0) {
     const ns = cloneState(s)
-    ns.stock = ns.waste.reverse().map(c => ({ ...c, faceUp: false }))
+    ns.stock = ns.waste.reverse().map((c) => ({ ...c, faceUp: false }))
     ns.waste = []
     successors.push(ns)
   }
@@ -139,7 +138,7 @@ function expand(s: State): State[] {
 }
 
 function isWon(s: State): boolean {
-  return s.foundations.every(f => f.length === 13)
+  return s.foundations.every((f) => f.length === 13)
 }
 
 export { MAX_NODES }

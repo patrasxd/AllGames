@@ -23,7 +23,17 @@ import './styles/crystal-match.css'
 
 function CheckIcon() {
   return (
-    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg
+      width="10"
+      height="10"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="3"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
       <polyline points="20 6 9 17 4 12" />
     </svg>
   )
@@ -31,7 +41,17 @@ function CheckIcon() {
 
 function HelpIcon() {
   return (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg
+      width="13"
+      height="13"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.4"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
       <circle cx="12" cy="12" r="10" />
       <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
       <line x1="12" y1="17" x2="12.01" y2="17" />
@@ -41,7 +61,17 @@ function HelpIcon() {
 
 function RestartIcon() {
   return (
-    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg
+      viewBox="0 0 24 24"
+      width="13"
+      height="13"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
       <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
       <path d="M21 3v5h-5" />
       <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
@@ -118,7 +148,7 @@ export function CrystalMatch({ setHeader, setIsActive, locale = 'en', isEink = f
           { key: 'moves', label: 'MOV', value: movesLeft },
           { key: 'stars', label: t.stars, value: totalStars },
         ]}
-      />
+      />,
     )
   }, [setHeader, t, level, score, movesLeft, totalStars])
 
@@ -158,10 +188,10 @@ export function CrystalMatch({ setHeader, setIsActive, locale = 'en', isEink = f
                         g.type === 'score'
                           ? t.scoreGoal(g.target)
                           : g.type === 'ice'
-                          ? t.iceGoal(g.current, g.target)
-                          : g.gemType
-                          ? t.gemGoal(g.current, g.target, g.gemType)
-                          : ''
+                            ? t.iceGoal(g.current, g.target)
+                            : g.gemType
+                              ? t.gemGoal(g.current, g.target, g.gemType)
+                              : ''
                       }
                     >
                       {g.type === 'gems' && g.gemType && (
@@ -169,16 +199,10 @@ export function CrystalMatch({ setHeader, setIsActive, locale = 'en', isEink = f
                           <GemIcon gem={g.gemType} isEink={isEink} size={14} />
                         </div>
                       )}
-                      {g.type === 'ice' && (
-                        <IceGoalIcon size={13} />
-                      )}
-                      {g.type === 'score' && (
-                        <TargetScoreIcon size={13} />
-                      )}
+                      {g.type === 'ice' && <IceGoalIcon size={13} />}
+                      {g.type === 'score' && <TargetScoreIcon size={13} />}
 
-                      <span>
-                        {g.type === 'score' ? `${score}/${g.target}` : `${g.current}/${g.target}`}
-                      </span>
+                      <span>{g.type === 'score' ? `${score}/${g.target}` : `${g.current}/${g.target}`}</span>
                       {isDone && <CheckIcon />}
                     </div>
                   )
@@ -232,10 +256,10 @@ export function CrystalMatch({ setHeader, setIsActive, locale = 'en', isEink = f
                             {g.type === 'score'
                               ? t.scoreGoal(g.target)
                               : g.type === 'ice'
-                              ? t.iceGoal(0, g.target)
-                              : g.gemType
-                              ? t.gemGoal(0, g.target, g.gemType)
-                              : ''}
+                                ? t.iceGoal(0, g.target)
+                                : g.gemType
+                                  ? t.gemGoal(0, g.target, g.gemType)
+                                  : ''}
                           </span>
                         </div>
                       </div>
@@ -254,44 +278,47 @@ export function CrystalMatch({ setHeader, setIsActive, locale = 'en', isEink = f
               )}
 
               {/* Victory Overlay */}
-              {gameStatus === 'won' && (() => {
-                const starsWon = score >= config.starThresholds[2] ? 3 : score >= config.starThresholds[1] ? 2 : 1
-                const starTip = starsWon === 3 ? t.tip3Stars : starsWon === 2 ? t.tip2Stars : t.tip1Star
-                // Score needed for the next star; nothing to show once all three are earned
-                const nextStarAt = starsWon === 3 ? null : config.starThresholds[starsWon]
+              {gameStatus === 'won' &&
+                (() => {
+                  const starsWon = score >= config.starThresholds[2] ? 3 : score >= config.starThresholds[1] ? 2 : 1
+                  const starTip = starsWon === 3 ? t.tip3Stars : starsWon === 2 ? t.tip2Stars : t.tip1Star
+                  // Score needed for the next star; nothing to show once all three are earned
+                  const nextStarAt = starsWon === 3 ? null : config.starThresholds[starsWon]
 
-                return (
-                  <GameResultOverlay
-                    status="won"
-                    title={t.victoryTitle}
-                    subtitle={starTip}
-                    isEink={isEink}
-                    playAgainText={t.nextLevel}
-                    onPlayAgain={nextLevel}
-                    playAgainId="cm-next-level-btn"
-                    stats={[
-                      { label: t.score, value: score },
-                      { label: t.movesLeft, value: movesLeft },
-                      {
-                        label: t.stars,
-                        value: (
-                          <div style={{ display: 'flex', gap: '3px', alignItems: 'center', justifyContent: 'center' }}>
-                            <StarIcon filled={starsWon >= 1} size={16} />
-                            <StarIcon filled={starsWon >= 2} size={16} />
-                            <StarIcon filled={starsWon >= 3} size={16} />
-                          </div>
-                        ),
-                      },
-                      ...(nextStarAt !== null ? [{ label: t.nextStar, value: nextStarAt }] : []),
-                    ]}
-                    secondaryAction={{
-                      label: t.levelSelect,
-                      onClick: () => setIsLevelModalOpen(true),
-                      id: 'cm-won-levels-btn',
-                    }}
-                  />
-                )
-              })()}
+                  return (
+                    <GameResultOverlay
+                      status="won"
+                      title={t.victoryTitle}
+                      subtitle={starTip}
+                      isEink={isEink}
+                      playAgainText={t.nextLevel}
+                      onPlayAgain={nextLevel}
+                      playAgainId="cm-next-level-btn"
+                      stats={[
+                        { label: t.score, value: score },
+                        { label: t.movesLeft, value: movesLeft },
+                        {
+                          label: t.stars,
+                          value: (
+                            <div
+                              style={{ display: 'flex', gap: '3px', alignItems: 'center', justifyContent: 'center' }}
+                            >
+                              <StarIcon filled={starsWon >= 1} size={16} />
+                              <StarIcon filled={starsWon >= 2} size={16} />
+                              <StarIcon filled={starsWon >= 3} size={16} />
+                            </div>
+                          ),
+                        },
+                        ...(nextStarAt !== null ? [{ label: t.nextStar, value: nextStarAt }] : []),
+                      ]}
+                      secondaryAction={{
+                        label: t.levelSelect,
+                        onClick: () => setIsLevelModalOpen(true),
+                        id: 'cm-won-levels-btn',
+                      }}
+                    />
+                  )
+                })()}
 
               {/* Defeat Overlay */}
               {gameStatus === 'lost' && (
@@ -318,12 +345,7 @@ export function CrystalMatch({ setHeader, setIsActive, locale = 'en', isEink = f
           }
           controls={
             <ControlsBar className="cm-controls-bar">
-              <Button
-                id="cm-levels-btn"
-                variant="secondary"
-                size="sm"
-                onClick={handleLevelsClick}
-              >
+              <Button id="cm-levels-btn" variant="secondary" size="sm" onClick={handleLevelsClick}>
                 {t.levelSelect}
               </Button>
 
@@ -359,11 +381,7 @@ export function CrystalMatch({ setHeader, setIsActive, locale = 'en', isEink = f
           className="cm-dialog"
           footer={
             <div className="cm-modal-actions">
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={() => setIsHowToPlayOpen(false)}
-              >
+              <Button variant="primary" size="sm" onClick={() => setIsHowToPlayOpen(false)}>
                 OK
               </Button>
             </div>

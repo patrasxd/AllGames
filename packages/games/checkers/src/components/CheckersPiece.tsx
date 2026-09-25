@@ -25,9 +25,7 @@ export function CheckersPiece({ piece, isSelected = false, isEink = false }: Pie
       }`}
     >
       {/* Inner decorative concentric ink ring */}
-      <span className="checkers-piece-inner">
-        {piece.isKing && <CrownIcon />}
-      </span>
+      <span className="checkers-piece-inner">{piece.isKing && <CrownIcon />}</span>
     </div>
   )
 

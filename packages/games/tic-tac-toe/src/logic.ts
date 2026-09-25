@@ -5,9 +5,14 @@ export type GameMode = '2p' | 'ai'
 export type DifficultyLevel = 'easy' | 'medium' | 'hard'
 
 export const WINNING_LINES: [number, number, number][] = [
-  [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
-  [0, 3, 6], [1, 4, 7], [2, 5, 8], // cols
-  [0, 4, 8], [2, 4, 6],            // diagonals
+  [0, 1, 2],
+  [3, 4, 5],
+  [6, 7, 8], // rows
+  [0, 3, 6],
+  [1, 4, 7],
+  [2, 5, 8], // cols
+  [0, 4, 8],
+  [2, 4, 6], // diagonals
 ]
 
 export function checkWinner(board: Board): { winner: Player; line: [number, number, number] } | null {
@@ -21,7 +26,7 @@ export function checkWinner(board: Board): { winner: Player; line: [number, numb
 }
 
 export function isDraw(board: Board): boolean {
-  return board.every(cell => cell !== null) && checkWinner(board) === null
+  return board.every((cell) => cell !== null) && checkWinner(board) === null
 }
 
 // ─── Minimax AI ─────────────────────────────────────────────
@@ -35,7 +40,7 @@ function score(board: Board, depth: number): number {
 function minimax(board: Board, depth: number, isMaximizing: boolean, alpha: number, beta: number): number {
   const s = score(board, depth)
   if (s !== 0) return s
-  if (board.every(c => c !== null)) return 0
+  if (board.every((c) => c !== null)) return 0
 
   if (isMaximizing) {
     let best = -Infinity
@@ -93,7 +98,7 @@ export function getBestMove(board: Board, difficulty: DifficultyLevel = 'hard'):
   let bestScore = -Infinity
   let bestMove = availableMoves[0]
 
-  if (board.every(c => c === null)) return 4
+  if (board.every((c) => c === null)) return 4
 
   for (const i of availableMoves) {
     board[i] = 'O'

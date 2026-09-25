@@ -36,7 +36,7 @@ const SWAP_MS = 190
 const CLEAR_MS = 190
 const FALL_MS = 340
 
-const wait = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms))
+const wait = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms))
 
 function loadSavedProgress(): PlayerProgress {
   try {
@@ -122,7 +122,7 @@ export function useCrystalMatch(options?: { isEink?: boolean; locale?: Locale })
     setBoard(createInitialBoard(newConfig))
     setMovesLeft(newConfig.maxMoves)
     setScore(0)
-    setGoals(newConfig.goals.map(g => ({ ...g, current: 0 })))
+    setGoals(newConfig.goals.map((g) => ({ ...g, current: 0 })))
     setGameStatus('playing')
     setCombo(0)
     setBursts([])
@@ -161,13 +161,13 @@ export function useCrystalMatch(options?: { isEink?: boolean; locale?: Locale })
         burstCounter += 1
         return { id: `b${burstCounter}`, row, col, color: gem ? GEM_COLORS[gem] : GEM_COLORS.topaz }
       })
-      setBursts(prev => [...prev.slice(-24), ...created])
-      const ids = new Set(created.map(b => b.id))
+      setBursts((prev) => [...prev.slice(-24), ...created])
+      const ids = new Set(created.map((b) => b.id))
       setTimeout(() => {
-        if (aliveRef.current) setBursts(prev => prev.filter(b => !ids.has(b.id)))
+        if (aliveRef.current) setBursts((prev) => prev.filter((b) => !ids.has(b.id)))
       }, 520)
     },
-    [isEink]
+    [isEink],
   )
 
   const triggerComboPopup = useCallback(
@@ -181,12 +181,12 @@ export function useCrystalMatch(options?: { isEink?: boolean; locale?: Locale })
         x: (col / config.cols) * 100 + 5,
         y: (row / config.rows) * 100 + 5,
       }
-      setComboPopups(prev => [...prev.slice(-2), popup])
+      setComboPopups((prev) => [...prev.slice(-2), popup])
       setTimeout(() => {
-        if (aliveRef.current) setComboPopups(prev => prev.filter(p => p.id !== popup.id))
+        if (aliveRef.current) setComboPopups((prev) => prev.filter((p) => p.id !== popup.id))
       }, 1400)
     },
-    [t, config.cols, config.rows]
+    [t, config.cols, config.rows],
   )
 
   /** Resolves matches, gravity and refills until the board is stable, then decides win / loss. */
@@ -197,7 +197,7 @@ export function useCrystalMatch(options?: { isEink?: boolean; locale?: Locale })
       startGoals: LevelGoal[],
       movesAfter: number,
       first: MatchResult,
-      runId: number
+      runId: number,
     ) => {
       const stale = () => !aliveRef.current || runIdRef.current !== runId
 
@@ -243,7 +243,7 @@ export function useCrystalMatch(options?: { isEink?: boolean; locale?: Locale })
         if (totalLevelScore >= config.starThresholds[2]) stars = 3
         else if (totalLevelScore >= config.starThresholds[1]) stars = 2
 
-        setProgress(prev => {
+        setProgress((prev) => {
           const next: PlayerProgress = {
             unlockedLevel: Math.max(prev.unlockedLevel, level + 1),
             levelStars: { ...prev.levelStars, [level]: Math.max(prev.levelStars[level] || 0, stars) },
@@ -271,7 +271,7 @@ export function useCrystalMatch(options?: { isEink?: boolean; locale?: Locale })
 
       if (!stale()) isProcessingRef.current = false
     },
-    [config, level, spawnBursts, triggerComboPopup]
+    [config, level, spawnBursts, triggerComboPopup],
   )
 
   /**
@@ -312,7 +312,7 @@ export function useCrystalMatch(options?: { isEink?: boolean; locale?: Locale })
       setMovesLeft(nextMoves)
       runCascade(swapped, score, goals, nextMoves, outcome, runId)
     },
-    [board, gameStatus, movesLeft, score, goals, runCascade]
+    [board, gameStatus, movesLeft, score, goals, runCascade],
   )
 
   const nextLevel = useCallback(() => {
@@ -328,7 +328,7 @@ export function useCrystalMatch(options?: { isEink?: boolean; locale?: Locale })
       initLevel(lvl)
       setIsLevelModalOpen(false)
     },
-    [initLevel]
+    [initLevel],
   )
 
   const resetAllProgress = useCallback(() => {

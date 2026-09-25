@@ -5,15 +5,7 @@ import { SudokuBoard } from './components/SudokuBoard'
 import { Numpad } from './components/Numpad'
 import type { GameComponentProps, SudokuDifficulty } from './types'
 import { sudokuTranslations } from './i18n'
-import {
-  BoardLayout,
-  ConfirmDialog,
-  Button,
-  PillGroup,
-  ControlsBar,
-  StatsHeader,
-  formatTime,
-} from '@all/ui'
+import { BoardLayout, ConfirmDialog, Button, PillGroup, ControlsBar, StatsHeader, formatTime } from '@all/ui'
 import { GameResultOverlay } from '@allgames/ui'
 import './styles/sudoku.css'
 
@@ -71,7 +63,7 @@ export function Sudoku({ setHeader, setIsActive, locale = 'en', isEink = false }
         onReset={bestTime !== null ? resetBest : undefined}
         resetAriaLabel={t.resetStatsAria}
         resetId="sdk-reset-best-btn"
-      />
+      />,
     )
   }, [setHeader, elapsedSeconds, bestTime, mistakes, t, resetBest])
 
@@ -137,7 +129,7 @@ export function Sudoku({ setHeader, setIsActive, locale = 'en', isEink = false }
               locale={locale}
               onNumber={handleInputNumber}
               onErase={handleErase}
-              onTogglePencil={() => setPencilMode(p => !p)}
+              onTogglePencil={() => setPencilMode((p) => !p)}
               onUndo={handleUndo}
             />
           </div>
@@ -162,19 +154,14 @@ export function Sudoku({ setHeader, setIsActive, locale = 'en', isEink = false }
         }
         controls={
           <ControlsBar>
-            <Button
-              id="sdk-new-game-btn"
-              variant="primary"
-              size="sm"
-              onClick={handleNewGameClick}
-            >
+            <Button id="sdk-new-game-btn" variant="primary" size="sm" onClick={handleNewGameClick}>
               {t.newGame}
             </Button>
 
             <PillGroup<SudokuDifficulty>
               label={t.difficultyLabel}
               size="sm"
-              options={DIFFICULTIES.map(d => ({
+              options={DIFFICULTIES.map((d) => ({
                 value: d,
                 label: d === 'easy' ? t.easy : d === 'medium' ? t.medium : t.hard,
                 id: `sdk-diff-${d}`,
@@ -191,11 +178,7 @@ export function Sudoku({ setHeader, setIsActive, locale = 'en', isEink = false }
         open={Boolean(pendingAction)}
         onClose={handleCancelAction}
         title={t.confirmResetTitle}
-        description={
-          pendingAction?.type === 'newGame'
-            ? t.confirmNewGameDesc
-            : t.confirmDifficultyDesc
-        }
+        description={pendingAction?.type === 'newGame' ? t.confirmNewGameDesc : t.confirmDifficultyDesc}
         confirmLabel={pendingAction?.type === 'newGame' ? t.newGame : t.confirmBtn}
         cancelLabel={t.cancelBtn}
         confirmVariant="danger"

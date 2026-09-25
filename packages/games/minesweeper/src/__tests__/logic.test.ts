@@ -16,7 +16,7 @@ describe('Minesweeper logic unit tests', () => {
     const bBoard = createEmptyBoard(DIFFICULTY_CONFIGS.beginner.rows, DIFFICULTY_CONFIGS.beginner.cols)
     expect(bBoard.length).toBe(9)
     expect(bBoard[0].length).toBe(9)
-    expect(bBoard.flat().every(c => !c.hasMine && !c.isRevealed && !c.isFlagged)).toBe(true)
+    expect(bBoard.flat().every((c) => !c.hasMine && !c.isRevealed && !c.isFlagged)).toBe(true)
 
     // Intermediate 16x16
     const iBoard = createEmptyBoard(DIFFICULTY_CONFIGS.intermediate.rows, DIFFICULTY_CONFIGS.intermediate.cols)
@@ -42,7 +42,7 @@ describe('Minesweeper logic unit tests', () => {
     }
 
     // Total mines placed must match configuration
-    const actualMines = boardWithMines.flat().filter(c => c.hasMine).length
+    const actualMines = boardWithMines.flat().filter((c) => c.hasMine).length
     expect(actualMines).toBe(mines)
   })
 
@@ -72,7 +72,7 @@ describe('Minesweeper logic unit tests', () => {
 
     // All cells should be revealed since center is 0
     expect(status).toBe('won')
-    expect(nextBoard.flat().every(c => c.isRevealed)).toBe(true)
+    expect(nextBoard.flat().every((c) => c.isRevealed)).toBe(true)
   })
 
   it('stepping on a mine detonates the cell and reveals all mines', () => {

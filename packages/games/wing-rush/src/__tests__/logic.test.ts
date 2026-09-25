@@ -1,5 +1,12 @@
 import { describe, it, expect } from 'vitest'
-import { createInitialBird, createPipe, checkCollisions, VIRTUAL_HEIGHT, FLOOR_HEIGHT, BIRD_RADIUS } from '../logic/engine'
+import {
+  createInitialBird,
+  createPipe,
+  checkCollisions,
+  VIRTUAL_HEIGHT,
+  FLOOR_HEIGHT,
+  BIRD_RADIUS,
+} from '../logic/engine'
 
 describe('Wing Rush Physics & Engine Logic', () => {
   it('creates initial bird at standard virtual coordinates', () => {

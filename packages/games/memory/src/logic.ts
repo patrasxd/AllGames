@@ -2,9 +2,9 @@ import type { MemoryDifficulty, CardData } from './types'
 import { MEMORY_SYMBOLS } from './icons'
 
 export const DIFFICULTY_PAIR_COUNTS: Record<MemoryDifficulty, number> = {
-  easy: 6,    // 12 cards (3x4)
-  medium: 8,  // 16 cards (4x4)
-  hard: 12,   // 24 cards (4x6)
+  easy: 6, // 12 cards (3x4)
+  medium: 8, // 16 cards (4x4)
+  hard: 12, // 24 cards (4x6)
 }
 
 export function createDeck(difficulty: MemoryDifficulty): CardData[] {

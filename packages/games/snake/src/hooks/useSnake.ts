@@ -81,7 +81,7 @@ export function useSnake(options?: { isEink?: boolean }) {
 
   const [snake, setSnake] = useState<Point[]>(() => getInitialSnake(mapConfig.gridSize))
   const [food, setFood] = useState<Point>(() =>
-    spawnFood(getInitialSnake(mapConfig.gridSize), mapConfig.obstacles, mapConfig.gridSize)
+    spawnFood(getInitialSnake(mapConfig.gridSize), mapConfig.obstacles, mapConfig.gridSize),
   )
   const [status, setStatus] = useState<GameStatus>('IDLE')
   const [score, setScore] = useState(0)

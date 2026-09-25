@@ -21,9 +21,7 @@ export interface GameRegistryEntry {
 }
 
 function lazyGame(importFn: () => Promise<{ GameComponent: React.ComponentType<GameComponentProps> }>) {
-  return lazy(() =>
-    importFn().then(mod => ({ default: mod.GameComponent }))
-  )
+  return lazy(() => importFn().then((mod) => ({ default: mod.GameComponent })))
 }
 
 export const GAMES: GameRegistryEntry[] = [
@@ -78,5 +76,5 @@ export const GAMES: GameRegistryEntry[] = [
 ]
 
 export function findGame(slug: string): GameRegistryEntry | undefined {
-  return GAMES.find(g => g.metadata.slug === slug)
+  return GAMES.find((g) => g.metadata.slug === slug)
 }

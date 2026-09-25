@@ -1,10 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import type {
-  MinesweeperDifficulty,
-  MinesweeperBoardState,
-  GameStatus,
-  TouchInteractionMode,
-} from '../types'
+import type { MinesweeperDifficulty, MinesweeperBoardState, GameStatus, TouchInteractionMode } from '../types'
 import {
   DIFFICULTY_CONFIGS,
   createEmptyBoard,
@@ -59,9 +54,7 @@ export function useMinesweeper(options?: { isEink?: boolean }) {
   const [difficulty, setDifficultyState] = useState<MinesweeperDifficulty>(loadSavedDifficulty)
   const config = DIFFICULTY_CONFIGS[difficulty]
 
-  const [board, setBoard] = useState<MinesweeperBoardState>(() =>
-    createEmptyBoard(config.rows, config.cols)
-  )
+  const [board, setBoard] = useState<MinesweeperBoardState>(() => createEmptyBoard(config.rows, config.cols))
   const [gameStatus, setGameStatus] = useState<GameStatus>('idle')
   const [elapsedSeconds, setElapsedSeconds] = useState(0)
   const [isFaceShocked, setIsFaceShocked] = useState(false)
@@ -79,7 +72,7 @@ export function useMinesweeper(options?: { isEink?: boolean }) {
   useEffect(() => {
     if (gameStatus === 'playing') {
       timerRef.current = window.setInterval(() => {
-        setElapsedSeconds(s => s + 1)
+        setElapsedSeconds((s) => s + 1)
       }, 1000)
     } else {
       if (timerRef.current !== null) {
@@ -109,7 +102,7 @@ export function useMinesweeper(options?: { isEink?: boolean }) {
       setIsFaceShocked(false)
       setBestTime(loadBestTime(diffToUse))
     },
-    [difficulty]
+    [difficulty],
   )
 
   const setDifficulty = useCallback(
@@ -118,7 +111,7 @@ export function useMinesweeper(options?: { isEink?: boolean }) {
       saveDifficulty(d)
       resetGame(d)
     },
-    [resetGame]
+    [resetGame],
   )
 
   // Primary Action (Left click / tap)
@@ -131,7 +124,7 @@ export function useMinesweeper(options?: { isEink?: boolean }) {
       // If mobile mode is 'flag', toggle flag instead
       if (touchMode === 'flag') {
         if (!cell.isRevealed) {
-          setBoard(prev => toggleFlag(prev, row, col))
+          setBoard((prev) => toggleFlag(prev, row, col))
         }
         return
       }
@@ -156,7 +149,7 @@ export function useMinesweeper(options?: { isEink?: boolean }) {
             setGameStatus('lost')
           } else if (res.status === 'won') {
             setGameStatus('won')
-            setElapsedSeconds(currentSec => {
+            setElapsedSeconds((currentSec) => {
               const currentBest = loadBestTime(difficulty)
               if (currentBest === null || currentSec < currentBest) {
                 saveBestTime(difficulty, currentSec)
@@ -176,7 +169,7 @@ export function useMinesweeper(options?: { isEink?: boolean }) {
         setGameStatus('lost')
       } else if (res.status === 'won') {
         setGameStatus('won')
-        setElapsedSeconds(currentSec => {
+        setElapsedSeconds((currentSec) => {
           const currentBest = loadBestTime(difficulty)
           if (currentBest === null || currentSec < currentBest) {
             saveBestTime(difficulty, currentSec)
@@ -186,7 +179,7 @@ export function useMinesweeper(options?: { isEink?: boolean }) {
         })
       }
     },
-    [board, gameStatus, touchMode, config.mines, difficulty]
+    [board, gameStatus, touchMode, config.mines, difficulty],
   )
 
   // Right Click (Flagging)
@@ -197,9 +190,9 @@ export function useMinesweeper(options?: { isEink?: boolean }) {
       const cell = board[row][col]
       if (cell.isRevealed) return
 
-      setBoard(prev => toggleFlag(prev, row, col))
+      setBoard((prev) => toggleFlag(prev, row, col))
     },
-    [board, gameStatus]
+    [board, gameStatus],
   )
 
   const handleCellMouseDown = useCallback(() => {
@@ -213,9 +206,9 @@ export function useMinesweeper(options?: { isEink?: boolean }) {
       if (gameStatus === 'won' || gameStatus === 'lost') return
       const cell = board[row][col]
       if (cell.isRevealed) return
-      setBoard(prev => toggleFlag(prev, row, col))
+      setBoard((prev) => toggleFlag(prev, row, col))
     },
-    [board, gameStatus]
+    [board, gameStatus],
   )
 
   const handleCellMouseUp = useCallback(() => {

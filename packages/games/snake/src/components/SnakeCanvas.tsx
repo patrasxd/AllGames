@@ -118,12 +118,7 @@ export function SnakeCanvas({
             stroke="var(--all-border-2, var(--border-2))"
             strokeWidth={0.06}
           />
-          <circle
-            cx={food.x + 0.38}
-            cy={food.y + 0.38}
-            r={0.12}
-            fill="var(--all-bg, var(--bg))"
-          />
+          <circle cx={food.x + 0.38} cy={food.y + 0.38} r={0.12} fill="var(--all-bg, var(--bg))" />
         </g>
 
         {/* Snake Body */}

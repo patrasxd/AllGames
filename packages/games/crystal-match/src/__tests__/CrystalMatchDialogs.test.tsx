@@ -20,7 +20,7 @@ function hookState(level: number, overrides: Record<string, unknown> = {}) {
     board: createInitialBoard(config),
     movesLeft: config.maxMoves,
     score: 0,
-    goals: config.goals.map(g => ({ ...g, current: 0 })),
+    goals: config.goals.map((g) => ({ ...g, current: 0 })),
     gameStatus: 'playing',
     bursts: [],
     comboPopups: [],
@@ -67,7 +67,7 @@ describe('level intro dialog', () => {
     const moves = screen.getByTestId('cm-intro-moves')
     expect(moves.className).toBe('cm-intro-goal-card')
     expect(moves.querySelector('svg')).not.toBeNull()
-    const goalCards = [...document.querySelectorAll('.cm-intro-goal-card')].filter(c => c !== moves)
+    const goalCards = [...document.querySelectorAll('.cm-intro-goal-card')].filter((c) => c !== moves)
     for (const card of goalCards) expect(card.querySelector('svg')).not.toBeNull()
   })
 })

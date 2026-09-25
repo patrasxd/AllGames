@@ -72,9 +72,7 @@ export function Layout({ children }: LayoutProps) {
         menu={<HeaderMenu />}
       />
 
-      <main className="app-main">
-        {children}
-      </main>
+      <main className="app-main">{children}</main>
     </GameHeaderContext.Provider>
   )
 }

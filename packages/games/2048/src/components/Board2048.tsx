@@ -9,12 +9,7 @@ interface Board2048Props {
   onMove: (dir: Direction) => void
 }
 
-export const Board2048 = memo(function Board2048({
-  tiles,
-  size,
-  isEink,
-  onMove,
-}: Board2048Props) {
+export const Board2048 = memo(function Board2048({ tiles, size, isEink, onMove }: Board2048Props) {
   const touchStartRef = useRef<{ x: number; y: number } | null>(null)
 
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -54,12 +49,7 @@ export const Board2048 = memo(function Board2048({
   }
 
   return (
-    <div
-      className="board-2048-wrapper"
-      data-size={size}
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
-    >
+    <div className="board-2048-wrapper" data-size={size} onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
       {/* Background grid */}
       <div
         className="board-2048-bg"
@@ -73,7 +63,7 @@ export const Board2048 = memo(function Board2048({
 
       {/* Foreground tiles container */}
       <div className="board-2048-tiles">
-        {tiles.map(tile => (
+        {tiles.map((tile) => (
           <Tile key={tile.id} tile={tile} size={size} isEink={isEink} />
         ))}
       </div>

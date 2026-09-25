@@ -103,34 +103,37 @@ export function useCheckers(options?: { isEink?: boolean }) {
     setIsAIThinking(false)
   }, [])
 
-  const setDifficulty = useCallback((d: CheckersDifficulty) => {
-    setDifficultyState(d)
-    saveDifficulty(d)
-    resetGame()
-  }, [resetGame])
+  const setDifficulty = useCallback(
+    (d: CheckersDifficulty) => {
+      setDifficultyState(d)
+      saveDifficulty(d)
+      resetGame()
+    },
+    [resetGame],
+  )
 
   // Compute all current legal moves for active player
   const legalMoves = getAllLegalMoves(board, turn)
-  const hasJumps = legalMoves.some(m => !!m.captured)
+  const hasJumps = legalMoves.some((m) => !!m.captured)
 
   // Valid moves for currently selected square
   const validMovesForSelected: Move[] = selectedPos
-    ? legalMoves.filter(m => m.from.row === selectedPos.row && m.from.col === selectedPos.col)
+    ? legalMoves.filter((m) => m.from.row === selectedPos.row && m.from.col === selectedPos.col)
     : []
 
   const recordWin = useCallback(
     (w: PlayerColor | 'draw') => {
       if (mode === 'ai') {
-        setAIStats(s => {
+        setAIStats((s) => {
           const updated = { ...s, [w]: s[w] + 1 }
           saveAIStats(updated)
           return updated
         })
       } else {
-        setSessionStats(s => ({ ...s, [w]: s[w] + 1 }))
+        setSessionStats((s) => ({ ...s, [w]: s[w] + 1 }))
       }
     },
-    [mode]
+    [mode],
   )
 
   // AI Move calculation effect
@@ -144,7 +147,7 @@ export function useCheckers(options?: { isEink?: boolean }) {
     const delay = isEink ? 450 : 500 + Math.random() * 300
 
     const timer = setTimeout(() => {
-      setBoard(prevBoard => {
+      setBoard((prevBoard) => {
         const nextBoard = cloneBoard(prevBoard)
         const bestMove = getBestAIMove(nextBoard, difficultyRef.current)
 
@@ -198,9 +201,7 @@ export function useCheckers(options?: { isEink?: boolean }) {
 
       // If clicked on an available move destination
       if (selectedPos) {
-        const matchingMove = validMovesForSelected.find(
-          m => m.to.row === row && m.to.col === col
-        )
+        const matchingMove = validMovesForSelected.find((m) => m.to.row === row && m.to.col === col)
 
         if (matchingMove) {
           const nextBoard = cloneBoard(board)
@@ -247,7 +248,7 @@ export function useCheckers(options?: { isEink?: boolean }) {
         setSelectedPos(null)
       }
     },
-    [board, turn, winner, isAIThinking, mode, selectedPos, validMovesForSelected, hasJumps, multiJumpPiece, recordWin]
+    [board, turn, winner, isAIThinking, mode, selectedPos, validMovesForSelected, hasJumps, multiJumpPiece, recordWin],
   )
 
   const changeMode = useCallback((newMode: GameMode) => {

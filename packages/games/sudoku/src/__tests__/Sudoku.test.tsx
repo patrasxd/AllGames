@@ -65,7 +65,7 @@ describe('Sudoku Component Integration', () => {
 
     // Find an empty cell that is not initial clue
     const cells = Array.from(document.querySelectorAll('.sdk-cell'))
-    const emptyCellIndex = cells.findIndex(c => !c.classList.contains('sdk-cell--initial'))
+    const emptyCellIndex = cells.findIndex((c) => !c.classList.contains('sdk-cell--initial'))
     expect(emptyCellIndex).toBeGreaterThanOrEqual(0)
 
     const targetCell = cells[emptyCellIndex]
@@ -121,7 +121,7 @@ describe('Sudoku Component Integration', () => {
 
     // Enter a number in an empty cell to activate the game
     const cells = Array.from(document.querySelectorAll('.sdk-cell'))
-    const emptyCell = cells.find(c => !c.classList.contains('sdk-cell--initial'))!
+    const emptyCell = cells.find((c) => !c.classList.contains('sdk-cell--initial'))!
     fireEvent.click(emptyCell)
     fireEvent.click(document.getElementById('sdk-num-4')!)
 
@@ -164,7 +164,7 @@ describe('Sudoku Component Integration', () => {
     render(<Sudoku locale="en" />)
 
     const cells = Array.from(document.querySelectorAll('.sdk-cell'))
-    const emptyCells = cells.filter(c => !c.classList.contains('sdk-cell--initial'))
+    const emptyCells = cells.filter((c) => !c.classList.contains('sdk-cell--initial'))
     expect(emptyCells.length).toBeGreaterThanOrEqual(3)
 
     // Trigger 3 mistakes on distinct empty cells

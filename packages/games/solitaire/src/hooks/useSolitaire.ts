@@ -49,10 +49,10 @@ function saveBestScore(score: number) {
 
 function cloneState(state: SolitaireState): SolitaireState {
   return {
-    stock: state.stock.map(c => ({ ...c })),
-    waste: state.waste.map(c => ({ ...c })),
-    foundations: state.foundations.map(pile => pile.map(c => ({ ...c }))),
-    tableau: state.tableau.map(pile => pile.map(c => ({ ...c }))),
+    stock: state.stock.map((c) => ({ ...c })),
+    waste: state.waste.map((c) => ({ ...c })),
+    foundations: state.foundations.map((pile) => pile.map((c) => ({ ...c }))),
+    tableau: state.tableau.map((pile) => pile.map((c) => ({ ...c }))),
     drawMode: state.drawMode,
     moves: state.moves,
     score: state.score,
@@ -77,7 +77,7 @@ export function useSolitaire(options?: { isEink?: boolean }) {
   useEffect(() => {
     if (!state.isWon && (state.moves > 0 || state.waste.length > 0)) {
       timerRef.current = window.setInterval(() => {
-        setElapsedSeconds(s => s + 1)
+        setElapsedSeconds((s) => s + 1)
       }, 1000)
     } else {
       if (timerRef.current !== null) {
@@ -104,7 +104,7 @@ export function useSolitaire(options?: { isEink?: boolean }) {
       historyRef.current = []
       setBestScore(loadBestScore())
     },
-    [drawMode]
+    [drawMode],
   )
 
   const setDrawMode = useCallback(
@@ -113,7 +113,7 @@ export function useSolitaire(options?: { isEink?: boolean }) {
       saveDrawMode(m)
       resetGame(m)
     },
-    [resetGame]
+    [resetGame],
   )
 
   const pushHistory = (currentState: SolitaireState) => {
@@ -130,13 +130,13 @@ export function useSolitaire(options?: { isEink?: boolean }) {
     setSelectedLocation(null)
     pushHistory(state)
 
-    setState(prev => {
+    setState((prev) => {
       const next = cloneState(prev)
 
       if (next.stock.length === 0) {
         // Recycle waste to stock
         if (next.waste.length === 0) return prev
-        next.stock = next.waste.reverse().map(c => ({ ...c, faceUp: false }))
+        next.stock = next.waste.reverse().map((c) => ({ ...c, faceUp: false }))
         next.waste = []
         next.moves += 1
         next.score = Math.max(0, next.score - 20) // Recycle penalty
@@ -181,7 +181,7 @@ export function useSolitaire(options?: { isEink?: boolean }) {
           setSelectedLocation(null)
           pushHistory(state)
 
-          setState(prev => {
+          setState((prev) => {
             const next = cloneState(prev)
             if (loc.type === 'waste') {
               const c = next.waste.pop()!
@@ -214,7 +214,7 @@ export function useSolitaire(options?: { isEink?: boolean }) {
         }
       }
     },
-    [state]
+    [state],
   )
 
   // Handle manual move (from selectedLocation to target)
@@ -263,7 +263,7 @@ export function useSolitaire(options?: { isEink?: boolean }) {
       setSelectedLocation(null)
       pushHistory(state)
 
-      setState(prev => {
+      setState((prev) => {
         // Idempotency check: verify moving cards still exist at source
         let currentSourceCards: CardData[] = []
         if (from.type === 'waste') {
@@ -326,7 +326,7 @@ export function useSolitaire(options?: { isEink?: boolean }) {
 
       return true
     },
-    [state]
+    [state],
   )
 
   const isCardSelectable = useCallback(
@@ -341,7 +341,7 @@ export function useSolitaire(options?: { isEink?: boolean }) {
       }
       return false
     },
-    [state]
+    [state],
   )
 
   // Card click / selection handler
@@ -379,7 +379,7 @@ export function useSolitaire(options?: { isEink?: boolean }) {
         }
       }
     },
-    [state, selectedLocation, handleMove, isCardSelectable]
+    [state, selectedLocation, handleMove, isCardSelectable],
   )
 
   // Undo move
@@ -405,35 +405,38 @@ export function useSolitaire(options?: { isEink?: boolean }) {
   const handleAutoComplete = useCallback(() => {
     if (!isEligibleForAutoComplete(state) || state.isWon) return
 
-    const interval = window.setInterval(() => {
-      setState(curr => {
-        const found = findAutoFoundationMove(curr)
-        if (!found) {
-          clearInterval(interval)
-          return curr
-        }
-
-        const next = cloneState(curr)
-        if (found.from.type === 'tableau' && found.from.pileIndex !== undefined) {
-          const c = next.tableau[found.from.pileIndex].pop()!
-          next.foundations[found.foundationIndex].push(c)
-        }
-        next.moves += 1
-        next.score += 10
-
-        if (checkWinCondition(next.foundations)) {
-          next.isWon = true
-          clearInterval(interval)
-          const finalScore = next.score
-          const currentBest = loadBestScore()
-          if (currentBest === null || finalScore > currentBest) {
-            saveBestScore(finalScore)
-            setBestScore(finalScore)
+    const interval = window.setInterval(
+      () => {
+        setState((curr) => {
+          const found = findAutoFoundationMove(curr)
+          if (!found) {
+            clearInterval(interval)
+            return curr
           }
-        }
-        return next
-      })
-    }, isEink ? 50 : 120)
+
+          const next = cloneState(curr)
+          if (found.from.type === 'tableau' && found.from.pileIndex !== undefined) {
+            const c = next.tableau[found.from.pileIndex].pop()!
+            next.foundations[found.foundationIndex].push(c)
+          }
+          next.moves += 1
+          next.score += 10
+
+          if (checkWinCondition(next.foundations)) {
+            next.isWon = true
+            clearInterval(interval)
+            const finalScore = next.score
+            const currentBest = loadBestScore()
+            if (currentBest === null || finalScore > currentBest) {
+              saveBestScore(finalScore)
+              setBestScore(finalScore)
+            }
+          }
+          return next
+        })
+      },
+      isEink ? 50 : 120,
+    )
   }, [state, isEink])
 
   const resetBest = useCallback(() => {

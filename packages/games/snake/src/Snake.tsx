@@ -4,7 +4,7 @@ import { useSnake } from './hooks/useSnake'
 import { SnakeCanvas } from './components/SnakeCanvas'
 import type { GameComponentProps, SpeedMode, MapMode } from './types'
 import { snakeTranslations } from './i18n'
-import { BoardLayout, Button, Badge, PillGroup, ControlsBar, ConfirmDialog, PlayIcon, PauseIcon, StatsHeader } from '@all/ui'
+import { BoardLayout, Button, PillGroup, ControlsBar, ConfirmDialog, PlayIcon, PauseIcon, StatsHeader } from '@all/ui'
 import { GameResultOverlay, GameStartOverlay, DPad } from '@allgames/ui'
 import './styles/snake.css'
 
@@ -73,7 +73,7 @@ export function Snake({ setHeader, setIsActive, locale = 'en', isEink = false }:
         onReset={highScore > 0 ? resetHighScore : undefined}
         resetAriaLabel={t.resetStatsAria}
         resetId="snake-reset-stats-btn"
-      />
+      />,
     )
   }, [setHeader, highScore, score, t, resetHighScore])
 
@@ -163,25 +163,13 @@ export function Snake({ setHeader, setIsActive, locale = 'en', isEink = false }:
         controls={
           <ControlsBar className="snake-bottom-bar">
             {status === 'PLAYING' && (
-              <Button
-                id="snake-pause-btn"
-                variant="secondary"
-                size="sm"
-                icon={<PauseIcon />}
-                onClick={pauseGame}
-              >
+              <Button id="snake-pause-btn" variant="secondary" size="sm" icon={<PauseIcon />} onClick={pauseGame}>
                 {t.pauseBtn}
               </Button>
             )}
 
             {status === 'PAUSED' && (
-              <Button
-                id="snake-resume-bottom-btn"
-                variant="primary"
-                size="sm"
-                icon={<PlayIcon />}
-                onClick={resumeGame}
-              >
+              <Button id="snake-resume-bottom-btn" variant="primary" size="sm" icon={<PlayIcon />} onClick={resumeGame}>
                 {t.resumeBtn}
               </Button>
             )}
@@ -216,7 +204,7 @@ export function Snake({ setHeader, setIsActive, locale = 'en', isEink = false }:
             control: (
               <PillGroup<MapMode>
                 size="sm"
-                options={maps.map(m => ({
+                options={maps.map((m) => ({
                   value: m,
                   label: m === 'classic' ? t.mapClassicShort : m === 'obstacles' ? t.mapObstaclesShort : t.mapBigShort,
                   id: `snake-map-${m}`,
@@ -232,7 +220,7 @@ export function Snake({ setHeader, setIsActive, locale = 'en', isEink = false }:
             control: (
               <PillGroup<SpeedMode>
                 size="sm"
-                options={speeds.map(s => ({
+                options={speeds.map((s) => ({
                   value: s,
                   label: s === 'relaxed' ? t.speedRelaxed : s === 'normal' ? t.speedNormal : t.speedFast,
                   id: `snake-speed-${s}`,
@@ -261,5 +249,3 @@ export function Snake({ setHeader, setIsActive, locale = 'en', isEink = false }:
     </div>
   )
 }
-
-

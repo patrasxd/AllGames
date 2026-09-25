@@ -11,7 +11,7 @@ import './styles/checkers.css'
 function ThinkingDots() {
   return (
     <span className="checkers-thinking-dots" aria-hidden="true">
-      {[0, 1, 2].map(i => (
+      {[0, 1, 2].map((i) => (
         <motion.span
           key={i}
           className="checkers-dot"
@@ -86,7 +86,7 @@ export function Checkers({ setHeader, setIsActive, locale = 'en', isEink = false
         onReset={resetStats}
         resetAriaLabel={t.resetStatsAria}
         resetId="checkers-reset-stats-btn"
-      />
+      />,
     )
   }, [setHeader, hasChosenMode, mode, stats, t, resetStats])
 
@@ -195,14 +195,10 @@ export function Checkers({ setHeader, setIsActive, locale = 'en', isEink = false
                 ) : (
                   <>
                     <div className="checkers-status-text">
-                      {mode === 'ai'
-                        ? t.yourTurn
-                        : t.playerTurn(turn === 'white' ? t.white : t.black)}
+                      {mode === 'ai' ? t.yourTurn : t.playerTurn(turn === 'white' ? t.white : t.black)}
                     </div>
                     <div className="checkers-status-sub">
-                      {hasJumps
-                        ? t.mustJump
-                        : `${t.white}: ${piecesCount.white} · ${t.black}: ${piecesCount.black}`}
+                      {hasJumps ? t.mustJump : `${t.white}: ${piecesCount.white} · ${t.black}: ${piecesCount.black}`}
                     </div>
                   </>
                 )}
@@ -223,23 +219,15 @@ export function Checkers({ setHeader, setIsActive, locale = 'en', isEink = false
               <AnimatePresence>
                 {winner && (
                   <GameResultOverlay
-                    status={
-                      winner === 'draw'
-                        ? 'draw'
-                        : mode === 'ai'
-                        ? winner === 'white'
-                          ? 'won'
-                          : 'lost'
-                        : 'won'
-                    }
+                    status={winner === 'draw' ? 'draw' : mode === 'ai' ? (winner === 'white' ? 'won' : 'lost') : 'won'}
                     title={
                       winner === 'draw'
                         ? t.draw
                         : mode === 'ai'
-                        ? winner === 'white'
-                          ? t.youWon
-                          : t.computerWon
-                        : t.playerWon(winner === 'white' ? t.white : t.black)
+                          ? winner === 'white'
+                            ? t.youWon
+                            : t.computerWon
+                          : t.playerWon(winner === 'white' ? t.white : t.black)
                     }
                     subtitle={t.gameOver}
                     isEink={isEink}
@@ -256,20 +244,10 @@ export function Checkers({ setHeader, setIsActive, locale = 'en', isEink = false
             }
             controls={
               <ControlsBar className="checkers-controls-bar">
-                <Button
-                  id="checkers-new-game-btn"
-                  variant="primary"
-                  size="sm"
-                  onClick={handleNewGameClick}
-                >
+                <Button id="checkers-new-game-btn" variant="primary" size="sm" onClick={handleNewGameClick}>
                   {t.newGame}
                 </Button>
-                <Button
-                  id="checkers-change-mode-btn"
-                  variant="secondary"
-                  size="sm"
-                  onClick={handleChangeModeClick}
-                >
+                <Button id="checkers-change-mode-btn" variant="secondary" size="sm" onClick={handleChangeModeClick}>
                   {t.changeMode}
                 </Button>
 
@@ -277,7 +255,7 @@ export function Checkers({ setHeader, setIsActive, locale = 'en', isEink = false
                   <PillGroup<CheckersDifficulty>
                     label={t.difficultyLabel}
                     size="sm"
-                    options={DIFFICULTIES.map(d => ({
+                    options={DIFFICULTIES.map((d) => ({
                       value: d,
                       label: d === 'easy' ? t.difficultyEasy : d === 'medium' ? t.difficultyMedium : t.difficultyHard,
                       id: `checkers-diff-${d}`,
@@ -301,8 +279,8 @@ export function Checkers({ setHeader, setIsActive, locale = 'en', isEink = false
           pendingAction?.type === 'difficulty'
             ? t.confirmDifficultyDesc
             : pendingAction?.type === 'newGame'
-            ? t.confirmNewGameDesc
-            : t.confirmModeDesc
+              ? t.confirmNewGameDesc
+              : t.confirmModeDesc
         }
         confirmLabel={pendingAction?.type === 'newGame' ? t.newGame : t.confirmBtn}
         cancelLabel={t.cancelBtn}

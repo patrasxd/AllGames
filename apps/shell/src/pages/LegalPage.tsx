@@ -29,11 +29,7 @@ export function LegalPage() {
       }}
     >
       <div style={{ marginBottom: '1.25rem' }}>
-        <BackLink
-          label={t.backToGames}
-          ariaLabel={t.backToGamesAria}
-          onClick={() => navigate('/')}
-        />
+        <BackLink label={t.backToGames} ariaLabel={t.backToGamesAria} onClick={() => navigate('/')} />
       </div>
 
       <LegalNotice appName="AllGames" locale={locale} />

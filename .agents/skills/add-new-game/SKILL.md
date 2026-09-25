@@ -19,7 +19,7 @@ Classify the new game against the workspace archetypes catalog:
 
 ## 2. Package Scaffolding & Module Graph Separation
 1. Create `packages/games/<slug>`:
-   - `package.json` (`@allgames/<slug>`, version `0.1.0`, private)
+   - `package.json` (`@allgames/<slug>`, version `0.1.0`, private; declare `"@all/ui": "file:../../../AllUI"` in dependencies, and `"@allgames/ui": "*"` only if using `DPad`, game overlays, or game HUD icons)
    - `src/metadata.tsx` (isolated `metadata` and lightweight SVG icon — MUST have zero component imports or heavy runtime dependencies)
    - `src/types.ts` (`GameMetadata`, local types, implementing `GameComponentProps`)
    - `src/i18n.ts` (bilingual `en` and `pl` strings)

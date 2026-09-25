@@ -70,7 +70,7 @@ export const Numpad = memo(function Numpad({
 
       {/* 1-9 Number Row / Grid */}
       <div className="sdk-numbers-row">
-        {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
+        {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
           <button
             key={num}
             type="button"
@@ -86,4 +86,3 @@ export const Numpad = memo(function Numpad({
     </div>
   )
 })
-

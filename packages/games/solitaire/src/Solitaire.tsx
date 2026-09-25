@@ -20,7 +20,15 @@ import './styles/solitaire.css'
 
 function FinishIcon() {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      aria-hidden="true"
+    >
       <polyline points="20 6 9 17 4 12" />
     </svg>
   )
@@ -94,7 +102,7 @@ export function Solitaire({ setHeader, setIsActive, locale = 'en', isEink = fals
         onReset={bestScore !== null ? resetBest : undefined}
         resetAriaLabel={t.resetStatsAria}
         resetId="sol-reset-best-btn"
-      />
+      />,
     )
   }, [setHeader, state.score, bestScore, elapsedSeconds, state.moves, t, resetBest])
 
@@ -142,12 +150,12 @@ export function Solitaire({ setHeader, setIsActive, locale = 'en', isEink = fals
               onCardClick={handleCardClick}
               onDoubleClick={handleAutoMoveToFoundation}
               onMove={handleMove}
-              onEmptyTableauClick={colIdx => {
+              onEmptyTableauClick={(colIdx) => {
                 if (selectedLocation) {
                   handleMove(selectedLocation, { type: 'tableau', pileIndex: colIdx })
                 }
               }}
-              onEmptyFoundationClick={fIdx => {
+              onEmptyFoundationClick={(fIdx) => {
                 if (selectedLocation) {
                   handleMove(selectedLocation, { type: 'foundation', pileIndex: fIdx })
                 }
@@ -157,32 +165,15 @@ export function Solitaire({ setHeader, setIsActive, locale = 'en', isEink = fals
         }
         controls={
           <ControlsBar>
-            <Button
-              id="sol-new-game-btn"
-              variant="primary"
-              size="sm"
-              onClick={handleNewGameClick}
-            >
+            <Button id="sol-new-game-btn" variant="primary" size="sm" onClick={handleNewGameClick}>
               {t.newGame}
             </Button>
 
-            <Button
-              id="sol-undo-btn"
-              variant="secondary"
-              size="sm"
-              icon={<UndoIcon />}
-              onClick={handleUndo}
-            >
+            <Button id="sol-undo-btn" variant="secondary" size="sm" icon={<UndoIcon />} onClick={handleUndo}>
               {t.undo}
             </Button>
 
-            <Button
-              id="sol-hint-btn"
-              variant="secondary"
-              size="sm"
-              icon={<HintIcon />}
-              onClick={handleHint}
-            >
+            <Button id="sol-hint-btn" variant="secondary" size="sm" icon={<HintIcon />} onClick={handleHint}>
               {t.hint}
             </Button>
 
@@ -201,7 +192,7 @@ export function Solitaire({ setHeader, setIsActive, locale = 'en', isEink = fals
             <PillGroup<DrawMode>
               label={t.drawModeLabel}
               size="sm"
-              options={DRAW_MODES.map(m => ({
+              options={DRAW_MODES.map((m) => ({
                 value: m,
                 label: m === 1 ? t.draw1 : t.draw3,
                 id: `sol-draw-${m}-btn`,

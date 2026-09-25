@@ -82,11 +82,11 @@ export const CardView = memo(function CardView({
   return (
     <div
       className={cardClass}
-      onClick={e => {
+      onClick={(e) => {
         e.stopPropagation()
         onClick?.()
       }}
-      onDoubleClick={e => {
+      onDoubleClick={(e) => {
         e.stopPropagation()
         onDoubleClick?.()
       }}
@@ -99,7 +99,7 @@ export const CardView = memo(function CardView({
       role="button"
       tabIndex={0}
       aria-label={`${formatRank(card.rank)} of ${card.suit}`}
-      onKeyDown={e => {
+      onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault()
           onClick?.()

@@ -19,8 +19,24 @@ import { GemIcon } from './GemIcon'
 
 function StoneIcon() {
   return (
-    <svg width="100%" height="100%" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <rect x="4" y="4" width="40" height="40" rx="6" fill="var(--surface-3, #475569)" stroke="var(--border-2, #64748b)" strokeWidth="2" />
+    <svg
+      width="100%"
+      height="100%"
+      viewBox="0 0 48 48"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <rect
+        x="4"
+        y="4"
+        width="40"
+        height="40"
+        rx="6"
+        fill="var(--surface-3, #475569)"
+        stroke="var(--border-2, #64748b)"
+        strokeWidth="2"
+      />
       <line x1="10" y1="16" x2="38" y2="16" stroke="rgba(255,255,255,0.2)" strokeWidth="2" strokeDasharray="4 2" />
       <line x1="8" y1="32" x2="40" y2="32" stroke="rgba(255,255,255,0.2)" strokeWidth="2" strokeDasharray="4 2" />
       <line x1="24" y1="16" x2="24" y2="32" stroke="rgba(255,255,255,0.2)" strokeWidth="2" />
@@ -50,7 +66,18 @@ interface GemSpriteProps extends BoardGem {
   still: boolean
 }
 
-const GemSprite = memo(function GemSprite({ gem, special, row, col, drop, pop, selected, hinted, isEink, still }: GemSpriteProps) {
+const GemSprite = memo(function GemSprite({
+  gem,
+  special,
+  row,
+  col,
+  drop,
+  pop,
+  selected,
+  hinted,
+  isEink,
+  still,
+}: GemSpriteProps) {
   const x = `${col * 100}%`
   const y = `${row * 100}%`
   const pulsing = hinted && !selected
@@ -71,13 +98,19 @@ const GemSprite = memo(function GemSprite({ gem, special, row, col, drop, pop, s
         opacity: 1,
         scale: pulsing ? [1, 1.14, 1] : selected ? 1.12 : 1,
       }}
-      exit={still ? { opacity: 0, transition: INSTANT } : { scale: 1.18, opacity: 0, transition: { duration: 0.18, ease: 'easeOut' } }}
+      exit={
+        still
+          ? { opacity: 0, transition: INSTANT }
+          : { scale: 1.18, opacity: 0, transition: { duration: 0.18, ease: 'easeOut' } }
+      }
       transition={
         still
           ? INSTANT
           : {
               default: MOVE_SPRING,
-              scale: pulsing ? { duration: 1.1, repeat: Infinity, ease: 'easeInOut' } : { type: 'spring', stiffness: 500, damping: 30 },
+              scale: pulsing
+                ? { duration: 1.1, repeat: Infinity, ease: 'easeInOut' }
+                : { type: 'spring', stiffness: 500, damping: 30 },
               opacity: { duration: 0.12 },
             }
       }
@@ -95,7 +128,7 @@ const BurstFx = memo(function BurstFx({ burst, rows, cols }: { burst: Burst; row
       className="cm-burst"
       style={{ left: `${((burst.col + 0.5) / cols) * 100}%`, top: `${((burst.row + 0.5) / rows) * 100}%` }}
     >
-      {dots.map(i => {
+      {dots.map((i) => {
         const angle = (i / dots.length) * Math.PI * 2 + burst.row + burst.col
         return (
           <motion.span
@@ -160,7 +193,7 @@ export const CrystalBoard = memo(function CrystalBoard({
             pop: !!tile.spawnPop,
           })
         }
-      })
+      }),
     )
     return out
   }, [board])
@@ -172,12 +205,12 @@ export const CrystalBoard = memo(function CrystalBoard({
         if (tile.obstacle === 'stone' || tile.obstacle === 'ice' || tile.obstacle === 'double-ice') {
           out.push({ r, c, kind: tile.obstacle })
         }
-      })
+      }),
     )
     return out
   }, [board])
 
-  const ice = useMemo(() => cover.filter(o => o.kind !== 'stone'), [cover])
+  const ice = useMemo(() => cover.filter((o) => o.kind !== 'stone'), [cover])
 
   const nudge = useCallback((row: number, col: number) => {
     setNudged({ row, col })
@@ -212,7 +245,7 @@ export const CrystalBoard = memo(function CrystalBoard({
         setSelectedCoord({ row: r, col: c })
       }
     },
-    [isAnimating, board, selectedCoord, onSwap, nudge]
+    [isAnimating, board, selectedCoord, onSwap, nudge],
   )
 
   const handleTouchStart = useCallback(
@@ -225,7 +258,7 @@ export const CrystalBoard = memo(function CrystalBoard({
         touchStartRef.current = { row: r, col: c, x: e.touches[0].clientX, y: e.touches[0].clientY }
       }
     },
-    [isAnimating, board]
+    [isAnimating, board],
   )
 
   const handleTouchMove = useCallback(
@@ -260,7 +293,7 @@ export const CrystalBoard = memo(function CrystalBoard({
         onSwap(start.row, start.col, targetR, targetC)
       }
     },
-    [isAnimating, rows, cols, board, onSwap, nudge]
+    [isAnimating, rows, cols, board, onSwap, nudge],
   )
 
   const handleTouchEnd = useCallback(() => {
@@ -268,8 +301,7 @@ export const CrystalBoard = memo(function CrystalBoard({
   }, [])
 
   const isHint = (r: number, c: number) =>
-    !!hintCoords &&
-    ((hintCoords.r1 === r && hintCoords.c1 === c) || (hintCoords.r2 === r && hintCoords.c2 === c))
+    !!hintCoords && ((hintCoords.r1 === r && hintCoords.c1 === c) || (hintCoords.r2 === r && hintCoords.c2 === c))
 
   const stageStyle = { '--cm-cols': cols, '--cm-rows': rows } as React.CSSProperties
   const gridStyle = { gridTemplateColumns: `repeat(${cols}, 1fr)`, gridTemplateRows: `repeat(${rows}, 1fr)` }
@@ -293,7 +325,7 @@ export const CrystalBoard = memo(function CrystalBoard({
                     tile.obstacle === 'stone' ? ' cm-tile--stone' : ''
                   }${isIceLocked(tile) ? ' cm-tile--locked' : ''}`}
                   onClick={() => handleTileClick(r, c)}
-                  onTouchStart={e => handleTouchStart(e, r, c)}
+                  onTouchStart={(e) => handleTouchStart(e, r, c)}
                   onTouchMove={handleTouchMove}
                   onTouchEnd={handleTouchEnd}
                   aria-label={`Row ${r + 1}, Col ${c + 1}${tile.gem ? ` ${tile.gem}` : ''}${
@@ -303,21 +335,25 @@ export const CrystalBoard = memo(function CrystalBoard({
                   disabled={tile.obstacle === 'stone'}
                 />
               )
-            })
+            }),
           )}
         </div>
 
         {/* 2. Ice under the gems */}
         <div className="cm-layer cm-layer--grid" style={gridStyle} aria-hidden="true">
           <AnimatePresence initial={false}>
-            {ice.map(o => (
+            {ice.map((o) => (
               <motion.div
                 key={`ice-${o.r}-${o.c}-${o.kind}`}
                 className={`cm-ice cm-ice--${o.kind}`}
                 style={{ gridRow: o.r + 1, gridColumn: o.c + 1 }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                exit={still ? { opacity: 0, transition: INSTANT } : { opacity: 0, scale: 1.1, transition: { duration: 0.28 } }}
+                exit={
+                  still
+                    ? { opacity: 0, transition: INSTANT }
+                    : { opacity: 0, scale: 1.1, transition: { duration: 0.28 } }
+                }
               />
             ))}
           </AnimatePresence>
@@ -326,7 +362,7 @@ export const CrystalBoard = memo(function CrystalBoard({
         {/* 3. Gems */}
         <div className="cm-layer cm-layer--gems" aria-hidden="true">
           <AnimatePresence initial={false}>
-            {gems.map(g => (
+            {gems.map((g) => (
               <GemSprite
                 key={g.id}
                 {...g}
@@ -342,7 +378,7 @@ export const CrystalBoard = memo(function CrystalBoard({
         {/* 4. Cover: frost over ice, stones over gems */}
         <div className="cm-layer cm-layer--grid" style={gridStyle} aria-hidden="true">
           <AnimatePresence initial={false}>
-            {cover.map(o => (
+            {cover.map((o) => (
               <motion.div
                 key={`cover-${o.r}-${o.c}-${o.kind}`}
                 className={`cm-cover cm-cover--${o.kind}`}
@@ -354,7 +390,11 @@ export const CrystalBoard = memo(function CrystalBoard({
                   x: !still && nudged?.row === o.r && nudged?.col === o.c ? [0, -3, 3, -2, 2, 0] : 0,
                 }}
                 transition={{ x: { duration: 0.3 } }}
-                exit={still ? { opacity: 0, transition: INSTANT } : { opacity: 0, scale: o.kind === 'stone' ? 0.6 : 1.1, transition: { duration: 0.26 } }}
+                exit={
+                  still
+                    ? { opacity: 0, transition: INSTANT }
+                    : { opacity: 0, scale: o.kind === 'stone' ? 0.6 : 1.1, transition: { duration: 0.26 } }
+                }
               >
                 {o.kind === 'stone' && <StoneIcon />}
               </motion.div>
@@ -365,14 +405,14 @@ export const CrystalBoard = memo(function CrystalBoard({
         {/* Sparkles */}
         {!still && (
           <div className="cm-layer cm-layer--fx" aria-hidden="true">
-            {bursts.map(b => (
+            {bursts.map((b) => (
               <BurstFx key={b.id} burst={b} rows={rows} cols={cols} />
             ))}
           </div>
         )}
 
         {/* Combo banners */}
-        {comboPopups.map(cp => (
+        {comboPopups.map((cp) => (
           <div key={cp.id} className="cm-combo-popup" style={{ left: `${cp.x}%`, top: `${cp.y}%` }}>
             {cp.text}
           </div>

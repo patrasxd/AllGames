@@ -13,7 +13,7 @@ export function createInitialTiles(size: GridSize): TileData[] {
 }
 
 export function getEmptyPositions(tiles: TileData[], size: GridSize): [number, number][] {
-  const occupied = new Set(tiles.map(t => `${t.row},${t.col}`))
+  const occupied = new Set(tiles.map((t) => `${t.row},${t.col}`))
   const empty: [number, number][] = []
 
   for (let r = 0; r < size; r++) {
@@ -51,9 +51,7 @@ interface MoveResult {
 
 export function moveTiles(tiles: TileData[], direction: Direction, size: GridSize): MoveResult {
   // Build a 2D grid matrix of current tiles
-  const grid: (TileData | null)[][] = Array.from({ length: size }, () =>
-    Array(size).fill(null)
-  )
+  const grid: (TileData | null)[][] = Array.from({ length: size }, () => Array(size).fill(null))
 
   for (const t of tiles) {
     grid[t.row][t.col] = { ...t, isNew: false, mergedInto: undefined }
@@ -143,9 +141,7 @@ export function moveTiles(tiles: TileData[], direction: Direction, size: GridSiz
 export function hasMovesAvailable(tiles: TileData[], size: GridSize): boolean {
   if (tiles.length < size * size) return true
 
-  const grid: (number | null)[][] = Array.from({ length: size }, () =>
-    Array(size).fill(null)
-  )
+  const grid: (number | null)[][] = Array.from({ length: size }, () => Array(size).fill(null))
 
   for (const t of tiles) {
     grid[t.row][t.col] = t.value
@@ -167,5 +163,5 @@ export function hasMovesAvailable(tiles: TileData[], size: GridSize): boolean {
 }
 
 export function hasReached2048(tiles: TileData[]): boolean {
-  return tiles.some(t => t.value >= 2048)
+  return tiles.some((t) => t.value >= 2048)
 }

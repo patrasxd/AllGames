@@ -20,14 +20,9 @@ export function PromotionModal({ color, locale = 'en', isEink = false, onSelect 
   ]
 
   return (
-    <Dialog
-      isOpen={true}
-      onClose={() => onSelect('queen')}
-      title={t.promotePawn}
-      maxWidth="sm"
-    >
+    <Dialog isOpen={true} onClose={() => onSelect('queen')} title={t.promotePawn} maxWidth="sm">
       <div className="chess-promo-options">
-        {promoOptions.map(opt => (
+        {promoOptions.map((opt) => (
           <button
             key={opt.type}
             type="button"
@@ -35,11 +30,10 @@ export function PromotionModal({ color, locale = 'en', isEink = false, onSelect 
             className="chess-promo-btn"
             onClick={() => onSelect(opt.type)}
           >
-            <div style={{ width: '48px', height: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <ChessPiece
-                piece={{ id: `promo_${opt.type}`, type: opt.type, color }}
-                isEink={isEink}
-              />
+            <div
+              style={{ width: '48px', height: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            >
+              <ChessPiece piece={{ id: `promo_${opt.type}`, type: opt.type, color }} isEink={isEink} />
             </div>
             <span className="chess-promo-label">{opt.label}</span>
           </button>

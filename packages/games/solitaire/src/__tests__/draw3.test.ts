@@ -20,7 +20,10 @@ describe('Solitaire Draw 3 mode verification', () => {
     // Simulate clicking stock: draw 3 cards
     const draw1 = Math.min(state.drawMode, state.stock.length)
     const drawn1 = state.stock.splice(state.stock.length - draw1, draw1).reverse()
-    drawn1.forEach(c => { c.faceUp = true; state.waste.push(c) })
+    drawn1.forEach((c) => {
+      c.faceUp = true
+      state.waste.push(c)
+    })
 
     expect(state.stock.length).toBe(21)
     expect(state.waste.length).toBe(3)
@@ -30,14 +33,17 @@ describe('Solitaire Draw 3 mode verification', () => {
     for (let i = 0; i < 7; i++) {
       const draw = Math.min(state.drawMode, state.stock.length)
       const drawn = state.stock.splice(state.stock.length - draw, draw).reverse()
-      drawn.forEach(c => { c.faceUp = true; state.waste.push(c) })
+      drawn.forEach((c) => {
+        c.faceUp = true
+        state.waste.push(c)
+      })
     }
 
     expect(state.stock.length).toBe(0)
     expect(state.waste.length).toBe(24)
 
     // Recycle waste back to stock
-    state.stock = state.waste.reverse().map(c => ({ ...c, faceUp: false }))
+    state.stock = state.waste.reverse().map((c) => ({ ...c, faceUp: false }))
     state.waste = []
 
     expect(state.stock.length).toBe(24)

@@ -10,20 +10,22 @@ import { useGameHeader } from '../components/Layout'
 function GameFallback() {
   const { t } = useI18n()
   return (
-    <div style={{
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      height: '100%',
-      width: '100%',
-      minHeight: '200px',
-      backgroundColor: 'var(--bg)',
-      color: 'var(--text-muted)',
-      fontSize: '0.8125rem',
-      letterSpacing: '0.1em',
-      textTransform: 'uppercase',
-      fontWeight: 500,
-    }}>
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '100%',
+        width: '100%',
+        minHeight: '200px',
+        backgroundColor: 'var(--bg)',
+        color: 'var(--text-muted)',
+        fontSize: '0.8125rem',
+        letterSpacing: '0.1em',
+        textTransform: 'uppercase',
+        fontWeight: 500,
+      }}
+    >
       <motion.span
         animate={{ opacity: [0.3, 1, 0.3] }}
         transition={{ repeat: Infinity, duration: 1.5, ease: 'easeInOut' }}
@@ -39,7 +41,9 @@ function NotFound({ slug }: { slug: string }) {
   const navigate = useNavigate()
   return (
     <div style={{ padding: '4rem 0', color: 'var(--text-muted)', textAlign: 'center' }}>
-      <p>{t.notFound} <code style={{ fontFamily: 'var(--font-mono)' }}>{slug}</code></p>
+      <p>
+        {t.notFound} <code style={{ fontFamily: 'var(--font-mono)' }}>{slug}</code>
+      </p>
       <Button
         variant="secondary"
         size="sm"
@@ -58,7 +62,7 @@ function NotFound({ slug }: { slug: string }) {
 const pageVariants = {
   hidden: { opacity: 0, y: 10 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] } },
-  exit:   { opacity: 0, y: -6,  transition: { duration: 0.2, ease: [0.4, 0, 1, 1] } },
+  exit: { opacity: 0, y: -6, transition: { duration: 0.2, ease: [0.4, 0, 1, 1] } },
 }
 
 export function GamePage() {
@@ -72,9 +76,12 @@ export function GamePage() {
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false)
 
   const { setHeaderExtra } = useGameHeader()
-  const setHeader = useCallback((content: React.ReactNode) => {
-    setHeaderExtra(content)
-  }, [setHeaderExtra])
+  const setHeader = useCallback(
+    (content: React.ReactNode) => {
+      setHeaderExtra(content)
+    },
+    [setHeaderExtra],
+  )
 
   useEffect(() => {
     if (slug) {
@@ -94,13 +101,7 @@ export function GamePage() {
   }, [isGameActive, navigate, slug])
 
   return (
-    <motion.div
-      className="game-page"
-      variants={pageVariants}
-      initial="hidden"
-      animate="visible"
-      exit="exit"
-    >
+    <motion.div className="game-page" variants={pageVariants} initial="hidden" animate="visible" exit="exit">
       <div className="game-page-inner">
         <div className="container game-page-top-bar">
           <BackLink

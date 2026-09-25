@@ -244,5 +244,3 @@ describe('Snake Component Integration', () => {
     expect(board).toBeInTheDocument()
   })
 })
-
-

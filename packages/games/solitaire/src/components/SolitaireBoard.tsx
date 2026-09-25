@@ -72,12 +72,9 @@ export const SolitaireBoard = memo(function SolitaireBoard({
     selectedLocation?.cardIndex === cardIndex
 
   const isHintFrom = (type: string, pileIndex?: number, cardIndex?: number) =>
-    hint?.from.type === type &&
-    hint?.from.pileIndex === pileIndex &&
-    hint?.from.cardIndex === cardIndex
+    hint?.from.type === type && hint?.from.pileIndex === pileIndex && hint?.from.cardIndex === cardIndex
 
-  const isHintTo = (type: string, pileIndex?: number) =>
-    hint?.to.type === type && hint?.to.pileIndex === pileIndex
+  const isHintTo = (type: string, pileIndex?: number) => hint?.to.type === type && hint?.to.pileIndex === pileIndex
 
   const isCardBeingDragged = (type: string, pileIndex?: number, cardIndex?: number) => {
     if (!dragLoc || dragLoc.type !== type || dragLoc.pileIndex !== pileIndex) return false
@@ -111,41 +108,41 @@ export const SolitaireBoard = memo(function SolitaireBoard({
     setDragOverTarget(null)
   }, [])
 
-  const handleDrop = useCallback((e: React.DragEvent, target: CardLocation) => {
-    e.preventDefault()
-    setDragOverTarget(null)
-    setDragLoc(null)
+  const handleDrop = useCallback(
+    (e: React.DragEvent, target: CardLocation) => {
+      e.preventDefault()
+      setDragOverTarget(null)
+      setDragLoc(null)
 
-    let fromLoc = dragLoc
-    try {
-      const data = e.dataTransfer.getData('text/plain')
-      if (data) fromLoc = JSON.parse(data)
-    } catch {
-      // fallback to dragLoc
-    }
+      let fromLoc = dragLoc
+      try {
+        const data = e.dataTransfer.getData('text/plain')
+        if (data) fromLoc = JSON.parse(data)
+      } catch {
+        // fallback to dragLoc
+      }
 
-    if (fromLoc) {
-      onMove?.(fromLoc, target)
-    }
-  }, [dragLoc, onMove])
-
-  // ── Touch Drag Handlers (Mobile Touch Screen) ──
-  const handleTouchStart = useCallback(
-    (e: React.TouchEvent, from: CardLocation, cards: CardData[]) => {
-      const t = e.touches[0]
-      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-      touchStateRef.current = {
-        startX: t.clientX,
-        startY: t.clientY,
-        offsetX: t.clientX - rect.left,
-        offsetY: t.clientY - rect.top,
-        from,
-        cards,
-        isDragging: false,
+      if (fromLoc) {
+        onMove?.(fromLoc, target)
       }
     },
-    []
+    [dragLoc, onMove],
   )
+
+  // ── Touch Drag Handlers (Mobile Touch Screen) ──
+  const handleTouchStart = useCallback((e: React.TouchEvent, from: CardLocation, cards: CardData[]) => {
+    const t = e.touches[0]
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
+    touchStateRef.current = {
+      startX: t.clientX,
+      startY: t.clientY,
+      offsetX: t.clientX - rect.left,
+      offsetY: t.clientY - rect.top,
+      from,
+      cards,
+      isDragging: false,
+    }
+  }, [])
 
   const handleTouchMove = useCallback((e: React.TouchEvent) => {
     if (!touchStateRef.current) return
@@ -198,7 +195,7 @@ export const SolitaireBoard = memo(function SolitaireBoard({
         }
       }
     },
-    [onMove]
+    [onMove],
   )
 
   return (
@@ -233,10 +230,8 @@ export const SolitaireBoard = memo(function SolitaireBoard({
         <div className="sol-stock-waste-group">
           {/* Stock Pile */}
           <div
-            className={`sol-slot sol-slot--stock ${
-              state.stock.length === 0 ? 'sol-slot--stock-empty' : ''
-            }`}
-            onClick={e => {
+            className={`sol-slot sol-slot--stock ${state.stock.length === 0 ? 'sol-slot--stock-empty' : ''}`}
+            onClick={(e) => {
               e.stopPropagation()
               onStockClick()
             }}
@@ -254,10 +249,7 @@ export const SolitaireBoard = memo(function SolitaireBoard({
           </div>
 
           {/* Waste Pile */}
-          <div
-            className="sol-slot sol-slot--waste"
-            aria-label="Waste pile"
-          >
+          <div className="sol-slot sol-slot--waste" aria-label="Waste pile">
             {state.waste.length > 0 ? (
               <CardView
                 card={state.waste[state.waste.length - 1]}
@@ -266,17 +258,11 @@ export const SolitaireBoard = memo(function SolitaireBoard({
                 isDragging={isCardBeingDragged('waste')}
                 draggable={true}
                 isEink={isEink}
-                onClick={() =>
-                  onCardClick({ type: 'waste', cardIndex: state.waste.length - 1 })
-                }
-                onDoubleClick={() =>
-                  onDoubleClick({ type: 'waste', cardIndex: state.waste.length - 1 })
-                }
-                onDragStart={e =>
-                  handleDragStart(e, { type: 'waste', cardIndex: state.waste.length - 1 })
-                }
+                onClick={() => onCardClick({ type: 'waste', cardIndex: state.waste.length - 1 })}
+                onDoubleClick={() => onDoubleClick({ type: 'waste', cardIndex: state.waste.length - 1 })}
+                onDragStart={(e) => handleDragStart(e, { type: 'waste', cardIndex: state.waste.length - 1 })}
                 onDragEnd={handleDragEnd}
-                onTouchStart={e =>
+                onTouchStart={(e) =>
                   handleTouchStart(e, { type: 'waste', cardIndex: state.waste.length - 1 }, [
                     state.waste[state.waste.length - 1],
                   ])
@@ -303,10 +289,10 @@ export const SolitaireBoard = memo(function SolitaireBoard({
                 } ${isDragOver ? 'sol-slot--drag-over' : ''}`}
                 data-sol-drop-type="foundation"
                 data-sol-drop-index={fIdx}
-                onDragOver={e => handleDragOver(e, { type: 'foundation', pileIndex: fIdx })}
+                onDragOver={(e) => handleDragOver(e, { type: 'foundation', pileIndex: fIdx })}
                 onDragLeave={handleDragLeave}
-                onDrop={e => handleDrop(e, { type: 'foundation', pileIndex: fIdx })}
-                onClick={e => {
+                onDrop={(e) => handleDrop(e, { type: 'foundation', pileIndex: fIdx })}
+                onClick={(e) => {
                   e.stopPropagation()
                   if (selectedLocation) {
                     onMove?.(selectedLocation, { type: 'foundation', pileIndex: fIdx })
@@ -338,7 +324,7 @@ export const SolitaireBoard = memo(function SolitaireBoard({
                         cardIndex: pile.length - 1,
                       })
                     }
-                    onDragStart={e =>
+                    onDragStart={(e) =>
                       handleDragStart(e, {
                         type: 'foundation',
                         pileIndex: fIdx,
@@ -346,7 +332,7 @@ export const SolitaireBoard = memo(function SolitaireBoard({
                       })
                     }
                     onDragEnd={handleDragEnd}
-                    onTouchStart={e =>
+                    onTouchStart={(e) =>
                       handleTouchStart(
                         e,
                         {
@@ -354,7 +340,7 @@ export const SolitaireBoard = memo(function SolitaireBoard({
                           pileIndex: fIdx,
                           cardIndex: pile.length - 1,
                         },
-                        [pile[pile.length - 1]]
+                        [pile[pile.length - 1]],
                       )
                     }
                     onTouchMove={handleTouchMove}
@@ -378,9 +364,7 @@ export const SolitaireBoard = memo(function SolitaireBoard({
           const isTarget = isHintTo('tableau', colIdx)
           const isDragOver = dragOverTarget?.type === 'tableau' && dragOverTarget?.pileIndex === colIdx
           const lastOffset = column.length > 0 ? getTableauCardOffset(column, column.length - 1) : 0
-          const minColHeight = column.length > 0
-            ? `calc(${lastOffset}px + clamp(62px, 14vw, 95px))`
-            : undefined
+          const minColHeight = column.length > 0 ? `calc(${lastOffset}px + clamp(62px, 14vw, 95px))` : undefined
 
           return (
             <div
@@ -391,10 +375,10 @@ export const SolitaireBoard = memo(function SolitaireBoard({
               style={minColHeight ? { minHeight: minColHeight } : undefined}
               data-sol-drop-type="tableau"
               data-sol-drop-index={colIdx}
-              onDragOver={e => handleDragOver(e, { type: 'tableau', pileIndex: colIdx })}
+              onDragOver={(e) => handleDragOver(e, { type: 'tableau', pileIndex: colIdx })}
               onDragLeave={handleDragLeave}
-              onDrop={e => handleDrop(e, { type: 'tableau', pileIndex: colIdx })}
-              onClick={e => {
+              onDrop={(e) => handleDrop(e, { type: 'tableau', pileIndex: colIdx })}
+              onClick={(e) => {
                 // Only respond to column click if column is truly empty
                 if (isEmpty) {
                   e.stopPropagation()
@@ -440,7 +424,7 @@ export const SolitaireBoard = memo(function SolitaireBoard({
                           })
                         }
                       }}
-                      onDragStart={e => {
+                      onDragStart={(e) => {
                         e.stopPropagation()
                         handleDragStart(e, {
                           type: 'tableau',
@@ -449,7 +433,7 @@ export const SolitaireBoard = memo(function SolitaireBoard({
                         })
                       }}
                       onDragEnd={handleDragEnd}
-                      onTouchStart={e => {
+                      onTouchStart={(e) => {
                         e.stopPropagation()
                         handleTouchStart(
                           e,
@@ -458,7 +442,7 @@ export const SolitaireBoard = memo(function SolitaireBoard({
                             pileIndex: colIdx,
                             cardIndex: cardIdx,
                           },
-                          column.slice(cardIdx)
+                          column.slice(cardIdx),
                         )
                       }}
                       onTouchMove={handleTouchMove}

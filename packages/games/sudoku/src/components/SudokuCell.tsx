@@ -49,7 +49,7 @@ export const SudokuCell = memo(function SudokuCell({
       tabIndex={isSelected || (cell.row === 0 && cell.col === 0) ? 0 : -1}
       aria-selected={isSelected}
       aria-label={ariaDescription}
-      onKeyDown={e => {
+      onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault()
           onClick()
@@ -60,7 +60,7 @@ export const SudokuCell = memo(function SudokuCell({
         <span className="sdk-cell-val">{cell.value}</span>
       ) : cell.notes.size > 0 ? (
         <div className="sdk-cell-notes">
-          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => (
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => (
             <span key={n} className="sdk-cell-note">
               {cell.notes.has(n) ? n : ''}
             </span>

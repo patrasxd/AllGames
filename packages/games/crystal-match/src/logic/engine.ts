@@ -81,7 +81,7 @@ export function isIceLocked(tile: Tile): boolean {
   return tile.obstacle === 'ice' || tile.obstacle === 'double-ice'
 }
 
-const cloneBoard = (board: Tile[][]): Tile[][] => board.map(row => row.map(tile => ({ ...tile })))
+const cloneBoard = (board: Tile[][]): Tile[][] => board.map((row) => row.map((tile) => ({ ...tile })))
 
 // ─── Swapping ────────────────────────────────────────────────────────────────
 
@@ -102,12 +102,7 @@ export function swapTiles(board: Tile[][], r1: number, c1: number, r2: number, c
  * Expands a seed of cleared cells with chain reactions (a cleared special fires
  * too), then works out obstacle damage, goal counters and score.
  */
-function buildResult(
-  board: Tile[][],
-  seed: Iterable<string>,
-  specialSpawns: SpecialSpawn[],
-  bonus = 0
-): MatchResult {
+function buildResult(board: Tile[][], seed: Iterable<string>, specialSpawns: SpecialSpawn[], bonus = 0): MatchResult {
   const rows = board.length
   const cols = board[0].length
   const cleared = new Set<string>()
@@ -170,7 +165,12 @@ function buildResult(
       changes.set(key(row, col), { row, col, from: o, to: 'none' })
       iceCleared += 1
     }
-    for (const [dr, dc] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) {
+    for (const [dr, dc] of [
+      [-1, 0],
+      [1, 0],
+      [0, -1],
+      [0, 1],
+    ]) {
       const nr = row + dr
       const nc = col + dc
       if (nr < 0 || nr >= rows || nc < 0 || nc >= cols) continue
@@ -251,7 +251,7 @@ export function findMatches(board: Tile[][]): MatchResult {
   const spawns: SpecialSpawn[] = []
 
   for (const h of horizontal) {
-    h.cols.forEach(c => seed.add(key(h.row, c)))
+    h.cols.forEach((c) => seed.add(key(h.row, c)))
     if (h.cols.length >= 5) {
       spawns.push({ row: h.row, col: h.cols[Math.floor(h.cols.length / 2)], special: 'prism', gem: h.gem })
     } else if (h.cols.length === 4) {
@@ -259,7 +259,7 @@ export function findMatches(board: Tile[][]): MatchResult {
     }
   }
   for (const v of vertical) {
-    v.rows.forEach(r => seed.add(key(r, v.col)))
+    v.rows.forEach((r) => seed.add(key(r, v.col)))
     if (v.rows.length >= 5) {
       spawns.push({ row: v.rows[Math.floor(v.rows.length / 2)], col: v.col, special: 'prism', gem: v.gem })
     } else if (v.rows.length === 4) {
@@ -390,7 +390,10 @@ export function findValidMoves(board: Tile[][]): { move: Move; result: MatchResu
   const out: { move: Move; result: MatchResult }[] = []
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
-      for (const [dr, dc] of [[0, 1], [1, 0]]) {
+      for (const [dr, dc] of [
+        [0, 1],
+        [1, 0],
+      ]) {
         const r2 = r + dr
         const c2 = c + dc
         if (r2 >= rows || c2 >= cols) continue
@@ -447,11 +450,13 @@ export function clearMatched(board: Tile[][], result: MatchResult): Tile[][] {
 export function applyGravityAndRefill(
   board: Tile[][],
   config: Pick<LevelConfig, 'gemColors'>,
-  rand: () => number = Math.random
+  rand: () => number = Math.random,
 ): { nextBoard: Tile[][]; newTileCount: number } {
   const rows = board.length
   const cols = board[0].length
-  const next: Tile[][] = board.map(row => row.map((tile): Tile => ({ ...tile, spawnDrop: undefined, spawnPop: undefined })))
+  const next: Tile[][] = board.map((row) =>
+    row.map((tile): Tile => ({ ...tile, spawnDrop: undefined, spawnPop: undefined })),
+  )
   let newTileCount = 0
 
   for (let c = 0; c < cols; c++) {
@@ -459,9 +464,9 @@ export function applyGravityAndRefill(
     for (let r = rows - 1; r >= 0; r--) if (!isBlocked(next[r][c])) playable.push(r)
 
     const survivors = playable
-      .map(r => next[r][c])
-      .filter(tile => tile.gem !== null)
-      .map(tile => ({ id: tile.id, gem: tile.gem, special: tile.special, pop: false }))
+      .map((r) => next[r][c])
+      .filter((tile) => tile.gem !== null)
+      .map((tile) => ({ id: tile.id, gem: tile.gem, special: tile.special, pop: false }))
 
     playable.forEach((r, i) => {
       const cell = next[r][c]
@@ -498,9 +503,11 @@ export function fillWithoutMatches(board: Tile[][], gemColors: GemType[], rand: 
         continue
       }
       const forbidden = new Set<GemType>()
-      if (c >= 2 && board[r][c - 1].gem && board[r][c - 1].gem === board[r][c - 2].gem) forbidden.add(board[r][c - 1].gem!)
-      if (r >= 2 && board[r - 1][c].gem && board[r - 1][c].gem === board[r - 2][c].gem) forbidden.add(board[r - 1][c].gem!)
-      const options = gemColors.filter(g => !forbidden.has(g))
+      if (c >= 2 && board[r][c - 1].gem && board[r][c - 1].gem === board[r][c - 2].gem)
+        forbidden.add(board[r][c - 1].gem!)
+      if (r >= 2 && board[r - 1][c].gem && board[r - 1][c].gem === board[r - 2][c].gem)
+        forbidden.add(board[r - 1][c].gem!)
+      const options = gemColors.filter((g) => !forbidden.has(g))
       const pool = options.length > 0 ? options : gemColors
       tile.gem = pool[Math.floor(rand() * pool.length)]
       tile.special = 'none'
@@ -512,12 +519,21 @@ export function fillWithoutMatches(board: Tile[][], gemColors: GemType[], rand: 
  * Shuffles the gems already on the board (identities move with them, so the
  * renderer animates it) until there is no match and at least one valid move.
  */
-export function reshuffleBoard(board: Tile[][], config: Pick<LevelConfig, 'gemColors'>, rand: () => number = Math.random): Tile[][] {
+export function reshuffleBoard(
+  board: Tile[][],
+  config: Pick<LevelConfig, 'gemColors'>,
+  rand: () => number = Math.random,
+): Tile[][] {
   const rows = board.length
   const cols = board[0].length
   const cells: Coord[] = []
-  for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) if (!isBlocked(board[r][c])) cells.push({ row: r, col: c })
-  const items = cells.map(({ row, col }) => ({ id: board[row][col].id, gem: board[row][col].gem, special: board[row][col].special }))
+  for (let r = 0; r < rows; r++)
+    for (let c = 0; c < cols; c++) if (!isBlocked(board[r][c])) cells.push({ row: r, col: c })
+  const items = cells.map(({ row, col }) => ({
+    id: board[row][col].id,
+    gem: board[row][col].gem,
+    special: board[row][col].special,
+  }))
 
   const build = () => {
     for (let i = items.length - 1; i > 0; i--) {
@@ -554,7 +570,7 @@ export function cascadeScore(result: MatchResult, cascadeCount: number): number 
 }
 
 export function updateGoals(goals: LevelGoal[], result: MatchResult, score: number): LevelGoal[] {
-  return goals.map(goal => {
+  return goals.map((goal) => {
     if (goal.type === 'score') return { ...goal, current: score }
     if (goal.type === 'ice') return { ...goal, current: Math.min(goal.target, goal.current + result.iceCleared) }
     if (goal.type === 'gems' && goal.gemType) {
@@ -565,5 +581,5 @@ export function updateGoals(goals: LevelGoal[], result: MatchResult, score: numb
 }
 
 export function goalsMet(goals: LevelGoal[], score: number): boolean {
-  return goals.every(goal => (goal.type === 'score' ? score >= goal.target : goal.current >= goal.target))
+  return goals.every((goal) => (goal.type === 'score' ? score >= goal.target : goal.current >= goal.target))
 }

@@ -16,7 +16,7 @@ export interface GameMetadataExtended extends GameMetadata {
 function ThinkingDots() {
   return (
     <span className="ttt-thinking-dots" aria-hidden="true">
-      {[0, 1, 2].map(i => (
+      {[0, 1, 2].map((i) => (
         <motion.span
           key={i}
           className="ttt-dot"
@@ -121,7 +121,7 @@ export function TicTacToe({ setHeader, locale = 'en', isEink = false }: GameComp
     resetStats,
   } = useGame({ isEink })
 
-  const isGameActive = board.some(cell => cell !== null) && !gameOver
+  const isGameActive = board.some((cell) => cell !== null) && !gameOver
 
   const renderHeader = useCallback(() => {
     if (!setHeader) return
@@ -141,7 +141,7 @@ export function TicTacToe({ setHeader, locale = 'en', isEink = false }: GameComp
         ]}
         onReset={resetStats}
         resetAriaLabel={t.resetStatsAria}
-      />
+      />,
     )
   }, [setHeader, hasChosenMode, mode, stats, t, resetStats])
 
@@ -231,11 +231,7 @@ export function TicTacToe({ setHeader, locale = 'en', isEink = false }: GameComp
           <BoardLayout
             variant="square"
             hud={
-              <div
-                className="ttt-status"
-                aria-live="polite"
-                aria-atomic="true"
-              >
+              <div className="ttt-status" aria-live="polite" aria-atomic="true">
                 <StatusText
                   winner={winner}
                   isDraw={isDraw}
@@ -261,21 +257,11 @@ export function TicTacToe({ setHeader, locale = 'en', isEink = false }: GameComp
             }
             controls={
               <ControlsBar className="ttt-controls-bar">
-                <Button
-                  id="ttt-reset-btn"
-                  variant="primary"
-                  size="sm"
-                  onClick={reset}
-                >
+                <Button id="ttt-reset-btn" variant="primary" size="sm" onClick={reset}>
                   {t.newGame}
                 </Button>
 
-                <Button
-                  id="ttt-change-mode-btn"
-                  variant="secondary"
-                  size="sm"
-                  onClick={handleChangeModeClick}
-                >
+                <Button id="ttt-change-mode-btn" variant="secondary" size="sm" onClick={handleChangeModeClick}>
                   {t.changeMode}
                 </Button>
 
@@ -283,7 +269,7 @@ export function TicTacToe({ setHeader, locale = 'en', isEink = false }: GameComp
                   <PillGroup<DifficultyLevel>
                     label={t.difficultyLabel}
                     size="sm"
-                    options={DIFFICULTIES.map(d => ({
+                    options={DIFFICULTIES.map((d) => ({
                       value: d,
                       label: d === 'easy' ? t.difficultyEasy : d === 'medium' ? t.difficultyMedium : t.difficultyHard,
                       id: `ttt-diff-${d}`,
@@ -303,28 +289,14 @@ export function TicTacToe({ setHeader, locale = 'en', isEink = false }: GameComp
         isOpen={Boolean(pendingAction)}
         onClose={handleCancelAction}
         title={t.confirmResetTitle}
-        description={
-          pendingAction?.type === 'difficulty'
-            ? t.confirmDifficultyDesc
-            : t.confirmModeDesc
-        }
+        description={pendingAction?.type === 'difficulty' ? t.confirmDifficultyDesc : t.confirmModeDesc}
         maxWidth="sm"
         footer={
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', width: '100%' }}>
-            <Button
-              id="ttt-modal-cancel"
-              variant="secondary"
-              size="sm"
-              onClick={handleCancelAction}
-            >
+            <Button id="ttt-modal-cancel" variant="secondary" size="sm" onClick={handleCancelAction}>
               {t.cancelBtn}
             </Button>
-            <Button
-              id="ttt-modal-confirm"
-              variant="primary"
-              size="sm"
-              onClick={handleConfirmAction}
-            >
+            <Button id="ttt-modal-confirm" variant="primary" size="sm" onClick={handleConfirmAction}>
               {t.confirmBtn}
             </Button>
           </div>

@@ -67,7 +67,7 @@ export function useSudoku(options?: { isEink?: boolean }) {
   useEffect(() => {
     if (gameStatus === 'playing') {
       timerRef.current = window.setInterval(() => {
-        setElapsedSeconds(s => s + 1)
+        setElapsedSeconds((s) => s + 1)
       }, 1000)
     } else {
       if (timerRef.current !== null) {
@@ -97,7 +97,7 @@ export function useSudoku(options?: { isEink?: boolean }) {
       setCanUndo(false)
       setBestTime(loadBestTime(diffToUse))
     },
-    [difficulty]
+    [difficulty],
   )
 
   const setDifficulty = useCallback(
@@ -106,7 +106,7 @@ export function useSudoku(options?: { isEink?: boolean }) {
       saveDifficulty(d)
       resetGame(d)
     },
-    [resetGame]
+    [resetGame],
   )
 
   const checkWinCondition = (currentBoard: SudokuBoard): boolean => {
@@ -140,8 +140,8 @@ export function useSudoku(options?: { isEink?: boolean }) {
         })
 
         // Toggle note
-        setBoard(prev => {
-          const next = prev.map(row => row.map(cell => ({ ...cell, notes: new Set(cell.notes) })))
+        setBoard((prev) => {
+          const next = prev.map((row) => row.map((cell) => ({ ...cell, notes: new Set(cell.notes) })))
           const notes = next[r][c].notes
           if (notes.has(num)) {
             notes.delete(num)
@@ -178,7 +178,7 @@ export function useSudoku(options?: { isEink?: boolean }) {
             }
           }
           return cell
-        })
+        }),
       )
 
       setBoard(newBoard)
@@ -192,7 +192,7 @@ export function useSudoku(options?: { isEink?: boolean }) {
       } else {
         if (checkWinCondition(newBoard)) {
           setGameStatus('won')
-          setElapsedSeconds(time => {
+          setElapsedSeconds((time) => {
             const currentBest = loadBestTime(difficulty)
             if (currentBest === null || time < currentBest) {
               saveBestTime(difficulty, time)
@@ -203,7 +203,7 @@ export function useSudoku(options?: { isEink?: boolean }) {
         }
       }
     },
-    [gameStatus, selectedCell, board, pencilMode, mistakes, difficulty]
+    [gameStatus, selectedCell, board, pencilMode, mistakes, difficulty],
   )
 
   const handleErase = useCallback(() => {
@@ -222,7 +222,7 @@ export function useSudoku(options?: { isEink?: boolean }) {
     })
     setCanUndo(true)
 
-    setBoard(prev =>
+    setBoard((prev) =>
       prev.map((row, rowIdx) =>
         row.map((cell, colIdx) => {
           if (rowIdx === r && colIdx === c) {
@@ -234,8 +234,8 @@ export function useSudoku(options?: { isEink?: boolean }) {
             }
           }
           return cell
-        })
-      )
+        }),
+      ),
     )
   }, [gameStatus, selectedCell, board])
 
@@ -244,7 +244,7 @@ export function useSudoku(options?: { isEink?: boolean }) {
 
     const lastMove = historyRef.current.pop()!
     setCanUndo(historyRef.current.length > 0)
-    setBoard(prev =>
+    setBoard((prev) =>
       prev.map((row, rowIdx) =>
         row.map((cell, colIdx) => {
           if (rowIdx === lastMove.row && colIdx === lastMove.col) {
@@ -256,8 +256,8 @@ export function useSudoku(options?: { isEink?: boolean }) {
             }
           }
           return cell
-        })
-      )
+        }),
+      ),
     )
     setSelectedCell([lastMove.row, lastMove.col])
   }, [gameStatus])
@@ -292,7 +292,7 @@ export function useSudoku(options?: { isEink?: boolean }) {
 
       if (e.key === 'n' || e.key === 'N' || e.key === 'p' || e.key === 'P') {
         e.preventDefault()
-        setPencilMode(p => !p)
+        setPencilMode((p) => !p)
         return
       }
 
@@ -305,7 +305,7 @@ export function useSudoku(options?: { isEink?: boolean }) {
       // Arrow navigation
       if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'w', 's', 'a', 'd'].includes(e.key)) {
         e.preventDefault()
-        setSelectedCell(prev => {
+        setSelectedCell((prev) => {
           if (!prev) return [0, 0]
           const [r, c] = prev
           switch (e.key) {

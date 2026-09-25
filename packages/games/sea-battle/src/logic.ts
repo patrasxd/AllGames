@@ -22,7 +22,7 @@ export function canPlaceShip(
   row: number,
   col: number,
   size: number,
-  orientation: Orientation
+  orientation: Orientation,
 ): boolean {
   for (let i = 0; i < size; i++) {
     const r = orientation === 'horizontal' ? row : row + i
@@ -110,22 +110,18 @@ export interface ShotResult {
   nextState: PlayerGridState
 }
 
-export function processShot(
-  state: PlayerGridState,
-  row: number,
-  col: number
-): ShotResult {
+export function processShot(state: PlayerGridState, row: number, col: number): ShotResult {
   const currentCell = state.grid[row][col]
   if (currentCell === 'hit' || currentCell === 'miss' || currentCell === 'sunk') {
     return { hit: false, sunk: false, sunkShip: null, nextState: state }
   }
 
-  const nextGrid = state.grid.map(r => [...r])
+  const nextGrid = state.grid.map((r) => [...r])
   let hit = false
   let sunk = false
   let sunkShip: PlacedShip | null = null
 
-  const nextShips = state.ships.map(ship => {
+  const nextShips = state.ships.map((ship) => {
     const isCoordinate = ship.coords.some(([r, c]) => r === row && c === col)
     if (isCoordinate) {
       hit = true

@@ -12,7 +12,7 @@ import './styles/chess.css'
 function ThinkingDots() {
   return (
     <span className="chess-thinking-dots" aria-hidden="true">
-      {[0, 1, 2].map(i => (
+      {[0, 1, 2].map((i) => (
         <motion.span
           key={i}
           className="chess-dot"
@@ -91,7 +91,7 @@ export function Chess({ setHeader, setIsActive, locale = 'en', isEink = false }:
         onReset={resetStats}
         resetAriaLabel={t.resetStatsAria}
         resetId="chess-reset-stats-btn"
-      />
+      />,
     )
   }, [setHeader, hasChosenMode, mode, stats, t, resetStats])
 
@@ -200,14 +200,10 @@ export function Chess({ setHeader, setIsActive, locale = 'en', isEink = false }:
                 ) : (
                   <>
                     <div className="chess-status-text">
-                      {mode === 'ai'
-                        ? t.yourTurn
-                        : t.playerTurn(turn === 'white' ? t.white : t.black)}
+                      {mode === 'ai' ? t.yourTurn : t.playerTurn(turn === 'white' ? t.white : t.black)}
                       {inCheck && <span className="chess-check-badge"> {t.check}</span>}
                     </div>
-                    <div className="chess-status-sub">
-                      {turn === 'white' ? `${t.white}` : `${t.black}`}
-                    </div>
+                    <div className="chess-status-sub">{turn === 'white' ? `${t.white}` : `${t.black}`}</div>
                   </>
                 )}
               </div>
@@ -232,19 +228,19 @@ export function Chess({ setHeader, setIsActive, locale = 'en', isEink = false }:
                       isStalemate || winner === 'draw'
                         ? 'draw'
                         : mode === 'ai'
-                        ? winner === 'white'
-                          ? 'won'
-                          : 'lost'
-                        : 'won'
+                          ? winner === 'white'
+                            ? 'won'
+                            : 'lost'
+                          : 'won'
                     }
                     title={
                       isStalemate || winner === 'draw'
                         ? t.stalemate
                         : mode === 'ai'
-                        ? winner === 'white'
-                          ? t.youWon
-                          : t.computerWon
-                        : t.playerWon(winner === 'white' ? t.white : t.black)
+                          ? winner === 'white'
+                            ? t.youWon
+                            : t.computerWon
+                          : t.playerWon(winner === 'white' ? t.white : t.black)
                     }
                     subtitle={isCheckmate ? t.checkmate : t.gameOver}
                     isEink={isEink}
@@ -257,20 +253,10 @@ export function Chess({ setHeader, setIsActive, locale = 'en', isEink = false }:
             }
             controls={
               <ControlsBar className="chess-controls-bar">
-                <Button
-                  id="chess-new-game-btn"
-                  variant="primary"
-                  size="sm"
-                  onClick={handleNewGameClick}
-                >
+                <Button id="chess-new-game-btn" variant="primary" size="sm" onClick={handleNewGameClick}>
                   {t.newGame}
                 </Button>
-                <Button
-                  id="chess-change-mode-btn"
-                  variant="secondary"
-                  size="sm"
-                  onClick={handleChangeModeClick}
-                >
+                <Button id="chess-change-mode-btn" variant="secondary" size="sm" onClick={handleChangeModeClick}>
                   {t.changeMode}
                 </Button>
 
@@ -278,7 +264,7 @@ export function Chess({ setHeader, setIsActive, locale = 'en', isEink = false }:
                   <PillGroup<ChessDifficulty>
                     label={t.difficultyLabel}
                     size="sm"
-                    options={DIFFICULTIES.map(d => ({
+                    options={DIFFICULTIES.map((d) => ({
                       value: d,
                       label: d === 'easy' ? t.difficultyEasy : d === 'medium' ? t.difficultyMedium : t.difficultyHard,
                       id: `chess-diff-${d}`,
@@ -294,14 +280,7 @@ export function Chess({ setHeader, setIsActive, locale = 'en', isEink = false }:
       </AnimatePresence>
 
       {/* Pawn Promotion Dialog */}
-      {pendingPromotion && (
-        <PromotionModal
-          color={turn}
-          locale={locale}
-          isEink={isEink}
-          onSelect={choosePromotion}
-        />
-      )}
+      {pendingPromotion && <PromotionModal color={turn} locale={locale} isEink={isEink} onSelect={choosePromotion} />}
 
       {/* Reset Confirmation Modal */}
       <ConfirmDialog
@@ -312,8 +291,8 @@ export function Chess({ setHeader, setIsActive, locale = 'en', isEink = false }:
           pendingAction?.type === 'difficulty'
             ? t.confirmDifficultyDesc
             : pendingAction?.type === 'newGame'
-            ? t.confirmNewGameDesc
-            : t.confirmModeDesc
+              ? t.confirmNewGameDesc
+              : t.confirmModeDesc
         }
         confirmLabel={pendingAction?.type === 'newGame' ? t.newGame : t.confirmBtn}
         cancelLabel={t.cancelBtn}

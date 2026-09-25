@@ -15,7 +15,7 @@ function buildDeal(drawMode: DrawMode): SolitaireState {
     }
   }
 
-  const stock = deck.slice(cardIndex).map(c => ({ ...c, faceUp: false }))
+  const stock = deck.slice(cardIndex).map((c) => ({ ...c, faceUp: false }))
 
   return {
     stock,
@@ -40,11 +40,7 @@ export function dealNewGame(drawMode: DrawMode = 1): SolitaireState {
   return buildDeal(drawMode)
 }
 
-export function canMoveToFoundation(
-  card: CardData,
-  foundation: CardData[],
-  foundationIndex?: number
-): boolean {
+export function canMoveToFoundation(card: CardData, foundation: CardData[], foundationIndex?: number): boolean {
   if (foundation.length === 0) {
     if (foundationIndex !== undefined && foundationIndex >= 0 && foundationIndex < FOUNDATION_SUITS.length) {
       return card.rank === 1 && card.suit === FOUNDATION_SUITS[foundationIndex]
@@ -69,7 +65,7 @@ export function canMoveToTableau(movingFirstCard: CardData, tableauPile: CardDat
 }
 
 export function checkWinCondition(foundations: CardData[][]): boolean {
-  return foundations.every(f => f.length === 13)
+  return foundations.every((f) => f.length === 13)
 }
 
 export function isEligibleForAutoComplete(state: SolitaireState): boolean {

@@ -99,7 +99,7 @@ describe('Game2048 Component Integration', () => {
 
     expect(screen.getByRole('button', { name: /Nowa gra/i })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Cofnij/i })).toBeInTheDocument()
-    
+
     // Settings button is labeled in Polish
     const settingsBtn = screen.getByRole('button', { name: /Ustawienia/i })
     expect(settingsBtn).toBeInTheDocument()
@@ -155,4 +155,3 @@ describe('Game2048 Component Integration', () => {
     expect(tiles.length).toBeGreaterThanOrEqual(1)
   })
 })
-

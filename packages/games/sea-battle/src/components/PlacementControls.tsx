@@ -23,13 +23,7 @@ export const PlacementControls = memo(function PlacementControls({
 
   return (
     <ControlsBar className="bs-placement-bar">
-      <Button
-        id="bs-auto-btn"
-        variant="secondary"
-        size="sm"
-        onClick={onAutoDeploy}
-        icon={<ShuffleIcon />}
-      >
+      <Button id="bs-auto-btn" variant="secondary" size="sm" onClick={onAutoDeploy} icon={<ShuffleIcon />}>
         {t.autoDeploy}
       </Button>
 
@@ -44,13 +38,7 @@ export const PlacementControls = memo(function PlacementControls({
         {t.clearBoard}
       </Button>
 
-      <Button
-        id="bs-start-btn"
-        variant="primary"
-        size="sm"
-        onClick={onStart}
-        disabled={!hasShips}
-      >
+      <Button id="bs-start-btn" variant="primary" size="sm" onClick={onStart} disabled={!hasShips}>
         {t.startBattle}
       </Button>
     </ControlsBar>
