@@ -54,7 +54,9 @@ export const Cell = memo(function Cell({
 }: CellProps) {
   const longPressTimerRef = useRef<number | null>(null)
   const isLongPressRef = useRef(false)
+  const hasMovedRef = useRef(false)
   const touchStartPosRef = useRef<{ x: number; y: number } | null>(null)
+  const lastLongPressTimeRef = useRef(0)
 
   const clearLongPress = useCallback(() => {
     if (longPressTimerRef.current !== null) {
@@ -67,6 +69,8 @@ export const Cell = memo(function Cell({
     (e: React.TouchEvent) => {
       clearLongPress()
       isLongPressRef.current = false
+      hasMovedRef.current = false
+
       if (e.touches.length === 1) {
         touchStartPosRef.current = {
           x: e.touches[0].clientX,
@@ -75,27 +79,43 @@ export const Cell = memo(function Cell({
         longPressTimerRef.current = window.setTimeout(() => {
           if (!cell.isRevealed) {
             isLongPressRef.current = true
+            lastLongPressTimeRef.current = Date.now()
             if (onToggleFlag) {
               onToggleFlag()
             } else {
               onContextMenu(e as unknown as React.MouseEvent)
             }
             if (typeof navigator !== 'undefined' && navigator.vibrate) {
-              navigator.vibrate(40)
+              try {
+                navigator.vibrate(40)
+              } catch {
+                // Ignore vibration failure if not supported
+              }
             }
+            onMouseUp()
           }
-        }, 360)
+        }, 380)
+      } else {
+        clearLongPress()
+        hasMovedRef.current = true
       }
     },
-    [cell.isRevealed, clearLongPress, onToggleFlag, onContextMenu],
+    [cell.isRevealed, clearLongPress, onToggleFlag, onContextMenu, onMouseUp],
   )
 
   const handleTouchMove = useCallback(
     (e: React.TouchEvent) => {
+      if (e.touches.length > 1) {
+        clearLongPress()
+        hasMovedRef.current = true
+        return
+      }
       if (touchStartPosRef.current && e.touches.length === 1) {
         const dx = Math.abs(e.touches[0].clientX - touchStartPosRef.current.x)
         const dy = Math.abs(e.touches[0].clientY - touchStartPosRef.current.y)
-        if (dx > 8 || dy > 8) {
+        // 12px threshold gives tolerance for finger settling, but catches drags/scrolls
+        if (dx > 12 || dy > 12) {
+          hasMovedRef.current = true
           clearLongPress()
         }
       }
@@ -106,17 +126,29 @@ export const Cell = memo(function Cell({
   const handleTouchEnd = useCallback(
     (e: React.TouchEvent) => {
       clearLongPress()
-      if (isLongPressRef.current) {
+      if (isLongPressRef.current || hasMovedRef.current) {
         e.preventDefault()
       }
     },
     [clearLongPress],
   )
 
+  const handleTouchCancel = useCallback(() => {
+    clearLongPress()
+    hasMovedRef.current = false
+    isLongPressRef.current = false
+    onMouseUp()
+  }, [clearLongPress, onMouseUp])
+
   const handleClick = useCallback(
     (e: React.MouseEvent) => {
-      if (isLongPressRef.current) {
+      if (
+        isLongPressRef.current ||
+        hasMovedRef.current ||
+        Date.now() - lastLongPressTimeRef.current < 500
+      ) {
         isLongPressRef.current = false
+        hasMovedRef.current = false
         e.preventDefault()
         e.stopPropagation()
         return
@@ -124,6 +156,18 @@ export const Cell = memo(function Cell({
       onClick()
     },
     [onClick],
+  )
+
+  const handleContextMenu = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
+      if (Date.now() - lastLongPressTimeRef.current < 500) {
+        return
+      }
+      onContextMenu(e)
+    },
+    [onContextMenu],
   )
 
   const handleMouseDown = useCallback(
@@ -167,13 +211,13 @@ export const Cell = memo(function Cell({
       type="button"
       className={cellClass}
       onClick={handleClick}
-      onContextMenu={onContextMenu}
+      onContextMenu={handleContextMenu}
       onMouseDown={handleMouseDown}
       onMouseUp={onMouseUp}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
-      onTouchCancel={clearLongPress}
+      onTouchCancel={handleTouchCancel}
       aria-label={`Row ${cell.row + 1}, Col ${cell.col + 1}${
         cell.isRevealed
           ? cell.hasMine

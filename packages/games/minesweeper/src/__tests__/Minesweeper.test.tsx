@@ -125,4 +125,80 @@ describe('Minesweeper Component Integration', () => {
     fireEvent.click(cells[0])
     expect(cells[0]).toHaveClass('ms-cell--revealed')
   })
+
+  it('places flag on long press and prevents revealing cell', async () => {
+    render(<Minesweeper locale="en" />)
+    const cells = document.querySelectorAll('.ms-cell')
+    const targetCell = cells[3]
+
+    // Start touch press
+    fireEvent.touchStart(targetCell, {
+      touches: [{ clientX: 100, clientY: 100 }],
+    })
+
+    // Wait for long press timer (380ms) wrapped in act
+    await waitFor(() => {
+      expect(targetCell.querySelector('.ms-cell-flag')).toBeInTheDocument()
+    })
+
+    expect(targetCell).not.toHaveClass('ms-cell--revealed')
+
+    // Lifting finger and subsequent click should NOT reveal the cell
+    fireEvent.touchEnd(targetCell, { touches: [] })
+    fireEvent.click(targetCell)
+
+    expect(targetCell).not.toHaveClass('ms-cell--revealed')
+    expect(targetCell.querySelector('.ms-cell-flag')).toBeInTheDocument()
+  })
+
+  it('prevents accidental cell clicks when scrolling through the map', () => {
+    render(<Minesweeper locale="en" />)
+    const cells = document.querySelectorAll('.ms-cell')
+    const targetCell = cells[4]
+
+    // Touch down on a cell
+    fireEvent.touchStart(targetCell, {
+      touches: [{ clientX: 100, clientY: 100 }],
+    })
+
+    // Finger moves significantly (scrolling/panning map)
+    fireEvent.touchMove(targetCell, {
+      touches: [{ clientX: 100, clientY: 160 }],
+    })
+
+    // Touch ends
+    fireEvent.touchEnd(targetCell, { touches: [] })
+
+    // Browser synthesizes click event
+    fireEvent.click(targetCell)
+
+    // Cell should NOT be revealed because it was a scroll gesture
+    expect(targetCell).not.toHaveClass('ms-cell--revealed')
+  })
+
+  it('handles zoom controls correctly', () => {
+    render(<Minesweeper locale="en" />)
+
+    const zoomInBtn = screen.getByRole('button', { name: /Zoom in/i })
+    const zoomOutBtn = screen.getByRole('button', { name: /Zoom out/i })
+    const zoomResetBtn = screen.getByRole('button', { name: /Current zoom/i })
+
+    expect(zoomResetBtn).toHaveTextContent('100%')
+
+    // Click Zoom In
+    fireEvent.click(zoomInBtn)
+    expect(zoomResetBtn).toHaveTextContent('120%')
+
+    // Click Zoom In again
+    fireEvent.click(zoomInBtn)
+    expect(zoomResetBtn).toHaveTextContent('140%')
+
+    // Click Reset
+    fireEvent.click(zoomResetBtn)
+    expect(zoomResetBtn).toHaveTextContent('100%')
+
+    // Click Zoom Out
+    fireEvent.click(zoomOutBtn)
+    expect(zoomResetBtn).toHaveTextContent('80%')
+  })
 })
