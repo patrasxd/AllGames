@@ -93,6 +93,42 @@ export const ArtilleryCanvas = memo(function ArtilleryCanvas({
   const floatingTextsRef = useRef<FloatingText[]>(floatingTexts)
   floatingTextsRef.current = floatingTexts
 
+  // Render props ref to decouple requestAnimationFrame continuous loop from React prop churning
+  const renderPropsRef = useRef({
+    tanks,
+    terrain,
+    projectiles,
+    explosions,
+    floatingTexts,
+    currentTurn,
+    phase,
+    wind,
+    screenShake,
+    isEink,
+    theme,
+    turnTitle,
+    windText,
+    mode,
+    propActiveTank,
+  })
+  renderPropsRef.current = {
+    tanks,
+    terrain,
+    projectiles,
+    explosions,
+    floatingTexts,
+    currentTurn,
+    phase,
+    wind,
+    screenShake,
+    isEink,
+    theme,
+    turnTitle,
+    windText,
+    mode,
+    propActiveTank,
+  }
+
   // Impact and damage camera tracking (Worms style: holds camera on target during blast and damage popup)
   const lastImpactRef = useRef<{ x: number; y: number; time: number } | null>(null)
 
@@ -180,6 +216,24 @@ export const ArtilleryCanvas = memo(function ArtilleryCanvas({
       const ctx = canvas.getContext('2d')
       if (!ctx) return
 
+      const {
+        tanks,
+        terrain,
+        projectiles,
+        explosions,
+        floatingTexts: currentFloatingTexts,
+        currentTurn,
+        phase,
+        wind,
+        screenShake,
+        isEink,
+        theme,
+        turnTitle,
+        windText,
+        mode,
+        propActiveTank,
+      } = renderPropsRef.current
+
       const now = performance.now()
       const dt = Math.min(0.1, (now - lastTimeRef.current) / 1000)
       lastTimeRef.current = now
@@ -199,8 +253,8 @@ export const ArtilleryCanvas = memo(function ArtilleryCanvas({
 
       const turnElapsed = (now - turnStartTimeRef.current) / 1000
 
-      // HiDPI scale calibration
-      const dpr = window.devicePixelRatio || 1
+      // HiDPI scale calibration (capped at 2 to prevent GPU fill-rate exhaustion on mobile Retina/OLED screens)
+      const dpr = Math.min(window.devicePixelRatio || 1, 2)
       const displayWidth = canvas.clientWidth || 900
       const displayHeight = canvas.clientHeight || 500
 
@@ -218,7 +272,7 @@ export const ArtilleryCanvas = memo(function ArtilleryCanvas({
       // Track impact location and damaged target when detonation occurs
       if (explosions.length > 0) {
         const exp = explosions[0]
-        const currentDamageTexts = floatingTextsRef.current || floatingTexts || []
+        const currentDamageTexts = floatingTextsRef.current || currentFloatingTexts || []
         const damageTarget = currentDamageTexts.length > 0 ? currentDamageTexts[0] : exp
         lastImpactRef.current = {
           x: damageTarget.x,
@@ -526,10 +580,17 @@ export const ArtilleryCanvas = memo(function ArtilleryCanvas({
           ctx.translate(renderCloudX, renderCloudY)
           ctx.scale(cloud.scale, cloud.scale)
 
-          // Soft ambient drop shadow under cloud onto sky (gentle, airy)
-          ctx.shadowColor = isDark ? 'rgba(0, 0, 0, 0.16)' : 'rgba(0, 0, 0, 0.08)'
-          ctx.shadowBlur = 10
-          ctx.shadowOffsetY = 4
+          // Clean ambient drop shadow under cloud onto sky (hardware-accelerated, zero software blur)
+          if (!isEink) {
+            ctx.fillStyle = isDark ? 'rgba(0, 0, 0, 0.16)' : 'rgba(0, 0, 0, 0.08)'
+            ctx.beginPath()
+            ctx.roundRect(-42, 2, 84, 16, 8)
+            ctx.arc(-22, 0, 13.5, 0, Math.PI * 2)
+            ctx.arc(-7, -9, 16.5, 0, Math.PI * 2)
+            ctx.arc(9, -13, 18.5, 0, Math.PI * 2)
+            ctx.arc(25, -3, 14.5, 0, Math.PI * 2)
+            ctx.fill()
+          }
 
           // Sculpted 3D Clay Cloud Geometry (puffy lobes with soft flat base)
           ctx.beginPath()
@@ -572,7 +633,6 @@ export const ArtilleryCanvas = memo(function ArtilleryCanvas({
           ctx.fill()
 
           // Subtle, calm sky-facing crest highlight (never jumps, stays gracefully on top)
-          ctx.shadowColor = 'transparent'
           const crestAngle = -Math.PI * 0.5 + sunBias * 0.32
           const arcSpan = Math.PI * 0.32
 
@@ -598,11 +658,11 @@ export const ArtilleryCanvas = memo(function ArtilleryCanvas({
         })
       }
 
-      // ─── 1. Rolling Mountain Terrain with Continuous Horizon Extensions ───────────────
+      // ─── 1. Rolling Mountain Terrain with Frustum Culling ───────────────
       const splineStep = 6
-      const minExtX = Math.min(-2000, viewLeft - 1000)
-      const maxExtX = Math.max(terrain.width + 2000, viewRight + 1000)
-      const bottomY = Math.max(CANVAS_HEIGHT + 3500, viewBottom + 2500)
+      const drawLeft = Math.floor(Math.max(-2500, viewLeft - 80))
+      const drawRight = Math.ceil(Math.min(terrain.width + 2500, viewRight + 80))
+      const bottomY = Math.max(CANVAS_HEIGHT + 2000, viewBottom + 1000)
 
       // Stable elevation extending terrain beyond battlefield borders (flat & stable horizon, never diverges into sky)
       const getExtElevation = (x: number): number => {
@@ -616,17 +676,17 @@ export const ArtilleryCanvas = memo(function ArtilleryCanvas({
       }
 
       ctx.beginPath()
-      ctx.moveTo(minExtX, bottomY)
-      ctx.lineTo(minExtX, getExtElevation(minExtX))
+      ctx.moveTo(drawLeft, bottomY)
+      ctx.lineTo(drawLeft, getExtElevation(drawLeft))
 
-      for (let x = minExtX; x < maxExtX - splineStep; x += splineStep) {
+      for (let x = drawLeft; x < drawRight - splineStep; x += splineStep) {
         const nextX = x + splineStep
         const midX = (x + nextX) / 2
         const midY = (getExtElevation(x) + getExtElevation(nextX)) / 2
         ctx.quadraticCurveTo(x, getExtElevation(x), midX, midY)
       }
-      ctx.lineTo(maxExtX, getExtElevation(maxExtX))
-      ctx.lineTo(maxExtX, bottomY)
+      ctx.lineTo(drawRight, getExtElevation(drawRight))
+      ctx.lineTo(drawRight, bottomY)
       ctx.closePath()
 
       // 1. Dark Velvety Matte Clay Shading for Rolling Hills (matching reference image)
@@ -653,20 +713,20 @@ export const ArtilleryCanvas = memo(function ArtilleryCanvas({
         sunWash.addColorStop(0.65, 'rgba(217, 119, 6, 0.03)')
         sunWash.addColorStop(1, 'rgba(0, 0, 0, 0)')
         ctx.fillStyle = sunWash
-        ctx.fillRect(minExtX, viewTop, maxExtX - minExtX, bottomY - viewTop)
+        ctx.fillRect(drawLeft, viewTop, drawRight - drawLeft, bottomY - viewTop)
         ctx.restore()
       }
 
       // 3. Crisp luminous silver-white ridge crest rim along continuous horizon
       ctx.beginPath()
-      ctx.moveTo(minExtX, getExtElevation(minExtX))
-      for (let x = minExtX; x < maxExtX - splineStep; x += splineStep) {
+      ctx.moveTo(drawLeft, getExtElevation(drawLeft))
+      for (let x = drawLeft; x < drawRight - splineStep; x += splineStep) {
         const nextX = x + splineStep
         const midX = (x + nextX) / 2
         const midY = (getExtElevation(x) + getExtElevation(nextX)) / 2
         ctx.quadraticCurveTo(x, getExtElevation(x), midX, midY)
       }
-      ctx.lineTo(maxExtX, getExtElevation(maxExtX))
+      ctx.lineTo(drawRight, getExtElevation(drawRight))
 
       ctx.strokeStyle = isEink ? (isDark ? '#ffffff' : '#000000') : '#cbd5e1'
       ctx.lineWidth = 1.5
@@ -736,7 +796,7 @@ export const ArtilleryCanvas = memo(function ArtilleryCanvas({
         ctx.lineWidth = isEink ? einkLineWidth : 0.8
         ctx.stroke()
 
-        // 5 Recessed Road Wheels inside the track band
+        // 5 Recessed Road Wheels inside the track band (zero per-frame gradient allocation)
         const wheelCount = 5
         const wheelR = 3.2
         const wheelSpacing = (trackW - 14) / (wheelCount - 1)
@@ -746,13 +806,14 @@ export const ArtilleryCanvas = memo(function ArtilleryCanvas({
 
           ctx.beginPath()
           ctx.arc(wx, wy, wheelR, 0, Math.PI * 2)
-          const wheelGrad = ctx.createRadialGradient(wx - 0.7, wy - 0.7, 0.3, wx, wy, wheelR)
-          wheelGrad.addColorStop(0, '#363c47')
-          wheelGrad.addColorStop(0.65, '#1e2229')
-          wheelGrad.addColorStop(1, '#111317')
-          ctx.fillStyle = isEink ? (isDark ? '#444444' : '#ffffff') : wheelGrad
+          ctx.fillStyle = isEink ? (isDark ? '#444444' : '#ffffff') : '#1e2229'
           ctx.fill()
-          if (isEink) {
+          if (!isEink) {
+            ctx.beginPath()
+            ctx.arc(wx - 0.5, wy - 0.5, wheelR * 0.45, 0, Math.PI * 2)
+            ctx.fillStyle = '#363c47'
+            ctx.fill()
+          } else {
             ctx.strokeStyle = einkStroke
             ctx.lineWidth = 1
             ctx.stroke()
@@ -933,10 +994,13 @@ export const ArtilleryCanvas = memo(function ArtilleryCanvas({
           const badgeW = textMetrics.width + 24
           const badgeH = 26
 
-          // Drop shadow
-          ctx.shadowColor = 'rgba(0, 0, 0, 0.5)'
-          ctx.shadowBlur = 10
-          ctx.shadowOffsetY = 4
+          // Drop shadow backing (fast vector path, zero software blur)
+          if (!isEink) {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.45)'
+            ctx.beginPath()
+            ctx.roundRect(tank.x - badgeW / 2, badgeY - badgeH / 2 + 3, badgeW, badgeH, 13)
+            ctx.fill()
+          }
 
           // Badge pill
           ctx.fillStyle = isEink ? (isDark ? '#000000' : '#ffffff') : 'rgba(15, 23, 42, 0.88)'
@@ -948,7 +1012,6 @@ export const ArtilleryCanvas = memo(function ArtilleryCanvas({
           ctx.stroke()
 
           // Text
-          ctx.shadowColor = 'transparent'
           ctx.fillStyle = isEink ? (isDark ? '#ffffff' : '#000000') : '#ffffff'
           ctx.textAlign = 'center'
           ctx.textBaseline = 'middle'
@@ -1337,7 +1400,7 @@ export const ArtilleryCanvas = memo(function ArtilleryCanvas({
 
     animId = requestAnimationFrame(render)
     return () => cancelAnimationFrame(animId)
-  }, [tanks, terrain, projectiles, explosions, floatingTexts, currentTurn, phase, wind, screenShake, isEink, theme, mode, windText])
+  }, [disableMotion])
 
   const p1HpPercent = Math.max(0, Math.min(100, (tanks.p1.hp / tanks.p1.maxHp) * 100))
   const p2HpPercent = Math.max(0, Math.min(100, (tanks.p2.hp / tanks.p2.maxHp) * 100))

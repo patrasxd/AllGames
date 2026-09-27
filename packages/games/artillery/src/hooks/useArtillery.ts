@@ -521,7 +521,7 @@ export function useArtillery({ isEink = false }: { isEink?: boolean } = {}) {
         setExplosions([...remainingExp])
       }
 
-      // 3. Update Particles
+      // 3. Update Particles in engine ref
       if (engineRef.current.particles.length > 0) {
         const remainingParticles: Particle[] = []
         for (const p of engineRef.current.particles) {
@@ -535,7 +535,6 @@ export function useArtillery({ isEink = false }: { isEink?: boolean } = {}) {
           }
         }
         engineRef.current.particles = remainingParticles
-        setParticles([...remainingParticles])
       }
 
       // 4. Update Floating Texts
