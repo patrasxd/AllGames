@@ -289,22 +289,26 @@ export const ArtilleryCanvas = memo(function ArtilleryCanvas({
         (phase === 'firing' || phase === 'resolving') &&
         projectiles.length === 0
 
-      let targetX = activeTank.x + (isP1 ? 60 : -60)
-      let targetY = activeTank.y - 25
+      const isMobilePortrait = displayWidth < 640 && displayHeight > displayWidth
+      const tankFocusOffsetX = isMobilePortrait ? (isP1 ? 40 : -40) : (isP1 ? 60 : -60)
+      const tankFocusOffsetY = isMobilePortrait ? -35 : -25
+
+      let targetX = activeTank.x + tankFocusOffsetX
+      let targetY = activeTank.y + tankFocusOffsetY
       let targetZoom = 1.0
 
-      const p1FocusX = tanks.p1.x + 60
-      const p1FocusY = tanks.p1.y - 25
-      const p2FocusX = tanks.p2.x - 60
-      const p2FocusY = tanks.p2.y - 25
+      const p1FocusX = tanks.p1.x + (isMobilePortrait ? 40 : 60)
+      const p1FocusY = tanks.p1.y + tankFocusOffsetY
+      const p2FocusX = tanks.p2.x - (isMobilePortrait ? 40 : 60)
+      const p2FocusY = tanks.p2.y + tankFocusOffsetY
 
       const opponentId: PlayerId = currentTurn === 'p1' ? 'p2' : 'p1'
       const opponentTank = tanks[opponentId]
       const opponentIsP1 = opponentId === 'p1'
-      const opponentFocusX = opponentTank.x + (opponentIsP1 ? 60 : -60)
-      const opponentFocusY = opponentTank.y - 25
-      const currentFocusX = activeTank.x + (isP1 ? 60 : -60)
-      const currentFocusY = activeTank.y - 25
+      const opponentFocusX = opponentTank.x + (opponentIsP1 ? (isMobilePortrait ? 40 : 60) : -(isMobilePortrait ? 40 : 60))
+      const opponentFocusY = opponentTank.y + tankFocusOffsetY
+      const currentFocusX = activeTank.x + tankFocusOffsetX
+      const currentFocusY = activeTank.y + tankFocusOffsetY
 
       const isScoutActive = scoutStateRef.current.stage !== 'idle'
       const scout = scoutStateRef.current
@@ -430,13 +434,14 @@ export const ArtilleryCanvas = memo(function ArtilleryCanvas({
             // Never bounce back to the shooting tank who just took their turn
             const nextTurnId: PlayerId = currentTurn === 'p1' ? 'p2' : 'p1'
             const nextTank = tanks[nextTurnId]
-            targetX = nextTank.x + (nextTurnId === 'p1' ? 60 : -60)
-            targetY = nextTank.y - 25
+            const nextIsP1 = nextTurnId === 'p1'
+            targetX = nextTank.x + (nextIsP1 ? (isMobilePortrait ? 40 : 60) : -(isMobilePortrait ? 40 : 60))
+            targetY = nextTank.y + tankFocusOffsetY
             targetZoom = 1.0
           } else {
             // Centered directly on the active tank preparing its shot (aiming phase)
-            targetX = activeTank.x + (isP1 ? 60 : -60)
-            targetY = activeTank.y - 25
+            targetX = activeTank.x + tankFocusOffsetX
+            targetY = activeTank.y + tankFocusOffsetY
             targetZoom = 1.0
           }
         }
@@ -481,7 +486,22 @@ export const ArtilleryCanvas = memo(function ArtilleryCanvas({
       const zoom = cameraRef.current.zoom
 
       // Base scale fits coordinate world to canvas display box
-      const baseScale = Math.min(displayWidth / 900, displayHeight / 520)
+      // On narrow mobile devices and portrait screens, adaptively zoom in on the battlefield (~2.2x-2.5x larger than before)
+      // so tanks, aiming reticles, and terrain are comfortably visible and tactile rather than shrunk down.
+      let baseScale: number
+
+      if (isMobilePortrait) {
+        // Frame around ~360–400 world units horizontally rather than desktop's 900
+        const mobileTargetWidth = Math.min(420, Math.max(340, displayWidth * 0.95))
+        const mobileTargetHeight = Math.min(560, Math.max(450, displayHeight * 0.75))
+        baseScale = Math.max(
+          0.92,
+          Math.min(1.22, Math.min(displayWidth / mobileTargetWidth, displayHeight / mobileTargetHeight)),
+        )
+      } else {
+        baseScale = Math.min(displayWidth / 900, displayHeight / 520)
+      }
+
       const effectiveScale = baseScale * zoom
 
       // Screen Shake Trauma (suppressed when reduced motion or e-ink is active)
