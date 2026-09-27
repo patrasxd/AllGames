@@ -133,26 +133,26 @@
   gap: 6px;
 }
 
-.artillery-hud-wind-pill {
+/* ─── Wind Tile: Previous Icon, Wind Direction, Level, Colored Tile (Blue, Orange, Red) ─── */
+.artillery-hud-wind-tile {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  padding: 5px 12px;
-  background: rgba(26, 29, 36, 0.88);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 8px;
+  padding: 5px 13px;
+  border-radius: 9999px;
   font-family: var(--all-font-sans, system-ui, sans-serif);
   font-size: 0.85rem;
-  font-weight: 500;
-  color: #f1f5f9;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+  font-weight: 700;
+  color: #ffffff;
+  user-select: none;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: all 200ms ease;
 }
 
 .artillery-hud-wind-icon {
-  color: #cbd5e1;
   flex-shrink: 0;
+  transition: color 150ms ease;
 }
 
 .artillery-hud-wind-sr {
@@ -167,136 +167,152 @@
   border: 0;
 }
 
-.artillery-hud-wind-text {
-  font-family: var(--all-font-sans, system-ui, sans-serif);
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: #f1f5f9;
-}
-
 .artillery-hud-wind-arrow {
-  color: #cbd5e1;
-  font-size: 1.05rem;
+  font-size: 1.15rem;
+  font-weight: 800;
   line-height: 1;
-  font-weight: 600;
+  transition: color 150ms ease, transform 150ms ease;
 }
 
-/* 3-level Volume / Signal Bars (Kreski) */
-.artillery-hud-wind-bars {
-  display: inline-flex;
-  align-items: flex-end;
-  gap: 3px;
-  height: 14px;
-  margin-left: 2px;
-  padding-bottom: 1px;
+.artillery-hud-wind-val {
+  font-family: var(--all-font-mono, 'JetBrains Mono', monospace);
+  font-size: 0.88rem;
+  font-weight: 800;
+  line-height: 1;
 }
 
-.artillery-wind-bar {
-  width: 3.5px;
-  border-radius: 1.5px;
-  background: currentColor;
-  opacity: 0.22;
-  transition: opacity 150ms ease, background-color 150ms ease, transform 150ms ease;
+/* 1. Calm / Neutral State (Level 0) */
+.artillery-wind-tile--calm {
+  background: rgba(18, 22, 30, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #94a3b8;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+}
+.artillery-wind-tile--calm .artillery-hud-wind-icon,
+.artillery-wind-tile--calm .artillery-hud-wind-arrow {
+  color: #64748b;
 }
 
-.artillery-wind-bar--1 {
-  height: 6px;
+/* 2. Blue Tile (Niebieski - Level 1 Light Wind) */
+.artillery-wind-tile--blue {
+  background: rgba(2, 132, 199, 0.35);
+  border: 1.5px solid rgba(56, 189, 248, 0.7);
+  color: #ffffff;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.38), 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+.artillery-wind-tile--blue .artillery-hud-wind-icon,
+.artillery-wind-tile--blue .artillery-hud-wind-arrow {
+  color: #38bdf8;
+  text-shadow: 0 0 8px rgba(56, 189, 248, 0.8);
 }
 
-.artillery-wind-bar--2 {
-  height: 10px;
+/* 3. Orange Tile (Pomarańczowy - Level 2 Moderate Wind) */
+.artillery-wind-tile--orange {
+  background: rgba(234, 88, 12, 0.35);
+  border: 1.5px solid rgba(249, 115, 22, 0.7);
+  color: #ffffff;
+  box-shadow: 0 0 16px rgba(249, 115, 22, 0.38), 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+.artillery-wind-tile--orange .artillery-hud-wind-icon,
+.artillery-wind-tile--orange .artillery-hud-wind-arrow {
+  color: #fb923c;
+  text-shadow: 0 0 8px rgba(249, 115, 22, 0.8);
 }
 
-.artillery-wind-bar--3 {
-  height: 14px;
+/* 4. Red Tile (Czerwony - Level 3 Strong Wind) */
+.artillery-wind-tile--red {
+  background: rgba(220, 38, 38, 0.38);
+  border: 1.5px solid rgba(239, 68, 68, 0.75);
+  color: #ffffff;
+  box-shadow: 0 0 18px rgba(239, 68, 68, 0.42), 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+.artillery-wind-tile--red .artillery-hud-wind-icon,
+.artillery-wind-tile--red .artillery-hud-wind-arrow {
+  color: #f87171;
+  text-shadow: 0 0 8px rgba(239, 68, 68, 0.8);
 }
 
-.artillery-wind-bar--active {
-  opacity: 1;
-  background: #38bdf8;
-  box-shadow: 0 0 6px rgba(56, 189, 248, 0.45);
-}
-
-/* Light mode wind pill */
-.artillery-canvas-wrapper--light .artillery-hud-wind-pill {
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(15, 23, 42, 0.12);
-  color: #0f172a;
-  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
-}
-.artillery-canvas-wrapper--light .artillery-hud-wind-icon,
-.artillery-canvas-wrapper--light .artillery-hud-wind-arrow {
+/* Light Theme Overrides */
+.artillery-canvas-wrapper--light .artillery-wind-tile--calm,
+:root[data-theme='light']:not([data-eink='true']) .artillery-wind-tile--calm {
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(15, 23, 42, 0.14);
   color: #475569;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
 }
-.artillery-canvas-wrapper--light .artillery-hud-wind-text {
-  color: #0f172a;
-}
-.artillery-canvas-wrapper--light .artillery-wind-bar {
-  opacity: 0.24;
-}
-.artillery-canvas-wrapper--light .artillery-wind-bar--active {
-  background: #0284c7;
-  opacity: 1;
-  box-shadow: 0 0 4px rgba(2, 132, 199, 0.3);
+.artillery-canvas-wrapper--light .artillery-wind-tile--calm .artillery-hud-wind-icon,
+.artillery-canvas-wrapper--light .artillery-wind-tile--calm .artillery-hud-wind-arrow {
+  color: #94a3b8;
 }
 
-/* E-Ink wind pill */
-[data-eink='true'] .artillery-hud-wind-pill {
+.artillery-canvas-wrapper--light .artillery-wind-tile--blue,
+:root[data-theme='light']:not([data-eink='true']) .artillery-wind-tile--blue {
+  background: #e0f2fe;
+  border: 1.5px solid #0284c7;
+  color: #0369a1;
+  box-shadow: 0 0 10px rgba(2, 132, 199, 0.25);
+}
+.artillery-canvas-wrapper--light .artillery-wind-tile--blue .artillery-hud-wind-icon,
+.artillery-canvas-wrapper--light .artillery-wind-tile--blue .artillery-hud-wind-arrow {
+  color: #0284c7;
+  text-shadow: none;
+}
+
+.artillery-canvas-wrapper--light .artillery-wind-tile--orange,
+:root[data-theme='light']:not([data-eink='true']) .artillery-wind-tile--orange {
+  background: #ffedd5;
+  border: 1.5px solid #ea580c;
+  color: #c2410c;
+  box-shadow: 0 0 10px rgba(234, 88, 12, 0.25);
+}
+.artillery-canvas-wrapper--light .artillery-wind-tile--orange .artillery-hud-wind-icon,
+.artillery-canvas-wrapper--light .artillery-wind-tile--orange .artillery-hud-wind-arrow {
+  color: #ea580c;
+  text-shadow: none;
+}
+
+.artillery-canvas-wrapper--light .artillery-wind-tile--red,
+:root[data-theme='light']:not([data-eink='true']) .artillery-wind-tile--red {
+  background: #fee2e2;
+  border: 1.5px solid #dc2626;
+  color: #b91c1c;
+  box-shadow: 0 0 10px rgba(220, 38, 38, 0.25);
+}
+.artillery-canvas-wrapper--light .artillery-wind-tile--red .artillery-hud-wind-icon,
+.artillery-canvas-wrapper--light .artillery-wind-tile--red .artillery-hud-wind-arrow {
+  color: #dc2626;
+  text-shadow: none;
+}
+
+/* E-Ink Light Overrides */
+[data-eink='true'] .artillery-hud-wind-tile {
   background: #ffffff !important;
   border: 2px solid #000000 !important;
-  box-shadow: none !important;
   color: #000000 !important;
+  box-shadow: none !important;
 }
 [data-eink='true'] .artillery-hud-wind-icon,
 [data-eink='true'] .artillery-hud-wind-arrow,
-[data-eink='true'] .artillery-hud-wind-text {
+[data-eink='true'] .artillery-hud-wind-val {
   color: #000000 !important;
+  text-shadow: none !important;
 }
 
-[data-eink='true'][data-theme='dark'] .artillery-hud-wind-pill,
-[data-eink='true'][data-theme='e-ink-dark'] .artillery-hud-wind-pill,
-.artillery-canvas-wrapper--dark[data-eink='true'] .artillery-hud-wind-pill {
+/* E-Ink Dark Overrides */
+[data-eink='true'][data-theme='dark'] .artillery-hud-wind-tile,
+[data-eink='true'][data-theme='e-ink-dark'] .artillery-hud-wind-tile {
   background: #000000 !important;
   border: 2px solid #ffffff !important;
   color: #ffffff !important;
 }
 [data-eink='true'][data-theme='dark'] .artillery-hud-wind-icon,
 [data-eink='true'][data-theme='dark'] .artillery-hud-wind-arrow,
-[data-eink='true'][data-theme='dark'] .artillery-hud-wind-text,
+[data-eink='true'][data-theme='dark'] .artillery-hud-wind-val,
 [data-eink='true'][data-theme='e-ink-dark'] .artillery-hud-wind-icon,
 [data-eink='true'][data-theme='e-ink-dark'] .artillery-hud-wind-arrow,
-[data-eink='true'][data-theme='e-ink-dark'] .artillery-hud-wind-text,
-.artillery-canvas-wrapper--dark[data-eink='true'] .artillery-hud-wind-icon,
-.artillery-canvas-wrapper--dark[data-eink='true'] .artillery-hud-wind-arrow,
-.artillery-canvas-wrapper--dark[data-eink='true'] .artillery-hud-wind-text {
+[data-eink='true'][data-theme='e-ink-dark'] .artillery-hud-wind-val {
   color: #ffffff !important;
-}
-
-/* E-Ink Light & Dark wind bars */
-[data-eink='true'] .artillery-wind-bar {
-  background: #000000 !important;
-  opacity: 0.25 !important;
-  box-shadow: none !important;
-}
-[data-eink='true'] .artillery-wind-bar--active {
-  background: #000000 !important;
-  opacity: 1 !important;
-  box-shadow: none !important;
-}
-
-[data-eink='true'][data-theme='dark'] .artillery-wind-bar,
-[data-eink='true'][data-theme='e-ink-dark'] .artillery-wind-bar,
-.artillery-canvas-wrapper--dark[data-eink='true'] .artillery-wind-bar {
-  background: #ffffff !important;
-  opacity: 0.25 !important;
-  box-shadow: none !important;
-}
-[data-eink='true'][data-theme='dark'] .artillery-wind-bar--active,
-[data-eink='true'][data-theme='e-ink-dark'] .artillery-wind-bar--active,
-.artillery-canvas-wrapper--dark[data-eink='true'] .artillery-wind-bar--active {
-  background: #ffffff !important;
-  opacity: 1 !important;
-  box-shadow: none !important;
+  text-shadow: none !important;
 }
 
 .artillery-hud-turn-badge {
@@ -337,36 +353,129 @@
     min-width: 70px;
     padding: 3px 6px;
   }
-  .artillery-hud-wind-pill {
-    padding: 4px 10px;
-    font-size: 0.75rem;
+  .artillery-ballistic-wind-gauge {
+    padding: 3px 8px;
     gap: 5px;
   }
-  .artillery-hud-wind-text {
-    font-size: 0.75rem;
+  .artillery-wind-scale {
+    gap: 3px;
+    padding: 1px 6px;
+    font-size: 0.72rem;
+  }
+  .artillery-wind-hud-title {
+    font-size: 0.65rem;
   }
 }
 
-/* ─── On-Canvas Tactical Bottom Dock ([-] 45° [+] & Circular Fire) ─── */
+/* ─── On-Canvas Tactical Bottom Dock (Primary Row & Lower Weapons) ─── */
 .artillery-canvas-bottom-dock {
   position: absolute;
-  bottom: 16px;
+  bottom: 12px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 15;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 12px;
-  padding: 6px 16px;
-  border-radius: 9999px;
+  gap: 8px;
+  padding: 8px 18px 10px;
+  border-radius: 24px;
   user-select: none;
   transition: background 150ms ease, border-color 150ms ease;
 }
 
+/* Primary Action Row: [-] 45° [+] & Large FIRE button */
+.artillery-dock-primary-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+
 .artillery-dock-divider {
   width: 1px;
-  height: 32px;
+  height: 42px;
   margin: 0 2px;
+}
+
+/* Weapon Selector Group (Positioned Lower / "Niżej") */
+.artillery-weapon-group {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.artillery-weapon-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 11px;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
+  font-family: var(--all-font-sans, system-ui, sans-serif);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+  touch-action: manipulation;
+  transition: all 140ms ease;
+  position: relative;
+  outline: none;
+}
+
+.artillery-weapon-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-1px);
+}
+
+.artillery-weapon-btn:active:not(:disabled) {
+  transform: translateY(0) scale(0.97);
+}
+
+.artillery-weapon-btn--selected {
+  background: rgba(255, 255, 255, 0.16) !important;
+  border-color: var(--weapon-accent, #38bdf8) !important;
+  box-shadow: 0 0 10px var(--weapon-accent, rgba(56, 189, 248, 0.35));
+}
+
+.artillery-weapon-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.artillery-weapon-btn--empty {
+  opacity: 0.3;
+}
+
+.artillery-weapon-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--weapon-accent, #38bdf8);
+}
+
+.artillery-weapon-name {
+  font-size: 0.76rem;
+  letter-spacing: 0.02em;
+}
+
+.artillery-weapon-ammo {
+  font-family: var(--all-font-mono, 'JetBrains Mono', monospace);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 9999px;
+  background: rgba(0, 0, 0, 0.4);
+  color: var(--weapon-accent, #38bdf8);
+}
+
+.artillery-weapon-btn--selected .artillery-weapon-ammo {
+  background: var(--weapon-accent, #38bdf8);
+  color: #000000;
 }
 
 /* Angle Adjustment [-] 45° [+] */
@@ -400,11 +509,11 @@
   user-select: none;
 }
 
-/* Circular HOLD TO FIRE Button with SVG Power Ring */
+/* Enlarged Circular HOLD TO FIRE Button with SVG Power Ring */
 .artillery-circle-fire-wrapper {
   position: relative;
-  width: 52px;
-  height: 52px;
+  width: 68px;
+  height: 68px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -412,8 +521,8 @@
 
 .artillery-circle-fire-btn {
   position: relative;
-  width: 52px;
-  height: 52px;
+  width: 68px;
+  height: 68px;
   border-radius: 50%;
   border: none;
   cursor: pointer;
@@ -457,24 +566,136 @@
 
 .artillery-circle-text {
   font-family: var(--all-font-sans, system-ui, sans-serif);
-  font-size: 0.72rem;
-  font-weight: 800;
+  font-size: 0.82rem;
+  font-weight: 900;
   letter-spacing: 0.1em;
 }
 
 .artillery-circle-power-val {
   font-family: var(--all-font-mono, 'JetBrains Mono', monospace);
-  font-size: 0.85rem;
-  font-weight: 700;
+  font-size: 1.05rem;
+  font-weight: 800;
 }
 
-/* Scout Enemy Button */
-.artillery-scout-btn {
-  transition: all 150ms ease !important;
+/* ─── Top-Left Recon / Scout Eye Button ─── */
+.artillery-top-scout-btn {
+  position: absolute;
+  top: 14px;
+  left: 16px;
+  z-index: 20;
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+  user-select: none;
+  touch-action: manipulation;
+  outline: none;
+  transition:
+    transform 120ms ease,
+    background 150ms ease,
+    color 150ms ease,
+    border-color 150ms ease,
+    box-shadow 150ms ease;
+  background: rgba(18, 22, 30, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #94a3b8;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
 }
 
-.artillery-scout-btn:hover:not(:disabled) {
-  transform: scale(1.05);
+.artillery-top-scout-btn:hover:not(:disabled) {
+  color: #ffffff;
+  background: rgba(30, 36, 48, 0.95);
+  border-color: rgba(255, 255, 255, 0.32);
+  transform: scale(1.08);
+}
+
+.artillery-top-scout-btn:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.artillery-top-scout-btn.artillery-scout-btn--active,
+.artillery-scout-btn--active {
+  background: rgba(59, 130, 246, 0.28) !important;
+  color: #60a5fa !important;
+  border-color: rgba(96, 165, 250, 0.6) !important;
+  box-shadow: 0 0 14px rgba(59, 130, 246, 0.45) !important;
+}
+
+.artillery-top-scout-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Light Theme Overrides */
+.artillery-canvas-wrapper--light .artillery-top-scout-btn,
+:root[data-theme='light']:not([data-eink='true']) .artillery-top-scout-btn,
+[data-theme='light']:not([data-eink='true']) .artillery-top-scout-btn {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(15, 23, 42, 0.14);
+  color: #475569;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.1);
+}
+
+.artillery-canvas-wrapper--light .artillery-top-scout-btn:hover:not(:disabled),
+:root[data-theme='light']:not([data-eink='true']) .artillery-top-scout-btn:hover:not(:disabled) {
+  background: #ffffff;
+  color: #0f172a;
+  border-color: rgba(15, 23, 42, 0.28);
+}
+
+.artillery-canvas-wrapper--light .artillery-top-scout-btn.artillery-scout-btn--active,
+:root[data-theme='light']:not([data-eink='true']) .artillery-top-scout-btn.artillery-scout-btn--active {
+  background: #dbeafe !important;
+  color: #2563eb !important;
+  border-color: #93c5fd !important;
+  box-shadow: 0 0 12px rgba(37, 99, 235, 0.3) !important;
+}
+
+/* E-Ink Light */
+[data-eink='true']:not([data-theme='dark']):not([data-theme='e-ink-dark']) .artillery-top-scout-btn {
+  background: #ffffff !important;
+  border: 2px solid #000000 !important;
+  color: #000000 !important;
+  box-shadow: none !important;
+}
+
+[data-eink='true']:not([data-theme='dark']):not([data-theme='e-ink-dark']) .artillery-top-scout-btn.artillery-scout-btn--active {
+  background: #000000 !important;
+  color: #ffffff !important;
+}
+
+/* E-Ink Dark */
+[data-eink='true'][data-theme='dark'] .artillery-top-scout-btn,
+[data-eink='true'][data-theme='e-ink-dark'] .artillery-top-scout-btn {
+  background: #000000 !important;
+  border: 2px solid #ffffff !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+}
+
+[data-eink='true'][data-theme='dark'] .artillery-top-scout-btn.artillery-scout-btn--active,
+[data-eink='true'][data-theme='e-ink-dark'] .artillery-top-scout-btn.artillery-scout-btn--active {
+  background: #ffffff !important;
+  color: #000000 !important;
+}
+
+/* Mobile top positioning */
+@media (max-width: 600px) {
+  .artillery-top-scout-btn {
+    top: 10px;
+    left: 10px;
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+  }
 }
 
 /* ═══════════════ THEME-SPECIFIC DOCK STYLES ═══════════════ */
@@ -579,6 +800,38 @@
 .artillery-canvas-bottom-dock--light .artillery-dock-divider,
 :root[data-theme='light']:not([data-eink='true']) .artillery-canvas-bottom-dock .artillery-dock-divider {
   background: rgba(15, 23, 42, 0.12) !important;
+}
+
+.artillery-canvas-bottom-dock--light .artillery-weapon-btn,
+:root[data-theme='light']:not([data-eink='true']) .artillery-canvas-bottom-dock .artillery-weapon-btn {
+  background: rgba(15, 23, 42, 0.05);
+  border-color: rgba(15, 23, 42, 0.14);
+  color: #1e293b;
+}
+
+.artillery-canvas-bottom-dock--light .artillery-weapon-btn:hover:not(:disabled),
+:root[data-theme='light']:not([data-eink='true']) .artillery-canvas-bottom-dock .artillery-weapon-btn:hover:not(:disabled) {
+  background: rgba(15, 23, 42, 0.09);
+  border-color: rgba(15, 23, 42, 0.28);
+}
+
+.artillery-canvas-bottom-dock--light .artillery-weapon-btn--selected,
+:root[data-theme='light']:not([data-eink='true']) .artillery-canvas-bottom-dock .artillery-weapon-btn--selected {
+  background: rgba(15, 23, 42, 0.08) !important;
+  border-color: var(--weapon-accent, #0284c7) !important;
+  box-shadow: 0 0 8px rgba(2, 132, 199, 0.3);
+}
+
+.artillery-canvas-bottom-dock--light .artillery-weapon-ammo,
+:root[data-theme='light']:not([data-eink='true']) .artillery-canvas-bottom-dock .artillery-weapon-ammo {
+  background: rgba(15, 23, 42, 0.08);
+  color: #0f172a;
+}
+
+.artillery-canvas-bottom-dock--light .artillery-weapon-btn--selected .artillery-weapon-ammo,
+:root[data-theme='light']:not([data-eink='true']) .artillery-canvas-bottom-dock .artillery-weapon-btn--selected .artillery-weapon-ammo {
+  background: #0f172a;
+  color: #ffffff;
 }
 
 .artillery-canvas-bottom-dock--light .artillery-angle-display,
@@ -717,6 +970,29 @@
   color: #000000 !important;
 }
 
+.artillery-canvas-bottom-dock--eink-light .artillery-weapon-btn,
+[data-eink='true']:not([data-theme='dark']):not([data-theme='e-ink-dark']) .artillery-canvas-bottom-dock .artillery-weapon-btn {
+  background: #ffffff !important;
+  border: 1.5px solid #000000 !important;
+  color: #000000 !important;
+  box-shadow: none !important;
+}
+
+.artillery-canvas-bottom-dock--eink-light .artillery-weapon-btn--selected,
+[data-eink='true']:not([data-theme='dark']):not([data-theme='e-ink-dark']) .artillery-canvas-bottom-dock .artillery-weapon-btn--selected {
+  background: #000000 !important;
+  color: #ffffff !important;
+  border-color: #000000 !important;
+}
+
+.artillery-canvas-bottom-dock--eink-light .artillery-weapon-btn--selected .artillery-weapon-icon,
+.artillery-canvas-bottom-dock--eink-light .artillery-weapon-btn--selected .artillery-weapon-ammo,
+[data-eink='true']:not([data-theme='dark']):not([data-theme='e-ink-dark']) .artillery-canvas-bottom-dock .artillery-weapon-btn--selected .artillery-weapon-icon,
+[data-eink='true']:not([data-theme='dark']):not([data-theme='e-ink-dark']) .artillery-canvas-bottom-dock .artillery-weapon-btn--selected .artillery-weapon-ammo {
+  color: #ffffff !important;
+  background: transparent !important;
+}
+
 /* 4. E-INK DARK THEME */
 .artillery-canvas-bottom-dock--eink-dark,
 [data-eink='true'][data-theme='dark'] .artillery-canvas-bottom-dock,
@@ -790,6 +1066,31 @@
   color: #ffffff !important;
 }
 
+.artillery-canvas-bottom-dock--eink-dark .artillery-weapon-btn,
+[data-eink='true'][data-theme='dark'] .artillery-canvas-bottom-dock .artillery-weapon-btn,
+[data-eink='true'][data-theme='e-ink-dark'] .artillery-canvas-bottom-dock .artillery-weapon-btn {
+  background: #000000 !important;
+  border: 1.5px solid #ffffff !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+}
+
+.artillery-canvas-bottom-dock--eink-dark .artillery-weapon-btn--selected,
+[data-eink='true'][data-theme='dark'] .artillery-canvas-bottom-dock .artillery-weapon-btn--selected,
+[data-eink='true'][data-theme='e-ink-dark'] .artillery-canvas-bottom-dock .artillery-weapon-btn--selected {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border-color: #ffffff !important;
+}
+
+.artillery-canvas-bottom-dock--eink-dark .artillery-weapon-btn--selected .artillery-weapon-icon,
+.artillery-canvas-bottom-dock--eink-dark .artillery-weapon-btn--selected .artillery-weapon-ammo,
+[data-eink='true'][data-theme='dark'] .artillery-canvas-bottom-dock .artillery-weapon-btn--selected .artillery-weapon-icon,
+[data-eink='true'][data-theme='dark'] .artillery-canvas-bottom-dock .artillery-weapon-btn--selected .artillery-weapon-ammo {
+  color: #000000 !important;
+  background: transparent !important;
+}
+
 /* Safety Fallback: whenever dock background is white, angle text is ALWAYS black */
 [data-eink='true'] .artillery-canvas-bottom-dock:not(.artillery-canvas-bottom-dock--eink-dark) .artillery-angle-display,
 [data-eink='true'] .artillery-canvas-bottom-dock:not(.artillery-canvas-bottom-dock--eink-dark) .artillery-angle-number {
@@ -808,6 +1109,40 @@
 }
 
 /* Responsive adjustments */
+@media (max-width: 600px) {
+  .artillery-canvas-bottom-dock {
+    border-radius: 20px;
+    padding: 6px 12px 8px;
+    gap: 6px;
+    max-width: calc(100vw - 20px);
+  }
+
+  .artillery-dock-primary-row {
+    gap: 10px;
+  }
+
+  .artillery-circle-fire-wrapper,
+  .artillery-circle-fire-btn {
+    width: 62px;
+    height: 62px;
+  }
+
+  .artillery-dock-divider {
+    height: 36px;
+  }
+
+  .artillery-weapon-group {
+    width: 100%;
+    justify-content: center;
+    gap: 4px;
+  }
+
+  .artillery-weapon-btn {
+    padding: 3px 8px;
+    font-size: 0.72rem;
+  }
+}
+
 @media (max-width: 480px) {
   .artillery-canvas-box {
     max-width: 100%;
@@ -833,8 +1168,21 @@
     padding: var(--all-space-1, 0.25rem) var(--all-space-2, 0.5rem);
   }
   .artillery-canvas-bottom-dock {
-    bottom: 8px;
-    padding: 3px 12px;
+    bottom: 4px;
+    padding: 3px 10px 4px;
+    gap: 3px;
+  }
+  .artillery-circle-fire-wrapper,
+  .artillery-circle-fire-btn {
+    width: 50px;
+    height: 50px;
+  }
+  .artillery-dock-divider {
+    height: 28px;
+  }
+  .artillery-weapon-btn {
+    padding: 2px 7px;
+    font-size: 0.7rem;
   }
   .artillery-tactical-hud {
     top: 6px;

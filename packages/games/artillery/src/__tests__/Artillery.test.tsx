@@ -145,5 +145,56 @@ describe('Artillery Component Integration', () => {
     rerender(<Artillery locale="en" isEink={true} theme="dark" />)
     expect(document.querySelector('.artillery-canvas-bottom-dock--eink-dark')).toBeInTheDocument()
   })
+
+  it('renders ammunition selector with standard, heavy mortar, and cluster weapons and supports switching', async () => {
+    render(<Artillery locale="en" />)
+    fireEvent.click(screen.getByRole('button', { name: /Two players/i }))
+
+    await waitFor(() => {
+      expect(document.getElementById('artillery-weapon-standard-btn')).toBeInTheDocument()
+      expect(document.getElementById('artillery-weapon-mortar-btn')).toBeInTheDocument()
+      expect(document.getElementById('artillery-weapon-cluster-btn')).toBeInTheDocument()
+    })
+
+    const stdBtn = document.getElementById('artillery-weapon-standard-btn') as HTMLButtonElement
+    const mortarBtn = document.getElementById('artillery-weapon-mortar-btn') as HTMLButtonElement
+    const clusterBtn = document.getElementById('artillery-weapon-cluster-btn') as HTMLButtonElement
+
+    // Standard selected by default
+    expect(stdBtn.classList.contains('artillery-weapon-btn--selected')).toBe(true)
+    expect(mortarBtn.classList.contains('artillery-weapon-btn--selected')).toBe(false)
+    expect(clusterBtn.classList.contains('artillery-weapon-btn--selected')).toBe(false)
+
+    // Check ammo counts
+    expect(stdBtn).toHaveTextContent('∞')
+    expect(mortarBtn).toHaveTextContent('3')
+    expect(clusterBtn).toHaveTextContent('2')
+
+    // Click to select mortar
+    fireEvent.click(mortarBtn)
+    expect(mortarBtn.classList.contains('artillery-weapon-btn--selected')).toBe(true)
+    expect(stdBtn.classList.contains('artillery-weapon-btn--selected')).toBe(false)
+
+    // Switch to cluster with keyboard Digit3
+    fireEvent.keyDown(window, { code: 'Digit3' })
+    expect(clusterBtn.classList.contains('artillery-weapon-btn--selected')).toBe(true)
+
+    // Switch back to standard with keyboard Digit1
+    fireEvent.keyDown(window, { code: 'Digit1' })
+    expect(stdBtn.classList.contains('artillery-weapon-btn--selected')).toBe(true)
+  })
+
+  it('renders weapon selector with Polish labels', async () => {
+    render(<Artillery locale="pl" />)
+    fireEvent.click(screen.getByRole('button', { name: /dwóch graczy/i }))
+
+    await waitFor(() => {
+      expect(document.getElementById('artillery-weapon-standard-btn')).toBeInTheDocument()
+    })
+
+    expect(screen.getByText('Zwykły')).toBeInTheDocument()
+    expect(screen.getByText('Ciężki')).toBeInTheDocument()
+    expect(screen.getByText('Kasetowy')).toBeInTheDocument()
+  })
 })
 

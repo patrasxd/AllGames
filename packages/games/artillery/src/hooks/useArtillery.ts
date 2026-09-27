@@ -318,7 +318,7 @@ export function useArtillery({ isEink = false }: { isEink?: boolean } = {}) {
     (x: number, y: number, radius: number, weaponColor: string, baseDamage: number) => {
       sound.playExplosion(radius)
       if (!isEink) {
-        const shakeVal = Math.min(14, radius * 0.22)
+        const shakeVal = Math.min(18, radius * 0.28)
         screenShakeRef.current = shakeVal
         setScreenShake(shakeVal)
       }
@@ -410,11 +410,13 @@ export function useArtillery({ isEink = false }: { isEink?: boolean } = {}) {
       // Clamped delta-time (60fps baseline, dt in seconds)
       const dt = Math.min(Math.max(elapsed / 1000, 0.005), 0.05)
 
-      // Screen shake decay (only updates React state when actively shaking)
+      // Screen shake decay (only updates React state when completely settled)
       if (screenShakeRef.current > 0) {
         const nextShake = screenShakeRef.current > 0.2 ? screenShakeRef.current * 0.88 : 0
         screenShakeRef.current = nextShake
-        setScreenShake(nextShake)
+        if (nextShake === 0) {
+          setScreenShake(0)
+        }
       }
 
       // 1. Update Projectiles with Continuous Sub-step Raymarching Collision
@@ -492,6 +494,79 @@ export function useArtillery({ isEink = false }: { isEink?: boolean } = {}) {
               proj.trail.shift()
             }
 
+            // Cluster bomb splitting: splits near apex / descent into 3 bomblets
+            const curCol = Math.max(0, Math.min(CANVAS_WIDTH - 1, Math.round(proj.x)))
+            const curGroundY = engineRef.current.terrain.heights[curCol] ?? CANVAS_HEIGHT
+            if (proj.weapon === 'cluster' && !proj.split && proj.vy > 30 && proj.y < curGroundY - 60) {
+              proj.split = true
+              // Spawn burst particles at split point
+              for (let k = 0; k < 12; k++) {
+                const angle = Math.random() * Math.PI * 2
+                const spd = 30 + Math.random() * 60
+                engineRef.current.particles.push({
+                  id: engineRef.current.particleIdCounter++,
+                  x: proj.x,
+                  y: proj.y,
+                  vx: Math.cos(angle) * spd,
+                  vy: Math.sin(angle) * spd,
+                  size: 2.4,
+                  life: 0,
+                  maxLife: 0.5,
+                  color: '#c084fc',
+                })
+              }
+
+              // Create 3 submunitions: left, center, right
+              const leftSub: Projectile = {
+                id: `${proj.id}_sub1`,
+                owner: proj.owner,
+                x: proj.x - 3,
+                y: proj.y,
+                vx: proj.vx - 48,
+                vy: proj.vy - 12,
+                weapon: 'cluster',
+                blastRadius: 28,
+                damage: 30,
+                bouncesLeft: 0,
+                trail: [{ x: proj.x, y: proj.y, alpha: 1 }],
+                split: true,
+                isSubmunition: true,
+              }
+              const midSub: Projectile = {
+                id: `${proj.id}_sub2`,
+                owner: proj.owner,
+                x: proj.x,
+                y: proj.y,
+                vx: proj.vx,
+                vy: proj.vy,
+                weapon: 'cluster',
+                blastRadius: 28,
+                damage: 30,
+                bouncesLeft: 0,
+                trail: [{ x: proj.x, y: proj.y, alpha: 1 }],
+                split: true,
+                isSubmunition: true,
+              }
+              const rightSub: Projectile = {
+                id: `${proj.id}_sub3`,
+                owner: proj.owner,
+                x: proj.x + 3,
+                y: proj.y,
+                vx: proj.vx + 48,
+                vy: proj.vy - 12,
+                weapon: 'cluster',
+                blastRadius: 28,
+                damage: 30,
+                bouncesLeft: 0,
+                trail: [{ x: proj.x, y: proj.y, alpha: 1 }],
+                split: true,
+                isSubmunition: true,
+              }
+
+              remainingProjectiles.push(leftSub, midSub, rightSub)
+              continue
+            }
+
             // Projectiles flying far beyond outer boundaries vanish into the distance
             const isOutOfBounds =
               proj.x < -1000 || proj.x >= CANVAS_WIDTH + 1000 || proj.y >= CANVAS_HEIGHT + 300
@@ -502,8 +577,11 @@ export function useArtillery({ isEink = false }: { isEink?: boolean } = {}) {
           }
         }
 
+        const hadProjectilesBefore = engineRef.current.projectiles.length > 0
         engineRef.current.projectiles = remainingProjectiles
-        setProjectiles([...remainingProjectiles])
+        if (hadProjectilesBefore && remainingProjectiles.length === 0) {
+          setProjectiles([])
+        }
       }
 
       // 2. Update Explosions
@@ -517,8 +595,11 @@ export function useArtillery({ isEink = false }: { isEink?: boolean } = {}) {
             remainingExp.push(exp)
           }
         }
+        const hadExpBefore = engineRef.current.explosions.length > 0
         engineRef.current.explosions = remainingExp
-        setExplosions([...remainingExp])
+        if (hadExpBefore && remainingExp.length === 0) {
+          setExplosions([])
+        }
       }
 
       // 3. Update Particles in engine ref
@@ -547,8 +628,11 @@ export function useArtillery({ isEink = false }: { isEink?: boolean } = {}) {
             remainingTexts.push(ft)
           }
         }
+        const hadTextsBefore = engineRef.current.floatingTexts.length > 0
         engineRef.current.floatingTexts = remainingTexts
-        setFloatingTexts([...remainingTexts])
+        if (hadTextsBefore && remainingTexts.length === 0) {
+          setFloatingTexts([])
+        }
       }
 
       // 5. Check if turn has finished resolving
@@ -646,6 +730,8 @@ export function useArtillery({ isEink = false }: { isEink?: boolean } = {}) {
     stats,
     isAiThinking,
     screenShake,
+    screenShakeRef,
+    engineRef,
     isMuted,
     setAngle,
     setPower,

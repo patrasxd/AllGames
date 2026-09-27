@@ -39,7 +39,10 @@ export function Artillery({
     stats,
     isAiThinking,
     screenShake,
+    screenShakeRef,
+    engineRef,
     setAngle,
+    setSelectedWeapon,
     fire,
     startMatch,
     resetStats,
@@ -247,6 +250,8 @@ export function Artillery({
               phase={phase}
               wind={wind}
               screenShake={screenShake}
+              screenShakeRef={screenShakeRef}
+              engineRef={engineRef}
               isEink={isEink}
               theme={theme}
               mode={mode}
@@ -256,6 +261,7 @@ export function Artillery({
               activeTank={activeTank}
               onAngleChange={setAngle}
               onFireWithPower={fire}
+              onSelectWeapon={setSelectedWeapon}
               locale={locale}
               t={t}
             />

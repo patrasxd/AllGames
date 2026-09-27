@@ -46,6 +46,8 @@ export interface Projectile {
   damage: number
   bouncesLeft: number
   trail: Array<{ x: number; y: number; alpha: number }>
+  split?: boolean
+  isSubmunition?: boolean
 }
 
 export interface Explosion {

@@ -394,8 +394,21 @@ export function calculateAiShot(
   difficulty: DifficultyLevel,
   rand = Math.random,
 ): { angle: number; power: number; weapon: WeaponType } {
-  // Single standard shell for both player and AI (pure minimalist ballistic duel)
-  const weapon: WeaponType = 'standard'
+  // AI picks weapon dynamically based on difficulty and remaining ammo
+  let weapon: WeaponType = 'standard'
+  if (difficulty === 'hard') {
+    if (aiTank.ammo.mortar > 0 && rand() < 0.4) {
+      weapon = 'mortar'
+    } else if (aiTank.ammo.cluster > 0 && rand() < 0.35) {
+      weapon = 'cluster'
+    }
+  } else if (difficulty === 'medium') {
+    if (aiTank.ammo.mortar > 0 && rand() < 0.25) {
+      weapon = 'mortar'
+    } else if (aiTank.ammo.cluster > 0 && rand() < 0.2) {
+      weapon = 'cluster'
+    }
+  }
 
   // Simulated ballistic solver to find best angle & power
   let bestAngle = 45

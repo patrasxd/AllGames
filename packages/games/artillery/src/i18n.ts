@@ -46,6 +46,13 @@ export interface ArtilleryTranslations {
   round: string
   scoutEnemy: string
   scoutBanner: string
+  weapons: {
+    standard: { name: string; desc: string; short: string }
+    mortar: { name: string; desc: string; short: string }
+    cluster: { name: string; desc: string; short: string }
+  }
+  weaponSelectLabel: string
+  unlimitedAmmo: string
 }
 
 export const artilleryTranslations: Record<Locale, ArtilleryTranslations> = {
@@ -99,6 +106,25 @@ export const artilleryTranslations: Record<Locale, ArtilleryTranslations> = {
     round: 'Round',
     scoutEnemy: 'Check enemy position',
     scoutBanner: 'Enemy reconnaissance · Click to return',
+    weapons: {
+      standard: {
+        name: 'Standard Shell',
+        desc: 'Standard ballistic shell with unlimited ammo',
+        short: 'Standard',
+      },
+      mortar: {
+        name: 'Heavy Shell',
+        desc: 'High-explosive heavy shell with massive blast radius',
+        short: 'Heavy',
+      },
+      cluster: {
+        name: 'Cluster Bomb',
+        desc: 'Splits mid-air into 3 devastating bomblets',
+        short: 'Cluster',
+      },
+    },
+    weaponSelectLabel: 'Ammunition',
+    unlimitedAmmo: '∞',
   },
   pl: {
     gameTitle: 'Artillery',
@@ -150,5 +176,24 @@ export const artilleryTranslations: Record<Locale, ArtilleryTranslations> = {
     round: 'Runda',
     scoutEnemy: 'Sprawdź pozycję przeciwnika',
     scoutBanner: 'Rozpoznanie pozycji przeciwnika · Kliknij, aby wrócić',
+    weapons: {
+      standard: {
+        name: 'Pocisk zwykły',
+        desc: 'Klasyczny pocisk armatni z nielimitowaną amunicją',
+        short: 'Zwykły',
+      },
+      mortar: {
+        name: 'Ciężki pocisk',
+        desc: 'Burzący ładunek o potężnej sile i dużym kraterze',
+        short: 'Ciężki',
+      },
+      cluster: {
+        name: 'Pocisk kasetowy',
+        desc: 'Rozdziela się w locie na 3 mniejsze ładunki',
+        short: 'Kasetowy',
+      },
+    },
+    weaponSelectLabel: 'Amunicja',
+    unlimitedAmmo: '∞',
   },
 }

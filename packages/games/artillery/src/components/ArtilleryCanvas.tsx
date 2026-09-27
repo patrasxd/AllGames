@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback, useContext, memo } from 'react'
-import type { Tank, TerrainData, Projectile, Explosion, FloatingText, GameTheme, PlayerId, GamePhase, GameMode, Locale } from '../types'
+import type { Tank, TerrainData, Projectile, Explosion, FloatingText, Particle, GameTheme, PlayerId, GamePhase, GameMode, Locale, WeaponType } from '../types'
 import {
   CANVAS_WIDTH,
   CANVAS_HEIGHT,
@@ -7,6 +7,7 @@ import {
   getTankSlopeAngle,
   TURRET_HUB_OFFSET,
   BARREL_LENGTH,
+  WEAPON_DEFINITIONS,
 } from '../logic'
 import { ArtilleryTacticalDock } from './ArtilleryHUD'
 import type { ArtilleryTranslations } from '../i18n'
@@ -24,6 +25,13 @@ interface ArtilleryCanvasProps {
   phase: GamePhase
   wind: number
   screenShake?: number
+  screenShakeRef?: React.MutableRefObject<number>
+  engineRef?: React.MutableRefObject<{
+    projectiles: Projectile[]
+    explosions: Explosion[]
+    particles: Particle[]
+    floatingTexts: FloatingText[]
+  }>
   isEink?: boolean
   theme?: GameTheme
   turnTitle: string
@@ -34,6 +42,7 @@ interface ArtilleryCanvasProps {
   matchId?: number
   onAngleChange?: (angle: number) => void
   onFireWithPower?: (power: number) => void
+  onSelectWeapon?: (weapon: WeaponType) => void
   locale?: Locale
   t?: ArtilleryTranslations
 }
@@ -48,6 +57,8 @@ export const ArtilleryCanvas = memo(function ArtilleryCanvas({
   phase,
   wind,
   screenShake = 0,
+  screenShakeRef,
+  engineRef,
   isEink = false,
   theme = 'dark',
   turnTitle,
@@ -58,6 +69,7 @@ export const ArtilleryCanvas = memo(function ArtilleryCanvas({
   matchId,
   onAngleChange,
   onFireWithPower,
+  onSelectWeapon,
   locale = 'pl',
   t,
 }: ArtilleryCanvasProps) {
@@ -174,6 +186,15 @@ export const ArtilleryCanvas = memo(function ArtilleryCanvas({
     setIsScouting(false)
   }, [])
 
+  const handleToggleScout = useCallback(() => {
+    isIntroSkippedRef.current = true
+    if (scoutStateRef.current.stage !== 'idle') {
+      handleCancelScout()
+    } else {
+      handleStartScout()
+    }
+  }, [handleCancelScout, handleStartScout])
+
   if (matchId !== undefined && prevMatchIdRef.current !== matchId) {
     prevMatchIdRef.current = matchId
     isIntroSkippedRef.current = false
@@ -219,13 +240,9 @@ export const ArtilleryCanvas = memo(function ArtilleryCanvas({
       const {
         tanks,
         terrain,
-        projectiles,
-        explosions,
-        floatingTexts: currentFloatingTexts,
         currentTurn,
         phase,
         wind,
-        screenShake,
         isEink,
         theme,
         turnTitle,
@@ -233,6 +250,12 @@ export const ArtilleryCanvas = memo(function ArtilleryCanvas({
         mode,
         propActiveTank,
       } = renderPropsRef.current
+
+      // Continuous dynamic objects are read directly from engineRef to achieve 60-120fps with ZERO React state churning
+      const projectiles = engineRef?.current?.projectiles ?? renderPropsRef.current.projectiles
+      const explosions = engineRef?.current?.explosions ?? renderPropsRef.current.explosions
+      const currentFloatingTexts = engineRef?.current?.floatingTexts ?? renderPropsRef.current.floatingTexts
+      const screenShake = screenShakeRef?.current ?? renderPropsRef.current.screenShake
 
       const now = performance.now()
       const dt = Math.min(0.1, (now - lastTimeRef.current) / 1000)
@@ -678,38 +701,50 @@ export const ArtilleryCanvas = memo(function ArtilleryCanvas({
         })
       }
 
-      // ─── 1. Rolling Mountain Terrain with Frustum Culling ───────────────
+      // ─── 1. Rolling Mountain Terrain with Frustum Culling & Fast Pathing ───
       const splineStep = 6
-      const drawLeft = Math.floor(Math.max(-2500, viewLeft - 80))
-      const drawRight = Math.ceil(Math.min(terrain.width + 2500, viewRight + 80))
-      const bottomY = Math.max(CANVAS_HEIGHT + 2000, viewBottom + 1000)
+      const drawLeft = Math.floor(Math.max(-1200, viewLeft - 80))
+      const drawRight = Math.ceil(Math.min(terrain.width + 1200, viewRight + 80))
+      const bottomY = Math.max(CANVAS_HEIGHT + 800, viewBottom + 500)
 
-      // Stable elevation extending terrain beyond battlefield borders (flat & stable horizon, never diverges into sky)
+      // Stable elevation extending terrain beyond battlefield borders
       const getExtElevation = (x: number): number => {
-        if (x <= 0) {
-          return terrain.heights[0] ?? 340
-        }
-        if (x >= terrain.width - 1) {
-          return terrain.heights[terrain.width - 1] ?? 340
-        }
+        if (x <= 0) return terrain.heights[0] ?? 340
+        if (x >= terrain.width - 1) return terrain.heights[terrain.width - 1] ?? 340
         return terrain.heights[Math.floor(x)] ?? 340
       }
+
+      const hillStart = Math.max(0, drawLeft)
+      const hillEnd = Math.min(terrain.width - 1, drawRight)
 
       ctx.beginPath()
       ctx.moveTo(drawLeft, bottomY)
       ctx.lineTo(drawLeft, getExtElevation(drawLeft))
 
-      for (let x = drawLeft; x < drawRight - splineStep; x += splineStep) {
+      // Direct linear segment across flat off-screen plain to battlefield boundary
+      if (drawLeft < hillStart) {
+        ctx.lineTo(hillStart, getExtElevation(hillStart))
+      }
+
+      // Smooth quadratic curves only across visible battlefield mountain range
+      for (let x = hillStart; x < hillEnd - splineStep; x += splineStep) {
         const nextX = x + splineStep
         const midX = (x + nextX) / 2
         const midY = (getExtElevation(x) + getExtElevation(nextX)) / 2
         ctx.quadraticCurveTo(x, getExtElevation(x), midX, midY)
       }
-      ctx.lineTo(drawRight, getExtElevation(drawRight))
+
+      if (hillEnd > hillStart) {
+        ctx.lineTo(hillEnd, getExtElevation(hillEnd))
+      }
+      if (drawRight > hillEnd) {
+        ctx.lineTo(drawRight, getExtElevation(drawRight))
+      }
+
       ctx.lineTo(drawRight, bottomY)
       ctx.closePath()
 
-      // 1. Dark Velvety Matte Clay Shading for Rolling Hills (matching reference image)
+      // 1. Dark Velvety Matte Clay Shading for Rolling Hills
       const terrainGrad = ctx.createLinearGradient(0, viewTop + viewHeight * 0.35, 0, viewBottom + 50)
       if (isDark) {
         terrainGrad.addColorStop(0, '#424854')
@@ -723,10 +758,10 @@ export const ArtilleryCanvas = memo(function ArtilleryCanvas({
       ctx.fillStyle = isEink ? (isDark ? '#000000' : '#ffffff') : terrainGrad
       ctx.fill()
 
-      // 2. Warm Golden Sun Light Wash on the terrain slope (matching reference image)
+      // 2. Warm Golden Sun Light Wash (Hardware-accelerated blend via source-atop, ZERO stencil allocations!)
       if (!isEink) {
         ctx.save()
-        ctx.clip() // Clip wash within the terrain path
+        ctx.globalCompositeOperation = 'source-atop'
         const sunWash = ctx.createRadialGradient(sunX, sunY, 40, sunX, sunY, 520)
         sunWash.addColorStop(0, 'rgba(254, 240, 138, 0.38)')
         sunWash.addColorStop(0.25, 'rgba(251, 191, 36, 0.16)')
@@ -740,13 +775,21 @@ export const ArtilleryCanvas = memo(function ArtilleryCanvas({
       // 3. Crisp luminous silver-white ridge crest rim along continuous horizon
       ctx.beginPath()
       ctx.moveTo(drawLeft, getExtElevation(drawLeft))
-      for (let x = drawLeft; x < drawRight - splineStep; x += splineStep) {
+      if (drawLeft < hillStart) {
+        ctx.lineTo(hillStart, getExtElevation(hillStart))
+      }
+      for (let x = hillStart; x < hillEnd - splineStep; x += splineStep) {
         const nextX = x + splineStep
         const midX = (x + nextX) / 2
         const midY = (getExtElevation(x) + getExtElevation(nextX)) / 2
         ctx.quadraticCurveTo(x, getExtElevation(x), midX, midY)
       }
-      ctx.lineTo(drawRight, getExtElevation(drawRight))
+      if (hillEnd > hillStart) {
+        ctx.lineTo(hillEnd, getExtElevation(hillEnd))
+      }
+      if (drawRight > hillEnd) {
+        ctx.lineTo(drawRight, getExtElevation(drawRight))
+      }
 
       ctx.strokeStyle = isEink ? (isDark ? '#ffffff' : '#000000') : '#cbd5e1'
       ctx.lineWidth = 1.5
@@ -769,69 +812,160 @@ export const ArtilleryCanvas = memo(function ArtilleryCanvas({
         ctx.restore()
       }
 
-      // ─── 2. 3D Matte Claymorphic Tanks (Sculpted exactly like reference image) ─────
+      // ─── 2. Tactical Combat Tanks & Dynamic Terrain-Conforming Shadow ───────
       ;(['p1', 'p2'] as PlayerId[]).forEach((pid) => {
         const tank = tanks[pid]
         const isP1Tank = pid === 'p1'
 
-        // Compute slope angle from smooth terrain points
+        // Compute terrain slope angle beneath tank tracks
         const slopeAngle = getTankSlopeAngle(tank, terrain)
 
+        // 1. Dynamic Terrain-Conforming Ground Shadow
+        // Hugs actual mountain slope and projects away from the sun
+        if (!isEink) {
+          ctx.save()
+          const sunDistX = tank.x - sunX
+          const sunCastDirX = Math.sign(sunDistX)
+          const sunCastWeight = Math.min(1.0, Math.abs(sunDistX) / 360)
+
+          // Sample ground surface under track footprint [-25px, +25px] at optimal 5px increments
+          const fpSamples: Array<{ x: number; y: number }> = []
+          for (let sx = -25; sx <= 25; sx += 5) {
+            const wx = Math.max(0, Math.min(terrain.width - 1, Math.round(tank.x + sx)))
+            fpSamples.push({ x: tank.x + sx, y: getExtElevation(wx) })
+          }
+
+          if (fpSamples.length > 1) {
+            // A. Tight Ground Contact Ambient Occlusion directly along the mountain surface
+            ctx.beginPath()
+            ctx.moveTo(fpSamples[0].x, fpSamples[0].y)
+            for (let i = 1; i < fpSamples.length; i++) {
+              ctx.lineTo(fpSamples[i].x, fpSamples[i].y)
+            }
+            ctx.strokeStyle = 'rgba(0, 0, 0, 0.75)'
+            ctx.lineWidth = 3.2
+            ctx.lineCap = 'round'
+            ctx.lineJoin = 'round'
+            ctx.stroke()
+
+            // B. Directional Soft Cast Shadow flowing along terrain slope
+            ctx.beginPath()
+            ctx.moveTo(fpSamples[0].x, fpSamples[0].y)
+            for (let i = 1; i < fpSamples.length; i++) {
+              ctx.lineTo(fpSamples[i].x, fpSamples[i].y)
+            }
+            // Bottom edge extends down slope and away from sun direction
+            for (let i = fpSamples.length - 1; i >= 0; i--) {
+              const pt = fpSamples[i]
+              const relI = (pt.x - tank.x) / 25 // -1 to +1
+              const bellCurve = Math.max(0, 1 - relI * relI)
+              const castX = pt.x + sunCastDirX * (9 * sunCastWeight) * (1 - Math.abs(relI) * 0.25)
+              // Tilt with slope angle so it hugs steep inclines
+              const slopeDrop = Math.sin(slopeAngle) * relI * 8
+              const castY = pt.y + (7.5 * bellCurve) + Math.max(0, slopeDrop)
+              ctx.lineTo(castX, castY)
+            }
+            ctx.closePath()
+
+            const castGrad = ctx.createLinearGradient(
+              tank.x - sunCastDirX * 8,
+              tank.y - 3,
+              tank.x + sunCastDirX * 24,
+              tank.y + 14,
+            )
+            castGrad.addColorStop(0, 'rgba(0, 0, 0, 0.58)')
+            castGrad.addColorStop(0.45, 'rgba(0, 0, 0, 0.26)')
+            castGrad.addColorStop(1, 'rgba(0, 0, 0, 0)')
+            ctx.fillStyle = castGrad
+            ctx.fill()
+          }
+          ctx.restore()
+        }
+
+        // 2. Tank Geometry (Transformed with position & terrain slope angle)
         ctx.save()
         ctx.translate(tank.x, tank.y)
         ctx.rotate(slopeAngle)
 
-        // 1. Soft Ambient Ground Contact Shadow (grounding tank to terrain slope)
-        if (!isEink) {
-          ctx.save()
-          const shadowGrad = ctx.createRadialGradient(0, 3, 3, 0, 3, 34)
-          shadowGrad.addColorStop(0, 'rgba(0, 0, 0, 0.72)')
-          shadowGrad.addColorStop(0.4, 'rgba(0, 0, 0, 0.42)')
-          shadowGrad.addColorStop(0.75, 'rgba(0, 0, 0, 0.12)')
-          shadowGrad.addColorStop(1, 'rgba(0, 0, 0, 0)')
-          ctx.fillStyle = shadowGrad
-          ctx.beginPath()
-          ctx.ellipse(0, 3, 34, 9, 0, 0, Math.PI * 2)
-          ctx.fill()
-          ctx.restore()
-        }
-
-        // 2. Track Base (Pill-shaped continuous tread assembly)
-        const trackW = 46
-        const trackH = 11
-        const trackY = -trackH + 1
-
         const einkStroke = isDark ? '#ffffff' : '#000000'
         const einkLineWidth = 1.4
 
+        // Dimensions
+        const trackW = 46
+        const trackH = 11.5
+        const trackY = -trackH + 1
+
+        // A. Local Tread-Ground Contact Shadow
+        if (!isEink) {
+          const treadContact = ctx.createLinearGradient(0, trackY + trackH - 1, 0, trackY + trackH + 3)
+          treadContact.addColorStop(0, 'rgba(0, 0, 0, 0.72)')
+          treadContact.addColorStop(1, 'rgba(0, 0, 0, 0)')
+          ctx.fillStyle = treadContact
+          ctx.beginPath()
+          ctx.roundRect(-trackW / 2 + 2, trackY + trackH - 1, trackW - 4, 4, 2)
+          ctx.fill()
+        }
+
+        // B. Track Band (Heavy Armored Continuous Rubber & Steel Belt)
         ctx.beginPath()
         ctx.roundRect(-trackW / 2, trackY, trackW, trackH, 5.5)
         const trackGrad = ctx.createLinearGradient(0, trackY, 0, trackY + trackH)
-        trackGrad.addColorStop(0, '#23272e')
-        trackGrad.addColorStop(0.5, '#16191f')
-        trackGrad.addColorStop(1, '#0e1014')
+        trackGrad.addColorStop(0, '#1c1f26')
+        trackGrad.addColorStop(0.5, '#121418')
+        trackGrad.addColorStop(1, '#090a0d')
         ctx.fillStyle = isEink ? (isDark ? '#222222' : '#000000') : trackGrad
         ctx.fill()
-        ctx.strokeStyle = isEink ? einkStroke : '#2e333d'
+        ctx.strokeStyle = isEink ? einkStroke : '#2a303c'
         ctx.lineWidth = isEink ? einkLineWidth : 0.8
         ctx.stroke()
 
-        // 5 Recessed Road Wheels inside the track band (zero per-frame gradient allocation)
+        // Track Cleats / Treads (protruding teeth along curved ends and ground)
+        if (!isEink) {
+          ctx.save()
+          ctx.fillStyle = '#2d3340'
+          const cleatCount = 14
+          for (let c = 0; c < cleatCount; c++) {
+            const frac = c / (cleatCount - 1)
+            const cx = -trackW / 2 + 3 + frac * (trackW - 6)
+            ctx.fillRect(cx - 1, trackY + trackH - 1.2, 2, 1.4)
+          }
+          // Front & rear curved cleats
+          ctx.fillRect(-trackW / 2 - 1.2, trackY + trackH * 0.35, 1.4, 2.5)
+          ctx.fillRect(trackW / 2 - 0.2, trackY + trackH * 0.35, 1.4, 2.5)
+          ctx.restore()
+        }
+
+        // C. Road Wheels & Drive Sprockets (5 Detailed Dual-Tone Wheels)
         const wheelCount = 5
-        const wheelR = 3.2
+        const wheelR = 3.6
         const wheelSpacing = (trackW - 14) / (wheelCount - 1)
         for (let i = 0; i < wheelCount; i++) {
           const wx = -(trackW - 14) / 2 + i * wheelSpacing
           const wy = trackY + trackH / 2
 
+          // Outer rubber tire
           ctx.beginPath()
           ctx.arc(wx, wy, wheelR, 0, Math.PI * 2)
-          ctx.fillStyle = isEink ? (isDark ? '#444444' : '#ffffff') : '#1e2229'
+          ctx.fillStyle = isEink ? (isDark ? '#444444' : '#ffffff') : '#181b22'
           ctx.fill()
+
           if (!isEink) {
+            // Metallic wheel rim
             ctx.beginPath()
-            ctx.arc(wx - 0.5, wy - 0.5, wheelR * 0.45, 0, Math.PI * 2)
-            ctx.fillStyle = '#363c47'
+            ctx.arc(wx, wy, wheelR * 0.72, 0, Math.PI * 2)
+            ctx.fillStyle = isP1Tank ? '#253347' : '#332629'
+            ctx.fill()
+
+            // Team Axle Hub Cap
+            ctx.beginPath()
+            ctx.arc(wx, wy, wheelR * 0.38, 0, Math.PI * 2)
+            ctx.fillStyle = isP1Tank ? '#38bdf8' : '#ef4444'
+            ctx.fill()
+
+            // Micro axle bolt dot
+            ctx.beginPath()
+            ctx.arc(wx, wy, wheelR * 0.15, 0, Math.PI * 2)
+            ctx.fillStyle = '#ffffff'
             ctx.fill()
           } else {
             ctx.strokeStyle = einkStroke
@@ -840,106 +974,181 @@ export const ArtilleryCanvas = memo(function ArtilleryCanvas({
           }
         }
 
-        // 3. Continuous Sculpted Mudguard / Fender wrapping over tracks
+        // D. Armored Mudguard / Side Skirt with Panel Lines & Team Accent Stripe
         ctx.beginPath()
-        ctx.moveTo(-trackW / 2 - 1, trackY + trackH * 0.45)
-        ctx.quadraticCurveTo(-trackW / 2, trackY - 2, -trackW / 2 + 3, trackY - 2.5)
-        ctx.lineTo(trackW / 2 - 3, trackY - 2.5)
-        ctx.quadraticCurveTo(trackW / 2, trackY - 2, trackW / 2 + 1, trackY + trackH * 0.45)
-        ctx.lineTo(trackW / 2 - 1.5, trackY + 1)
-        ctx.lineTo(-trackW / 2 + 1.5, trackY + 1)
+        ctx.moveTo(-trackW / 2 - 1.5, trackY + trackH * 0.42)
+        ctx.quadraticCurveTo(-trackW / 2 - 0.5, trackY - 2.5, -trackW / 2 + 3.5, trackY - 3)
+        ctx.lineTo(trackW / 2 - 3.5, trackY - 3)
+        ctx.quadraticCurveTo(trackW / 2 + 0.5, trackY - 2.5, trackW / 2 + 1.5, trackY + trackH * 0.42)
+        ctx.lineTo(trackW / 2 - 1.5, trackY + 1.5)
+        ctx.lineTo(-trackW / 2 + 1.5, trackY + 1.5)
         ctx.closePath()
 
-        const fenderGrad = ctx.createLinearGradient(0, trackY - 2.5, 0, trackY + 2)
-        fenderGrad.addColorStop(0, '#626b7c')
-        fenderGrad.addColorStop(0.5, '#4a5260')
-        fenderGrad.addColorStop(1, '#343a45')
-        ctx.fillStyle = isEink ? (isDark ? '#333333' : '#e2e8f0') : fenderGrad
+        const skirtGrad = ctx.createLinearGradient(0, trackY - 3, 0, trackY + 2)
+        if (isP1Tank) {
+          skirtGrad.addColorStop(0, '#2d3b50')
+          skirtGrad.addColorStop(0.5, '#1e2838')
+          skirtGrad.addColorStop(1, '#141c26')
+        } else {
+          skirtGrad.addColorStop(0, '#3d282b')
+          skirtGrad.addColorStop(0.5, '#2b1b1e')
+          skirtGrad.addColorStop(1, '#1c1214')
+        }
+
+        ctx.fillStyle = isEink ? (isDark ? '#333333' : '#e2e8f0') : skirtGrad
         ctx.fill()
-        ctx.strokeStyle = isEink ? einkStroke : '#737d90'
+        ctx.strokeStyle = isEink ? einkStroke : isP1Tank ? '#3b82f6' : '#dc2626'
         ctx.lineWidth = isEink ? einkLineWidth : 0.8
         ctx.stroke()
 
-        // 4. Smooth Beveled Clay Hull
-        const hullBaseY = trackY - 1.5
-        const hullTopY = hullBaseY - 9
+        // Tactical Team Racing Stripe on Mudguard
+        if (!isEink) {
+          ctx.beginPath()
+          ctx.moveTo(-trackW / 2 + 4, trackY - 0.5)
+          ctx.lineTo(trackW / 2 - 4, trackY - 0.5)
+          ctx.strokeStyle = isP1Tank ? 'rgba(56, 189, 248, 0.75)' : 'rgba(239, 68, 68, 0.75)'
+          ctx.lineWidth = 1.3
+          ctx.stroke()
+        }
+
+        // E. Heavy Chiseled Hull Armor (Sloped Glacis Plate & Engine Deck)
+        const hullBaseY = trackY - 2
+        const hullTopY = hullBaseY - 9.5
 
         ctx.beginPath()
         ctx.moveTo(-trackW / 2 + 3, hullBaseY)
-        ctx.quadraticCurveTo(-trackW / 2 + 7, hullTopY + 1, -14, hullTopY)
-        ctx.lineTo(13, hullTopY)
-        ctx.quadraticCurveTo(trackW / 2 - 7, hullTopY + 1, trackW / 2 - 3, hullBaseY)
+        ctx.quadraticCurveTo(-trackW / 2 + 7, hullTopY + 1.2, -15, hullTopY)
+        ctx.lineTo(14, hullTopY)
+        ctx.quadraticCurveTo(trackW / 2 - 7, hullTopY + 1.2, trackW / 2 - 3, hullBaseY)
         ctx.closePath()
 
         const hullGrad = ctx.createLinearGradient(12, hullTopY, -12, hullBaseY)
-        hullGrad.addColorStop(0, '#788294')
-        hullGrad.addColorStop(0.35, '#5e6777')
-        hullGrad.addColorStop(0.8, '#414856')
-        hullGrad.addColorStop(1, '#2b303a')
+        if (isP1Tank) {
+          hullGrad.addColorStop(0, '#3b4b66')
+          hullGrad.addColorStop(0.35, '#283549')
+          hullGrad.addColorStop(0.75, '#1a2331')
+          hullGrad.addColorStop(1, '#111721')
+        } else {
+          hullGrad.addColorStop(0, '#4a3338')
+          hullGrad.addColorStop(0.35, '#352327')
+          hullGrad.addColorStop(0.75, '#231619')
+          hullGrad.addColorStop(1, '#140c0e')
+        }
+
         ctx.fillStyle = isEink
           ? isDark
             ? isP1Tank ? '#111111' : '#555555'
             : isP1Tank ? '#ffffff' : '#475569'
           : hullGrad
         ctx.fill()
-        ctx.strokeStyle = isEink ? einkStroke : '#646e81'
+        ctx.strokeStyle = isEink ? einkStroke : isP1Tank ? '#4b5e7d' : '#6b434a'
         ctx.lineWidth = isEink ? 1.6 : 0.8
         ctx.stroke()
 
-        // 5. Turret Dome & Cupola (Organic dome molded in clay)
+        // Tactical Chevron Badge on Glacis Plate
+        if (!isEink) {
+          ctx.beginPath()
+          const badgeX = isP1Tank ? 5 : -5
+          const badgeY = hullTopY + 4.5
+          ctx.moveTo(badgeX - 3.5, badgeY - 2)
+          ctx.lineTo(badgeX + (isP1Tank ? 2.5 : -2.5), badgeY)
+          ctx.lineTo(badgeX - 3.5, badgeY + 2)
+          ctx.strokeStyle = isP1Tank ? '#38bdf8' : '#ef4444'
+          ctx.lineWidth = 1.4
+          ctx.lineCap = 'round'
+          ctx.stroke()
+
+          // Engine Deck Slatted Vents (Exhaust Louvers)
+          const ventX = isP1Tank ? -10 : 8
+          ctx.beginPath()
+          ctx.moveTo(ventX, hullTopY + 2)
+          ctx.lineTo(ventX + (isP1Tank ? 4 : -4), hullTopY + 2)
+          ctx.moveTo(ventX, hullTopY + 4)
+          ctx.lineTo(ventX + (isP1Tank ? 4 : -4), hullTopY + 4)
+          ctx.strokeStyle = 'rgba(0, 0, 0, 0.45)'
+          ctx.lineWidth = 1
+          ctx.stroke()
+        }
+
+        // F. Ballistic Turret & Commander Cupola
         const turretCenterY = -TURRET_HUB_OFFSET
-        const turretRx = 11.5
-        const turretRy = 8.5
+        const turretRx = 12.5
+        const turretRy = 9.0
 
         ctx.beginPath()
         ctx.ellipse(0, turretCenterY, turretRx, turretRy, 0, Math.PI, 0)
         ctx.closePath()
 
-        const turretGrad = ctx.createRadialGradient(4, turretCenterY - 4, 1, 0, turretCenterY, turretRx)
-        turretGrad.addColorStop(0, '#8c95a8')
-        turretGrad.addColorStop(0.4, '#687182')
-        turretGrad.addColorStop(0.85, '#464d5b')
-        turretGrad.addColorStop(1, '#2f343d')
+        const turretGrad = ctx.createRadialGradient(
+          isP1Tank ? 4 : -4,
+          turretCenterY - 4,
+          1,
+          0,
+          turretCenterY,
+          turretRx,
+        )
+        if (isP1Tank) {
+          turretGrad.addColorStop(0, '#4c5e7d')
+          turretGrad.addColorStop(0.4, '#324057')
+          turretGrad.addColorStop(0.85, '#1e2736')
+          turretGrad.addColorStop(1, '#131922')
+        } else {
+          turretGrad.addColorStop(0, '#5a3d42')
+          turretGrad.addColorStop(0.4, '#3e292d')
+          turretGrad.addColorStop(0.85, '#281a1d')
+          turretGrad.addColorStop(1, '#170e10')
+        }
+
         ctx.fillStyle = isEink
           ? isDark
             ? isP1Tank ? '#111111' : '#555555'
             : isP1Tank ? '#ffffff' : '#475569'
           : turretGrad
         ctx.fill()
-        ctx.strokeStyle = isEink ? einkStroke : '#6f798b'
+        ctx.strokeStyle = isEink ? einkStroke : isP1Tank ? '#5d7398' : '#7c4d54'
         ctx.lineWidth = isEink ? 1.6 : 0.8
         ctx.stroke()
 
-        // Commander's Cupola / Hatch Cap
+        // Commander's Cupola with Illuminated Periscope Viewport
+        const cupolaX = isP1Tank ? -2.5 : 2.5
+        const cupolaY = turretCenterY - turretRy + 0.8
         ctx.beginPath()
-        ctx.ellipse(-1.5, turretCenterY - turretRy + 0.8, 4.2, 1.6, 0, 0, Math.PI * 2)
-        ctx.fillStyle = isEink ? (isDark ? '#ffffff' : '#000000') : '#727a8b'
+        ctx.ellipse(cupolaX, cupolaY, 4.4, 1.8, 0, 0, Math.PI * 2)
+        ctx.fillStyle = isEink ? (isDark ? '#ffffff' : '#000000') : isP1Tank ? '#2d3b50' : '#3d282b'
         ctx.fill()
-        ctx.strokeStyle = isEink ? einkStroke : 'rgba(255, 255, 255, 0.3)'
-        ctx.lineWidth = isEink ? 1 : 0.6
+        ctx.strokeStyle = isEink ? einkStroke : isP1Tank ? '#38bdf8' : '#ef4444'
+        ctx.lineWidth = isEink ? 1 : 0.7
         ctx.stroke()
 
-        // 6. Cylindrical Cannon Barrel with Mantlet (sleek minimalist cylinder matching reference image)
+        // Viewport lens glow
+        if (!isEink) {
+          ctx.beginPath()
+          ctx.ellipse(cupolaX + (isP1Tank ? 1.2 : -1.2), cupolaY, 1.4, 0.9, 0, 0, Math.PI * 2)
+          ctx.fillStyle = isP1Tank ? '#38bdf8' : '#f87171'
+          ctx.fill()
+        }
+
+        // G. Heavy Artillery Cannon Barrel with Mantlet & Muzzle Brake
         const barrelLen = BARREL_LENGTH
-        const barrelThickness = 3.6
-        const barrelAngleRad = isP1Tank ? -((tank.angle * Math.PI) / 180) : -(((180 - tank.angle) * Math.PI) / 180)
+        const barrelThickness = 4.2
+        const barrelAngleRad = isP1Tank
+          ? -((tank.angle * Math.PI) / 180)
+          : -(((180 - tank.angle) * Math.PI) / 180)
 
         ctx.save()
         ctx.translate(0, turretCenterY)
         ctx.rotate(barrelAngleRad - slopeAngle)
 
-        // Smooth rounded mantlet pivot base
+        // Heavy Mantlet Pivot Collar with Mounting Bolts
         ctx.beginPath()
-        ctx.arc(0, 0, 3.6, 0, Math.PI * 2)
-        ctx.fillStyle = isEink ? (isDark ? '#444444' : '#000000') : '#677082'
+        ctx.arc(0, 0, 4.4, 0, Math.PI * 2)
+        ctx.fillStyle = isEink ? (isDark ? '#444444' : '#000000') : isP1Tank ? '#243247' : '#332326'
         ctx.fill()
-        if (isEink) {
-          ctx.strokeStyle = einkStroke
-          ctx.lineWidth = 1
-          ctx.stroke()
-        }
+        ctx.strokeStyle = isEink ? einkStroke : isP1Tank ? '#38bdf8' : '#ef4444'
+        ctx.lineWidth = isEink ? 1 : 0.8
+        ctx.stroke()
 
-        // Barrel cylinder with cylindrical 3D gradient
+        // Barrel cylinder with 3D cylindrical metallic gradient
         ctx.beginPath()
         ctx.moveTo(0, -barrelThickness / 2)
         ctx.lineTo(barrelLen, -barrelThickness / 2)
@@ -948,29 +1157,62 @@ export const ArtilleryCanvas = memo(function ArtilleryCanvas({
         ctx.closePath()
 
         const barrelGrad = ctx.createLinearGradient(0, -barrelThickness / 2, 0, barrelThickness / 2)
-        barrelGrad.addColorStop(0, '#9aa3b6')
-        barrelGrad.addColorStop(0.35, '#737c8e')
-        barrelGrad.addColorStop(0.8, '#4d5564')
-        barrelGrad.addColorStop(1, '#353a44')
+        barrelGrad.addColorStop(0, '#788294')
+        barrelGrad.addColorStop(0.35, '#525a67')
+        barrelGrad.addColorStop(0.8, '#32373f')
+        barrelGrad.addColorStop(1, '#1f2227')
         ctx.fillStyle = isEink
           ? isDark
             ? isP1Tank ? '#222222' : '#888888'
             : isP1Tank ? '#ffffff' : '#1e293b'
           : barrelGrad
         ctx.fill()
-        ctx.strokeStyle = isEink ? einkStroke : '#8590a3'
+        ctx.strokeStyle = isEink ? einkStroke : '#5e6777'
         ctx.lineWidth = isEink ? 1.4 : 0.7
         ctx.stroke()
 
+        // Recoil Sleeve & Glowing Energy Collar Ring
+        if (!isEink) {
+          const recoilRingX = 6
+          ctx.beginPath()
+          ctx.rect(recoilRingX, -barrelThickness / 2 - 0.5, 3.5, barrelThickness + 1.0)
+          ctx.fillStyle = isP1Tank ? '#38bdf8' : '#ef4444'
+          ctx.fill()
+
+          // Artillery Muzzle Brake at Barrel Tip (with Gas Exhaust Ports)
+          const mbLen = 5.5
+          const mbThick = barrelThickness + 2.2
+          const mbX = barrelLen - mbLen
+
+          ctx.beginPath()
+          ctx.roundRect(mbX, -mbThick / 2, mbLen, mbThick, 1.2)
+          ctx.fillStyle = isP1Tank ? '#1a2331' : '#231619'
+          ctx.fill()
+          ctx.strokeStyle = isP1Tank ? '#38bdf8' : '#ef4444'
+          ctx.lineWidth = 0.8
+          ctx.stroke()
+
+          // Dual gas release slot ports
+          ctx.fillStyle = '#0a0d12'
+          ctx.fillRect(mbX + 1.5, -mbThick / 2 + 0.3, 2.2, 1.2)
+          ctx.fillRect(mbX + 1.5, mbThick / 2 - 1.5, 2.2, 1.2)
+        }
+
         ctx.restore() // restore barrel rotation
 
-        // Solar rim highlight on top/right surfaces of tank from sun
+        // Solar rim highlight on top surfaces facing the sun
         if (!isEink) {
           ctx.save()
-          ctx.strokeStyle = 'rgba(254, 240, 150, 0.38)'
-          ctx.lineWidth = 1.0
+          ctx.strokeStyle = 'rgba(254, 240, 150, 0.42)'
+          ctx.lineWidth = 1.1
           ctx.beginPath()
-          ctx.arc(0, turretCenterY, turretRx, isP1Tank ? -Math.PI * 0.45 : -Math.PI * 0.95, isP1Tank ? -0.05 : -Math.PI * 0.55)
+          ctx.arc(
+            0,
+            turretCenterY,
+            turretRx,
+            isP1Tank ? -Math.PI * 0.45 : -Math.PI * 0.95,
+            isP1Tank ? -0.05 : -Math.PI * 0.55,
+          )
           ctx.stroke()
           ctx.restore()
         }
@@ -1216,6 +1458,11 @@ export const ArtilleryCanvas = memo(function ArtilleryCanvas({
 
       // ─── 4. Projectile (Glowing Kinetic Tracer & Ballistic Arc) ─────────────
       projectiles.forEach((proj) => {
+        const weaponDef = WEAPON_DEFINITIONS[proj.weapon]
+        const wColor = weaponDef?.color || '#38bdf8'
+        const isMortar = proj.weapon === 'mortar'
+        const isCluster = proj.weapon === 'cluster'
+
         // Continuous smoke / tracer trail behind the shell
         if (proj.trail && proj.trail.length > 1) {
           ctx.save()
@@ -1226,8 +1473,18 @@ export const ArtilleryCanvas = memo(function ArtilleryCanvas({
             ctx.beginPath()
             ctx.moveTo(p0.x, p0.y)
             ctx.lineTo(p1.x, p1.y)
-            ctx.strokeStyle = `rgba(255, 240, 160, ${progress * 0.75})`
-            ctx.lineWidth = 1.0 + progress * 2.2
+
+            if (isMortar) {
+              ctx.strokeStyle = `rgba(249, 115, 22, ${progress * 0.85})`
+              ctx.lineWidth = 1.6 + progress * 3.4
+            } else if (isCluster) {
+              ctx.strokeStyle = `rgba(192, 132, 252, ${progress * 0.8})`
+              ctx.lineWidth = 1.0 + progress * 2.2
+            } else {
+              ctx.strokeStyle = `rgba(56, 189, 248, ${progress * 0.8})`
+              ctx.lineWidth = 1.0 + progress * 2.2
+            }
+
             ctx.lineCap = 'round'
             ctx.stroke()
           }
@@ -1236,20 +1493,22 @@ export const ArtilleryCanvas = memo(function ArtilleryCanvas({
 
         ctx.save()
         // Directional projectile glow along velocity vector
-        const pBloom = ctx.createRadialGradient(proj.x, proj.y, 1, proj.x, proj.y, 10)
+        const bloomR = isMortar ? 14 : isCluster ? (proj.isSubmunition ? 7 : 11) : 10
+        const pBloom = ctx.createRadialGradient(proj.x, proj.y, 1, proj.x, proj.y, bloomR)
         pBloom.addColorStop(0, '#ffffff')
-        pBloom.addColorStop(0.4, 'rgba(254, 240, 138, 0.95)')
-        pBloom.addColorStop(0.8, 'rgba(245, 158, 11, 0.45)')
-        pBloom.addColorStop(1, 'rgba(245, 158, 11, 0)')
+        pBloom.addColorStop(0.35, wColor)
+        pBloom.addColorStop(0.75, `${wColor}88`)
+        pBloom.addColorStop(1, `${wColor}00`)
         ctx.fillStyle = pBloom
         ctx.beginPath()
-        ctx.arc(proj.x, proj.y, 10, 0, Math.PI * 2)
+        ctx.arc(proj.x, proj.y, bloomR, 0, Math.PI * 2)
         ctx.fill()
 
         // Crisp glowing bullet core
         ctx.fillStyle = '#ffffff'
         ctx.beginPath()
-        ctx.arc(proj.x, proj.y, 3.5, 0, Math.PI * 2)
+        const coreR = isMortar ? 4.8 : isCluster && proj.isSubmunition ? 2.5 : 3.6
+        ctx.arc(proj.x, proj.y, coreR, 0, Math.PI * 2)
         ctx.fill()
         ctx.restore()
       })
@@ -1262,10 +1521,11 @@ export const ArtilleryCanvas = memo(function ArtilleryCanvas({
         const currentR = exp.radius
 
         // 1. Ambient warm flash on ground and sky
+        const flashColor = exp.color || '#f59e0b'
         const flashGrad = ctx.createRadialGradient(exp.x, exp.y, 0, exp.x, exp.y, currentR * 2.2)
-        flashGrad.addColorStop(0, `rgba(254, 240, 138, ${0.4 * alpha})`)
-        flashGrad.addColorStop(0.5, `rgba(245, 158, 11, ${0.2 * alpha})`)
-        flashGrad.addColorStop(1, 'rgba(217, 119, 6, 0)')
+        flashGrad.addColorStop(0, `rgba(255, 255, 255, ${0.5 * alpha})`)
+        flashGrad.addColorStop(0.4, `${flashColor}${Math.max(10, Math.min(255, Math.round(255 * 0.3 * alpha))).toString(16).padStart(2, '0')}`)
+        flashGrad.addColorStop(1, 'rgba(0, 0, 0, 0)')
         ctx.fillStyle = flashGrad
         ctx.beginPath()
         ctx.arc(exp.x, exp.y, currentR * 2.2, 0, Math.PI * 2)
@@ -1434,6 +1694,22 @@ export const ArtilleryCanvas = memo(function ArtilleryCanvas({
         data-eink={isEink ? 'true' : undefined}
         data-theme={theme}
       >
+        {/* Top-Left Recon / Scout Eye Button */}
+        <button
+          type="button"
+          id="artillery-scout-btn"
+          className={`artillery-top-scout-btn artillery-scout-btn ${isScouting ? 'artillery-scout-btn--active' : ''}`}
+          disabled={phase !== 'aiming' || (mode === 'ai' && currentTurn === 'p2')}
+          onClick={handleToggleScout}
+          aria-label={t?.scoutEnemy || 'Check enemy position'}
+          title={`${t?.scoutEnemy || 'Check enemy position'} (S)`}
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+            <circle cx="12" cy="12" r="3" />
+          </svg>
+        </button>
+
         {/* On-Game Tactical HUD inside the centered game wrapper */}
         <div className="artillery-tactical-hud" aria-live="polite">
           {/* Left: Player 1 (YOU) */}
@@ -1451,21 +1727,37 @@ export const ArtilleryCanvas = memo(function ArtilleryCanvas({
 
           {/* Center: Sleek Wind Pill with Volume/Signal Bars & Arrow */}
           <div className="artillery-hud-center">
+            {/* Wind Tile: previous icon, wind direction arrow, level number, colored tile (blue, orange, red) */}
             {(() => {
-              const windLevel = Math.max(0, Math.min(3, Math.abs(wind)))
-              const windLabel = t?.windLabel || (locale === 'pl' ? 'Wiatr' : 'Wind')
-              const isCalm = windLevel === 0
+              const windLevel = Math.max(-3, Math.min(3, Math.round(wind)))
+              const windAbs = Math.abs(windLevel)
+              const isCalm = windAbs === 0
+              const isPl = locale === 'pl' || windText?.includes('Wiatr')
+              const windLabel = t?.windLabel || (isPl ? 'Wiatr' : 'Wind')
+              const calmText = isPl ? 'Bezwietrznie' : 'Calm'
+              const driftDirText = windLevel < 0 ? (isPl ? 'w lewo' : 'left') : windLevel > 0 ? (isPl ? 'w prawo' : 'right') : ''
+              const ariaDesc = isCalm ? `${windLabel}: ${calmText}` : `${windLabel}: ${windAbs}/3 ${driftDirText}`
+
+              // Color variant by intensity: 1: blue, 2: orange, 3: red, 0: calm neutral
+              const colorVariant = isCalm
+                ? 'artillery-wind-tile--calm'
+                : windAbs === 1
+                  ? 'artillery-wind-tile--blue'
+                  : windAbs === 2
+                    ? 'artillery-wind-tile--orange'
+                    : 'artillery-wind-tile--red'
 
               return (
                 <div
-                  className={`artillery-hud-wind-pill artillery-hud-wind-pill--level-${windLevel}`}
+                  className={`artillery-hud-wind-tile ${colorVariant}`}
                   id="artillery-wind-badge"
-                  title={`${windLabel}: ${isCalm ? (locale === 'pl' ? 'Spokojny' : 'Calm') : `${windLevel}/3 (${wind < 0 ? '←' : '→'})`}`}
-                  aria-label={`${windLabel}: ${isCalm ? (locale === 'pl' ? 'Spokojny' : 'Calm') : `${windLevel}/3`}`}
+                  title={`${windLabel}: ${isCalm ? calmText : `${windAbs}/3 (${driftDirText})`}`}
+                  aria-label={ariaDesc}
                 >
+                  {/* Previous Breeze SVG Icon */}
                   <svg
                     className="artillery-hud-wind-icon"
-                    width="18"
+                    width="17"
                     height="15"
                     viewBox="0 0 24 20"
                     fill="none"
@@ -1480,22 +1772,18 @@ export const ArtilleryCanvas = memo(function ArtilleryCanvas({
                     <path d="M5 16h8" />
                   </svg>
 
-                  {/* Accessible label for screen readers and tests */}
-                  <span className="artillery-hud-wind-sr">
-                    {windLabel}
-                  </span>
+                  {/* Accessible label for screen readers & tests */}
+                  <span className="artillery-hud-wind-sr">{windLabel}</span>
 
-                  {/* Direction Arrow */}
+                  {/* Wind Direction Arrow */}
                   <span className="artillery-hud-wind-arrow" aria-hidden="true">
-                    {wind < 0 ? '←' : wind > 0 ? '→' : '•'}
+                    {windLevel < 0 ? '←' : windLevel > 0 ? '→' : '•'}
                   </span>
 
-                  {/* 3-level Volume / Signal Bars (Kreski) */}
-                  <div className="artillery-hud-wind-bars" aria-hidden="true">
-                    <span className={`artillery-wind-bar artillery-wind-bar--1 ${windLevel >= 1 ? 'artillery-wind-bar--active' : ''}`} />
-                    <span className={`artillery-wind-bar artillery-wind-bar--2 ${windLevel >= 2 ? 'artillery-wind-bar--active' : ''}`} />
-                    <span className={`artillery-wind-bar artillery-wind-bar--3 ${windLevel >= 3 ? 'artillery-wind-bar--active' : ''}`} />
-                  </div>
+                  {/* Wind Strength Value */}
+                  <span className="artillery-hud-wind-val" aria-hidden="true">
+                    {isCalm ? '0' : windAbs}
+                  </span>
                 </div>
               )
             })()}
@@ -1545,7 +1833,7 @@ export const ArtilleryCanvas = memo(function ArtilleryCanvas({
             mode={mode}
             activeTank={activeTank}
             isScouting={isScouting}
-            onScout={handleStartScout}
+            onScout={handleToggleScout}
             theme={theme}
             isEink={isEink}
             onAngleChange={(angle) => {
@@ -1562,6 +1850,7 @@ export const ArtilleryCanvas = memo(function ArtilleryCanvas({
               }
               onFireWithPower(power)
             }}
+            onSelectWeapon={onSelectWeapon}
           />
         )}
       </div>

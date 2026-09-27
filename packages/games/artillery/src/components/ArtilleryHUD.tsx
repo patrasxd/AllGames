@@ -1,5 +1,5 @@
 import { useRef, useEffect, useCallback, useState, memo } from 'react'
-import type { PlayerId, GameMode, Tank, GamePhase, DifficultyLevel } from '../types'
+import type { PlayerId, GameMode, Tank, GamePhase, DifficultyLevel, WeaponType } from '../types'
 import { Button, PillGroup, ControlsBar } from '@all/ui'
 import type { ArtilleryTranslations } from '../i18n'
 import { sound } from '../audio'
@@ -14,6 +14,7 @@ export interface ArtilleryTacticalDockProps {
   activeTank: Tank
   onAngleChange: (angle: number) => void
   onFireWithPower: (power: number) => void
+  onSelectWeapon?: (weapon: WeaponType) => void
   isScouting?: boolean
   onScout?: () => void
   theme?: string
@@ -28,6 +29,7 @@ export const ArtilleryTacticalDock = memo(function ArtilleryTacticalDock({
   activeTank,
   onAngleChange,
   onFireWithPower,
+  onSelectWeapon,
   isScouting,
   onScout,
   theme = 'dark',
@@ -200,6 +202,12 @@ export const ArtilleryTacticalDock = memo(function ArtilleryTacticalDock({
       if (e.code === 'Space' && !e.repeat && !chargingRef.current) {
         e.preventDefault()
         startCharging()
+      } else if (e.code === 'Digit1' || e.code === 'Numpad1') {
+        if (activeTank.ammo.standard > 0) onSelectWeapon?.('standard')
+      } else if (e.code === 'Digit2' || e.code === 'Numpad2') {
+        if (activeTank.ammo.mortar > 0) onSelectWeapon?.('mortar')
+      } else if (e.code === 'Digit3' || e.code === 'Numpad3') {
+        if (activeTank.ammo.cluster > 0) onSelectWeapon?.('cluster')
       } else if (e.code === 'ArrowUp' || e.code === 'ArrowRight') {
         e.preventDefault()
         const target = Math.min(90, currentAngleRef.current + 1)
@@ -231,10 +239,10 @@ export const ArtilleryTacticalDock = memo(function ArtilleryTacticalDock({
       window.removeEventListener('keydown', handleKeyDown)
       window.removeEventListener('keyup', handleKeyUp)
     }
-  }, [isControlsDisabled, startCharging, stopChargingAndFire, onAngleChange])
+  }, [isControlsDisabled, startCharging, stopChargingAndFire, onAngleChange, onSelectWeapon, activeTank.ammo])
 
-  // Circular progress calculations (Radius = 24, Circumference ~ 150.8)
-  const ringRadius = 24
+  // Circular progress calculations (Radius = 30, Circumference ~ 188.5)
+  const ringRadius = 30
   const ringCircumference = 2 * Math.PI * ringRadius
   const ringOffset = ringCircumference * (1 - chargingPower / 100)
 
@@ -247,126 +255,170 @@ export const ArtilleryTacticalDock = memo(function ArtilleryTacticalDock({
       ? 'artillery-canvas-bottom-dock--dark'
       : 'artillery-canvas-bottom-dock--light'
 
+  const weaponList: Array<{ id: 'standard' | 'mortar' | 'cluster'; key: '1' | '2' | '3'; color: string }> = [
+    { id: 'standard', key: '1', color: '#38bdf8' },
+    { id: 'mortar', key: '2', color: '#f97316' },
+    { id: 'cluster', key: '3', color: '#a855f7' },
+  ]
+
   return (
     <div
       className={`artillery-canvas-bottom-dock ${dockVariantClass}`}
       data-eink={isEink ? 'true' : undefined}
       data-theme={theme}
     >
-      {/* Angle Adjustment Group */}
-      <div className="artillery-angle-group">
-        <Button
-          id="artillery-angle-dec-btn"
-          variant="secondary"
-          size="md"
-          className="artillery-icon-btn"
-          disabled={isControlsDisabled || activeTank.angle <= 0}
-          onPointerDown={(e) => handlePointerDownAngle(e, -1)}
-          onPointerUp={handlePointerUpAngle}
-          onPointerLeave={handlePointerUpAngle}
-          onPointerCancel={handlePointerUpAngle}
-          onContextMenu={(e) => e.preventDefault()}
-          aria-label="Decrease angle"
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-            <line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
-        </Button>
-
-        <div className="artillery-angle-display">
-          <span className="artillery-angle-number">{activeTank.angle}°</span>
-        </div>
-
-        <Button
-          id="artillery-angle-inc-btn"
-          variant="secondary"
-          size="md"
-          className="artillery-icon-btn"
-          disabled={isControlsDisabled || activeTank.angle >= 90}
-          onPointerDown={(e) => handlePointerDownAngle(e, 1)}
-          onPointerUp={handlePointerUpAngle}
-          onPointerLeave={handlePointerUpAngle}
-          onPointerCancel={handlePointerUpAngle}
-          onContextMenu={(e) => e.preventDefault()}
-          aria-label="Increase angle"
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-            <line x1="12" y1="5" x2="12" y2="19" />
-            <line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
-        </Button>
-      </div>
-
-      <div className="artillery-dock-divider" />
-
-      {/* Circular HOLD TO FIRE Button with SVG Power Ring */}
-      <div className="artillery-circle-fire-wrapper">
-        <button
-          type="button"
-          id="artillery-fire-btn"
-          className={`artillery-circle-fire-btn ${chargingRef.current ? 'artillery-circle-fire-btn--active' : ''}`}
-          disabled={isControlsDisabled}
-          onPointerDown={startCharging}
-          onPointerUp={stopChargingAndFire}
-          onPointerLeave={stopChargingAndFire}
-          onPointerCancel={stopChargingAndFire}
-          aria-label="Hold to charge power and fire"
-        >
-          <svg className="artillery-circle-ring-svg" viewBox="0 0 56 56">
-            <circle
-              className="artillery-circle-ring-track"
-              cx="28"
-              cy="28"
-              r={ringRadius}
-              fill="none"
-              strokeWidth="3.2"
-            />
-            <circle
-              className="artillery-circle-ring-progress"
-              cx="28"
-              cy="28"
-              r={ringRadius}
-              fill="none"
-              strokeWidth="3.2"
-              strokeDasharray={ringCircumference}
-              strokeDashoffset={ringOffset}
-              strokeLinecap="round"
-              transform="rotate(-90 28 28)"
-            />
-          </svg>
-
-          <div className="artillery-circle-inner">
-            {chargingPower > 0 ? (
-              <span className="artillery-circle-power-val">{chargingPower}%</span>
-            ) : (
-              <div className="artillery-circle-label">
-                <span className="artillery-circle-text">FIRE</span>
-              </div>
-            )}
-          </div>
-        </button>
-      </div>
-
-      {onScout && (
-        <>
-          <div className="artillery-dock-divider" />
+      {/* Primary Row: Aiming ([-] 45° [+]) and Enlarged FIRE Button */}
+      <div className="artillery-dock-primary-row">
+        {/* Angle Adjustment Group */}
+        <div className="artillery-angle-group">
           <Button
-            id="artillery-scout-btn"
+            id="artillery-angle-dec-btn"
             variant="secondary"
             size="md"
-            className={`artillery-icon-btn artillery-scout-btn ${isScouting ? 'artillery-scout-btn--active' : ''}`}
-            disabled={isControlsDisabled}
-            onClick={onScout}
-            aria-label={t?.scoutEnemy || 'Check enemy position'}
-            title={t?.scoutEnemy || 'Check enemy position (S)'}
+            className="artillery-icon-btn"
+            disabled={isControlsDisabled || activeTank.angle <= 0}
+            onPointerDown={(e) => handlePointerDownAngle(e, -1)}
+            onPointerUp={handlePointerUpAngle}
+            onPointerLeave={handlePointerUpAngle}
+            onPointerCancel={handlePointerUpAngle}
+            onContextMenu={(e) => e.preventDefault()}
+            aria-label="Decrease angle"
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
-              <circle cx="12" cy="12" r="3" />
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+              <line x1="5" y1="12" x2="19" y2="12" />
             </svg>
           </Button>
-        </>
-      )}
+
+          <div className="artillery-angle-display">
+            <span className="artillery-angle-number">{activeTank.angle}°</span>
+          </div>
+
+          <Button
+            id="artillery-angle-inc-btn"
+            variant="secondary"
+            size="md"
+            className="artillery-icon-btn"
+            disabled={isControlsDisabled || activeTank.angle >= 90}
+            onPointerDown={(e) => handlePointerDownAngle(e, 1)}
+            onPointerUp={handlePointerUpAngle}
+            onPointerLeave={handlePointerUpAngle}
+            onPointerCancel={handlePointerUpAngle}
+            onContextMenu={(e) => e.preventDefault()}
+            aria-label="Increase angle"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+          </Button>
+        </div>
+
+        <div className="artillery-dock-divider" />
+
+        {/* Enlarged Circular HOLD TO FIRE Button with SVG Power Ring */}
+        <div className="artillery-circle-fire-wrapper">
+          <button
+            type="button"
+            id="artillery-fire-btn"
+            className={`artillery-circle-fire-btn ${chargingRef.current ? 'artillery-circle-fire-btn--active' : ''}`}
+            disabled={isControlsDisabled}
+            onPointerDown={startCharging}
+            onPointerUp={stopChargingAndFire}
+            onPointerLeave={stopChargingAndFire}
+            onPointerCancel={stopChargingAndFire}
+            aria-label="Hold to charge power and fire"
+          >
+            <svg className="artillery-circle-ring-svg" viewBox="0 0 68 68">
+              <circle
+                className="artillery-circle-ring-track"
+                cx="34"
+                cy="34"
+                r={ringRadius}
+                fill="none"
+                strokeWidth="3.6"
+              />
+              <circle
+                className="artillery-circle-ring-progress"
+                cx="34"
+                cy="34"
+                r={ringRadius}
+                fill="none"
+                strokeWidth="3.6"
+                strokeDasharray={ringCircumference}
+                strokeDashoffset={ringOffset}
+                strokeLinecap="round"
+                transform="rotate(-90 34 34)"
+              />
+            </svg>
+
+            <div className="artillery-circle-inner">
+              {chargingPower > 0 ? (
+                <span className="artillery-circle-power-val">{chargingPower}%</span>
+              ) : (
+                <div className="artillery-circle-label">
+                  <span className="artillery-circle-text">FIRE</span>
+                </div>
+              )}
+            </div>
+          </button>
+        </div>
+      </div>
+
+      {/* Row 2: Weapon Selector Group (Positioned Lower / "Niżej") */}
+      <div className="artillery-weapon-group" role="group" aria-label={t?.weaponSelectLabel || 'Ammunition'}>
+        {weaponList.map((w) => {
+          const isSelected = activeTank.selectedWeapon === w.id
+          const ammo = activeTank.ammo[w.id]
+          const isAmmoEmpty = ammo <= 0
+          const isDisabled = isControlsDisabled || isAmmoEmpty
+          const ammoDisplay = ammo === Infinity ? (t?.unlimitedAmmo || '∞') : ammo
+          const wInfo = t?.weapons[w.id]
+
+          return (
+            <button
+              key={w.id}
+              type="button"
+              id={`artillery-weapon-${w.id}-btn`}
+              className={`artillery-weapon-btn ${isSelected ? 'artillery-weapon-btn--selected' : ''} ${isAmmoEmpty ? 'artillery-weapon-btn--empty' : ''}`}
+              disabled={isDisabled}
+              onClick={() => {
+                sound.init()
+                onSelectWeapon?.(w.id)
+              }}
+              style={{
+                '--weapon-accent': w.color,
+              } as React.CSSProperties}
+              aria-label={`${wInfo?.name || w.id} (${ammoDisplay})`}
+              aria-pressed={isSelected}
+              title={`${wInfo?.name || w.id}: ${wInfo?.desc || ''} [${w.key}]`}
+            >
+              <span className="artillery-weapon-icon">
+                {w.id === 'standard' && (
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 2c2 3.5 3 7 3 11v6H9v-6c0-4 1-7.5 3-11z" fill="currentColor" fillOpacity="0.25" />
+                  </svg>
+                )}
+                {w.id === 'mortar' && (
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="14" r="7" fill="currentColor" fillOpacity="0.25" />
+                    <path d="M12 7v-4m-3 1h6" />
+                    <path d="M15 4l2-2" />
+                  </svg>
+                )}
+                {w.id === 'cluster' && (
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="7" cy="8" r="3" fill="currentColor" fillOpacity="0.25" />
+                    <circle cx="17" cy="8" r="3" fill="currentColor" fillOpacity="0.25" />
+                    <circle cx="12" cy="16" r="3" fill="currentColor" fillOpacity="0.25" />
+                  </svg>
+                )}
+              </span>
+              <span className="artillery-weapon-name">{wInfo?.short || w.id}</span>
+              <span className="artillery-weapon-ammo">{ammoDisplay}</span>
+            </button>
+          )
+        })}
+      </div>
     </div>
   )
 })
