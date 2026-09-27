@@ -40,6 +40,8 @@
       "@allgames/crystal-match/metadata": ["../../packages/games/crystal-match/src/metadata.tsx"],
       "@allgames/wing-rush": ["../../packages/games/wing-rush/src/index.tsx"],
       "@allgames/wing-rush/metadata": ["../../packages/games/wing-rush/src/metadata.tsx"],
+      "@allgames/artillery": ["../../packages/games/artillery/src/index.tsx"],
+      "@allgames/artillery/metadata": ["../../packages/games/artillery/src/metadata.tsx"],
       "@allgames/ui": ["../../packages/ui/src/index.ts"]
     }
   },

@@ -42,8 +42,8 @@ export const metadata: GameMetadata = {
   },
   icon: <BirdIcon />,
   tags: {
-    en: ['arcade', 'skill', 'endless'],
-    pl: ['zręcznościowa', 'refleks', 'nieskończona'],
+    en: ['1 player', 'arcade', 'skill'],
+    pl: ['1 gracz', 'zręcznościowa', 'refleks'],
   },
   minPlayers: 1,
   maxPlayers: 1,

@@ -11,6 +11,7 @@
   "dependencies": {
     "@all/ui": "file:../../AllUI",
     "@allgames/2048": "*",
+    "@allgames/artillery": "*",
     "@allgames/checkers": "*",
     "@allgames/chess": "*",
     "@allgames/crystal-match": "*",

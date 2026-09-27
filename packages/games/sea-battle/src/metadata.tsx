@@ -40,8 +40,8 @@ export const metadata: GameMetadata = {
   },
   icon: <SeaBattleIcon />,
   tags: {
-    en: ['1 player', '2 players', 'strategy', 'classic'],
-    pl: ['1 gracz', '2 graczy', 'strategiczna', 'klasyczna'],
+    en: ['vs computer', '2 players', 'strategy'],
+    pl: ['vs komputer', '2 graczy', 'strategia'],
   },
   minPlayers: 1,
   maxPlayers: 2,

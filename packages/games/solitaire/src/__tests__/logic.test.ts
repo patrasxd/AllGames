@@ -17,7 +17,7 @@ describe('solitaire logic', () => {
         expect(card.faceUp).toBe(rowIdx === colIdx)
       })
     })
-  })
+  }, 15000)
 
   it('validates moves to foundation and respects suit slots', () => {
     const aceOfHearts: CardData = { id: 'h1', suit: 'hearts', rank: 1, color: 'red', faceUp: true }

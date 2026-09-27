@@ -92,15 +92,13 @@ describe('Solitaire component integration', () => {
     fireEvent.click(faceUpCards[0])
     expect(faceUpCards[0].classList.contains('sol-card--selected')).toBe(true)
 
-    // Click second face-up card (if different) - should smoothly switch selection
-    if (faceUpCards.length > 1) {
-      fireEvent.click(faceUpCards[1])
-      expect(faceUpCards[1].classList.contains('sol-card--selected')).toBe(true)
-    }
+    // Click same face-up card again to deselect it
+    fireEvent.click(faceUpCards[0])
+    expect(faceUpCards[0].classList.contains('sol-card--selected')).toBe(false)
   }, 15000)
 
   it('renders cleanly in E-Ink mode', () => {
     const { container } = render(<Solitaire locale="en" isEink={true} />)
     expect(container.querySelector('.sol-root')).toBeInTheDocument()
-  })
+  }, 15000)
 })

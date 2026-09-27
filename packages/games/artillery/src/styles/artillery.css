@@ -1,0 +1,841 @@
+/* ─── Minimalist Tactical Artillery Styles (Wing Rush / AllUI Standard) ─── */
+
+.artillery-root {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+  user-select: none;
+  background: transparent;
+  color: var(--all-text);
+}
+
+/* ─── FullBleedLayout Canvas Area & Footer ─── */
+.artillery-fullbleed-layout {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  background: transparent;
+}
+
+.artillery-fullbleed-layout .all-fullbleed-layout__canvas-area {
+  flex: 1 1 0;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.artillery-fullbleed-layout .all-fullbleed-layout__footer {
+  width: 100%;
+  background: transparent;
+  border-top: none;
+  padding: var(--all-space-3, 0.75rem) var(--all-space-4);
+  box-sizing: border-box;
+}
+
+/* ─── Canvas Container & Wrapper (Aspect Preserving like Wing Rush) ─── */
+.artillery-canvas-container {
+  width: 100%;
+  height: 100%;
+  flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.artillery-canvas-wrapper {
+  position: relative;
+  height: 100%;
+  width: auto;
+  aspect-ratio: 16 / 9;
+  max-height: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  display: block;
+  overflow: hidden;
+  background: #21252d;
+  box-sizing: border-box;
+  border-radius: var(--all-radius-md, 6px);
+  border: 1px solid var(--all-border-2);
+}
+
+@media (max-width: 768px) and (orientation: portrait) {
+  .artillery-canvas-wrapper {
+    aspect-ratio: 4 / 3;
+  }
+}
+
+[data-eink='true'] .artillery-canvas-wrapper {
+  background: #ffffff;
+  border: 2px solid #000000;
+}
+
+[data-eink='true'][data-theme='dark'] .artillery-canvas-wrapper,
+[data-eink='true'][data-theme='e-ink-dark'] .artillery-canvas-wrapper,
+.artillery-canvas-wrapper--dark[data-eink='true'] {
+  background: #000000;
+  border: 2px solid #ffffff;
+}
+
+.artillery-canvas-element {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  display: block;
+}
+
+/* ─── Tactical Top HUD (Turn Badge & Vector Wind Pill) ─── */
+.artillery-tactical-hud {
+  position: absolute;
+  top: 14px;
+  left: 16px;
+  right: 16px;
+  padding: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  z-index: 10;
+  pointer-events: none;
+  box-sizing: border-box;
+}
+
+.artillery-hud-player {
+  display: none;
+}
+
+/* Center: Wind Pill & Turn Status */
+.artillery-hud-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.artillery-hud-wind-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 12px;
+  background: rgba(26, 29, 36, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  font-family: var(--all-font-sans, system-ui, sans-serif);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #f1f5f9;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+}
+
+.artillery-hud-wind-icon {
+  color: #cbd5e1;
+  flex-shrink: 0;
+}
+
+.artillery-hud-wind-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.artillery-hud-wind-text {
+  font-family: var(--all-font-sans, system-ui, sans-serif);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #f1f5f9;
+}
+
+.artillery-hud-wind-arrow {
+  color: #cbd5e1;
+  font-size: 1.05rem;
+  line-height: 1;
+  font-weight: 600;
+}
+
+/* 3-level Volume / Signal Bars (Kreski) */
+.artillery-hud-wind-bars {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 14px;
+  margin-left: 2px;
+  padding-bottom: 1px;
+}
+
+.artillery-wind-bar {
+  width: 3.5px;
+  border-radius: 1.5px;
+  background: currentColor;
+  opacity: 0.22;
+  transition: opacity 150ms ease, background-color 150ms ease, transform 150ms ease;
+}
+
+.artillery-wind-bar--1 {
+  height: 6px;
+}
+
+.artillery-wind-bar--2 {
+  height: 10px;
+}
+
+.artillery-wind-bar--3 {
+  height: 14px;
+}
+
+.artillery-wind-bar--active {
+  opacity: 1;
+  background: #38bdf8;
+  box-shadow: 0 0 6px rgba(56, 189, 248, 0.45);
+}
+
+/* Light mode wind pill */
+.artillery-canvas-wrapper--light .artillery-hud-wind-pill {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  color: #0f172a;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
+}
+.artillery-canvas-wrapper--light .artillery-hud-wind-icon,
+.artillery-canvas-wrapper--light .artillery-hud-wind-arrow {
+  color: #475569;
+}
+.artillery-canvas-wrapper--light .artillery-hud-wind-text {
+  color: #0f172a;
+}
+.artillery-canvas-wrapper--light .artillery-wind-bar {
+  opacity: 0.24;
+}
+.artillery-canvas-wrapper--light .artillery-wind-bar--active {
+  background: #0284c7;
+  opacity: 1;
+  box-shadow: 0 0 4px rgba(2, 132, 199, 0.3);
+}
+
+/* E-Ink wind pill */
+[data-eink='true'] .artillery-hud-wind-pill {
+  background: #ffffff !important;
+  border: 2px solid #000000 !important;
+  box-shadow: none !important;
+  color: #000000 !important;
+}
+[data-eink='true'] .artillery-hud-wind-icon,
+[data-eink='true'] .artillery-hud-wind-arrow,
+[data-eink='true'] .artillery-hud-wind-text {
+  color: #000000 !important;
+}
+
+[data-eink='true'][data-theme='dark'] .artillery-hud-wind-pill,
+[data-eink='true'][data-theme='e-ink-dark'] .artillery-hud-wind-pill,
+.artillery-canvas-wrapper--dark[data-eink='true'] .artillery-hud-wind-pill {
+  background: #000000 !important;
+  border: 2px solid #ffffff !important;
+  color: #ffffff !important;
+}
+[data-eink='true'][data-theme='dark'] .artillery-hud-wind-icon,
+[data-eink='true'][data-theme='dark'] .artillery-hud-wind-arrow,
+[data-eink='true'][data-theme='dark'] .artillery-hud-wind-text,
+[data-eink='true'][data-theme='e-ink-dark'] .artillery-hud-wind-icon,
+[data-eink='true'][data-theme='e-ink-dark'] .artillery-hud-wind-arrow,
+[data-eink='true'][data-theme='e-ink-dark'] .artillery-hud-wind-text,
+.artillery-canvas-wrapper--dark[data-eink='true'] .artillery-hud-wind-icon,
+.artillery-canvas-wrapper--dark[data-eink='true'] .artillery-hud-wind-arrow,
+.artillery-canvas-wrapper--dark[data-eink='true'] .artillery-hud-wind-text {
+  color: #ffffff !important;
+}
+
+/* E-Ink Light & Dark wind bars */
+[data-eink='true'] .artillery-wind-bar {
+  background: #000000 !important;
+  opacity: 0.25 !important;
+  box-shadow: none !important;
+}
+[data-eink='true'] .artillery-wind-bar--active {
+  background: #000000 !important;
+  opacity: 1 !important;
+  box-shadow: none !important;
+}
+
+[data-eink='true'][data-theme='dark'] .artillery-wind-bar,
+[data-eink='true'][data-theme='e-ink-dark'] .artillery-wind-bar,
+.artillery-canvas-wrapper--dark[data-eink='true'] .artillery-wind-bar {
+  background: #ffffff !important;
+  opacity: 0.25 !important;
+  box-shadow: none !important;
+}
+[data-eink='true'][data-theme='dark'] .artillery-wind-bar--active,
+[data-eink='true'][data-theme='e-ink-dark'] .artillery-wind-bar--active,
+.artillery-canvas-wrapper--dark[data-eink='true'] .artillery-wind-bar--active {
+  background: #ffffff !important;
+  opacity: 1 !important;
+  box-shadow: none !important;
+}
+
+.artillery-hud-turn-badge {
+  font-family: var(--all-font-sans, system-ui, sans-serif);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(226, 232, 240, 0.85);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
+}
+
+.artillery-hud-turn-badge--sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.artillery-hud-turn-badge--visible {
+  display: block;
+  padding: 2px 8px;
+  background: rgba(0, 0, 0, 0.45);
+  border-radius: 4px;
+}
+
+@media (max-width: 600px) {
+  .artillery-tactical-hud {
+    padding: 0 var(--all-space-2, 0.5rem);
+    top: var(--all-space-2, 0.5rem);
+  }
+  .artillery-hud-player {
+    min-width: 70px;
+    padding: 3px 6px;
+  }
+  .artillery-hud-wind-pill {
+    padding: 4px 10px;
+    font-size: 0.75rem;
+    gap: 5px;
+  }
+  .artillery-hud-wind-text {
+    font-size: 0.75rem;
+  }
+}
+
+/* ─── On-Canvas Tactical Bottom Dock ([-] 45° [+] & Circular Fire) ─── */
+.artillery-canvas-bottom-dock {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 16px;
+  border-radius: 9999px;
+  user-select: none;
+  transition: background 150ms ease, border-color 150ms ease;
+}
+
+.artillery-dock-divider {
+  width: 1px;
+  height: 32px;
+  margin: 0 2px;
+}
+
+/* Angle Adjustment [-] 45° [+] */
+.artillery-angle-group {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--all-space-2, 0.5rem);
+}
+
+.artillery-icon-btn {
+  width: 44px !important;
+  height: 44px !important;
+  min-width: 44px !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 9999px !important;
+  user-select: none;
+  touch-action: manipulation;
+  transition: all 120ms ease !important;
+}
+
+.artillery-angle-display {
+  min-width: 54px;
+  text-align: center;
+  font-family: var(--all-font-sans, system-ui, sans-serif);
+  font-size: 1.45rem;
+  font-weight: 700;
+  user-select: none;
+}
+
+/* Circular HOLD TO FIRE Button with SVG Power Ring */
+.artillery-circle-fire-wrapper {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.artillery-circle-fire-btn {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  outline: none;
+  transition:
+    transform 100ms ease,
+    background 150ms ease,
+    box-shadow 150ms ease;
+  user-select: none;
+  touch-action: manipulation;
+}
+
+.artillery-circle-fire-btn:active:not(:disabled),
+.artillery-circle-fire-btn--active {
+  transform: scale(0.95);
+}
+
+.artillery-circle-fire-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.artillery-circle-ring-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.artillery-circle-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+.artillery-circle-text {
+  font-family: var(--all-font-sans, system-ui, sans-serif);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.artillery-circle-power-val {
+  font-family: var(--all-font-mono, 'JetBrains Mono', monospace);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+/* Scout Enemy Button */
+.artillery-scout-btn {
+  transition: all 150ms ease !important;
+}
+
+.artillery-scout-btn:hover:not(:disabled) {
+  transform: scale(1.05);
+}
+
+/* ═══════════════ THEME-SPECIFIC DOCK STYLES ═══════════════ */
+
+/* 1. DARK THEME */
+.artillery-canvas-bottom-dock--dark,
+.artillery-canvas-bottom-dock {
+  background: rgba(18, 22, 30, 0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.artillery-canvas-bottom-dock--dark .artillery-dock-divider,
+.artillery-canvas-bottom-dock .artillery-dock-divider {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.artillery-canvas-bottom-dock--dark .artillery-angle-display,
+.artillery-canvas-bottom-dock--dark .artillery-angle-number,
+.artillery-canvas-bottom-dock .artillery-angle-display,
+.artillery-canvas-bottom-dock .artillery-angle-number {
+  color: #ffffff;
+}
+
+.artillery-canvas-bottom-dock--dark .artillery-icon-btn,
+.artillery-canvas-bottom-dock .artillery-icon-btn {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  color: #ffffff !important;
+}
+
+.artillery-canvas-bottom-dock--dark .artillery-icon-btn:hover:not(:disabled),
+.artillery-canvas-bottom-dock .artillery-icon-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.16) !important;
+}
+
+.artillery-canvas-bottom-dock--dark .artillery-circle-fire-btn,
+.artillery-canvas-bottom-dock .artillery-circle-fire-btn {
+  background: #18181b;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+}
+
+.artillery-canvas-bottom-dock--dark .artillery-circle-fire-btn:hover:not(:disabled),
+.artillery-canvas-bottom-dock .artillery-circle-fire-btn:hover:not(:disabled) {
+  background: #242429;
+}
+
+.artillery-canvas-bottom-dock--dark .artillery-circle-text,
+.artillery-canvas-bottom-dock .artillery-circle-text {
+  color: #ffffff;
+}
+
+.artillery-canvas-bottom-dock--dark .artillery-circle-power-val,
+.artillery-canvas-bottom-dock .artillery-circle-power-val {
+  color: #ffffff;
+}
+
+.artillery-canvas-bottom-dock--dark .artillery-circle-ring-track,
+.artillery-canvas-bottom-dock .artillery-circle-ring-track {
+  stroke: rgba(255, 255, 255, 0.16);
+}
+
+.artillery-canvas-bottom-dock--dark .artillery-circle-ring-progress,
+.artillery-canvas-bottom-dock .artillery-circle-ring-progress {
+  stroke: #f97316;
+}
+
+.artillery-canvas-bottom-dock--dark .artillery-scout-btn,
+.artillery-canvas-bottom-dock .artillery-scout-btn {
+  color: #94a3b8 !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+}
+
+.artillery-canvas-bottom-dock--dark .artillery-scout-btn:hover:not(:disabled),
+.artillery-canvas-bottom-dock .artillery-scout-btn:hover:not(:disabled) {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.16) !important;
+}
+
+.artillery-canvas-bottom-dock--dark .artillery-scout-btn--active,
+.artillery-canvas-bottom-dock .artillery-scout-btn--active {
+  background: rgba(59, 130, 246, 0.28) !important;
+  color: #60a5fa !important;
+  border-color: rgba(96, 165, 250, 0.5) !important;
+}
+
+/* 2. LIGHT THEME */
+.artillery-canvas-bottom-dock--light,
+:root[data-theme='light']:not([data-eink='true']) .artillery-canvas-bottom-dock,
+[data-theme='light']:not([data-eink='true']) .artillery-canvas-bottom-dock {
+  background: rgba(255, 255, 255, 0.92) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.12), 0 2px 8px rgba(15, 23, 42, 0.05) !important;
+}
+
+.artillery-canvas-bottom-dock--light .artillery-dock-divider,
+:root[data-theme='light']:not([data-eink='true']) .artillery-canvas-bottom-dock .artillery-dock-divider {
+  background: rgba(15, 23, 42, 0.12) !important;
+}
+
+.artillery-canvas-bottom-dock--light .artillery-angle-display,
+.artillery-canvas-bottom-dock--light .artillery-angle-number,
+:root[data-theme='light']:not([data-eink='true']) .artillery-canvas-bottom-dock .artillery-angle-display,
+:root[data-theme='light']:not([data-eink='true']) .artillery-canvas-bottom-dock .artillery-angle-number {
+  color: #0f172a !important;
+}
+
+.artillery-canvas-bottom-dock--light .artillery-icon-btn,
+:root[data-theme='light']:not([data-eink='true']) .artillery-canvas-bottom-dock .artillery-icon-btn {
+  background: #f1f5f9 !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+.artillery-canvas-bottom-dock--light .artillery-icon-btn:hover:not(:disabled),
+:root[data-theme='light']:not([data-eink='true']) .artillery-canvas-bottom-dock .artillery-icon-btn:hover:not(:disabled) {
+  background: #e2e8f0 !important;
+  color: #020617 !important;
+  border-color: #94a3b8 !important;
+}
+
+.artillery-canvas-bottom-dock--light .artillery-circle-fire-btn,
+:root[data-theme='light']:not([data-eink='true']) .artillery-canvas-bottom-dock .artillery-circle-fire-btn {
+  background: #0f172a !important;
+  border: none !important;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.25) !important;
+  color: #ffffff !important;
+}
+
+.artillery-canvas-bottom-dock--light .artillery-circle-fire-btn:hover:not(:disabled),
+:root[data-theme='light']:not([data-eink='true']) .artillery-canvas-bottom-dock .artillery-circle-fire-btn:hover:not(:disabled) {
+  background: #1e293b !important;
+}
+
+.artillery-canvas-bottom-dock--light .artillery-circle-text,
+:root[data-theme='light']:not([data-eink='true']) .artillery-canvas-bottom-dock .artillery-circle-text {
+  color: #ffffff !important;
+}
+
+.artillery-canvas-bottom-dock--light .artillery-circle-power-val,
+:root[data-theme='light']:not([data-eink='true']) .artillery-canvas-bottom-dock .artillery-circle-power-val {
+  color: #ffffff !important;
+}
+
+.artillery-canvas-bottom-dock--light .artillery-circle-ring-track,
+:root[data-theme='light']:not([data-eink='true']) .artillery-canvas-bottom-dock .artillery-circle-ring-track {
+  stroke: rgba(255, 255, 255, 0.25) !important;
+}
+
+.artillery-canvas-bottom-dock--light .artillery-circle-ring-progress,
+:root[data-theme='light']:not([data-eink='true']) .artillery-canvas-bottom-dock .artillery-circle-ring-progress {
+  stroke: #f97316 !important;
+}
+
+.artillery-canvas-bottom-dock--light .artillery-scout-btn,
+:root[data-theme='light']:not([data-eink='true']) .artillery-canvas-bottom-dock .artillery-scout-btn {
+  background: #f1f5f9 !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #475569 !important;
+}
+
+.artillery-canvas-bottom-dock--light .artillery-scout-btn:hover:not(:disabled),
+:root[data-theme='light']:not([data-eink='true']) .artillery-canvas-bottom-dock .artillery-scout-btn:hover:not(:disabled) {
+  background: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+.artillery-canvas-bottom-dock--light .artillery-scout-btn--active,
+:root[data-theme='light']:not([data-eink='true']) .artillery-canvas-bottom-dock .artillery-scout-btn--active {
+  background: #dbeafe !important;
+  color: #2563eb !important;
+  border-color: #93c5fd !important;
+}
+
+/* 3. E-INK LIGHT THEME */
+.artillery-canvas-bottom-dock--eink-light,
+[data-eink='true']:not([data-theme='dark']):not([data-theme='e-ink-dark']) .artillery-canvas-bottom-dock {
+  background: #ffffff !important;
+  border: 2px solid #000000 !important;
+  box-shadow: none !important;
+}
+
+.artillery-canvas-bottom-dock--eink-light .artillery-dock-divider,
+[data-eink='true']:not([data-theme='dark']):not([data-theme='e-ink-dark']) .artillery-canvas-bottom-dock .artillery-dock-divider {
+  background: #000000 !important;
+}
+
+.artillery-canvas-bottom-dock--eink-light .artillery-angle-display,
+.artillery-canvas-bottom-dock--eink-light .artillery-angle-number,
+[data-eink='true']:not([data-theme='dark']):not([data-theme='e-ink-dark']) .artillery-canvas-bottom-dock .artillery-angle-display,
+[data-eink='true']:not([data-theme='dark']):not([data-theme='e-ink-dark']) .artillery-canvas-bottom-dock .artillery-angle-number {
+  color: #000000 !important;
+  font-weight: 800 !important;
+}
+
+.artillery-canvas-bottom-dock--eink-light .artillery-icon-btn,
+[data-eink='true']:not([data-theme='dark']):not([data-theme='e-ink-dark']) .artillery-canvas-bottom-dock .artillery-icon-btn {
+  background: #ffffff !important;
+  border: 2px solid #000000 !important;
+  color: #000000 !important;
+}
+
+.artillery-canvas-bottom-dock--eink-light .artillery-circle-fire-btn,
+[data-eink='true']:not([data-theme='dark']):not([data-theme='e-ink-dark']) .artillery-canvas-bottom-dock .artillery-circle-fire-btn {
+  background: #000000 !important;
+  border: 2px solid #000000 !important;
+  color: #ffffff !important;
+}
+
+.artillery-canvas-bottom-dock--eink-light .artillery-circle-text,
+[data-eink='true']:not([data-theme='dark']):not([data-theme='e-ink-dark']) .artillery-canvas-bottom-dock .artillery-circle-text {
+  color: #ffffff !important;
+}
+
+.artillery-canvas-bottom-dock--eink-light .artillery-circle-power-val,
+[data-eink='true']:not([data-theme='dark']):not([data-theme='e-ink-dark']) .artillery-canvas-bottom-dock .artillery-circle-power-val {
+  color: #ffffff !important;
+}
+
+.artillery-canvas-bottom-dock--eink-light .artillery-circle-ring-track,
+[data-eink='true']:not([data-theme='dark']):not([data-theme='e-ink-dark']) .artillery-canvas-bottom-dock .artillery-circle-ring-track {
+  stroke: rgba(255, 255, 255, 0.3) !important;
+}
+
+.artillery-canvas-bottom-dock--eink-light .artillery-circle-ring-progress,
+[data-eink='true']:not([data-theme='dark']):not([data-theme='e-ink-dark']) .artillery-canvas-bottom-dock .artillery-circle-ring-progress {
+  stroke: #ffffff !important;
+}
+
+.artillery-canvas-bottom-dock--eink-light .artillery-scout-btn,
+[data-eink='true']:not([data-theme='dark']):not([data-theme='e-ink-dark']) .artillery-canvas-bottom-dock .artillery-scout-btn {
+  background: #ffffff !important;
+  border: 2px solid #000000 !important;
+  color: #000000 !important;
+}
+
+/* 4. E-INK DARK THEME */
+.artillery-canvas-bottom-dock--eink-dark,
+[data-eink='true'][data-theme='dark'] .artillery-canvas-bottom-dock,
+[data-eink='true'][data-theme='e-ink-dark'] .artillery-canvas-bottom-dock {
+  background: #000000 !important;
+  border: 2px solid #ffffff !important;
+  box-shadow: none !important;
+}
+
+.artillery-canvas-bottom-dock--eink-dark .artillery-dock-divider,
+[data-eink='true'][data-theme='dark'] .artillery-canvas-bottom-dock .artillery-dock-divider,
+[data-eink='true'][data-theme='e-ink-dark'] .artillery-canvas-bottom-dock .artillery-dock-divider {
+  background: #ffffff !important;
+}
+
+.artillery-canvas-bottom-dock--eink-dark .artillery-angle-display,
+.artillery-canvas-bottom-dock--eink-dark .artillery-angle-number,
+[data-eink='true'][data-theme='dark'] .artillery-canvas-bottom-dock .artillery-angle-display,
+[data-eink='true'][data-theme='dark'] .artillery-canvas-bottom-dock .artillery-angle-number,
+[data-eink='true'][data-theme='e-ink-dark'] .artillery-canvas-bottom-dock .artillery-angle-display,
+[data-eink='true'][data-theme='e-ink-dark'] .artillery-canvas-bottom-dock .artillery-angle-number {
+  color: #ffffff !important; /* CRITICAL FIX: Crisp white angle font in dark E-Ink! */
+  font-weight: 800 !important;
+}
+
+.artillery-canvas-bottom-dock--eink-dark .artillery-icon-btn,
+[data-eink='true'][data-theme='dark'] .artillery-canvas-bottom-dock .artillery-icon-btn,
+[data-eink='true'][data-theme='e-ink-dark'] .artillery-canvas-bottom-dock .artillery-icon-btn {
+  background: #000000 !important;
+  border: 2px solid #ffffff !important;
+  color: #ffffff !important;
+}
+
+.artillery-canvas-bottom-dock--eink-dark .artillery-circle-fire-btn,
+[data-eink='true'][data-theme='dark'] .artillery-canvas-bottom-dock .artillery-circle-fire-btn,
+[data-eink='true'][data-theme='e-ink-dark'] .artillery-canvas-bottom-dock .artillery-circle-fire-btn {
+  background: #ffffff !important;
+  border: 2px solid #ffffff !important;
+  color: #000000 !important;
+}
+
+.artillery-canvas-bottom-dock--eink-dark .artillery-circle-text,
+[data-eink='true'][data-theme='dark'] .artillery-canvas-bottom-dock .artillery-circle-text,
+[data-eink='true'][data-theme='e-ink-dark'] .artillery-canvas-bottom-dock .artillery-circle-text {
+  color: #000000 !important;
+}
+
+.artillery-canvas-bottom-dock--eink-dark .artillery-circle-power-val,
+[data-eink='true'][data-theme='dark'] .artillery-canvas-bottom-dock .artillery-circle-power-val,
+[data-eink='true'][data-theme='e-ink-dark'] .artillery-canvas-bottom-dock .artillery-circle-power-val {
+  color: #000000 !important;
+}
+
+.artillery-canvas-bottom-dock--eink-dark .artillery-circle-ring-track,
+[data-eink='true'][data-theme='dark'] .artillery-canvas-bottom-dock .artillery-circle-ring-track,
+[data-eink='true'][data-theme='e-ink-dark'] .artillery-canvas-bottom-dock .artillery-circle-ring-track {
+  stroke: rgba(0, 0, 0, 0.3) !important;
+}
+
+.artillery-canvas-bottom-dock--eink-dark .artillery-circle-ring-progress,
+[data-eink='true'][data-theme='dark'] .artillery-canvas-bottom-dock .artillery-circle-ring-progress,
+[data-eink='true'][data-theme='e-ink-dark'] .artillery-canvas-bottom-dock .artillery-circle-ring-progress {
+  stroke: #000000 !important;
+}
+
+.artillery-canvas-bottom-dock--eink-dark .artillery-scout-btn,
+[data-eink='true'][data-theme='dark'] .artillery-canvas-bottom-dock .artillery-scout-btn,
+[data-eink='true'][data-theme='e-ink-dark'] .artillery-canvas-bottom-dock .artillery-scout-btn {
+  background: #000000 !important;
+  border: 2px solid #ffffff !important;
+  color: #ffffff !important;
+}
+
+/* Safety Fallback: whenever dock background is white, angle text is ALWAYS black */
+[data-eink='true'] .artillery-canvas-bottom-dock:not(.artillery-canvas-bottom-dock--eink-dark) .artillery-angle-display,
+[data-eink='true'] .artillery-canvas-bottom-dock:not(.artillery-canvas-bottom-dock--eink-dark) .artillery-angle-number {
+  color: #000000 !important;
+}
+
+/* ─── Slim Footer Bar (New Game, Change Mode, Difficulty) ─── */
+.artillery-footer-bar {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: var(--all-space-2, 0.5rem) !important;
+  width: auto !important;
+  margin: 0 auto !important;
+  padding: 0 !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .artillery-canvas-box {
+    max-width: 100%;
+  }
+
+  .artillery-in-game-turn {
+    font-size: 1.15rem;
+  }
+
+  .artillery-angle-display {
+    font-size: 1.45rem;
+    min-width: 50px;
+  }
+
+  .artillery-controls-primary-row {
+    gap: 0.75rem;
+  }
+}
+
+/* Mobile landscape compact height: eliminates vertical scrollbar */
+@media (max-height: 500px) {
+  .artillery-fullbleed-layout .all-fullbleed-layout__footer {
+    padding: var(--all-space-1, 0.25rem) var(--all-space-2, 0.5rem);
+  }
+  .artillery-canvas-bottom-dock {
+    bottom: 8px;
+    padding: 3px 12px;
+  }
+  .artillery-tactical-hud {
+    top: 6px;
+  }
+}
+

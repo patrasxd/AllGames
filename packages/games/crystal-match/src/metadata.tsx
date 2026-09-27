@@ -34,8 +34,8 @@ export const metadata: GameMetadata = {
   },
   icon: <CrystalIcon />,
   tags: {
-    en: ['match-3', 'puzzle', 'endless'],
-    pl: ['match-3', 'logiczna', 'nieskończona'],
+    en: ['1 player', 'match-3', 'puzzle'],
+    pl: ['1 gracz', 'match-3', 'logiczna'],
   },
   minPlayers: 1,
   maxPlayers: 1,

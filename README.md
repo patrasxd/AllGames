@@ -12,7 +12,7 @@
   <img src="https://img.shields.io/badge/TypeScript-5.5-blue.svg" alt="TypeScript 5" />
   <img src="https://img.shields.io/badge/Vite-6.0-646CFF.svg" alt="Vite" />
   <img src="https://img.shields.io/badge/PWA-Offline--First-brightgreen.svg" alt="PWA Ready" />
-  <img src="https://img.shields.io/badge/Vitest-30%20passed-success.svg" alt="Vitest Tests" />
+  <img src="https://img.shields.io/badge/Vitest-43%20passed-success.svg" alt="Vitest Tests" />
 </p>
 
 ---
@@ -21,20 +21,20 @@
 
 - [Overview](#overview)
 - [Key Features](#key-features)
+- [Quick Start](#quick-start)
 - [Games Catalog](#games-catalog)
 - [Architecture & Monorepo](#architecture--monorepo)
 - [Design System & Themes](#design-system--themes)
-- [Game API Contract](#game-api-contract)
-- [Getting Started](#getting-started)
-- [Adding a New Game](#adding-a-new-game)
+- [Adding a New Game & API Contract](#adding-a-new-game--api-contract)
 - [Storage & Persistence](#storage--persistence)
+- [Deployment](#deployment)
 - [License](#license)
 
 ---
 
 ## Overview
 
-**AllGames** is an open-source, distraction-free gaming suite built for both desktop and mobile web. Every game is written with modern React, packaged as an independent monorepo workspace module, and styled with a tactile sketchbook ink aesthetic.
+**AllGames** is an open-source, distraction-free gaming suite built for desktop and mobile web. Every game is written with modern React, packaged as an independent monorepo workspace module, and styled with a tactile sketchbook ink aesthetic.
 
 The application adheres to strict privacy and usability standards: zero third-party scripts, zero analytics, instant offline caching, and responsive viewports calibrated to fit without page-level scrollbars.
 
@@ -52,24 +52,60 @@ The application adheres to strict privacy and usability standards: zero third-pa
 
 ---
 
+## Quick Start
+
+### Prerequisites
+
+- **Node.js**: `18.0.0` or higher
+- **npm**: `9.0.0` or higher (supporting npm workspaces)
+
+### Installation & Development
+
+```bash
+# 1. Clone repository with submodules (@all/ui)
+git clone --recurse-submodules https://github.com/patrasxd/AllGames.git
+cd AllGames
+
+# 2. Install all monorepo dependencies
+npm install
+
+# 3. Start local development server
+npm run dev
+```
+
+### Scripts Reference
+
+| Command                | Description                                     |
+| :--------------------- | :---------------------------------------------- |
+| `npm run dev`          | Starts the Vite development server              |
+| `npm test`             | Runs the full Vitest suite across all packages  |
+| `npm run typecheck`    | Runs TypeScript type-checking across workspaces |
+| `npm run lint`         | Checks code quality with ESLint                 |
+| `npm run format:check` | Verifies formatting with Prettier               |
+| `npm run build`        | Builds production bundles for deployment        |
+| `npm run preview`      | Previews the production build locally           |
+
+---
+
 ## Games Catalog
 
-AllGames features **12 fully playable games**, spanning arcade classics, logic puzzles, and strategic board games:
+AllGames features a growing collection of browser-based mini-games, spanning arcade classics, logic puzzles, and strategic board games:
 
-| Game              | Slug            | Players / AI | Template          | Description                                                                                            |
-| :---------------- | :-------------- | :----------- | :---------------- | :----------------------------------------------------------------------------------------------------- |
-| **Wing Rush**     | `wing-rush`     | 1P           | `FullBleedLayout` | Minimalist physics arcade. Tap to flap wings, weave through architectural gates, and beat high scores. |
-| **Crystal Match** | `crystal-match` | 1P           | `BoardLayout`     | Cascading match-3 puzzle saga. Swap crystals, trigger explosive combos, and beat tiered level targets. |
-| **Tic-Tac-Toe**   | `tic-tac-toe`   | 1P / 2P      | `BoardLayout`     | Classic 3x3 grid with local 2-player mode and 3-difficulty Minimax AI.                                 |
-| **Snake**         | `snake`         | 1P           | `BoardLayout`     | Retro snake with 3 map layouts (Border, Open, Obstacles), speed presets, and high score tracking.      |
-| **Checkers**      | `checkers`      | 1P / 2P      | `BoardLayout`     | Traditional 8x8 checkers supporting local pass-and-play or Minimax computer opponent.                  |
-| **Chess**         | `chess`         | 1P / 2P      | `BoardLayout`     | Full FIDE rules (castling, en passant, pawn promotion) with local 2P or Minimax AI.                    |
-| **Minesweeper**   | `minesweeper`   | 1P           | `BoardLayout`     | Safe first click guarantee, quick-flagging, 3 board dimensions, and timer records.                     |
-| **2048**          | `2048`          | 1P           | `BoardLayout`     | Number sliding puzzle supporting 3x3, 4x4, and 5x5 grids, swipe gestures, move undo, and best scores.  |
-| **Memory**        | `memory`        | 1P / 2P      | `BoardLayout`     | Hand-drawn vector sketch icon matching with 3 board densities and turn-based 2-player mode.            |
-| **Sudoku**        | `sudoku`        | 1P           | `BoardLayout`     | Procedurally generated puzzles across 3 difficulties with pencil notes, mistake counter, and timer.    |
-| **Sea Battle**    | `sea-battle`    | 1P / 2P      | `BoardLayout`     | Tactical radar grid battleship with fleet auto-deployment and 3-tier computer AI.                      |
-| **Solitaire**     | `solitaire`     | 1P           | `BoardLayout`     | Classic Klondike (Draw 1 / Draw 3), smart move hints, undo stack, auto-finish, and Vegas scoring.      |
+| Game               | Slug            | Players / AI | Template          | Description                                                                                            |
+| :----------------- | :-------------- | :----------- | :---------------- | :----------------------------------------------------------------------------------------------------- |
+| **Wing Rush**      | `wing-rush`     | 1P           | `FullBleedLayout` | Minimalist physics arcade. Tap to flap wings, weave through architectural gates, and beat high scores. |
+| **Artillery Duel** | `artillery`     | 1P / 2P      | `FullBleedLayout` | Tactical ballistic tank duel with procedural destructible clay terrain, wind physics, and computer AI. |
+| **Crystal Match**  | `crystal-match` | 1P           | `BoardLayout`     | Cascading match-3 puzzle saga. Swap crystals, trigger explosive combos, and beat tiered level targets. |
+| **Tic-Tac-Toe**    | `tic-tac-toe`   | 1P / 2P      | `BoardLayout`     | Classic 3x3 grid with local 2-player mode and 3-difficulty Minimax AI.                                 |
+| **Snake**          | `snake`         | 1P           | `BoardLayout`     | Retro snake with 3 map layouts (Border, Open, Obstacles), speed presets, and high score tracking.      |
+| **Checkers**       | `checkers`      | 1P / 2P      | `BoardLayout`     | Traditional 8x8 checkers supporting local pass-and-play or Minimax computer opponent.                  |
+| **Chess**          | `chess`         | 1P / 2P      | `BoardLayout`     | Full FIDE rules (castling, en passant, pawn promotion) with local 2P or Minimax AI.                    |
+| **Minesweeper**    | `minesweeper`   | 1P           | `BoardLayout`     | Safe first click guarantee, quick-flagging, 3 board dimensions, and timer records.                     |
+| **2048**           | `2048`          | 1P           | `BoardLayout`     | Number sliding puzzle supporting 3x3, 4x4, and 5x5 grids, swipe gestures, move undo, and best scores.  |
+| **Memory**         | `memory`        | 1P / 2P      | `BoardLayout`     | Hand-drawn vector sketch icon matching with 3 board densities and turn-based 2-player mode.            |
+| **Sudoku**         | `sudoku`        | 1P           | `BoardLayout`     | Procedurally generated puzzles across 3 difficulties with pencil notes, mistake counter, and timer.    |
+| **Sea Battle**     | `sea-battle`    | 1P / 2P      | `BoardLayout`     | Tactical radar grid battleship with fleet auto-deployment and 3-tier computer AI.                      |
+| **Solitaire**      | `solitaire`     | 1P           | `BoardLayout`     | Classic Klondike (Draw 1 / Draw 3), smart move hints, undo stack, auto-finish, and Vegas scoring.      |
 
 ---
 
@@ -82,7 +118,7 @@ graph TD
     SharedUI["@all/ui (Shared Design System & Templates)"]
     Shell["apps/shell (Host Application)"]
     GamesUI["packages/ui (@allgames/ui Primitives & DPad)"]
-    Games["packages/games/* (12 Standalone Game Modules)"]
+    Games["packages/games/* (Standalone Game Packages)"]
 
     SharedUI --> Shell
     SharedUI --> GamesUI
@@ -91,11 +127,11 @@ graph TD
     Games --> Shell
 ```
 
-### Directory Tree
+### Directory Structure
 
-```
+```text
 AllGames/
-├── package.json                   # Root monorepo configuration & scripts
+├── package.json                   # Root monorepo configuration & workspaces
 ├── README.md                      # Project documentation
 │
 ├── apps/
@@ -106,9 +142,9 @@ AllGames/
 │       │   ├── components/        # AppHeader, GameCard, Navigation
 │       │   ├── pages/             # HomePage, GamePage (zero-scroll container)
 │       │   ├── styles/            # Global token imports & resets
-│       │   ├── types/             # GameMetadata & GameComponentProps contracts
+│       │   ├── types/             # Shell contracts & GameComponentProps
 │       │   ├── App.tsx            # Route handling & transitions
-│       │   └── main.tsx           # ThemeProvider, MotionProvider, React root
+│       │   └── main.tsx           # Providers (Theme, Motion) & React root
 │       ├── public/
 │       │   ├── manifest.json      # PWA manifest
 │       │   └── icons/             # App icons & favicon
@@ -117,19 +153,10 @@ AllGames/
 ├── packages/
 │   ├── ui/                        # Game-specific UI primitives (@allgames/ui)
 │   │   └── src/                   # DPad, GameModal, GameResultOverlay, useGameTimer
-│   └── games/                     # 12 Standalone Game Packages
-│       ├── 2048/
-│       ├── checkers/
-│       ├── chess/
-│       ├── crystal-match/
-│       ├── memory/
-│       ├── minesweeper/
-│       ├── sea-battle/
-│       ├── snake/
-│       ├── solitaire/
-│       ├── sudoku/
-│       ├── tic-tac-toe/
-│       └── wing-rush/
+│   └── games/                     # Standalone game packages
+│       └── <game-slug>/           # Isolated game module (e.g. chess, solitaire, ...)
+│           ├── package.json       # @allgames/<game-slug>
+│           └── src/               # Game logic, UI components, metadata.tsx & tests
 │
 └── AllUI/                         # Git Submodule referencing @all/ui design system
 ```
@@ -154,120 +181,75 @@ All visual tokens and layout primitives are provided by `@all/ui`:
 
 ---
 
-## Game API Contract
+## Adding a New Game & API Contract
 
-Every game module in `packages/games/<slug>` is an autonomous package exporting lightweight metadata and a lazy-loadable component.
+Every game module in `packages/games/<slug>` is an autonomous workspace package exporting lightweight metadata and a lazy-loadable component.
 
-### 1. Metadata Export (`src/metadata.tsx`)
+### 1. Game Package Structure
+
+Create `packages/games/<new-game>` with its own `package.json` (`@allgames/<new-game>`):
+
+```
+packages/games/<new-game>/
+├── package.json
+└── src/
+    ├── <GameName>.tsx             # Core game component
+    ├── metadata.tsx               # Eager metadata export
+    ├── index.tsx                  # Public package entry
+    ├── types.ts                   # Game-specific types
+    └── __tests__/                 # Vitest test suite
+```
+
+### 2. Export Metadata (`src/metadata.tsx`)
 
 ```tsx
 import type { GameMetadata } from './types'
 
 export const metadata: GameMetadata = {
-  slug: 'tic-tac-toe',
-  name: {
-    en: 'Tic-Tac-Toe',
-    pl: 'Kółko i krzyżyk',
-  },
-  description: {
-    en: 'Classic 3x3 game. Play against a friend or challenge the computer.',
-    pl: 'Klasyczne kółko i krzyżyk. Graj z przyjacielem lub zmierz się z komputerem.',
-  },
-  icon: <TicTacToeIcon />,
-  tags: {
-    en: ['classic', '2 players', 'vs computer'],
-    pl: ['klasyczna', '2 graczy', 'vs komputer'],
-  },
+  slug: 'new-game',
+  name: { en: 'New Game', pl: 'Nowa Gra' },
+  description: { en: 'Game description', pl: 'Opis gry' },
+  icon: <GameIcon />,
+  tags: { en: ['tag1'], pl: ['tag1'] },
   minPlayers: 1,
   maxPlayers: 2,
 }
 ```
 
-### 2. Component Export (`src/index.tsx`)
+### 3. Component Contract (`src/index.tsx`)
 
-```tsx
-import type { GameComponentProps } from './types'
-
-export { TicTacToe as GameComponent } from './TicTacToe'
-export { metadata } from './metadata'
-```
-
-### 3. Component Props (`GameComponentProps`)
+Every game component receives `GameComponentProps`:
 
 ```ts
 export interface GameComponentProps {
-  /** Current language code ('en' | 'pl') */
   locale: 'en' | 'pl'
-  /** Optional callback to render custom status/widgets into the top shell header */
+  theme?: string
+  isEink?: boolean
   setHeader?: (content: React.ReactNode) => void
-  /** Optional callback to notify the shell whether a game session is active */
   setIsActive?: (active: boolean) => void
 }
 ```
 
----
+Export both from `src/index.tsx`:
 
-## Getting Started
-
-### Prerequisites
-
-- **Node.js**: `18.0.0` or higher
-- **npm**: `9.0.0` or higher (supporting npm workspaces)
-
-### Installation & Run
-
-```bash
-# Clone repository with submodules
-git clone --recurse-submodules https://github.com/patrasxd/AllGames.git
-cd AllGames
-
-# Install all monorepo dependencies
-npm install
-
-# Start local development server
-npm run dev
-
-# Run ESLint linter
-npm run lint
-
-# Check code formatting with Prettier
-npm run format:check
-
-# Run static TypeScript checks
-npm run typecheck
-
-# Run full Vitest test suite across all games
-npm test
-
-# Build production bundle
-npm run build
-
-# Preview production build locally
-npm run preview
+```tsx
+export { NewGame as GameComponent } from './NewGame'
+export { metadata } from './metadata'
 ```
 
-### Deployment
+### 4. Register in Shell
 
-Deployment is fully automated via GitHub Actions ([`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)) on push to the `main` branch:
+Add the new game to `apps/shell/src/games/registry.ts`:
 
-1. **Verification**: Checks out the repository with recursive submodules (`AllUI`), performs a clean install (`npm ci`), runs ESLint linter (`npm run lint`), runs TypeScript checks (`npm run typecheck`), and executes the Vitest test suite (`npm test`). Deployment is blocked if any check fails.
-2. **Build & SPA Routing**: Builds the production bundle (`npm run build`) and copies `apps/shell/dist/index.html` to `apps/shell/dist/404.html`, ensuring deep links and page refreshes work properly under GitHub Pages without `HashRouter`.
-3. **Publishing**: Publishes the build output (`apps/shell/dist`) directly to GitHub Pages via `peaceiris/actions-gh-pages`.
+```ts
+import { metadata as newGameMetadata } from '@allgames/new-game/metadata'
 
----
-
-## Adding a New Game
-
-1. **Scaffold Package**:
-   Create a new folder under `packages/games/<new-game>` with its own `package.json` named `@allgames/<new-game>`.
-2. **Implement Logic & UI**:
-   Build the game using layout templates from `@all/ui` (such as `BoardLayout` or `FullBleedLayout`) and controls from `@all/ui` or `@allgames/ui`.
-3. **Export Metadata & Component**:
-   Implement `src/metadata.tsx` and export `{ metadata, GameComponent }` from `src/index.tsx`.
-4. **Register in Shell**:
-   Add eager metadata and lazy component loader to `apps/shell/src/games/registry.ts`.
-5. **Add Tests**:
-   Write unit/integration tests in `src/__tests__/` and verify with `npm test`.
+// In GAMES array:
+{
+  metadata: newGameMetadata,
+  load: lazyGame(() => import('@allgames/new-game')),
+}
+```
 
 ---
 
@@ -281,6 +263,16 @@ All client-side state is stored strictly in browser `localStorage` using standar
 | `allgames:language`        | `'en' \| 'pl'`                                       | User language preference                      |
 | `allgames:<slug>:settings` | `JSON Object`                                        | Game settings (difficulty, board size, sound) |
 | `allgames:<slug>:stats`    | `JSON Object`                                        | High scores, win/loss records, best times     |
+
+---
+
+## Deployment
+
+Continuous deployment is automated via GitHub Actions on push to `main`:
+
+1. **Verification**: Checks out submodules (`AllUI`), runs `npm ci`, linter (`npm run lint`), TypeScript checks (`npm run typecheck`), and Vitest test suite (`npm test`).
+2. **Build**: Generates production SPA bundles (`npm run build`) and creates a `404.html` copy for direct client-side routing on GitHub Pages.
+3. **Publish**: Deploys `apps/shell/dist` to GitHub Pages via `peaceiris/actions-gh-pages`.
 
 ---
 

@@ -62,3 +62,5 @@ Add package dependency to `apps/shell/package.json`.
 4. **Concrete Build Verification**:
    - Run a real production build: `npm run build -w @allgames/shell`
    - Verify that Vite/Rollup outputs **ZERO** warnings of dynamic imports being merged into eager chunks.
+
+After all, add this game to README.md as others.
