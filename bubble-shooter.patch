@@ -1,0 +1,2563 @@
+diff --git a/README.md b/README.md
+index 81b8118..4974ea5 100644
+--- a/README.md
++++ b/README.md
+@@ -95,6 +95,7 @@ AllGames features a growing collection of browser-based mini-games, spanning arc
+ | :----------------- | :-------------- | :----------- | :---------------- | :----------------------------------------------------------------------------------------------------- |
+ | **Wing Rush**      | `wing-rush`     | 1P           | `FullBleedLayout` | Minimalist physics arcade. Tap to flap wings, weave through architectural gates, and beat high scores. |
+ | **Artillery Duel** | `artillery`     | 1P / 2P      | `FullBleedLayout` | Tactical ballistic tank duel with procedural destructible clay terrain, wind physics, and computer AI. |
++| **Bubble Shooter** | `bubble-shooter` | 1P | `FullBleedLayout` | Aim, bounce off the walls, and match 3+ colored bubbles before the hex grid reaches the bottom. |
+ | **Crystal Match**  | `crystal-match` | 1P           | `BoardLayout`     | Cascading match-3 puzzle saga. Swap crystals, trigger explosive combos, and beat tiered level targets. |
+ | **Tic-Tac-Toe**    | `tic-tac-toe`   | 1P / 2P      | `BoardLayout`     | Classic 3x3 grid with local 2-player mode and 3-difficulty Minimax AI.                                 |
+ | **Snake**          | `snake`         | 1P           | `BoardLayout`     | Retro snake with 3 map layouts (Border, Open, Obstacles), speed presets, and high score tracking.      |
+diff --git a/apps/shell/package.json b/apps/shell/package.json
+index 19b9bff..6270c7a 100644
+--- a/apps/shell/package.json
++++ b/apps/shell/package.json
+@@ -12,6 +12,7 @@
+     "@all/ui": "file:../../AllUI",
+     "@allgames/2048": "*",
+     "@allgames/artillery": "*",
++    "@allgames/bubble-shooter": "*",
+     "@allgames/checkers": "*",
+     "@allgames/chess": "*",
+     "@allgames/crystal-match": "*",
+diff --git a/apps/shell/src/games/registry.ts b/apps/shell/src/games/registry.ts
+index bc374c7..e21e0ab 100644
+--- a/apps/shell/src/games/registry.ts
++++ b/apps/shell/src/games/registry.ts
+@@ -15,6 +15,7 @@ import { metadata as solitaireMetadata } from '@allgames/solitaire/metadata'
+ import { metadata as crystalMatchMetadata } from '@allgames/crystal-match/metadata'
+ import { metadata as wingRushMetadata } from '@allgames/wing-rush/metadata'
+ import { metadata as artilleryMetadata } from '@allgames/artillery/metadata'
++import { metadata as bubbleShooterMetadata } from '@allgames/bubble-shooter/metadata'
+ 
+ export interface GameRegistryEntry {
+   metadata: GameMetadata
+@@ -34,6 +35,10 @@ export const GAMES: GameRegistryEntry[] = [
+     metadata: wingRushMetadata,
+     load: lazyGame(() => import('@allgames/wing-rush')),
+   },
++  {
++    metadata: bubbleShooterMetadata,
++    load: lazyGame(() => import('@allgames/bubble-shooter')),
++  },
+   {
+     metadata: crystalMatchMetadata,
+     load: lazyGame(() => import('@allgames/crystal-match')),
+diff --git a/package-lock.json b/package-lock.json
+index 9fadbb7..88e328b 100644
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -53,6 +53,7 @@
+         "@all/ui": "file:../../AllUI",
+         "@allgames/2048": "*",
+         "@allgames/artillery": "*",
++        "@allgames/bubble-shooter": "*",
+         "@allgames/checkers": "*",
+         "@allgames/chess": "*",
+         "@allgames/crystal-match": "*",
+@@ -217,6 +218,10 @@
+       "resolved": "packages/games/artillery",
+       "link": true
+     },
++    "node_modules/@allgames/bubble-shooter": {
++      "resolved": "packages/games/bubble-shooter",
++      "link": true
++    },
+     "node_modules/@allgames/checkers": {
+       "resolved": "packages/games/checkers",
+       "link": true
+@@ -8861,6 +8866,19 @@
+         "react-dom": "^18.3.0"
+       }
+     },
++    "packages/games/bubble-shooter": {
++      "name": "@allgames/bubble-shooter",
++      "version": "0.1.0",
++      "dependencies": {
++        "@all/ui": "file:../../../AllUI",
++        "@allgames/ui": "*"
++      },
++      "peerDependencies": {
++        "framer-motion": "^11.3.0",
++        "react": "^18.3.0",
++        "react-dom": "^18.3.0"
++      }
++    },
+     "packages/games/checkers": {
+       "name": "@allgames/checkers",
+       "version": "0.1.0",
+diff --git a/packages/games/bubble-shooter/package.json b/packages/games/bubble-shooter/package.json
+new file mode 100644
+index 0000000..23a5318
+--- /dev/null
++++ b/packages/games/bubble-shooter/package.json
+@@ -0,0 +1,20 @@
++{
++  "name": "@allgames/bubble-shooter",
++  "version": "0.1.0",
++  "private": true,
++  "type": "module",
++  "main": "./src/index.tsx",
++  "dependencies": {
++    "@all/ui": "file:../../../AllUI",
++    "@allgames/ui": "*"
++  },
++  "peerDependencies": {
++    "framer-motion": "^11.3.0",
++    "react": "^18.3.0",
++    "react-dom": "^18.3.0"
++  },
++  "exports": {
++    ".": "./src/index.tsx",
++    "./metadata": "./src/metadata.tsx"
++  }
++}
+diff --git a/packages/games/bubble-shooter/src/BubbleShooter.tsx b/packages/games/bubble-shooter/src/BubbleShooter.tsx
+new file mode 100644
+index 0000000..1564312
+--- /dev/null
++++ b/packages/games/bubble-shooter/src/BubbleShooter.tsx
+@@ -0,0 +1,167 @@
++import { useEffect, useCallback, useState } from 'react'
++import { AnimatePresence } from 'framer-motion'
++import { useBubbleShooter } from './hooks/useBubbleShooter'
++import { BubbleShooterCanvas } from './components/BubbleShooterCanvas'
++import { AimControls } from './components/AimControls'
++import type { GameComponentProps, Difficulty } from './types'
++import { bubbleShooterTranslations } from './i18n'
++import { Button, ConfirmDialog, ControlsBar, FullBleedLayout, PillGroup, StatsHeader } from '@all/ui'
++import { GameResultOverlay, GameStartOverlay } from '@allgames/ui'
++import './styles/bubble-shooter.css'
++
++export function BubbleShooter({
++  setHeader,
++  setIsActive,
++  locale = 'en',
++  isEink = false,
++  theme = 'dark',
++}: GameComponentProps) {
++  const t = bubbleShooterTranslations[locale] || bubbleShooterTranslations.en
++
++  const {
++    viewRef,
++    isGameActive,
++    difficulty,
++    gameStatus,
++    score,
++    bestScore,
++    isNewBest,
++    aimAt,
++    nudgeAim,
++    shoot,
++    startGame,
++    resetGame,
++    changeDifficulty,
++  } = useBubbleShooter()
++
++  // Tell the shell a game is running so leaving the page asks for confirmation, like the other games.
++  useEffect(() => {
++    setIsActive?.(isGameActive)
++    return () => setIsActive?.(false)
++  }, [isGameActive, setIsActive])
++
++  // "New game" and difficulty changes both throw away a running game, so they ask first.
++  const [pendingAction, setPendingAction] = useState<
++    { type: 'newGame' } | { type: 'difficulty'; difficulty: Difficulty } | null
++  >(null)
++
++  const requestNewGame = () => {
++    if (isGameActive) setPendingAction({ type: 'newGame' })
++    else resetGame()
++  }
++
++  const requestDifficulty = (next: Difficulty) => {
++    if (next === difficulty) return
++    if (isGameActive) setPendingAction({ type: 'difficulty', difficulty: next })
++    else changeDifficulty(next)
++  }
++
++  const confirmPending = () => {
++    if (pendingAction?.type === 'newGame') resetGame()
++    else if (pendingAction?.type === 'difficulty') changeDifficulty(pendingAction.difficulty)
++    setPendingAction(null)
++  }
++
++  const renderHeader = useCallback(() => {
++    if (!setHeader) return
++    setHeader(
++      <StatsHeader
++        label={t.gameTitle}
++        items={[
++          { key: 'score', label: t.score, value: score },
++          { key: 'best', label: t.bestScore, value: bestScore },
++        ]}
++      />,
++    )
++  }, [setHeader, t, score, bestScore])
++
++  useEffect(() => {
++    renderHeader()
++  }, [renderHeader])
++
++  useEffect(() => {
++    return () => setHeader?.(null)
++  }, [setHeader])
++
++  const resultStats = [
++    { label: t.score, value: score },
++    { label: t.bestScore, value: bestScore },
++    { label: t.difficulty, value: t.difficultyLabels[difficulty] },
++  ]
++
++  return (
++    <>
++      <FullBleedLayout
++        footer={
++          <>
++            <AimControls
++              disabled={gameStatus !== 'aiming'}
++              labels={{ fire: t.fire, left: t.aimLeft, right: t.aimRight }}
++              onNudge={nudgeAim}
++              onFire={() => shoot()}
++            />
++            <ControlsBar className="bs-footer-bar">
++              <Button id="bubble-shooter-new-game-btn" variant="secondary" size="sm" onClick={requestNewGame}>
++                {t.newGame}
++              </Button>
++              <PillGroup
++                label={t.difficulty}
++                size="sm"
++                value={difficulty}
++                onChange={(diff) => requestDifficulty(diff as Difficulty)}
++                options={(['easy', 'normal', 'hard'] as Difficulty[]).map((diff) => ({
++                  value: diff,
++                  label: t.difficultyLabels[diff],
++                }))}
++              />
++            </ControlsBar>
++          </>
++        }
++        overlay={
++          <AnimatePresence>
++            {gameStatus === 'ready' && (
++              <GameStartOverlay
++                title={t.gameTitle}
++                subtitle={t.readySubPrompt}
++                startText={t.startBtn}
++                onStart={startGame}
++                startId="bs-start-btn"
++                isEink={isEink}
++              />
++            )}
++
++            {(gameStatus === 'won' || gameStatus === 'lost') && (
++              <GameResultOverlay
++                status={gameStatus}
++                title={isNewBest ? t.newBest : gameStatus === 'won' ? t.wonTitle : t.lostTitle}
++                subtitle={gameStatus === 'won' ? t.wonSub : t.lostSub}
++                isEink={isEink}
++                playAgainText={t.restart}
++                onPlayAgain={resetGame}
++                playAgainId="bs-play-again-btn"
++                stats={resultStats}
++              />
++            )}
++          </AnimatePresence>
++        }
++      >
++        <BubbleShooterCanvas viewRef={viewRef} isEink={isEink} theme={theme} onAim={aimAt} onShoot={shoot} />
++      </FullBleedLayout>
++
++      <ConfirmDialog
++        open={pendingAction !== null}
++        title={t.confirmTitle}
++        description={pendingAction?.type === 'difficulty' ? t.confirmDifficultyDesc : t.confirmNewGameDesc}
++        confirmLabel={t.confirmBtn}
++        cancelLabel={t.cancelBtn}
++        confirmVariant="danger"
++        confirmId="bubble-shooter-confirm-btn"
++        cancelId="bubble-shooter-cancel-btn"
++        onConfirm={confirmPending}
++        onCancel={() => setPendingAction(null)}
++      />
++    </>
++  )
++}
++
++export default BubbleShooter
+diff --git a/packages/games/bubble-shooter/src/__tests__/AimControls.test.tsx b/packages/games/bubble-shooter/src/__tests__/AimControls.test.tsx
+new file mode 100644
+index 0000000..c104e4d
+--- /dev/null
++++ b/packages/games/bubble-shooter/src/__tests__/AimControls.test.tsx
+@@ -0,0 +1,41 @@
++import { describe, it, expect, vi } from 'vitest'
++import { render, screen, fireEvent, act } from '@testing-library/react'
++import { AimControls } from '../components/AimControls'
++
++const labels = { fire: 'Fire', left: 'Aim left', right: 'Aim right' }
++
++describe('AimControls', () => {
++  it('fires on tap and is disabled when not aiming', () => {
++    const onFire = vi.fn()
++    const { rerender } = render(<AimControls disabled={false} labels={labels} onNudge={vi.fn()} onFire={onFire} />)
++    fireEvent.click(screen.getByRole('button', { name: 'Fire' }))
++    expect(onFire).toHaveBeenCalledTimes(1)
++
++    rerender(<AimControls disabled labels={labels} onNudge={vi.fn()} onFire={onFire} />)
++    expect(screen.getByRole('button', { name: 'Fire' })).toBeDisabled()
++  })
++
++  it('keeps sweeping the aim while an arrow is held, and stops on release', () => {
++    vi.useFakeTimers()
++    const onNudge = vi.fn()
++    render(<AimControls disabled={false} labels={labels} onNudge={onNudge} onFire={vi.fn()} />)
++    const left = screen.getByRole('button', { name: 'Aim left' })
++
++    fireEvent.pointerDown(left)
++    expect(onNudge).toHaveBeenLastCalledWith(-1, expect.any(Number))
++    const afterPress = onNudge.mock.calls.length
++
++    act(() => {
++      vi.advanceTimersByTime(150)
++    })
++    expect(onNudge.mock.calls.length).toBeGreaterThan(afterPress)
++
++    fireEvent.pointerUp(left)
++    const afterRelease = onNudge.mock.calls.length
++    act(() => {
++      vi.advanceTimersByTime(300)
++    })
++    expect(onNudge.mock.calls.length).toBe(afterRelease)
++    vi.useRealTimers()
++  })
++})
+diff --git a/packages/games/bubble-shooter/src/__tests__/BubbleShooter.test.tsx b/packages/games/bubble-shooter/src/__tests__/BubbleShooter.test.tsx
+new file mode 100644
+index 0000000..43653ad
+--- /dev/null
++++ b/packages/games/bubble-shooter/src/__tests__/BubbleShooter.test.tsx
+@@ -0,0 +1,67 @@
++import { describe, it, expect } from 'vitest'
++import { render, screen, fireEvent, waitFor } from '@testing-library/react'
++import { vi } from 'vitest'
++import React from 'react'
++import { BubbleShooter } from '../BubbleShooter'
++
++describe('BubbleShooter Component Integration', () => {
++  it('renders FullBleedLayout, canvas stage, and the ready-state start overlay', async () => {
++    render(<BubbleShooter locale="en" />)
++
++    expect(document.querySelector('.all-fullbleed-layout')).toBeInTheDocument()
++
++    const footer = document.querySelector('.all-fullbleed-layout__footer')
++    expect(footer).toBeInTheDocument()
++    expect(footer?.querySelector('.all-pill-group')).toBeInTheDocument()
++
++    const canvasWrapper = document.querySelector('.bs-canvas-wrapper')
++    expect(canvasWrapper).toBeInTheDocument()
++    expect(document.querySelector('canvas')).toBeInTheDocument()
++
++    const startBtn = screen.getByRole('button', { name: /^Start$/i })
++    expect(startBtn).toBeInTheDocument()
++    expect(screen.getAllByText(/Bubble Shooter/i).length).toBeGreaterThan(0)
++
++    expect(screen.getByRole('button', { name: /new game/i })).toBeInTheDocument()
++
++    fireEvent.click(startBtn)
++    await waitFor(() => expect(screen.queryByRole('button', { name: /^Start$/i })).not.toBeInTheDocument())
++  })
++
++  it('does not ask for confirmation before any shot has been fired', async () => {
++    const setIsActive = vi.fn()
++    render(<BubbleShooter locale="en" setIsActive={setIsActive} />)
++    fireEvent.click(screen.getByRole('button', { name: /^Start$/i }))
++    await waitFor(() => expect(screen.queryByRole('button', { name: /^Start$/i })).not.toBeInTheDocument())
++
++    fireEvent.click(screen.getByRole('button', { name: /new game/i }))
++    expect(screen.queryByText(/start a new game\?/i)).not.toBeInTheDocument()
++    expect(setIsActive).toHaveBeenLastCalledWith(false)
++  })
++
++  it('asks before discarding a running game (new game and difficulty change) and reports it as active', async () => {
++    const setIsActive = vi.fn()
++    render(<BubbleShooter locale="en" setIsActive={setIsActive} />)
++    fireEvent.click(screen.getByRole('button', { name: /^Start$/i }))
++    await waitFor(() => expect(screen.queryByRole('button', { name: /^Start$/i })).not.toBeInTheDocument())
++
++    // Fire one shot and wait for it to land: the game now has progress worth protecting.
++    const fire = screen.getByRole('button', { name: /^Fire$/i })
++    fireEvent.click(fire)
++    await waitFor(() => expect(fire).toBeEnabled(), { timeout: 5000 })
++    await waitFor(() => expect(setIsActive).toHaveBeenLastCalledWith(true))
++
++    fireEvent.click(screen.getByRole('button', { name: /new game/i }))
++    expect(await screen.findByText(/start a new game\?/i)).toBeInTheDocument()
++    fireEvent.click(screen.getByRole('button', { name: /cancel/i }))
++    await waitFor(() => expect(screen.queryByText(/start a new game\?/i)).not.toBeInTheDocument())
++    expect(setIsActive).toHaveBeenLastCalledWith(true)
++
++    fireEvent.click(screen.getByRole('button', { name: /^easy$/i }))
++    expect(await screen.findByText(/changing the difficulty/i)).toBeInTheDocument()
++
++    // Confirming starts a fresh game, so it is no longer worth a warning.
++    fireEvent.click(document.getElementById('bubble-shooter-confirm-btn') as HTMLElement)
++    await waitFor(() => expect(setIsActive).toHaveBeenLastCalledWith(false))
++  })
++})
+diff --git a/packages/games/bubble-shooter/src/__tests__/logic.test.ts b/packages/games/bubble-shooter/src/__tests__/logic.test.ts
+new file mode 100644
+index 0000000..fcbe385
+--- /dev/null
++++ b/packages/games/bubble-shooter/src/__tests__/logic.test.ts
+@@ -0,0 +1,177 @@
++import { describe, it, expect } from 'vitest'
++import {
++  createEmptyGrid,
++  cellExists,
++  getNeighbors,
++  findConnectedGroup,
++  findFloatingCells,
++  settleBubble,
++  isBoardCleared,
++  isGameOver,
++  insertRowAtTop,
++  generateInitialGrid,
++  DANGER_ROW,
++  cellX,
++  ROWS,
++  COLS,
++} from '../logic/engine'
++
++describe('Bubble Shooter grid geometry', () => {
++  it('gives odd rows one fewer column than even rows', () => {
++    expect(cellExists(0, COLS - 1)).toBe(true)
++    expect(cellExists(1, COLS - 1)).toBe(false)
++    expect(cellExists(1, COLS - 2)).toBe(true)
++  })
++
++  it('rejects out-of-range rows and columns', () => {
++    expect(cellExists(-1, 0)).toBe(false)
++    expect(cellExists(ROWS, 0)).toBe(false)
++    expect(cellExists(0, -1)).toBe(false)
++  })
++
++  it('returns only neighbors that exist on the hex grid', () => {
++    const neighbors = getNeighbors(0, 0)
++    for (const [r, c] of neighbors) {
++      expect(cellExists(r, c)).toBe(true)
++    }
++    // Corner cell has fewer than 6 neighbors
++    expect(neighbors.length).toBeLessThan(6)
++  })
++})
++
++describe('Bubble Shooter matching', () => {
++  it('finds a connected same-color group via BFS', () => {
++    const grid = createEmptyGrid()
++    grid[0][0] = 'red'
++    grid[0][1] = 'red'
++    grid[1][0] = 'red'
++    grid[0][2] = 'blue'
++
++    const group = findConnectedGroup(grid, 0, 0)
++    expect(group.has('0,0')).toBe(true)
++    expect(group.has('0,1')).toBe(true)
++    expect(group.has('1,0')).toBe(true)
++    expect(group.has('0,2')).toBe(false)
++    expect(group.size).toBe(3)
++  })
++
++  it('pops a matched group of 3+ and awards nothing below threshold', () => {
++    const grid = createEmptyGrid()
++    grid[0][0] = 'red'
++    grid[0][1] = 'red'
++
++    const { grid: after, result } = settleBubble(grid, 1, 0, 'red')
++    expect(result.matched.length).toBeGreaterThanOrEqual(3)
++    expect(after[0][0]).toBeNull()
++    expect(after[0][1]).toBeNull()
++    expect(after[1][0]).toBeNull()
++  })
++
++  it('leaves a pair of matching bubbles untouched', () => {
++    const grid = createEmptyGrid()
++    grid[0][0] = 'red'
++
++    const { grid: after, result } = settleBubble(grid, 0, 1, 'red')
++    expect(result.matched.length).toBe(0)
++    expect(after[0][0]).toBe('red')
++    expect(after[0][1]).toBe('red')
++  })
++})
++
++describe('Bubble Shooter floating bubbles', () => {
++  it('detects bubbles disconnected from the ceiling after a pop', () => {
++    const grid = createEmptyGrid()
++    // A little island hanging off row 0, plus a separate floating chain.
++    grid[0][0] = 'blue'
++    grid[1][0] = 'green'
++    grid[2][0] = 'green'
++    grid[2][1] = 'green'
++
++    // Without removing the bridge, everything is still anchored.
++    const floating = findFloatingCells(grid)
++    expect(floating.size).toBe(0)
++
++    grid[1][0] = null
++    const floatingAfterBreak = findFloatingCells(grid)
++    expect(floatingAfterBreak.has('2,0')).toBe(true)
++    expect(floatingAfterBreak.has('2,1')).toBe(true)
++    expect(floatingAfterBreak.has('0,0')).toBe(false)
++  })
++
++  it('reports a cleared board only when every cell is empty', () => {
++    const grid = createEmptyGrid()
++    expect(isBoardCleared(grid)).toBe(true)
++    grid[5][2] = 'purple'
++    expect(isBoardCleared(grid)).toBe(false)
++  })
++})
++
++describe('Bubble Shooter danger line and row insertion', () => {
++  it('flags game over once a bubble reaches the danger row', () => {
++    const grid = createEmptyGrid()
++    expect(isGameOver(grid)).toBe(false)
++    grid[DANGER_ROW][0] = 'orange'
++    expect(isGameOver(grid)).toBe(true)
++  })
++
++  it('shifts the whole grid down by one row when a new row is inserted', () => {
++    const grid = createEmptyGrid()
++    grid[0][0] = 'red'
++    const { grid: shifted, parity } = insertRowAtTop(grid, 4, 0)
++    expect(shifted[1][0]).toBe('red')
++    expect(shifted[0].some((cell) => cell !== null)).toBe(true)
++    expect(parity).toBe(1)
++  })
++
++  it('keeps every existing bubble at the same screen position after a row insertion', () => {
++    for (const startParity of [0, 1]) {
++      const { parity } = insertRowAtTop(createEmptyGrid(), 4, startParity)
++      for (let row = 0; row < ROWS - 1; row++) {
++        for (let col = 0; col < COLS; col++) {
++          const existedBefore = cellExists(row, col, startParity)
++          // Same slot must exist one row lower, at the same x, with the row spacing added to y.
++          expect(cellExists(row + 1, col, parity)).toBe(existedBefore)
++          if (existedBefore) {
++            expect(cellX(row + 1, col, parity)).toBe(cellX(row, col, startParity))
++          }
++        }
++      }
++    }
++  })
++
++  it('keeps bubbles adjacent to the same neighbours after a row insertion', () => {
++    const startParity = 0
++    const { parity } = insertRowAtTop(createEmptyGrid(), 4, startParity)
++    for (let row = 0; row < ROWS - 2; row++) {
++      for (let col = 0; col < COLS; col++) {
++        if (!cellExists(row, col, startParity)) continue
++        const before = getNeighbors(row, col, startParity)
++          .map(([r, c]) => `${r + 1},${c}`)
++          .sort()
++        const after = getNeighbors(row + 1, col, parity)
++          .filter(([r]) => r >= 1)
++          .map(([r, c]) => `${r},${c}`)
++          .sort()
++        expect(after).toEqual(before)
++      }
++    }
++  })
++
++  it('does not orphan a connected chain when a row is inserted', () => {
++    // A chain hanging from the ceiling down the left edge must stay attached after the shift.
++    let grid = createEmptyGrid()
++    for (let row = 0; row < 6; row++) grid[row][0] = 'red'
++    const { grid: shifted, parity } = insertRowAtTop(grid, 4, 0)
++    grid = shifted
++    expect(findFloatingCells(grid, parity).size).toBe(0)
++  })
++
++  it('generates the requested number of initial rows using only the given color count', () => {
++    const grid = generateInitialGrid(4, 3)
++    const usedColors = new Set(grid.flat().filter(Boolean))
++    expect(usedColors.size).toBeLessThanOrEqual(3)
++    for (let row = 4; row < ROWS; row++) {
++      expect(grid[row].every((cell) => cell === null)).toBe(true)
++    }
++  })
++})
+diff --git a/packages/games/bubble-shooter/src/__tests__/physics.test.ts b/packages/games/bubble-shooter/src/__tests__/physics.test.ts
+new file mode 100644
+index 0000000..6c99399
+--- /dev/null
++++ b/packages/games/bubble-shooter/src/__tests__/physics.test.ts
+@@ -0,0 +1,72 @@
++import { describe, it, expect } from 'vitest'
++import {
++  createEmptyGrid,
++  createShotBubble,
++  launchShotBubble,
++  stepShotBubble,
++  findLandingCell,
++  getNeighbors,
++  cellX,
++  cellY,
++  VIRTUAL_WIDTH,
++  RADIUS,
++} from '../logic/engine'
++
++describe('Bubble Shooter shot physics', () => {
++  it('launches straight up when aim angle is zero', () => {
++    const bubble = launchShotBubble(createShotBubble('red'), 0, 10)
++    expect(bubble.vx).toBeCloseTo(0, 5)
++    expect(bubble.vy).toBeCloseTo(-10, 5)
++  })
++
++  it('splits velocity between axes for an angled shot', () => {
++    const angle = Math.PI / 4
++    const bubble = launchShotBubble(createShotBubble('blue'), angle, 10)
++    expect(bubble.vx).toBeGreaterThan(0)
++    expect(bubble.vy).toBeLessThan(0)
++    // Speed magnitude is preserved regardless of angle.
++    expect(Math.hypot(bubble.vx, bubble.vy)).toBeCloseTo(10, 5)
++  })
++
++  it('bounces off the left wall and reverses horizontal velocity', () => {
++    const bubble = { x: RADIUS + 2, y: 300, vx: -8, vy: -5, color: 'green' as const, radius: RADIUS }
++    const stepped = stepShotBubble(bubble, 3)
++    expect(stepped.x).toBe(RADIUS)
++    expect(stepped.vx).toBe(8)
++  })
++
++  it('bounces off the right wall and reverses horizontal velocity', () => {
++    const bubble = { x: VIRTUAL_WIDTH - RADIUS - 2, y: 300, vx: 8, vy: -5, color: 'yellow' as const, radius: RADIUS }
++    const stepped = stepShotBubble(bubble, 3)
++    expect(stepped.x).toBe(VIRTUAL_WIDTH - RADIUS)
++    expect(stepped.vx).toBe(-8)
++  })
++
++  it('moves in a straight line with no walls in the way', () => {
++    const bubble = { x: VIRTUAL_WIDTH / 2, y: 300, vx: 2, vy: -6, color: 'purple' as const, radius: RADIUS }
++    const stepped = stepShotBubble(bubble, 1)
++    expect(stepped.x).toBeCloseTo(VIRTUAL_WIDTH / 2 + 2, 5)
++    expect(stepped.y).toBeCloseTo(294, 5)
++    expect(stepped.vx).toBe(2)
++  })
++})
++
++describe('Bubble Shooter landing', () => {
++  it('attaches a bubble next to the one it hit, never to an unrelated empty slot', () => {
++    const grid = createEmptyGrid()
++    grid[0][3] = 'red'
++    // A bubble touching (0,3) from below-right must land in a slot adjacent to (0,3).
++    const bubble = {
++      x: cellX(0, 3) + RADIUS,
++      y: cellY(0) + RADIUS * 1.6,
++      vx: 0,
++      vy: -8,
++      color: 'blue' as const,
++      radius: RADIUS,
++    }
++    const landing = findLandingCell(bubble, grid)
++    expect(landing).not.toBeNull()
++    const neighbours = getNeighbors(0, 3).map(([r, c]) => `${r},${c}`)
++    expect(neighbours).toContain(`${landing!.row},${landing!.col}`)
++  })
++})
+diff --git a/packages/games/bubble-shooter/src/__tests__/simulation.test.ts b/packages/games/bubble-shooter/src/__tests__/simulation.test.ts
+new file mode 100644
+index 0000000..28b6f21
+--- /dev/null
++++ b/packages/games/bubble-shooter/src/__tests__/simulation.test.ts
+@@ -0,0 +1,64 @@
++import { describe, it, expect } from 'vitest'
++import {
++  DIFFICULTY_CONFIGS,
++  MAX_AIM_ANGLE,
++  cellExists,
++  createShotBubble,
++  findFloatingCells,
++  findLandingCell,
++  generateInitialGrid,
++  insertRowAtTop,
++  isBoardCleared,
++  isGameOver,
++  launchShotBubble,
++  randomColor,
++  activeColors,
++  settleBubble,
++  stepShotBubble,
++} from '../logic/engine'
++import type { Difficulty } from '../types'
++
++/** Plays random games end-to-end on the real engine and checks board invariants after every move. */
++describe('Bubble Shooter simulation', () => {
++  it.each<Difficulty>(['easy', 'normal', 'hard'])('never leaves a floating or misplaced bubble (%s)', (difficulty) => {
++    const config = DIFFICULTY_CONFIGS[difficulty]
++
++    for (let game = 0; game < 60; game++) {
++      let grid = generateInitialGrid(config.initialRows, config.colorCount)
++      let parity = 0
++      let shotsLeft = config.shotsPerNewRow
++
++      for (let move = 0; move < 80 && !isGameOver(grid) && !isBoardCleared(grid); move++) {
++        const angle = (Math.random() * 2 - 1) * MAX_AIM_ANGLE
++        let bubble = launchShotBubble(createShotBubble(randomColor(activeColors(grid))), angle, config.shotSpeed)
++
++        let landing = null
++        for (let step = 0; step < 4000 && !landing; step++) {
++          bubble = stepShotBubble(bubble, 0.5)
++          landing = findLandingCell(bubble, grid, parity)
++        }
++        expect(landing).not.toBeNull()
++        expect(cellExists(landing!.row, landing!.col, parity)).toBe(true)
++        expect(grid[landing!.row][landing!.col]).toBeNull()
++
++        grid = settleBubble(grid, landing!.row, landing!.col, bubble.color, parity).grid
++        expect(findFloatingCells(grid, parity).size).toBe(0)
++
++        if (--shotsLeft <= 0) {
++          const inserted = insertRowAtTop(grid, config.colorCount, parity)
++          grid = inserted.grid
++          parity = inserted.parity
++          shotsLeft = config.shotsPerNewRow
++          expect(findFloatingCells(grid, parity).size).toBe(0)
++        }
++
++        // Every stored bubble must sit in a slot that exists for the current parity.
++        grid.forEach((row, r) =>
++          row.forEach((cell, c) => {
++            if (cell) expect(cellExists(r, c, parity)).toBe(true)
++          }),
++        )
++      }
++    }
++  })
++})
+diff --git a/packages/games/bubble-shooter/src/__tests__/useBubbleShooter.test.ts b/packages/games/bubble-shooter/src/__tests__/useBubbleShooter.test.ts
+new file mode 100644
+index 0000000..4a4e3df
+--- /dev/null
++++ b/packages/games/bubble-shooter/src/__tests__/useBubbleShooter.test.ts
+@@ -0,0 +1,61 @@
++import { describe, it, expect } from 'vitest'
++import { renderHook, act, waitFor } from '@testing-library/react'
++import { useBubbleShooter } from '../hooks/useBubbleShooter'
++
++describe('useBubbleShooter', () => {
++  it('ignores shots until the game is started', () => {
++    const { result } = renderHook(() => useBubbleShooter())
++    act(() => result.current.shoot(0))
++    expect(result.current.viewRef.current.shot).toBeNull()
++    expect(result.current.gameStatus).toBe('ready')
++  })
++
++  it('lands a shot and emits an animation event', async () => {
++    const { result } = renderHook(() => useBubbleShooter())
++    const seqBefore = result.current.viewRef.current.event?.seq ?? 0
++
++    act(() => result.current.startGame())
++    expect(result.current.gameStatus).toBe('aiming')
++
++    act(() => result.current.shoot(0))
++    expect(result.current.gameStatus).toBe('shooting')
++
++    await waitFor(() => expect(result.current.gameStatus).not.toBe('shooting'), { timeout: 5000 })
++
++    const event = result.current.viewRef.current.event
++    expect(event?.kind).toBe('shot')
++    expect(event?.seq).toBeGreaterThan(seqBefore)
++    expect(event?.landed).toBeDefined()
++    expect(result.current.viewRef.current.shot).toBeNull()
++  })
++
++  it('"New game" starts a fresh board straight in aiming mode', () => {
++    const { result } = renderHook(() => useBubbleShooter())
++    act(() => result.current.startGame())
++    const oldEventSeq = result.current.viewRef.current.event?.seq ?? 0
++
++    act(() => result.current.resetGame())
++    expect(result.current.gameStatus).toBe('aiming')
++    expect(result.current.score).toBe(0)
++    expect(result.current.viewRef.current.event?.kind).toBe('reset')
++    expect(result.current.viewRef.current.event?.seq).toBeGreaterThan(oldEventSeq)
++  })
++})
++
++describe('useBubbleShooter isGameActive', () => {
++  it('is false before the first shot, true mid-game, and false again after a new game', async () => {
++    const { result } = renderHook(() => useBubbleShooter())
++    expect(result.current.isGameActive).toBe(false)
++
++    act(() => result.current.startGame())
++    // Nothing to lose yet: no shot has been resolved.
++    expect(result.current.isGameActive).toBe(false)
++
++    act(() => result.current.shoot(0))
++    await waitFor(() => expect(result.current.gameStatus).not.toBe('shooting'), { timeout: 5000 })
++    if (result.current.gameStatus === 'aiming') expect(result.current.isGameActive).toBe(true)
++
++    act(() => result.current.resetGame())
++    expect(result.current.isGameActive).toBe(false)
++  })
++})
+diff --git a/packages/games/bubble-shooter/src/components/AimControls.tsx b/packages/games/bubble-shooter/src/components/AimControls.tsx
+new file mode 100644
+index 0000000..6f4aeda
+--- /dev/null
++++ b/packages/games/bubble-shooter/src/components/AimControls.tsx
+@@ -0,0 +1,74 @@
++import { useCallback, useEffect, useRef } from 'react'
++import { Button } from '@all/ui'
++
++interface AimControlsProps {
++  disabled: boolean
++  labels: { fire: string; left: string; right: string }
++  onNudge: (direction: -1 | 1, step?: number) => void
++  onFire: () => void
++}
++
++const HOLD_STEP = 0.03
++const HOLD_INTERVAL_MS = 30
++
++/** Touch controls: hold ◀ / ▶ to sweep the aim, tap Fire to shoot. */
++export function AimControls({ disabled, labels, onNudge, onFire }: AimControlsProps) {
++  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
++
++  const stop = useCallback(() => {
++    if (timerRef.current) {
++      clearInterval(timerRef.current)
++      timerRef.current = null
++    }
++  }, [])
++
++  const start = useCallback(
++    (direction: -1 | 1) => {
++      stop()
++      onNudge(direction, HOLD_STEP)
++      timerRef.current = setInterval(() => onNudge(direction, HOLD_STEP), HOLD_INTERVAL_MS)
++    },
++    [onNudge, stop],
++  )
++
++  useEffect(() => stop, [stop])
++
++  const holdProps = (direction: -1 | 1) => ({
++    onPointerDown: (e: React.PointerEvent) => {
++      e.preventDefault()
++      start(direction)
++    },
++    onPointerUp: stop,
++    onPointerLeave: stop,
++    onPointerCancel: stop,
++    onContextMenu: (e: React.MouseEvent) => e.preventDefault(),
++  })
++
++  return (
++    <div className="bs-touch-controls">
++      <Button
++        id="bs-aim-left-btn"
++        variant="secondary"
++        size="md"
++        disabled={disabled}
++        aria-label={labels.left}
++        {...holdProps(-1)}
++      >
++        ◀
++      </Button>
++      <Button id="bs-fire-btn" className="bs-fire-btn" variant="primary" size="md" disabled={disabled} onClick={onFire}>
++        {labels.fire}
++      </Button>
++      <Button
++        id="bs-aim-right-btn"
++        variant="secondary"
++        size="md"
++        disabled={disabled}
++        aria-label={labels.right}
++        {...holdProps(1)}
++      >
++        ▶
++      </Button>
++    </div>
++  )
++}
+diff --git a/packages/games/bubble-shooter/src/components/BubbleShooterCanvas.tsx b/packages/games/bubble-shooter/src/components/BubbleShooterCanvas.tsx
+new file mode 100644
+index 0000000..71ca906
+--- /dev/null
++++ b/packages/games/bubble-shooter/src/components/BubbleShooterCanvas.tsx
+@@ -0,0 +1,680 @@
++import { useEffect, useRef, memo } from 'react'
++import type { MutableRefObject } from 'react'
++import type { BubbleColor, BubbleView, GameTheme, ShotEvent } from '../types'
++import {
++  VIRTUAL_WIDTH,
++  VIRTUAL_HEIGHT,
++  SHOOTER_Y,
++  RADIUS,
++  ROWS,
++  COLS,
++  ROW_HEIGHT,
++  DANGER_ROW,
++  aimAngleFromPoint,
++  cellExists,
++  cellX,
++  cellY,
++} from '../logic/engine'
++
++interface BubbleShooterCanvasProps {
++  viewRef: MutableRefObject<BubbleView>
++  isEink?: boolean
++  theme?: GameTheme
++  onAim: (x: number, y: number) => void
++  onShoot: (angle: number) => void
++}
++
++// Colour-blind-safe palette (Okabe-Ito based). The ids are historical names; what matters is that the hues differ in
++// lightness as well as hue, and every bubble also carries its own symbol (see drawGlyph).
++const BUBBLE_HEX: Record<BubbleColor, [string, string]> = {
++  red: ['#EE7A2E', '#C25400'], // vermilion
++  blue: ['#1F79B8', '#003F73'], // deep blue
++  green: ['#12A57C', '#00704F'], // bluish green
++  yellow: ['#F7EE7A', '#E3D62A'], // yellow
++  purple: ['#F8D5E7', '#EBA7CB'], // light pink
++  orange: ['#8FCDF2', '#3B9BD6'], // sky blue
++}
++
++const EINK_GLYPHS: BubbleColor[] = ['red', 'blue', 'green', 'yellow', 'purple', 'orange']
++
++// ─── Animation timings (ms) ───────────────────────────────
++const LAND_MOVE_MS = 80
++const LAND_PULSE_MS = 150
++const POP_MS = 300
++const ROW_SHIFT_MS = 280
++const RELOAD_MS = 200
++const TEXT_MS = 900
++const PARTICLE_MS = 420
++const FALL_GRAVITY = 1500 // px / s²
++
++const easeOutCubic = (t: number) => 1 - Math.pow(1 - Math.min(1, Math.max(0, t)), 3)
++const clamp01 = (t: number) => Math.min(1, Math.max(0, t))
++
++interface Pop {
++  x: number
++  y: number
++  color: BubbleColor
++  start: number
++  slide: boolean
++}
++interface Fall {
++  x: number
++  y: number
++  vx: number
++  vy: number
++  color: BubbleColor
++  start: number
++  slide: boolean
++}
++interface Particle {
++  x: number
++  y: number
++  vx: number
++  vy: number
++  size: number
++  color: BubbleColor
++  start: number
++  slide: boolean
++}
++interface FloatText {
++  x: number
++  y: number
++  text: string
++  start: number
++}
++
++interface Effects {
++  lastSeq: number
++  pops: Pop[]
++  falls: Fall[]
++  particles: Particle[]
++  texts: FloatText[]
++  rowShiftStart: number | null
++  land: { row: number; col: number; fromX: number; fromY: number; start: number } | null
++  reloadStart: number
++  trail: { x: number; y: number }[]
++  displayAngle: number
++  lastNow: number
++}
++
++function createEffects(): Effects {
++  return {
++    lastSeq: -1,
++    pops: [],
++    falls: [],
++    particles: [],
++    texts: [],
++    rowShiftStart: null,
++    land: null,
++    reloadStart: 0,
++    trail: [],
++    displayAngle: 0,
++    lastNow: 0,
++  }
++}
++
++function handleEvent(fx: Effects, ev: ShotEvent, now: number) {
++  fx.trail = []
++  if (ev.kind === 'reset') {
++    fx.pops = []
++    fx.falls = []
++    fx.particles = []
++    fx.texts = []
++    fx.rowShiftStart = null
++    fx.land = null
++    fx.reloadStart = now
++    return
++  }
++
++  const slide = ev.rowInserted
++  const landed = ev.landed
++  const cx = landed ? cellX(landed.row, landed.col, ev.parity) : VIRTUAL_WIDTH / 2
++  const cy = landed ? cellY(landed.row) : 0
++
++  // Row insertion shifts every cell by one row, so a snap animation would target the wrong slot.
++  fx.land =
++    landed && !ev.rowInserted
++      ? { row: landed.row, col: landed.col, fromX: landed.fromX, fromY: landed.fromY, start: now }
++      : null
++
++  for (const c of ev.matched) {
++    const x = cellX(c.row, c.col, ev.parity)
++    const y = cellY(c.row)
++    const dist = Math.hypot(x - cx, y - cy) / (2 * RADIUS)
++    const start = now + LAND_MOVE_MS + dist * 45
++    fx.pops.push({ x, y, color: c.color, start, slide })
++    for (let i = 0; i < 6; i++) {
++      const a = Math.random() * Math.PI * 2
++      const speed = 70 + Math.random() * 90
++      fx.particles.push({
++        x,
++        y,
++        vx: Math.cos(a) * speed,
++        vy: Math.sin(a) * speed - 30,
++        size: 2.5 + Math.random() * 2.5,
++        color: c.color,
++        start,
++        slide,
++      })
++    }
++  }
++
++  for (const f of ev.floating) {
++    fx.falls.push({
++      x: cellX(f.row, f.col, ev.parity),
++      y: cellY(f.row),
++      vx: (Math.random() - 0.5) * 110,
++      vy: -120 - Math.random() * 80,
++      color: f.color,
++      start: now + LAND_MOVE_MS + 140 + Math.random() * 200,
++      slide,
++    })
++  }
++
++  if (ev.gained > 0 && landed) {
++    fx.texts.push({ x: cx, y: cy - 6, text: `+${ev.gained}`, start: now + LAND_MOVE_MS + 40 })
++  }
++
++  if (ev.rowInserted) fx.rowShiftStart = now
++  fx.reloadStart = now + 30
++}
++
++interface Palette {
++  isEink: boolean
++  isDark: boolean
++  surface: string
++  surface2: string
++  border: string
++  text: string
++  textDim: string
++}
++
++/** Each colour has its own symbol so bubbles stay distinguishable without relying on colour. */
++function drawGlyph(
++  ctx: CanvasRenderingContext2D,
++  color: BubbleColor,
++  x: number,
++  y: number,
++  r: number,
++  ink: string,
++  outline?: string,
++) {
++  const idx = EINK_GLYPHS.indexOf(color)
++  const trace = () => {
++    ctx.beginPath()
++    switch (idx) {
++      case 0: // dot
++        ctx.arc(x, y, r * 0.24, 0, Math.PI * 2)
++        break
++      case 1: // ring
++        ctx.arc(x, y, r * 0.42, 0, Math.PI * 2)
++        break
++      case 2: // plus
++        ctx.moveTo(x - r * 0.46, y)
++        ctx.lineTo(x + r * 0.46, y)
++        ctx.moveTo(x, y - r * 0.46)
++        ctx.lineTo(x, y + r * 0.46)
++        break
++      case 3: // cross
++        ctx.moveTo(x - r * 0.4, y - r * 0.4)
++        ctx.lineTo(x + r * 0.4, y + r * 0.4)
++        ctx.moveTo(x + r * 0.4, y - r * 0.4)
++        ctx.lineTo(x - r * 0.4, y + r * 0.4)
++        break
++      case 4: // triangle
++        ctx.moveTo(x, y - r * 0.46)
++        ctx.lineTo(x + r * 0.46, y + r * 0.34)
++        ctx.lineTo(x - r * 0.46, y + r * 0.34)
++        ctx.closePath()
++        break
++      default: // two bars
++        ctx.moveTo(x - r * 0.44, y - r * 0.2)
++        ctx.lineTo(x + r * 0.44, y - r * 0.2)
++        ctx.moveTo(x - r * 0.44, y + r * 0.2)
++        ctx.lineTo(x + r * 0.44, y + r * 0.2)
++    }
++  }
++  const paint = (style: string, width: number) => {
++    trace()
++    ctx.lineCap = 'round'
++    ctx.lineJoin = 'round'
++    ctx.strokeStyle = style
++    ctx.fillStyle = style
++    ctx.lineWidth = width
++    ctx.stroke()
++    if (idx === 0) ctx.fill()
++  }
++  const unit = r / RADIUS
++  if (outline) paint(outline, 4.8 * unit)
++  paint(ink, 2.4 * unit)
++}
++
++function drawBubble(
++  ctx: CanvasRenderingContext2D,
++  color: BubbleColor,
++  x: number,
++  y: number,
++  r: number,
++  pal: Palette,
++  scale = 1,
++  alpha = 1,
++) {
++  if (scale <= 0 || alpha <= 0) return
++  const rr = r * scale
++  ctx.save()
++  ctx.globalAlpha = alpha
++  ctx.beginPath()
++  ctx.arc(x, y, rr * 0.92, 0, Math.PI * 2)
++
++  if (pal.isEink) {
++    ctx.fillStyle = pal.surface
++    ctx.fill()
++    ctx.strokeStyle = pal.text
++    ctx.lineWidth = 1.5
++    ctx.stroke()
++    drawGlyph(ctx, color, x, y, rr, pal.text)
++    ctx.restore()
++    return
++  }
++
++  const [light, dark] = BUBBLE_HEX[color]
++  const gradient = ctx.createRadialGradient(x - rr * 0.3, y - rr * 0.3, rr * 0.1, x, y, rr)
++  gradient.addColorStop(0, light)
++  gradient.addColorStop(1, dark)
++  ctx.fillStyle = gradient
++  ctx.fill()
++  ctx.strokeStyle = 'rgba(0,0,0,0.18)'
++  ctx.lineWidth = 1
++  ctx.stroke()
++
++  ctx.beginPath()
++  ctx.arc(x - rr * 0.32, y - rr * 0.34, rr * 0.28, 0, Math.PI * 2)
++  ctx.fillStyle = 'rgba(255,255,255,0.4)'
++  ctx.fill()
++
++  // Skip the symbol on tiny motion-trail ghosts, where it would just be noise.
++  if (rr >= RADIUS * 0.55) drawGlyph(ctx, color, x, y, rr, '#ffffff', 'rgba(0,0,0,0.6)')
++  ctx.restore()
++}
++
++function readPalette(canvas: HTMLCanvasElement, isEinkProp: boolean, theme: GameTheme): Palette {
++  const computed = window.getComputedStyle(canvas)
++  const isEink =
++    isEinkProp ||
++    theme === 'e-ink-dark' ||
++    theme === 'e-ink-light' ||
++    computed.getPropertyValue('--all-duration-fast').trim() === '0ms'
++  const isDark =
++    theme === 'dark' ||
++    theme === 'e-ink-dark' ||
++    (document.documentElement.getAttribute('data-theme') || '').includes('dark')
++  return {
++    isEink,
++    isDark,
++    surface: computed.getPropertyValue('--all-surface').trim() || (isDark ? '#0f172a' : '#f4f2ea'),
++    surface2: computed.getPropertyValue('--all-surface-2').trim() || (isDark ? '#151c28' : '#e2e8f0'),
++    border: computed.getPropertyValue('--all-border-2').trim() || (isDark ? '#334155' : '#94a3b8'),
++    text: computed.getPropertyValue('--all-text').trim() || (isDark ? '#f8fafc' : '#1e293b'),
++    textDim: computed.getPropertyValue('--all-text-dim').trim() || (isDark ? '#cbd5e1' : '#475569'),
++  }
++}
++
++function aimPath(angle: number): { x: number; y: number }[] {
++  let dx = Math.sin(angle)
++  const dy = -Math.cos(angle)
++  let x = VIRTUAL_WIDTH / 2
++  let y = SHOOTER_Y
++  const points = [{ x, y }]
++  for (let bounce = 0; bounce < 2; bounce++) {
++    const tCeiling = dy < 0 ? (y - RADIUS) / -dy : Infinity
++    const tWallLeft = dx < 0 ? (RADIUS - x) / dx : Infinity
++    const tWallRight = dx > 0 ? (VIRTUAL_WIDTH - RADIUS - x) / dx : Infinity
++    const t = Math.min(tCeiling, tWallLeft, tWallRight)
++    if (!isFinite(t) || t <= 0) break
++    x += dx * t
++    y += dy * t
++    points.push({ x, y })
++    if (t === tCeiling) break
++    dx = -dx
++  }
++  return points
++}
++
++function render(ctx: CanvasRenderingContext2D, v: BubbleView, fx: Effects, pal: Palette, now: number) {
++  // Smooth the aim so the guide and barrel glide instead of snapping between pointer events.
++  const dtMs = fx.lastNow ? Math.min(now - fx.lastNow, 50) : 16
++  fx.lastNow = now
++  fx.displayAngle += (v.aimAngle - fx.displayAngle) * (1 - Math.exp(-dtMs / 45))
++
++  ctx.clearRect(0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT)
++
++  // Background grid
++  ctx.strokeStyle = pal.isDark ? 'rgba(255,255,255,0.035)' : 'rgba(0,0,0,0.035)'
++  ctx.lineWidth = 1
++  for (let x = 0; x < VIRTUAL_WIDTH; x += 40) {
++    ctx.beginPath()
++    ctx.moveTo(x, 0)
++    ctx.lineTo(x, VIRTUAL_HEIGHT)
++    ctx.stroke()
++  }
++  for (let y = 0; y < VIRTUAL_HEIGHT; y += 40) {
++    ctx.beginPath()
++    ctx.moveTo(0, y)
++    ctx.lineTo(VIRTUAL_WIDTH, y)
++    ctx.stroke()
++  }
++
++  // Danger line
++  const dangerY = cellY(DANGER_ROW) - RADIUS
++  ctx.setLineDash([6, 5])
++  ctx.strokeStyle = pal.isEink ? pal.text : 'rgba(220, 38, 38, 0.55)'
++  ctx.lineWidth = 1.5
++  ctx.beginPath()
++  ctx.moveTo(0, dangerY)
++  ctx.lineTo(VIRTUAL_WIDTH, dangerY)
++  ctx.stroke()
++  ctx.setLineDash([])
++
++  // Row insertion slide: the whole grid glides down by one row.
++  let shiftProgress = 1
++  if (fx.rowShiftStart !== null) {
++    shiftProgress = easeOutCubic((now - fx.rowShiftStart) / ROW_SHIFT_MS)
++    if (shiftProgress >= 1) fx.rowShiftStart = null
++  }
++  const gridOffsetY = -ROW_HEIGHT * (1 - shiftProgress)
++  // Effects spawned during a row insertion were laid out in pre-shift coordinates.
++  const slideOffsetY = (slide: boolean) => (slide ? ROW_HEIGHT * shiftProgress : 0)
++
++  // Settled bubbles (with the landing snap + squash pulse on the newly attached one)
++  for (let row = 0; row < ROWS; row++) {
++    for (let col = 0; col < COLS; col++) {
++      if (!cellExists(row, col, v.rowParity)) continue
++      const color = v.grid[row][col]
++      if (!color) continue
++      let x = cellX(row, col, v.rowParity)
++      let y = cellY(row) + gridOffsetY
++      let scale = 1
++      const land = fx.land
++      if (land && land.row === row && land.col === col) {
++        const elapsed = now - land.start
++        const moveT = easeOutCubic(elapsed / LAND_MOVE_MS)
++        x = land.fromX + (x - land.fromX) * moveT
++        y = land.fromY + (y - land.fromY) * moveT
++        const pulseT = clamp01((elapsed - LAND_MOVE_MS) / LAND_PULSE_MS)
++        scale = 1 + 0.14 * Math.sin(pulseT * Math.PI)
++        if (elapsed > LAND_MOVE_MS + LAND_PULSE_MS) fx.land = null
++      }
++      drawBubble(ctx, color, x, y, RADIUS, pal, scale)
++    }
++  }
++
++  // Pops: hold at full size until their staggered start, then swell and vanish.
++  fx.pops = fx.pops.filter((p) => now - p.start < POP_MS)
++  for (const p of fx.pops) {
++    const y = p.y + slideOffsetY(p.slide)
++    const t = (now - p.start) / POP_MS
++    if (t < 0) {
++      drawBubble(ctx, p.color, p.x, y, RADIUS, pal)
++    } else {
++      const swell = t < 0.25 ? 1 + (t / 0.25) * 0.2 : 1.2 * (1 - (t - 0.25) / 0.75)
++      const alpha = t < 0.25 ? 1 : 1 - (t - 0.25) / 0.75
++      drawBubble(ctx, p.color, p.x, y, RADIUS, pal, swell, alpha)
++    }
++  }
++
++  // Bubbles cut loose from the ceiling fall away under gravity.
++  fx.falls = fx.falls.filter(
++    (f) =>
++      f.y + slideOffsetY(f.slide) < VIRTUAL_HEIGHT + RADIUS * 2 &&
++      (f.start > now || fallY(f, now) < VIRTUAL_HEIGHT + RADIUS * 2),
++  )
++  for (const f of fx.falls) {
++    const t = (now - f.start) / 1000
++    if (t < 0) {
++      drawBubble(ctx, f.color, f.x, f.y + slideOffsetY(f.slide), RADIUS, pal)
++    } else {
++      const y = fallY(f, now) + slideOffsetY(f.slide)
++      drawBubble(
++        ctx,
++        f.color,
++        f.x + f.vx * t,
++        y,
++        RADIUS,
++        pal,
++        1 - clamp01(t * 0.35) * 0.3,
++        1 - clamp01((t - 0.35) / 0.4) * 0.6,
++      )
++    }
++  }
++
++  // Pop particles
++  fx.particles = fx.particles.filter((p) => now - p.start < PARTICLE_MS)
++  for (const p of fx.particles) {
++    const t = (now - p.start) / 1000
++    if (t < 0) continue
++    const life = t / (PARTICLE_MS / 1000)
++    const x = p.x + p.vx * t
++    const y = p.y + p.vy * t + 0.5 * 500 * t * t + slideOffsetY(p.slide)
++    ctx.beginPath()
++    ctx.arc(x, y, p.size * (1 - life * 0.7), 0, Math.PI * 2)
++    ctx.globalAlpha = 1 - life
++    ctx.fillStyle = pal.isEink ? pal.text : BUBBLE_HEX[p.color][0]
++    ctx.fill()
++    ctx.globalAlpha = 1
++  }
++
++  // Flying bubble with a short fading trail
++  if (v.shot) {
++    fx.trail.push({ x: v.shot.x, y: v.shot.y })
++    if (fx.trail.length > 6) fx.trail.shift()
++    if (!pal.isEink) {
++      fx.trail.forEach((pt, i) => {
++        const k = (i + 1) / (fx.trail.length + 1)
++        drawBubble(ctx, v.shot!.color, pt.x, pt.y, RADIUS * (0.45 + 0.4 * k), pal, 1, 0.16 * k)
++      })
++    }
++    drawBubble(ctx, v.shot.color, v.shot.x, v.shot.y, RADIUS, pal)
++  } else if (fx.trail.length) {
++    fx.trail = []
++  }
++
++  // Aim guide with marching dashes
++  if (v.status === 'aiming' && !v.shot) {
++    const points = aimPath(fx.displayAngle)
++    ctx.setLineDash([4, 7])
++    ctx.lineDashOffset = -now / 45
++    ctx.strokeStyle = pal.isEink ? pal.textDim : 'rgba(148, 163, 184, 0.6)'
++    ctx.lineWidth = 2
++    ctx.lineCap = 'round'
++    ctx.beginPath()
++    ctx.moveTo(points[0].x, points[0].y)
++    for (const p of points.slice(1)) ctx.lineTo(p.x, p.y)
++    ctx.stroke()
++    ctx.setLineDash([])
++    ctx.lineDashOffset = 0
++  }
++
++  // Shooter: base + barrel that follows the aim
++  const shooterX = VIRTUAL_WIDTH / 2
++  ctx.beginPath()
++  ctx.arc(shooterX, SHOOTER_Y + RADIUS + 6, RADIUS * 1.15, Math.PI, 0)
++  ctx.fillStyle = pal.surface2
++  ctx.fill()
++  ctx.strokeStyle = pal.border
++  ctx.lineWidth = 1.5
++  ctx.stroke()
++
++  ctx.save()
++  ctx.translate(shooterX, SHOOTER_Y)
++  ctx.rotate(fx.displayAngle)
++  ctx.lineCap = 'round'
++  ctx.strokeStyle = pal.border
++  ctx.lineWidth = 12
++  ctx.beginPath()
++  ctx.moveTo(0, 6)
++  ctx.lineTo(0, -RADIUS - 6)
++  ctx.stroke()
++  ctx.strokeStyle = pal.surface2
++  ctx.lineWidth = 9
++  ctx.beginPath()
++  ctx.moveTo(0, 6)
++  ctx.lineTo(0, -RADIUS - 6)
++  ctx.stroke()
++  ctx.restore()
++
++  // Next-bubble preview and the reload slide of the queued bubble into the shooter
++  const previewR = RADIUS * 0.62
++  const previewX = shooterX + RADIUS * 2.3
++  const previewY = SHOOTER_Y + 4
++  const reloadT = easeOutCubic((now - fx.reloadStart) / RELOAD_MS)
++
++  ctx.beginPath()
++  ctx.arc(previewX, previewY, previewR + 3, 0, Math.PI * 2)
++  ctx.fillStyle = pal.surface2
++  ctx.fill()
++  drawBubble(ctx, v.nextColor, previewX, previewY, previewR, pal, reloadT)
++
++  if (!v.shot) {
++    const cx = previewX + (shooterX - previewX) * reloadT
++    const cy = previewY + (SHOOTER_Y - previewY) * reloadT
++    const r = previewR + (RADIUS - previewR) * reloadT
++    drawBubble(ctx, v.currentColor, cx, cy, r, pal)
++  }
++
++  // Pips: shots left until the next row drops (pulse red on the last one)
++  const pipY = SHOOTER_Y + 24
++  for (let i = 0; i < v.shotsPerNewRow; i++) {
++    const filled = i < v.shotsUntilNewRow
++    const warn = v.shotsUntilNewRow === 1 && filled
++    ctx.beginPath()
++    ctx.arc(14 + i * 11, pipY, warn ? 3.4 + Math.sin(now / 120) * 0.8 : 3, 0, Math.PI * 2)
++    if (filled) {
++      ctx.fillStyle = pal.isEink ? pal.text : warn ? '#ef4444' : pal.textDim
++      ctx.fill()
++    } else {
++      ctx.strokeStyle = pal.border
++      ctx.lineWidth = 1
++      ctx.stroke()
++    }
++  }
++
++  // Floating score text
++  fx.texts = fx.texts.filter((t) => now - t.start < TEXT_MS)
++  for (const t of fx.texts) {
++    const k = (now - t.start) / TEXT_MS
++    if (k < 0) continue
++    ctx.globalAlpha = 1 - k * k
++    ctx.font = '700 17px system-ui, sans-serif'
++    ctx.textAlign = 'center'
++    ctx.lineWidth = 3
++    ctx.strokeStyle = pal.isDark ? 'rgba(0,0,0,0.65)' : 'rgba(255,255,255,0.85)'
++    const ty = t.y - 34 * easeOutCubic(k)
++    ctx.strokeText(t.text, t.x, ty)
++    ctx.fillStyle = pal.isEink ? pal.text : '#fbbf24'
++    ctx.fillText(t.text, t.x, ty)
++    ctx.globalAlpha = 1
++  }
++}
++
++function fallY(f: Fall, now: number): number {
++  const t = (now - f.start) / 1000
++  return f.y + f.vy * t + 0.5 * FALL_GRAVITY * t * t
++}
++
++export const BubbleShooterCanvas = memo(function BubbleShooterCanvas({
++  viewRef,
++  isEink = false,
++  theme = 'dark',
++  onAim,
++  onShoot,
++}: BubbleShooterCanvasProps) {
++  const canvasRef = useRef<HTMLCanvasElement | null>(null)
++  const optionsRef = useRef({ isEink, theme })
++  optionsRef.current = { isEink, theme }
++
++  useEffect(() => {
++    const canvas = canvasRef.current
++    if (!canvas) return
++    const fx = createEffects()
++    let palette: Palette | null = null
++    let frame = 0
++    let raf = 0
++
++    const loop = (now: number) => {
++      raf = requestAnimationFrame(loop)
++      const ctx = canvas.getContext('2d')
++      if (!ctx) return
++
++      const dpr = window.devicePixelRatio || 1
++      const width = canvas.clientWidth || VIRTUAL_WIDTH
++      const height = canvas.clientHeight || VIRTUAL_HEIGHT
++      if (canvas.width !== Math.round(width * dpr) || canvas.height !== Math.round(height * dpr)) {
++        canvas.width = Math.round(width * dpr)
++        canvas.height = Math.round(height * dpr)
++      }
++      if (!palette || frame++ % 30 === 0) {
++        palette = readPalette(canvas, optionsRef.current.isEink, optionsRef.current.theme)
++      }
++
++      const v = viewRef.current
++      if (v.event && v.event.seq !== fx.lastSeq) {
++        fx.lastSeq = v.event.seq
++        handleEvent(fx, v.event, now)
++        if (v.event.kind === 'reset') fx.displayAngle = v.aimAngle
++      }
++
++      // Uniform scale, centred: keeps bubbles round on any screen shape.
++      const scale = Math.min(canvas.width / VIRTUAL_WIDTH, canvas.height / VIRTUAL_HEIGHT)
++      const offsetX = (canvas.width - VIRTUAL_WIDTH * scale) / 2
++      const offsetY = (canvas.height - VIRTUAL_HEIGHT * scale) / 2
++      ctx.setTransform(1, 0, 0, 1, 0, 0)
++      ctx.clearRect(0, 0, canvas.width, canvas.height)
++      ctx.save()
++      ctx.setTransform(scale, 0, 0, scale, offsetX, offsetY)
++      ctx.beginPath()
++      ctx.rect(0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT)
++      ctx.clip()
++      render(ctx, v, fx, palette, now)
++      ctx.restore()
++    }
++    raf = requestAnimationFrame(loop)
++    return () => cancelAnimationFrame(raf)
++  }, [viewRef])
++
++  const toVirtual = (e: React.PointerEvent<HTMLDivElement>) => {
++    const rect = (canvasRef.current ?? e.currentTarget).getBoundingClientRect()
++    const scale = Math.min(rect.width / VIRTUAL_WIDTH, rect.height / VIRTUAL_HEIGHT)
++    const offsetX = (rect.width - VIRTUAL_WIDTH * scale) / 2
++    const offsetY = (rect.height - VIRTUAL_HEIGHT * scale) / 2
++    return {
++      x: (e.clientX - rect.left - offsetX) / scale,
++      y: (e.clientY - rect.top - offsetY) / scale,
++    }
++  }
++
++  return (
++    <div
++      className="bs-canvas-container"
++      role="button"
++      tabIndex={0}
++      aria-label="Bubble Shooter Game Canvas"
++      onPointerMove={(e) => {
++        const p = toVirtual(e)
++        onAim(p.x, p.y)
++      }}
++      onPointerDown={(e) => {
++        if (e.pointerType === 'mouse' && e.button !== 0) return
++        e.preventDefault()
++        const p = toVirtual(e)
++        onAim(p.x, p.y)
++        // Mouse click fires. Touch/pen only aim: firing is the Fire button's job, so a stray tap never shoots.
++        if (e.pointerType === 'mouse') onShoot(aimAngleFromPoint(p.x, p.y))
++        else e.currentTarget.setPointerCapture(e.pointerId)
++      }}
++    >
++      <div className="bs-canvas-wrapper">
++        <canvas ref={canvasRef} className="bs-canvas" />
++      </div>
++    </div>
++  )
++})
+diff --git a/packages/games/bubble-shooter/src/hooks/useBubbleShooter.ts b/packages/games/bubble-shooter/src/hooks/useBubbleShooter.ts
+new file mode 100644
+index 0000000..dbd79e8
+--- /dev/null
++++ b/packages/games/bubble-shooter/src/hooks/useBubbleShooter.ts
+@@ -0,0 +1,319 @@
++import { useState, useEffect, useRef, useCallback } from 'react'
++import type { Difficulty, GameStatus, Grid, BubbleColor, BubbleView, HighScores, PopCell, ShotBubble } from '../types'
++import {
++  DIFFICULTY_CONFIGS,
++  aimAngleFromPoint,
++  clampAngle,
++  generateInitialGrid,
++  activeColors,
++  randomColor,
++  cloneGrid,
++  createShotBubble,
++  launchShotBubble,
++  stepShotBubble,
++  findLandingCell,
++  settleBubble,
++  isBoardCleared,
++  isGameOver,
++  insertRowAtTop,
++  POINTS_PER_MATCHED_BUBBLE,
++  POINTS_PER_FLOATING_BUBBLE,
++} from '../logic/engine'
++
++const SAVE_KEY = 'allgames:bubble-shooter:highscores'
++/** How long the end-of-game overlay waits so the final pop animation stays visible. */
++const END_OVERLAY_DELAY_MS = 800
++
++function loadHighScores(): HighScores {
++  try {
++    const raw = localStorage.getItem(SAVE_KEY)
++    if (raw) {
++      const parsed = JSON.parse(raw)
++      return {
++        easy: typeof parsed.easy === 'number' ? parsed.easy : 0,
++        normal: typeof parsed.normal === 'number' ? parsed.normal : 0,
++        hard: typeof parsed.hard === 'number' ? parsed.hard : 0,
++      }
++    }
++  } catch {
++    // ignore
++  }
++  return { easy: 0, normal: 0, hard: 0 }
++}
++
++function saveHighScores(scores: HighScores) {
++  try {
++    localStorage.setItem(SAVE_KEY, JSON.stringify(scores))
++  } catch {
++    // ignore
++  }
++}
++
++function createView(diff: Difficulty, seq: number, status: GameStatus): BubbleView {
++  const config = DIFFICULTY_CONFIGS[diff]
++  const grid = generateInitialGrid(config.initialRows, config.colorCount)
++  const colors = activeColors(grid)
++  return {
++    grid,
++    shot: null,
++    event: { seq, kind: 'reset', parity: 0, matched: [], floating: [], gained: 0, rowInserted: false },
++    currentColor: randomColor(colors),
++    nextColor: randomColor(colors),
++    aimAngle: 0,
++    status,
++    shotsUntilNewRow: config.shotsPerNewRow,
++    shotsPerNewRow: config.shotsPerNewRow,
++    rowParity: 0,
++  }
++}
++
++function keysToCells(keys: string[], source: Grid): PopCell[] {
++  return keys.map((k) => {
++    const [row, col] = k.split(',').map(Number)
++    return { row, col, color: source[row][col] as BubbleColor }
++  })
++}
++
++export function useBubbleShooter() {
++  const [difficulty, setDifficulty] = useState<Difficulty>('normal')
++  const [gameStatus, setGameStatus] = useState<GameStatus>('ready')
++  const [score, setScore] = useState(0)
++  const [highScores, setHighScores] = useState<HighScores>(loadHighScores)
++  const [isNewBest, setIsNewBest] = useState(false)
++  // Shots resolved in the current game; 0 again once it has ended. Drives the "leave this game?" prompts.
++  const [shotsFired, setShotsFired] = useState(0)
++  const [initialView] = useState(() => createView('normal', 0, 'ready'))
++
++  const viewRef = useRef<BubbleView>(initialView)
++  const difficultyRef = useRef<Difficulty>('normal')
++  const scoreRef = useRef(0)
++  const highScoresRef = useRef<HighScores>(highScores)
++  const seqRef = useRef(0)
++  const endTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
++
++  useEffect(() => {
++    highScoresRef.current = highScores
++  }, [highScores])
++
++  const setStatus = useCallback((status: GameStatus) => {
++    viewRef.current.status = status
++    setGameStatus(status)
++  }, [])
++
++  const clearEndTimer = useCallback(() => {
++    if (endTimerRef.current) {
++      clearTimeout(endTimerRef.current)
++      endTimerRef.current = null
++    }
++  }, [])
++
++  useEffect(() => clearEndTimer, [clearEndTimer])
++
++  const startNewGame = useCallback(
++    (diff: Difficulty, status: GameStatus) => {
++      clearEndTimer()
++      seqRef.current += 1
++      difficultyRef.current = diff
++      scoreRef.current = 0
++      viewRef.current = createView(diff, seqRef.current, status)
++      setDifficulty(diff)
++      setGameStatus(status)
++      setScore(0)
++      setIsNewBest(false)
++      setShotsFired(0)
++    },
++    [clearEndTimer],
++  )
++
++  /** "New game" / "Play again": skip the intro overlay and go straight to aiming. */
++  const resetGame = useCallback(() => {
++    startNewGame(difficultyRef.current, 'aiming')
++  }, [startNewGame])
++
++  const changeDifficulty = useCallback(
++    (diff: Difficulty) => {
++      const stillOnIntro = viewRef.current.status === 'ready'
++      startNewGame(diff, stillOnIntro ? 'ready' : 'aiming')
++    },
++    [startNewGame],
++  )
++
++  const startGame = useCallback(() => {
++    if (viewRef.current.status === 'ready') setStatus('aiming')
++  }, [setStatus])
++
++  const aimAt = useCallback((x: number, y: number) => {
++    viewRef.current.aimAngle = aimAngleFromPoint(x, y)
++  }, [])
++
++  const nudgeAim = useCallback((direction: -1 | 1, step = 0.06) => {
++    viewRef.current.aimAngle = clampAngle(viewRef.current.aimAngle + direction * step)
++  }, [])
++
++  const shoot = useCallback(
++    (angle?: number) => {
++      const v = viewRef.current
++      if (v.status !== 'aiming') return
++      if (typeof angle === 'number') v.aimAngle = clampAngle(angle)
++      const config = DIFFICULTY_CONFIGS[difficultyRef.current]
++      v.shot = launchShotBubble(createShotBubble(v.currentColor), v.aimAngle, config.shotSpeed)
++      setStatus('shooting')
++    },
++    [setStatus],
++  )
++
++  const resolveLanding = useCallback(
++    (bubble: ShotBubble, landing: { row: number; col: number }) => {
++      const v = viewRef.current
++      const config = DIFFICULTY_CONFIGS[difficultyRef.current]
++
++      const withBubble = cloneGrid(v.grid)
++      withBubble[landing.row][landing.col] = bubble.color
++
++      const { grid: settled, result } = settleBubble(v.grid, landing.row, landing.col, bubble.color, v.rowParity)
++      const matched = keysToCells(result.matched, withBubble)
++      const floating = keysToCells(result.floating, withBubble)
++      const gained = matched.length * POINTS_PER_MATCHED_BUBBLE + floating.length * POINTS_PER_FLOATING_BUBBLE
++
++      const parityBefore = v.rowParity
++      let parity = parityBefore
++      let grid = settled
++      let shots = v.shotsUntilNewRow
++      let rowInserted = false
++      let outcome: 'won' | 'lost' | null = null
++
++      if (isBoardCleared(grid)) {
++        outcome = 'won'
++      } else if (isGameOver(grid)) {
++        outcome = 'lost'
++      } else {
++        shots -= 1
++        if (shots <= 0) {
++          const inserted = insertRowAtTop(grid, config.colorCount, parity)
++          grid = inserted.grid
++          parity = inserted.parity
++          shots = config.shotsPerNewRow
++          rowInserted = true
++          if (isGameOver(grid)) outcome = 'lost'
++        }
++      }
++
++      const colors = activeColors(grid)
++      v.grid = grid
++      v.rowParity = parity
++      v.shot = null
++      v.shotsUntilNewRow = shots
++      v.currentColor = colors.includes(v.nextColor) ? v.nextColor : randomColor(colors)
++      v.nextColor = randomColor(colors)
++      seqRef.current += 1
++      v.event = {
++        seq: seqRef.current,
++        kind: 'shot',
++        parity: parityBefore,
++        landed: { row: landing.row, col: landing.col, color: bubble.color, fromX: bubble.x, fromY: bubble.y },
++        matched,
++        floating,
++        gained,
++        rowInserted,
++      }
++
++      if (gained > 0) {
++        scoreRef.current += gained
++        setScore(scoreRef.current)
++      }
++
++      if (!outcome) {
++        setShotsFired((n) => n + 1)
++        setStatus('aiming')
++        return
++      }
++      setShotsFired(0)
++
++      // Save the best score and hold the overlay back briefly so the last pop animation is visible.
++      const diff = difficultyRef.current
++      const finalScore = scoreRef.current
++      if (finalScore > (highScoresRef.current[diff] || 0)) {
++        const next = { ...highScoresRef.current, [diff]: finalScore }
++        highScoresRef.current = next
++        saveHighScores(next)
++        setHighScores(next)
++        setIsNewBest(true)
++      }
++      const finalOutcome = outcome
++      endTimerRef.current = setTimeout(() => {
++        endTimerRef.current = null
++        setStatus(finalOutcome)
++      }, END_OVERLAY_DELAY_MS)
++    },
++    [setStatus],
++  )
++
++  // Physics loop: only runs while a bubble is in flight. Sub-steps keep collisions accurate at high speed.
++  useEffect(() => {
++    if (gameStatus !== 'shooting') return
++
++    let animationFrameId: number
++    let lastTime = performance.now()
++
++    const tick = (now: number) => {
++      const v = viewRef.current
++      const flying = v.shot
++      if (!flying) return
++
++      const dt = Math.min(Math.max((now - lastTime) / (1000 / 60), 0.1), 2.5)
++      lastTime = now
++
++      const steps = Math.max(1, Math.ceil((Math.hypot(flying.vx, flying.vy) * dt) / 6))
++      let bubble = flying
++      for (let i = 0; i < steps; i++) {
++        bubble = stepShotBubble(bubble, dt / steps)
++        const landing = findLandingCell(bubble, v.grid, v.rowParity)
++        if (landing) {
++          resolveLanding(bubble, landing)
++          return
++        }
++      }
++
++      v.shot = bubble
++      animationFrameId = requestAnimationFrame(tick)
++    }
++
++    animationFrameId = requestAnimationFrame(tick)
++    return () => cancelAnimationFrame(animationFrameId)
++  }, [gameStatus, resolveLanding])
++
++  useEffect(() => {
++    const handleKeyDown = (e: KeyboardEvent) => {
++      if (e.key === 'ArrowLeft') {
++        e.preventDefault()
++        nudgeAim(-1)
++      } else if (e.key === 'ArrowRight') {
++        e.preventDefault()
++        nudgeAim(1)
++      } else if (e.key === ' ') {
++        e.preventDefault()
++        shoot()
++      }
++    }
++    window.addEventListener('keydown', handleKeyDown)
++    return () => window.removeEventListener('keydown', handleKeyDown)
++  }, [nudgeAim, shoot])
++
++  const isGameActive = (gameStatus === 'aiming' || gameStatus === 'shooting') && shotsFired > 0
++
++  return {
++    viewRef,
++    isGameActive,
++    difficulty,
++    gameStatus,
++    score,
++    bestScore: highScores[difficulty] || 0,
++    isNewBest,
++    aimAt,
++    nudgeAim,
++    shoot,
++    startGame,
++    resetGame,
++    changeDifficulty,
++  }
++}
+diff --git a/packages/games/bubble-shooter/src/i18n.ts b/packages/games/bubble-shooter/src/i18n.ts
+new file mode 100644
+index 0000000..8a8dc53
+--- /dev/null
++++ b/packages/games/bubble-shooter/src/i18n.ts
+@@ -0,0 +1,90 @@
++import type { Locale, Difficulty } from './types'
++
++export interface BubbleShooterTranslations {
++  gameTitle: string
++  score: string
++  bestScore: string
++  next: string
++  difficulty: string
++  difficultyLabels: Record<Difficulty, string>
++  readySubPrompt: string
++  wonTitle: string
++  wonSub: string
++  lostTitle: string
++  lostSub: string
++  newBest: string
++  restart: string
++  startBtn: string
++  newGame: string
++  fire: string
++  confirmTitle: string
++  confirmNewGameDesc: string
++  confirmDifficultyDesc: string
++  confirmBtn: string
++  cancelBtn: string
++  aimLeft: string
++  aimRight: string
++}
++
++export const bubbleShooterTranslations: Record<Locale, BubbleShooterTranslations> = {
++  en: {
++    gameTitle: 'Bubble Shooter',
++    score: 'Score',
++    bestScore: 'Best',
++    next: 'Next',
++    difficulty: 'Difficulty',
++    difficultyLabels: {
++      easy: 'Easy',
++      normal: 'Normal',
++      hard: 'Hard',
++    },
++    readySubPrompt: 'Aim and fire to match 3 or more bubbles of the same color',
++    wonTitle: 'Board Cleared!',
++    wonSub: 'Every bubble is gone. Great shooting.',
++    lostTitle: 'Game Over',
++    lostSub: 'The bubbles reached the bottom. Give it another go.',
++    newBest: 'New Best Score!',
++    restart: 'Play Again',
++    startBtn: 'Start',
++    newGame: 'New game',
++    fire: 'Fire',
++    confirmTitle: 'Start a new game?',
++    confirmNewGameDesc: 'A game is in progress. Starting a new one will discard the current board and score.',
++    confirmDifficultyDesc:
++      'A game is in progress. Changing the difficulty will start a new game and discard the current board and score.',
++    confirmBtn: 'New game',
++    cancelBtn: 'Cancel',
++    aimLeft: 'Aim left',
++    aimRight: 'Aim right',
++  },
++  pl: {
++    gameTitle: 'Bubble Shooter',
++    score: 'Wynik',
++    bestScore: 'Rekord',
++    next: 'Kolejna',
++    difficulty: 'Trudność',
++    difficultyLabels: {
++      easy: 'Łatwy',
++      normal: 'Normalny',
++      hard: 'Trudny',
++    },
++    readySubPrompt: 'Celuj i strzelaj, aby połączyć 3 lub więcej baniek w tym samym kolorze',
++    wonTitle: 'Plansza wyczyszczona!',
++    wonSub: 'Wszystkie bańki zniknęły. Świetne strzały!',
++    lostTitle: 'Koniec Gry',
++    lostSub: 'Bańki dotarły do dołu planszy. Spróbuj jeszcze raz.',
++    newBest: 'Nowy Rekord!',
++    restart: 'Zagraj ponownie',
++    startBtn: 'Start',
++    newGame: 'Nowa gra',
++    fire: 'Strzel',
++    confirmTitle: 'Rozpocząć nową grę?',
++    confirmNewGameDesc: 'Trwa rozgrywka. Rozpoczęcie nowej gry usunie obecną planszę i wynik.',
++    confirmDifficultyDesc:
++      'Trwa rozgrywka. Zmiana poziomu trudności rozpocznie nową grę i usunie obecną planszę i wynik.',
++    confirmBtn: 'Nowa gra',
++    cancelBtn: 'Anuluj',
++    aimLeft: 'Celuj w lewo',
++    aimRight: 'Celuj w prawo',
++  },
++}
+diff --git a/packages/games/bubble-shooter/src/index.tsx b/packages/games/bubble-shooter/src/index.tsx
+new file mode 100644
+index 0000000..42b08a0
+--- /dev/null
++++ b/packages/games/bubble-shooter/src/index.tsx
+@@ -0,0 +1,4 @@
++import { BubbleShooter } from './BubbleShooter'
++
++export { BubbleShooter, BubbleShooter as GameComponent }
++export default BubbleShooter
+diff --git a/packages/games/bubble-shooter/src/logic/engine.ts b/packages/games/bubble-shooter/src/logic/engine.ts
+new file mode 100644
+index 0000000..c7ebe6e
+--- /dev/null
++++ b/packages/games/bubble-shooter/src/logic/engine.ts
+@@ -0,0 +1,330 @@
++import type { BubbleColor, Cell, Grid, ShotBubble, Difficulty, DifficultyConfig, PopResult } from '../types'
++
++export const RADIUS = 20
++export const COLS = 8
++export const ROWS = 16
++/** Row index at (or beyond) which a settled bubble ends the game. */
++export const DANGER_ROW = 12
++
++export const VIRTUAL_WIDTH = 2 * COLS * RADIUS
++export const VIRTUAL_HEIGHT = 530
++export const SHOOTER_Y = VIRTUAL_HEIGHT - 34
++export const ROW_HEIGHT = RADIUS * Math.sqrt(3)
++
++/** Aim angle is measured from straight up; the shooter cannot point sideways or down. */
++export const MAX_AIM_ANGLE = (72 * Math.PI) / 180
++
++export function clampAngle(angle: number): number {
++  return Math.min(MAX_AIM_ANGLE, Math.max(-MAX_AIM_ANGLE, angle))
++}
++
++/** Aim angle (from straight up) for a pointer position in virtual canvas coordinates. */
++export function aimAngleFromPoint(x: number, y: number): number {
++  const dx = x - VIRTUAL_WIDTH / 2
++  const dy = SHOOTER_Y - y
++  return clampAngle(Math.atan2(dx, Math.max(1, dy)))
++}
++
++export const PALETTE: BubbleColor[] = ['red', 'blue', 'green', 'yellow', 'purple', 'orange']
++
++export const POINTS_PER_MATCHED_BUBBLE = 10
++export const POINTS_PER_FLOATING_BUBBLE = 15
++
++export const DIFFICULTY_CONFIGS: Record<Difficulty, DifficultyConfig> = {
++  easy: { initialRows: 4, colorCount: 4, shotsPerNewRow: 8, shotSpeed: 9.5 },
++  normal: { initialRows: 5, colorCount: 5, shotsPerNewRow: 6, shotSpeed: 10.5 },
++  hard: { initialRows: 6, colorCount: 6, shotsPerNewRow: 5, shotSpeed: 11.5 },
++}
++
++/**
++ * Rows alternate between "flush" and "offset" (shifted half a bubble right, one column shorter).
++ * `parity` says which kind row 0 is; inserting a row at the top flips it, so every existing
++ * bubble keeps its exact screen position and neighbours.
++ */
++export function isOffsetRow(row: number, parity = 0): boolean {
++  return (row + parity) % 2 === 1
++}
++
++/** Whether (row, col) is a real slot in the hex grid — offset rows have one fewer column. */
++export function cellExists(row: number, col: number, parity = 0): boolean {
++  if (row < 0 || row >= ROWS || col < 0) return false
++  return isOffsetRow(row, parity) ? col < COLS - 1 : col < COLS
++}
++
++export function cellX(row: number, col: number, parity = 0): number {
++  return RADIUS + col * 2 * RADIUS + (isOffsetRow(row, parity) ? RADIUS : 0)
++}
++
++export function cellY(row: number): number {
++  return RADIUS + row * ROW_HEIGHT
++}
++
++export function createEmptyGrid(): Grid {
++  return Array.from({ length: ROWS }, () => Array<Cell>(COLS).fill(null))
++}
++
++export function cloneGrid(grid: Grid): Grid {
++  return grid.map((row) => row.slice())
++}
++
++function key(row: number, col: number): string {
++  return `${row},${col}`
++}
++
++/** Neighbor offsets for a hex grid laid out with alternating-offset ("odd-r") rows. */
++export function getNeighbors(row: number, col: number, parity = 0): [number, number][] {
++  const evenRowOffsets: [number, number][] = [
++    [0, -1],
++    [0, 1],
++    [-1, -1],
++    [-1, 0],
++    [1, -1],
++    [1, 0],
++  ]
++  const oddRowOffsets: [number, number][] = [
++    [0, -1],
++    [0, 1],
++    [-1, 0],
++    [-1, 1],
++    [1, 0],
++    [1, 1],
++  ]
++  const offsets = isOffsetRow(row, parity) ? oddRowOffsets : evenRowOffsets
++  return offsets.map(([dr, dc]): [number, number] => [row + dr, col + dc]).filter(([r, c]) => cellExists(r, c, parity))
++}
++
++export function randomColor(active: BubbleColor[]): BubbleColor {
++  return active[Math.floor(Math.random() * active.length)]
++}
++
++export function generateInitialGrid(initialRows: number, colorCount: number): Grid {
++  const grid = createEmptyGrid()
++  const colors = PALETTE.slice(0, colorCount)
++  for (let row = 0; row < initialRows; row++) {
++    for (let col = 0; col < COLS; col++) {
++      if (cellExists(row, col)) {
++        grid[row][col] = randomColor(colors)
++      }
++    }
++  }
++  return grid
++}
++
++export function activeColors(grid: Grid): BubbleColor[] {
++  const found = new Set<BubbleColor>()
++  for (const row of grid) {
++    for (const cell of row) {
++      if (cell) found.add(cell)
++    }
++  }
++  return found.size > 0 ? Array.from(found) : PALETTE.slice(0, 3)
++}
++
++/** BFS over same-colored, orthogonally-connected bubbles starting at (row, col). */
++export function findConnectedGroup(grid: Grid, row: number, col: number, parity = 0): Set<string> {
++  const color = grid[row]?.[col]
++  const visited = new Set<string>()
++  if (!color) return visited
++
++  const queue: [number, number][] = [[row, col]]
++  visited.add(key(row, col))
++
++  while (queue.length > 0) {
++    const [r, c] = queue.shift()!
++    for (const [nr, nc] of getNeighbors(r, c, parity)) {
++      const k = key(nr, nc)
++      if (visited.has(k)) continue
++      if (grid[nr][nc] === color) {
++        visited.add(k)
++        queue.push([nr, nc])
++      }
++    }
++  }
++  return visited
++}
++
++/** Any filled bubble not connected — directly or through a chain of neighbors — to the ceiling row. */
++export function findFloatingCells(grid: Grid, parity = 0): Set<string> {
++  const anchored = new Set<string>()
++  const queue: [number, number][] = []
++
++  for (let col = 0; col < COLS; col++) {
++    if (grid[0][col]) {
++      queue.push([0, col])
++      anchored.add(key(0, col))
++    }
++  }
++
++  while (queue.length > 0) {
++    const [r, c] = queue.shift()!
++    for (const [nr, nc] of getNeighbors(r, c, parity)) {
++      const k = key(nr, nc)
++      if (anchored.has(k)) continue
++      if (grid[nr][nc]) {
++        anchored.add(k)
++        queue.push([nr, nc])
++      }
++    }
++  }
++
++  const floating = new Set<string>()
++  for (let row = 0; row < ROWS; row++) {
++    for (let col = 0; col < COLS; col++) {
++      if (grid[row][col] && !anchored.has(key(row, col))) {
++        floating.add(key(row, col))
++      }
++    }
++  }
++  return floating
++}
++
++export function removeCells(grid: Grid, cells: Set<string>): Grid {
++  const next = cloneGrid(grid)
++  for (const k of cells) {
++    const [r, c] = k.split(',').map(Number)
++    next[r][c] = null
++  }
++  return next
++}
++
++/** Settles a bubble at (row, col), then resolves matches and floating bubbles it triggers. */
++export function settleBubble(
++  grid: Grid,
++  row: number,
++  col: number,
++  color: BubbleColor,
++  parity = 0,
++): { grid: Grid; result: PopResult } {
++  let next = cloneGrid(grid)
++  next[row][col] = color
++
++  const group = findConnectedGroup(next, row, col, parity)
++  let matched: string[] = []
++  if (group.size >= 3) {
++    matched = Array.from(group)
++    next = removeCells(next, group)
++  }
++
++  const floatingSet = findFloatingCells(next, parity)
++  const floating = Array.from(floatingSet)
++  if (floating.length > 0) {
++    next = removeCells(next, floatingSet)
++  }
++
++  return { grid: next, result: { matched, floating } }
++}
++
++export function isBoardCleared(grid: Grid): boolean {
++  return grid.every((row) => row.every((cell) => cell === null))
++}
++
++export function isGameOver(grid: Grid): boolean {
++  for (let row = DANGER_ROW; row < ROWS; row++) {
++    if (grid[row].some((cell) => cell !== null)) return true
++  }
++  return false
++}
++
++/**
++ * Shifts every row down by one and inserts a fresh row at the ceiling. The row parity flips so existing
++ * bubbles keep their screen position and adjacency; the caller must store the returned parity.
++ */
++export function insertRowAtTop(grid: Grid, colorCount: number, parity = 0): { grid: Grid; parity: number } {
++  const nextParity = 1 - parity
++  const colors = PALETTE.slice(0, colorCount)
++  const newRow = Array<Cell>(COLS)
++    .fill(null)
++    .map((_, col) => (cellExists(0, col, nextParity) ? randomColor(colors) : null))
++  return { grid: [newRow, ...grid.slice(0, ROWS - 1)], parity: nextParity }
++}
++
++export function createShotBubble(color: BubbleColor): ShotBubble {
++  return { x: VIRTUAL_WIDTH / 2, y: SHOOTER_Y, vx: 0, vy: 0, color, radius: RADIUS }
++}
++
++export function launchShotBubble(bubble: ShotBubble, angle: number, speed: number): ShotBubble {
++  return { ...bubble, vx: Math.sin(angle) * speed, vy: -Math.cos(angle) * speed }
++}
++
++/** Advances the flying bubble by dt frames, bouncing off the side walls. */
++export function stepShotBubble(bubble: ShotBubble, dt: number): ShotBubble {
++  let x = bubble.x + bubble.vx * dt
++  const y = bubble.y + bubble.vy * dt
++  let vx = bubble.vx
++
++  if (x - bubble.radius < 0) {
++    x = bubble.radius
++    vx = -vx
++  } else if (x + bubble.radius > VIRTUAL_WIDTH) {
++    x = VIRTUAL_WIDTH - bubble.radius
++    vx = -vx
++  }
++
++  return { ...bubble, x, y, vx }
++}
++
++function distance(x1: number, y1: number, x2: number, y2: number): number {
++  return Math.hypot(x1 - x2, y1 - y2)
++}
++
++/** Finds the empty grid slot closest to (x, y). */
++export function nearestEmptyCell(grid: Grid, x: number, y: number, parity = 0): { row: number; col: number } | null {
++  let best: { row: number; col: number } | null = null
++  let bestDist = Infinity
++
++  const approxRow = Math.max(0, Math.round((y - RADIUS) / ROW_HEIGHT))
++  const rowSpan = 2
++
++  for (let row = Math.max(0, approxRow - rowSpan); row <= Math.min(ROWS - 1, approxRow + rowSpan); row++) {
++    for (let col = 0; col < COLS; col++) {
++      if (!cellExists(row, col, parity) || grid[row][col] !== null) continue
++      const d = distance(x, y, cellX(row, col, parity), cellY(row))
++      if (d < bestDist) {
++        bestDist = d
++        best = { row, col }
++      }
++    }
++  }
++  return best
++}
++
++/** The empty slot next to (row, col) that is closest to (x, y) — where a bubble that hit it should attach. */
++function nearestEmptyNeighbor(grid: Grid, row: number, col: number, x: number, y: number, parity: number) {
++  let best: { row: number; col: number } | null = null
++  let bestDist = Infinity
++  for (const [r, c] of getNeighbors(row, col, parity)) {
++    if (grid[r][c] !== null) continue
++    const d = distance(x, y, cellX(r, c, parity), cellY(r))
++    if (d < bestDist) {
++      bestDist = d
++      best = { row: r, col: c }
++    }
++  }
++  return best
++}
++
++/**
++ * Checks whether the flying bubble has reached the ceiling or touched a settled bubble.
++ * Returns the empty grid slot it should snap into, or null if it's still flying free.
++ */
++export function findLandingCell(bubble: ShotBubble, grid: Grid, parity = 0): { row: number; col: number } | null {
++  if (bubble.y - bubble.radius <= 0) {
++    return nearestEmptyCell(grid, bubble.x, RADIUS, parity)
++  }
++
++  const approxRow = Math.max(0, Math.round((bubble.y - RADIUS) / ROW_HEIGHT))
++  for (let row = Math.max(0, approxRow - 2); row <= Math.min(ROWS - 1, approxRow + 2); row++) {
++    for (let col = 0; col < COLS; col++) {
++      if (!cellExists(row, col, parity) || grid[row][col] === null) continue
++      const d = distance(bubble.x, bubble.y, cellX(row, col, parity), cellY(row))
++      if (d <= bubble.radius * 2 * 0.96) {
++        // Attach next to the bubble we actually hit, so the new bubble is always connected to it.
++        return (
++          nearestEmptyNeighbor(grid, row, col, bubble.x, bubble.y, parity) ??
++          nearestEmptyCell(grid, bubble.x, bubble.y, parity)
++        )
++      }
++    }
++  }
++  return null
++}
+diff --git a/packages/games/bubble-shooter/src/metadata.tsx b/packages/games/bubble-shooter/src/metadata.tsx
+new file mode 100644
+index 0000000..52c06fa
+--- /dev/null
++++ b/packages/games/bubble-shooter/src/metadata.tsx
+@@ -0,0 +1,49 @@
++import React from 'react'
++export interface GameMetadata {
++  slug: string
++  name: { en: string; pl: string }
++  description: { en: string; pl: string }
++  icon: React.ReactNode
++  tags: { en: string[]; pl: string[] }
++  minPlayers: 1 | 2
++  maxPlayers: 1 | 2
++}
++
++function BubbleIcon() {
++  return (
++    <svg
++      width="28"
++      height="28"
++      viewBox="0 0 24 24"
++      fill="none"
++      stroke="currentColor"
++      strokeWidth="1.8"
++      strokeLinecap="round"
++      strokeLinejoin="round"
++      style={{ display: 'inline-block' }}
++    >
++      <circle cx="9" cy="10" r="6" />
++      <circle cx="17.5" cy="16" r="3.2" />
++      <circle cx="7" cy="19" r="1.6" />
++    </svg>
++  )
++}
++
++export const metadata: GameMetadata = {
++  slug: 'bubble-shooter',
++  name: {
++    en: 'Bubble Shooter',
++    pl: 'Bubble Shooter',
++  },
++  description: {
++    en: 'Aim, bounce off the walls, and match 3+ colored bubbles before they reach the bottom.',
++    pl: 'Celuj, odbijaj się od ścian i łącz 3 lub więcej baniek w tym samym kolorze, zanim dotrą do dołu.',
++  },
++  icon: <BubbleIcon />,
++  tags: {
++    en: ['1 player', 'arcade', 'puzzle'],
++    pl: ['1 gracz', 'zręcznościowa', 'logiczna'],
++  },
++  minPlayers: 1,
++  maxPlayers: 1,
++}
+diff --git a/packages/games/bubble-shooter/src/styles/bubble-shooter.css b/packages/games/bubble-shooter/src/styles/bubble-shooter.css
+new file mode 100644
+index 0000000..7266948
+--- /dev/null
++++ b/packages/games/bubble-shooter/src/styles/bubble-shooter.css
+@@ -0,0 +1,68 @@
++/* ─── Canvas Container & Wrapper (Aspect Preserving) ───────── */
++.bs-canvas-container {
++  width: 100%;
++  height: 100%;
++  display: flex;
++  align-items: center;
++  justify-content: center;
++  outline: none;
++  cursor: crosshair;
++  overflow: hidden;
++  -webkit-tap-highlight-color: transparent;
++  touch-action: none;
++}
++
++.bs-canvas-wrapper {
++  position: relative;
++  width: 100%;
++  height: 100%;
++  display: block;
++  overflow: hidden;
++  cursor: crosshair;
++  touch-action: none;
++  -webkit-touch-callout: none;
++  -webkit-tap-highlight-color: transparent;
++}
++
++.bs-canvas {
++  width: 100%;
++  height: 100%;
++  max-width: 100%;
++  max-height: 100%;
++  object-fit: contain;
++  display: block;
++}
++
++/* ─── Controls Bar ────────────────────────────────────────── */
++.bs-footer-bar {
++  flex-wrap: wrap;
++  justify-content: center;
++}
++
++/* On-screen aim/fire buttons: only on touch devices, where there is no mouse to click with. */
++.bs-touch-controls {
++  display: none;
++  align-items: center;
++  justify-content: center;
++  gap: var(--all-space-3, 0.75rem);
++  width: 100%;
++  margin-bottom: var(--all-space-2, 0.5rem);
++  touch-action: none;
++  user-select: none;
++  -webkit-user-select: none;
++}
++
++.bs-touch-controls .all-btn {
++  touch-action: none;
++}
++
++.bs-fire-btn {
++  flex: 1;
++  max-width: 11rem;
++}
++
++@media (pointer: coarse) {
++  .bs-touch-controls {
++    display: flex;
++  }
++}
+diff --git a/packages/games/bubble-shooter/src/types.ts b/packages/games/bubble-shooter/src/types.ts
+new file mode 100644
+index 0000000..ef38642
+--- /dev/null
++++ b/packages/games/bubble-shooter/src/types.ts
+@@ -0,0 +1,88 @@
++import type React from 'react'
++
++export type Locale = 'en' | 'pl'
++
++export type Difficulty = 'easy' | 'normal' | 'hard'
++
++export type GameStatus = 'ready' | 'aiming' | 'shooting' | 'won' | 'lost'
++
++export type BubbleColor = 'red' | 'blue' | 'green' | 'yellow' | 'purple' | 'orange'
++
++/** A grid cell: either empty (null) or holding a settled bubble of a given color. */
++export type Cell = BubbleColor | null
++
++/** ROWS x COLS matrix of settled bubbles. Odd rows have one fewer usable column (hex offset). */
++export type Grid = Cell[][]
++
++/** The bubble currently flying from the shooter toward the grid. */
++export interface ShotBubble {
++  x: number
++  y: number
++  vx: number
++  vy: number
++  color: BubbleColor
++  radius: number
++}
++
++export interface DifficultyConfig {
++  initialRows: number
++  colorCount: number
++  shotsPerNewRow: number
++  shotSpeed: number
++}
++
++export interface HighScores {
++  easy: number
++  normal: number
++  hard: number
++}
++
++export type GameTheme = 'dark' | 'light' | 'e-ink-light' | 'e-ink-dark'
++
++export interface GameComponentProps {
++  setHeader?: (content: React.ReactNode) => void
++  setIsActive?: (active: boolean) => void
++  locale?: Locale
++  isEink?: boolean
++  theme?: GameTheme
++}
++
++/** Cleared this shot: matched color group plus any bubbles left floating (unsupported). */
++export interface PopResult {
++  matched: string[]
++  floating: string[]
++}
++
++export interface PopCell {
++  row: number
++  col: number
++  color: BubbleColor
++}
++
++/** Emitted by the game logic after each shot (or reset) so the canvas can play matching animations. */
++export interface ShotEvent {
++  seq: number
++  kind: 'reset' | 'shot'
++  /** Row parity the cell coordinates below refer to (i.e. before any row insertion this shot). */
++  parity: number
++  landed?: PopCell & { fromX: number; fromY: number }
++  matched: PopCell[]
++  floating: PopCell[]
++  gained: number
++  rowInserted: boolean
++}
++
++/** Mutable game snapshot read by the canvas every frame (kept out of React state to avoid per-frame renders). */
++export interface BubbleView {
++  grid: Grid
++  shot: ShotBubble | null
++  event: ShotEvent | null
++  currentColor: BubbleColor
++  nextColor: BubbleColor
++  aimAngle: number
++  status: GameStatus
++  shotsUntilNewRow: number
++  shotsPerNewRow: number
++  /** Whether row 0 is flush (0) or offset (1); flips every time a row is inserted at the top. */
++  rowParity: number
++}

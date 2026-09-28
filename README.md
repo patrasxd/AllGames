@@ -95,6 +95,7 @@ AllGames features a growing collection of browser-based mini-games, spanning arc
 | :----------------- | :-------------- | :----------- | :---------------- | :----------------------------------------------------------------------------------------------------- |
 | **Wing Rush**      | `wing-rush`     | 1P           | `FullBleedLayout` | Minimalist physics arcade. Tap to flap wings, weave through architectural gates, and beat high scores. |
 | **Artillery Duel** | `artillery`     | 1P / 2P      | `FullBleedLayout` | Tactical ballistic tank duel with procedural destructible clay terrain, wind physics, and computer AI. |
+| **Bubble Shooter** | `bubble-shooter` | 1P | `FullBleedLayout` | Aim, bounce off the walls, and match 3+ colored bubbles before the hex grid reaches the bottom. |
 | **Crystal Match**  | `crystal-match` | 1P           | `BoardLayout`     | Cascading match-3 puzzle saga. Swap crystals, trigger explosive combos, and beat tiered level targets. |
 | **Tic-Tac-Toe**    | `tic-tac-toe`   | 1P / 2P      | `BoardLayout`     | Classic 3x3 grid with local 2-player mode and 3-difficulty Minimax AI.                                 |
 | **Snake**          | `snake`         | 1P           | `BoardLayout`     | Retro snake with 3 map layouts (Border, Open, Obstacles), speed presets, and high score tracking.      |

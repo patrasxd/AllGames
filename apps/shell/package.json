@@ -12,6 +12,7 @@
     "@all/ui": "file:../../AllUI",
     "@allgames/2048": "*",
     "@allgames/artillery": "*",
+    "@allgames/bubble-shooter": "*",
     "@allgames/checkers": "*",
     "@allgames/chess": "*",
     "@allgames/crystal-match": "*",

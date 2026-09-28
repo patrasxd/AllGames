@@ -15,6 +15,7 @@ import { metadata as solitaireMetadata } from '@allgames/solitaire/metadata'
 import { metadata as crystalMatchMetadata } from '@allgames/crystal-match/metadata'
 import { metadata as wingRushMetadata } from '@allgames/wing-rush/metadata'
 import { metadata as artilleryMetadata } from '@allgames/artillery/metadata'
+import { metadata as bubbleShooterMetadata } from '@allgames/bubble-shooter/metadata'
 
 export interface GameRegistryEntry {
   metadata: GameMetadata
@@ -33,6 +34,10 @@ export const GAMES: GameRegistryEntry[] = [
   {
     metadata: wingRushMetadata,
     load: lazyGame(() => import('@allgames/wing-rush')),
+  },
+  {
+    metadata: bubbleShooterMetadata,
+    load: lazyGame(() => import('@allgames/bubble-shooter')),
   },
   {
     metadata: crystalMatchMetadata,
