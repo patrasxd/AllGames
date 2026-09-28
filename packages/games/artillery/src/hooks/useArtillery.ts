@@ -65,7 +65,7 @@ export function useArtillery({ isEink = false }: { isEink?: boolean } = {}) {
   const [difficulty, setDifficulty] = useState<DifficultyLevel>('medium')
   const [phase, setPhase] = useState<GamePhase>('aiming')
   const [currentTurn, setCurrentTurn] = useState<PlayerId>('p1')
-  const [wind, setWind] = useState<number>(() => generateWind())
+  const [wind, setWind] = useState<number>(() => generateWind(Math.random, 'medium'))
   const [winner, setWinner] = useState<PlayerId | 'draw' | null>(null)
   const [isAiThinking, setIsAiThinking] = useState<boolean>(false)
   const [stats, setStats] = useState<ArtilleryStats>(loadSavedStats)
@@ -112,8 +112,8 @@ export function useArtillery({ isEink = false }: { isEink?: boolean } = {}) {
   const startMatch = useCallback(
     (newMode = mode, newDiff = difficulty) => {
       const newTerrain = generateTerrain()
-      const newTanks = createInitialTanks(newTerrain)
-      const newWind = generateWind()
+      const newTanks = createInitialTanks(newTerrain, Math.random, newDiff)
+      const newWind = generateWind(Math.random, newDiff)
 
       engineRef.current.terrain = newTerrain
       engineRef.current.tanks = newTanks
@@ -568,8 +568,7 @@ export function useArtillery({ isEink = false }: { isEink?: boolean } = {}) {
             }
 
             // Projectiles flying far beyond outer boundaries vanish into the distance
-            const isOutOfBounds =
-              proj.x < -1000 || proj.x >= CANVAS_WIDTH + 1000 || proj.y >= CANVAS_HEIGHT + 300
+            const isOutOfBounds = proj.x < -1000 || proj.x >= CANVAS_WIDTH + 1000 || proj.y >= CANVAS_HEIGHT + 300
 
             if (!isOutOfBounds) {
               remainingProjectiles.push(proj)
@@ -667,7 +666,7 @@ export function useArtillery({ isEink = false }: { isEink?: boolean } = {}) {
           } else {
             // Next turn
             const nextTurn = engineRef.current.currentTurn === 'p1' ? 'p2' : 'p1'
-            const newWind = generateWind()
+            const newWind = generateWind(Math.random, engineRef.current.difficulty)
 
             // Replenish fuel
             engineRef.current.tanks = {

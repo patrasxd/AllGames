@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useArtillery } from './hooks/useArtillery'
 import { ArtilleryCanvas } from './components/ArtilleryCanvas'
 import { ArtilleryFooterBar } from './components/ArtilleryHUD'
-import type { GameComponentProps, GameMode } from './types'
+import type { GameComponentProps, GameMode, DifficultyLevel } from './types'
 import { artilleryTranslations } from './i18n'
 import { FullBleedLayout, ConfirmDialog, ModeSelect, StatsHeader } from '@all/ui'
 import { GameResultOverlay, ComputerIcon, TwoPlayersIcon } from '@allgames/ui'
@@ -21,12 +21,13 @@ export function Artillery({
 
   const [hasChosenMode, setHasChosenMode] = useState<boolean>(false)
   const [pendingConfirm, setPendingConfirm] = useState<'mode' | 'newGame' | null>(null)
+  // Difficulty picked while a match is running; applied (with a fresh map) once the player confirms.
+  const [pendingDifficulty, setPendingDifficulty] = useState<DifficultyLevel | null>(null)
 
   const {
     matchId,
     mode,
     difficulty,
-    setDifficulty,
     phase,
     currentTurn,
     wind,
@@ -124,16 +125,29 @@ export function Artillery({
     }
   }
 
+  // Difficulty sets the wind range and how far apart the tanks spawn, so changing it needs a fresh map.
+  const handleRequestDifficulty = (next: DifficultyLevel) => {
+    if (next === difficulty) return
+    if (isGameInProgress) {
+      setPendingDifficulty(next)
+      setPendingConfirm('newGame')
+    } else {
+      startMatch(mode, next)
+    }
+  }
+
   const handleConfirmAction = () => {
     if (pendingConfirm === 'mode') {
       setHasChosenMode(false)
     } else if (pendingConfirm === 'newGame') {
-      startMatch(mode, difficulty)
+      startMatch(mode, pendingDifficulty ?? difficulty)
     }
+    setPendingDifficulty(null)
     setPendingConfirm(null)
   }
 
   const handleCancelAction = () => {
+    setPendingDifficulty(null)
     setPendingConfirm(null)
   }
 
@@ -197,7 +211,7 @@ export function Artillery({
               <ArtilleryFooterBar
                 t={t}
                 difficulty={difficulty}
-                onDifficultyChange={setDifficulty}
+                onDifficultyChange={handleRequestDifficulty}
                 onChangeMode={handleRequestChangeMode}
                 onNewGame={handleRequestNewGame}
               />

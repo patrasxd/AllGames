@@ -74,8 +74,8 @@ export function generateTerrain(width = CANVAS_WIDTH, height = CANVAS_HEIGHT, se
   const freq3 = (Math.PI * 14.5) / (width * (0.85 + rand() * 0.3))
 
   const amp1 = 105 + rand() * 32 // grand mountain massif
-  const amp2 = 46 + rand() * 22  // secondary ridges
-  const amp3 = 18 + rand() * 10  // rugged crags
+  const amp2 = 46 + rand() * 22 // secondary ridges
+  const amp3 = 18 + rand() * 10 // rugged crags
 
   const phase1 = rand() * Math.PI * 2
   const phase2 = rand() * Math.PI * 2
@@ -109,9 +109,27 @@ export function generateTerrain(width = CANVAS_WIDTH, height = CANVAS_HEIGHT, se
   return { width, height, heights }
 }
 
-/** Generates random horizontal wind level between -3 and +3 (0 = calm, 1 = light, 2 = moderate, 3 = strong) */
-export function generateWind(rand = Math.random): number {
-  const levels = [-3, -2, -1, 0, 1, 2, 3]
+/** Wind levels a match can roll per difficulty (0 = calm, 1 = light, 2 = moderate, 3 = strong; sign = direction). */
+export const WIND_LEVELS: Record<DifficultyLevel, number[]> = {
+  easy: [0],
+  medium: [-1, 0, 1],
+  hard: [-3, -2, -1, 0, 1, 2, 3],
+}
+
+/**
+ * How far in from each map edge a tank may spawn: player 1 within [min, max] of the left edge and
+ * player 2 within [min, max] of the right edge. Bigger insets put the tanks closer together.
+ * `hard` keeps the original wide-open layout.
+ */
+export const TANK_SPAWN_INSET: Record<DifficultyLevel, { min: number; max: number }> = {
+  easy: { min: 520, max: 700 }, // close: roughly 400-760 px apart on the default map
+  medium: { min: 300, max: 480 }, // a bit farther: roughly 840-1200 px apart
+  hard: { min: 100, max: 280 }, // far: roughly 1240-1600 px apart
+}
+
+/** Generates a random horizontal wind level allowed for the given difficulty. */
+export function generateWind(rand = Math.random, difficulty: DifficultyLevel = 'hard'): number {
+  const levels = WIND_LEVELS[difficulty]
   return levels[Math.floor(rand() * levels.length)]
 }
 
@@ -151,12 +169,17 @@ export function carveCrater(terrain: TerrainData, cx: number, cy: number, radius
 }
 
 /** Initialize starting tanks with wide separation across stable opposite flank plateaus */
-export function createInitialTanks(terrain: TerrainData, rand = Math.random): Record<PlayerId, Tank> {
+export function createInitialTanks(
+  terrain: TerrainData,
+  rand = Math.random,
+  difficulty: DifficultyLevel = 'hard',
+): Record<PlayerId, Tank> {
+  const inset = TANK_SPAWN_INSET[difficulty]
   // Search the entire flank zones for the best stable, flat plateau
   let bestP1X = 160
   let minSlopeP1 = 999
-  const p1Min = 100
-  const p1Max = 280
+  const p1Min = inset.min
+  const p1Max = inset.max
 
   // Find the top candidates with minimal slope
   const p1Candidates: number[] = []
@@ -177,8 +200,8 @@ export function createInitialTanks(terrain: TerrainData, rand = Math.random): Re
 
   let bestP2X = terrain.width - 160
   let minSlopeP2 = 999
-  const p2Min = terrain.width - 280
-  const p2Max = terrain.width - 100
+  const p2Min = terrain.width - inset.max
+  const p2Max = terrain.width - inset.min
 
   const p2Candidates: number[] = []
   for (let x = p2Min; x <= p2Max; x++) {
