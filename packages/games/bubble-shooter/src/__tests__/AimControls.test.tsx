@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen, fireEvent, act } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import { AimControls } from '../components/AimControls'
 
 const labels = { fire: 'Fire', left: 'Aim left', right: 'Aim right' }
@@ -15,27 +15,33 @@ describe('AimControls', () => {
     expect(screen.getByRole('button', { name: 'Fire' })).toBeDisabled()
   })
 
-  it('keeps sweeping the aim while an arrow is held, and stops on release', () => {
-    vi.useFakeTimers()
+  it('nudges by one step per arrow tap', () => {
     const onNudge = vi.fn()
     render(<AimControls disabled={false} labels={labels} onNudge={onNudge} onFire={vi.fn()} />)
-    const left = screen.getByRole('button', { name: 'Aim left' })
+    const right = screen.getByRole('button', { name: 'Aim right' })
 
-    fireEvent.pointerDown(left)
-    expect(onNudge).toHaveBeenLastCalledWith(-1, expect.any(Number))
-    const afterPress = onNudge.mock.calls.length
+    fireEvent.click(right)
+    expect(onNudge).toHaveBeenCalledTimes(1)
+    expect(onNudge).toHaveBeenLastCalledWith(1)
+    fireEvent.click(right)
+    expect(onNudge).toHaveBeenCalledTimes(2)
+    expect(onNudge).toHaveBeenLastCalledWith(1)
+  })
 
-    act(() => {
-      vi.advanceTimersByTime(150)
-    })
-    expect(onNudge.mock.calls.length).toBeGreaterThan(afterPress)
+  it('keeps pointer events on the control dock from reaching the game canvas', () => {
+    const onCanvasPointerDown = vi.fn()
+    const onCanvasPointerMove = vi.fn()
+    render(
+      <div onPointerDown={onCanvasPointerDown} onPointerMove={onCanvasPointerMove}>
+        <AimControls disabled={false} labels={labels} onNudge={vi.fn()} onFire={vi.fn()} />
+      </div>,
+    )
 
-    fireEvent.pointerUp(left)
-    const afterRelease = onNudge.mock.calls.length
-    act(() => {
-      vi.advanceTimersByTime(300)
-    })
-    expect(onNudge.mock.calls.length).toBe(afterRelease)
-    vi.useRealTimers()
+    const right = screen.getByRole('button', { name: 'Aim right' })
+    fireEvent.pointerDown(right)
+    fireEvent.pointerMove(right)
+
+    expect(onCanvasPointerDown).not.toHaveBeenCalled()
+    expect(onCanvasPointerMove).not.toHaveBeenCalled()
   })
 })

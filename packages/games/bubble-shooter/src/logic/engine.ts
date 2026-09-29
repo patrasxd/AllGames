@@ -1,10 +1,10 @@
 import type { BubbleColor, Cell, Grid, ShotBubble, Difficulty, DifficultyConfig, PopResult } from '../types'
 
-export const RADIUS = 20
-export const COLS = 8
-export const ROWS = 16
+export const RADIUS = 16
+export const COLS = 10
+export const ROWS = 20
 /** Row index at (or beyond) which a settled bubble ends the game. */
-export const DANGER_ROW = 12
+export const DANGER_ROW = 15
 
 export const VIRTUAL_WIDTH = 2 * COLS * RADIUS
 export const VIRTUAL_HEIGHT = 530

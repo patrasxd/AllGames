@@ -10,12 +10,17 @@ describe('BubbleShooter Component Integration', () => {
 
     expect(document.querySelector('.all-fullbleed-layout')).toBeInTheDocument()
 
+    // Footer holds only meta-game controls (New Game, difficulty), never gameplay controls — same
+    // convention as every other game in the suite (e.g. Artillery's footer vs. its on-canvas fire dock).
     const footer = document.querySelector('.all-fullbleed-layout__footer')
     expect(footer).toBeInTheDocument()
     expect(footer?.querySelector('.all-pill-group')).toBeInTheDocument()
+    expect(footer?.querySelector('.bs-touch-dock')).not.toBeInTheDocument()
 
+    // The aim/fire dock lives inside the canvas wrapper, floating over the game, not in the footer.
     const canvasWrapper = document.querySelector('.bs-canvas-wrapper')
     expect(canvasWrapper).toBeInTheDocument()
+    expect(canvasWrapper?.querySelector('.bs-touch-dock')).toBeInTheDocument()
     expect(document.querySelector('canvas')).toBeInTheDocument()
 
     const startBtn = screen.getByRole('button', { name: /^Start$/i })

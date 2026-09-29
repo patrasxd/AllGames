@@ -1,4 +1,5 @@
 import { useEffect, useRef, memo } from 'react'
+import { AimControls } from './AimControls'
 import type { MutableRefObject } from 'react'
 import type { BubbleColor, BubbleView, GameTheme, ShotEvent } from '../types'
 import {
@@ -22,6 +23,10 @@ interface BubbleShooterCanvasProps {
   theme?: GameTheme
   onAim: (x: number, y: number) => void
   onShoot: (angle: number) => void
+  /** Whether the on-screen aim/fire dock's Fire button and arrows should be disabled (not currently aiming). */
+  aimDisabled: boolean
+  onNudge: (direction: -1 | 1, step?: number) => void
+  aimLabels: { fire: string; left: string; right: string }
 }
 
 // Colour-blind-safe palette (Okabe-Ito based). The ids are historical names; what matters is that the hues differ in
@@ -587,6 +592,9 @@ export const BubbleShooterCanvas = memo(function BubbleShooterCanvas({
   theme = 'dark',
   onAim,
   onShoot,
+  aimDisabled,
+  onNudge,
+  aimLabels,
 }: BubbleShooterCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const optionsRef = useRef({ isEink, theme })
@@ -674,6 +682,12 @@ export const BubbleShooterCanvas = memo(function BubbleShooterCanvas({
     >
       <div className="bs-canvas-wrapper">
         <canvas ref={canvasRef} className="bs-canvas" />
+        <AimControls
+          disabled={aimDisabled}
+          labels={aimLabels}
+          onNudge={onNudge}
+          onFire={() => onShoot(viewRef.current.aimAngle)}
+        />
       </div>
     </div>
   )

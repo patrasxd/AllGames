@@ -33,36 +33,53 @@
   display: block;
 }
 
-/* ─── Controls Bar ────────────────────────────────────────── */
+/* ─── Footer: single row of meta controls (New Game, difficulty) ──── */
 .bs-footer-bar {
   flex-wrap: wrap;
   justify-content: center;
 }
 
-/* On-screen aim/fire buttons: only on touch devices, where there is no mouse to click with. */
-.bs-touch-controls {
+/* On-screen aim/fire dock: floats over the canvas near the bottom, like Artillery's tactical dock.
+   Only on touch devices — a mouse aims and fires by clicking the canvas directly. */
+.bs-touch-dock {
   display: none;
+  position: absolute;
+  left: 50%;
+  bottom: max(var(--all-space-4, 1rem), env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  z-index: 15;
   align-items: center;
   justify-content: center;
-  gap: var(--all-space-3, 0.75rem);
-  width: 100%;
-  margin-bottom: var(--all-space-2, 0.5rem);
+  gap: var(--all-space-2, 0.5rem);
+  padding: var(--all-space-2, 0.5rem) var(--all-space-3, 0.75rem);
+  border-radius: var(--all-radius-full, 9999px);
+  background: color-mix(in srgb, var(--all-surface) 85%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: var(--all-border-width-sm, 1px) solid var(--all-border-2);
+  box-shadow: var(--all-shadow-md);
   touch-action: none;
   user-select: none;
   -webkit-user-select: none;
 }
 
-.bs-touch-controls .all-btn {
+[data-eink='true'] .bs-touch-dock {
+  background: var(--all-surface) !important;
+  border: var(--all-border-width, 2px) solid var(--all-border) !important;
+  backdrop-filter: none !important;
+  box-shadow: none !important;
+}
+
+.bs-touch-dock .all-btn {
   touch-action: none;
 }
 
 .bs-fire-btn {
-  flex: 1;
-  max-width: 11rem;
+  min-width: 6rem;
 }
 
 @media (pointer: coarse) {
-  .bs-touch-controls {
+  .bs-touch-dock {
     display: flex;
   }
 }

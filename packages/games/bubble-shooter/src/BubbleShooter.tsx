@@ -2,7 +2,6 @@ import { useEffect, useCallback, useState } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import { useBubbleShooter } from './hooks/useBubbleShooter'
 import { BubbleShooterCanvas } from './components/BubbleShooterCanvas'
-import { AimControls } from './components/AimControls'
 import type { GameComponentProps, Difficulty } from './types'
 import { bubbleShooterTranslations } from './i18n'
 import { Button, ConfirmDialog, ControlsBar, FullBleedLayout, PillGroup, StatsHeader } from '@all/ui'
@@ -93,29 +92,21 @@ export function BubbleShooter({
     <>
       <FullBleedLayout
         footer={
-          <>
-            <AimControls
-              disabled={gameStatus !== 'aiming'}
-              labels={{ fire: t.fire, left: t.aimLeft, right: t.aimRight }}
-              onNudge={nudgeAim}
-              onFire={() => shoot()}
+          <ControlsBar className="bs-footer-bar">
+            <Button id="bubble-shooter-new-game-btn" variant="secondary" size="sm" onClick={requestNewGame}>
+              {t.newGame}
+            </Button>
+            <PillGroup
+              label={t.difficulty}
+              size="sm"
+              value={difficulty}
+              onChange={(diff) => requestDifficulty(diff as Difficulty)}
+              options={(['easy', 'normal', 'hard'] as Difficulty[]).map((diff) => ({
+                value: diff,
+                label: t.difficultyLabels[diff],
+              }))}
             />
-            <ControlsBar className="bs-footer-bar">
-              <Button id="bubble-shooter-new-game-btn" variant="secondary" size="sm" onClick={requestNewGame}>
-                {t.newGame}
-              </Button>
-              <PillGroup
-                label={t.difficulty}
-                size="sm"
-                value={difficulty}
-                onChange={(diff) => requestDifficulty(diff as Difficulty)}
-                options={(['easy', 'normal', 'hard'] as Difficulty[]).map((diff) => ({
-                  value: diff,
-                  label: t.difficultyLabels[diff],
-                }))}
-              />
-            </ControlsBar>
-          </>
+          </ControlsBar>
         }
         overlay={
           <AnimatePresence>
@@ -145,7 +136,16 @@ export function BubbleShooter({
           </AnimatePresence>
         }
       >
-        <BubbleShooterCanvas viewRef={viewRef} isEink={isEink} theme={theme} onAim={aimAt} onShoot={shoot} />
+        <BubbleShooterCanvas
+          viewRef={viewRef}
+          isEink={isEink}
+          theme={theme}
+          onAim={aimAt}
+          onShoot={shoot}
+          aimDisabled={gameStatus !== 'aiming'}
+          onNudge={nudgeAim}
+          aimLabels={{ fire: t.fire, left: t.aimLeft, right: t.aimRight }}
+        />
       </FullBleedLayout>
 
       <ConfirmDialog
