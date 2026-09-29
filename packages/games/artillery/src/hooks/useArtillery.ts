@@ -361,7 +361,7 @@ export function useArtillery({ isEink = false }: { isEink?: boolean } = {}) {
           engineRef.current.floatingTexts.push({
             id: engineRef.current.floatingIdCounter++,
             x: t.x,
-            y: t.y - 35,
+            y: t.y - 65,
             text,
             color: '#ef4444',
             alpha: 1,

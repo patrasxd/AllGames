@@ -295,8 +295,7 @@ export const ArtilleryCanvas = memo(function ArtilleryCanvas({
       // Track impact location and damaged target when detonation occurs
       if (explosions.length > 0) {
         const exp = explosions[0]
-        const currentDamageTexts = floatingTextsRef.current || currentFloatingTexts || []
-        const damageTarget = currentDamageTexts.length > 0 ? currentDamageTexts[0] : exp
+        const damageTarget = currentFloatingTexts[0] ?? exp
         lastImpactRef.current = {
           x: damageTarget.x,
           y: damageTarget.y,
@@ -890,334 +889,114 @@ export const ArtilleryCanvas = memo(function ArtilleryCanvas({
         const einkStroke = isDark ? '#ffffff' : '#000000'
         const einkLineWidth = 1.4
 
-        // Dimensions
-        const trackW = 46
-        const trackH = 11.5
+        const trackW = 44
+        const trackH = 10
         const trackY = -trackH + 1
+        const turretCenterY = -TURRET_HUB_OFFSET
+        const hullBaseY = trackY - 2
+        const hullTopY = hullBaseY - 11
+        const hullTop = isP1Tank ? '#71837c' : '#947963'
+        const hullBase = isP1Tank ? '#465851' : '#665344'
+        const teamMark = isP1Tank ? '#a5b4a2' : '#d0aa7e'
+        const hullStroke = isP1Tank ? '#313d38' : '#493b32'
+        const hullFill = isEink
+          ? isDark
+            ? isP1Tank ? '#111111' : '#555555'
+            : isP1Tank ? '#ffffff' : '#475569'
+          : hullTop
 
-        // A. Local Tread-Ground Contact Shadow
         if (!isEink) {
-          const treadContact = ctx.createLinearGradient(0, trackY + trackH - 1, 0, trackY + trackH + 3)
-          treadContact.addColorStop(0, 'rgba(0, 0, 0, 0.72)')
-          treadContact.addColorStop(1, 'rgba(0, 0, 0, 0)')
-          ctx.fillStyle = treadContact
           ctx.beginPath()
-          ctx.roundRect(-trackW / 2 + 2, trackY + trackH - 1, trackW - 4, 4, 2)
+          ctx.ellipse(0, 2, trackW * 0.52, 3, 0, 0, Math.PI * 2)
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.28)'
           ctx.fill()
         }
 
-        // B. Track Band (Heavy Armored Continuous Rubber & Steel Belt)
         ctx.beginPath()
-        ctx.roundRect(-trackW / 2, trackY, trackW, trackH, 5.5)
-        const trackGrad = ctx.createLinearGradient(0, trackY, 0, trackY + trackH)
-        trackGrad.addColorStop(0, '#1c1f26')
-        trackGrad.addColorStop(0.5, '#121418')
-        trackGrad.addColorStop(1, '#090a0d')
-        ctx.fillStyle = isEink ? (isDark ? '#222222' : '#000000') : trackGrad
+        ctx.roundRect(-trackW / 2, trackY, trackW, trackH, 4)
+        ctx.fillStyle = isEink ? (isDark ? '#222222' : '#ffffff') : '#282a29'
         ctx.fill()
-        ctx.strokeStyle = isEink ? einkStroke : '#2a303c'
-        ctx.lineWidth = isEink ? einkLineWidth : 0.8
+        ctx.strokeStyle = isEink ? einkStroke : '#161918'
+        ctx.lineWidth = isEink ? einkLineWidth : 1
         ctx.stroke()
 
-        // Track Cleats / Treads (protruding teeth along curved ends and ground)
-        if (!isEink) {
-          ctx.save()
-          ctx.fillStyle = '#2d3340'
-          const cleatCount = 14
-          for (let c = 0; c < cleatCount; c++) {
-            const frac = c / (cleatCount - 1)
-            const cx = -trackW / 2 + 3 + frac * (trackW - 6)
-            ctx.fillRect(cx - 1, trackY + trackH - 1.2, 2, 1.4)
-          }
-          // Front & rear curved cleats
-          ctx.fillRect(-trackW / 2 - 1.2, trackY + trackH * 0.35, 1.4, 2.5)
-          ctx.fillRect(trackW / 2 - 0.2, trackY + trackH * 0.35, 1.4, 2.5)
-          ctx.restore()
-        }
-
-        // C. Road Wheels & Drive Sprockets (5 Detailed Dual-Tone Wheels)
-        const wheelCount = 5
-        const wheelR = 3.6
-        const wheelSpacing = (trackW - 14) / (wheelCount - 1)
-        for (let i = 0; i < wheelCount; i++) {
-          const wx = -(trackW - 14) / 2 + i * wheelSpacing
-          const wy = trackY + trackH / 2
-
-          // Outer rubber tire
+        for (const wheelX of [-13, 0, 13]) {
           ctx.beginPath()
-          ctx.arc(wx, wy, wheelR, 0, Math.PI * 2)
-          ctx.fillStyle = isEink ? (isDark ? '#444444' : '#ffffff') : '#181b22'
+          ctx.arc(wheelX, trackY + trackH / 2, 3.1, 0, Math.PI * 2)
+          ctx.fillStyle = isEink ? (isDark ? '#555555' : '#ffffff') : '#555751'
           ctx.fill()
-
-          if (!isEink) {
-            // Metallic wheel rim
-            ctx.beginPath()
-            ctx.arc(wx, wy, wheelR * 0.72, 0, Math.PI * 2)
-            ctx.fillStyle = isP1Tank ? '#253347' : '#332629'
-            ctx.fill()
-
-            // Team Axle Hub Cap
-            ctx.beginPath()
-            ctx.arc(wx, wy, wheelR * 0.38, 0, Math.PI * 2)
-            ctx.fillStyle = isP1Tank ? '#38bdf8' : '#ef4444'
-            ctx.fill()
-
-            // Micro axle bolt dot
-            ctx.beginPath()
-            ctx.arc(wx, wy, wheelR * 0.15, 0, Math.PI * 2)
-            ctx.fillStyle = '#ffffff'
-            ctx.fill()
-          } else {
+          if (isEink) {
             ctx.strokeStyle = einkStroke
-            ctx.lineWidth = 1
+            ctx.lineWidth = 0.8
             ctx.stroke()
           }
         }
 
-        // D. Armored Mudguard / Side Skirt with Panel Lines & Team Accent Stripe
-        ctx.beginPath()
-        ctx.moveTo(-trackW / 2 - 1.5, trackY + trackH * 0.42)
-        ctx.quadraticCurveTo(-trackW / 2 - 0.5, trackY - 2.5, -trackW / 2 + 3.5, trackY - 3)
-        ctx.lineTo(trackW / 2 - 3.5, trackY - 3)
-        ctx.quadraticCurveTo(trackW / 2 + 0.5, trackY - 2.5, trackW / 2 + 1.5, trackY + trackH * 0.42)
-        ctx.lineTo(trackW / 2 - 1.5, trackY + 1.5)
-        ctx.lineTo(-trackW / 2 + 1.5, trackY + 1.5)
-        ctx.closePath()
-
-        const skirtGrad = ctx.createLinearGradient(0, trackY - 3, 0, trackY + 2)
-        if (isP1Tank) {
-          skirtGrad.addColorStop(0, '#2d3b50')
-          skirtGrad.addColorStop(0.5, '#1e2838')
-          skirtGrad.addColorStop(1, '#141c26')
-        } else {
-          skirtGrad.addColorStop(0, '#3d282b')
-          skirtGrad.addColorStop(0.5, '#2b1b1e')
-          skirtGrad.addColorStop(1, '#1c1214')
-        }
-
-        ctx.fillStyle = isEink ? (isDark ? '#333333' : '#e2e8f0') : skirtGrad
-        ctx.fill()
-        ctx.strokeStyle = isEink ? einkStroke : isP1Tank ? '#3b82f6' : '#dc2626'
-        ctx.lineWidth = isEink ? einkLineWidth : 0.8
-        ctx.stroke()
-
-        // Tactical Team Racing Stripe on Mudguard
-        if (!isEink) {
-          ctx.beginPath()
-          ctx.moveTo(-trackW / 2 + 4, trackY - 0.5)
-          ctx.lineTo(trackW / 2 - 4, trackY - 0.5)
-          ctx.strokeStyle = isP1Tank ? 'rgba(56, 189, 248, 0.75)' : 'rgba(239, 68, 68, 0.75)'
-          ctx.lineWidth = 1.3
-          ctx.stroke()
-        }
-
-        // E. Heavy Chiseled Hull Armor (Sloped Glacis Plate & Engine Deck)
-        const hullBaseY = trackY - 2
-        const hullTopY = hullBaseY - 9.5
-
         ctx.beginPath()
         ctx.moveTo(-trackW / 2 + 3, hullBaseY)
-        ctx.quadraticCurveTo(-trackW / 2 + 7, hullTopY + 1.2, -15, hullTopY)
-        ctx.lineTo(14, hullTopY)
-        ctx.quadraticCurveTo(trackW / 2 - 7, hullTopY + 1.2, trackW / 2 - 3, hullBaseY)
+        ctx.lineTo(-trackW / 2 + 6, hullTopY + 4)
+        ctx.lineTo(-11, hullTopY)
+        ctx.lineTo(13, hullTopY)
+        ctx.lineTo(trackW / 2 - 4, hullTopY + 3)
+        ctx.lineTo(trackW / 2 - 2, hullBaseY)
         ctx.closePath()
-
-        const hullGrad = ctx.createLinearGradient(12, hullTopY, -12, hullBaseY)
-        if (isP1Tank) {
-          hullGrad.addColorStop(0, '#3b4b66')
-          hullGrad.addColorStop(0.35, '#283549')
-          hullGrad.addColorStop(0.75, '#1a2331')
-          hullGrad.addColorStop(1, '#111721')
+        if (!isEink) {
+          const hullGradient = ctx.createLinearGradient(0, hullTopY, 0, hullBaseY)
+          hullGradient.addColorStop(0, hullTop)
+          hullGradient.addColorStop(1, hullBase)
+          ctx.fillStyle = hullGradient
         } else {
-          hullGrad.addColorStop(0, '#4a3338')
-          hullGrad.addColorStop(0.35, '#352327')
-          hullGrad.addColorStop(0.75, '#231619')
-          hullGrad.addColorStop(1, '#140c0e')
+          ctx.fillStyle = hullFill
         }
-
-        ctx.fillStyle = isEink
-          ? isDark
-            ? isP1Tank ? '#111111' : '#555555'
-            : isP1Tank ? '#ffffff' : '#475569'
-          : hullGrad
         ctx.fill()
-        ctx.strokeStyle = isEink ? einkStroke : isP1Tank ? '#4b5e7d' : '#6b434a'
-        ctx.lineWidth = isEink ? 1.6 : 0.8
+        ctx.strokeStyle = isEink ? einkStroke : hullStroke
+        ctx.lineWidth = isEink ? 1.5 : 1
         ctx.stroke()
 
-        // Tactical Chevron Badge on Glacis Plate
         if (!isEink) {
           ctx.beginPath()
-          const badgeX = isP1Tank ? 5 : -5
-          const badgeY = hullTopY + 4.5
-          ctx.moveTo(badgeX - 3.5, badgeY - 2)
-          ctx.lineTo(badgeX + (isP1Tank ? 2.5 : -2.5), badgeY)
-          ctx.lineTo(badgeX - 3.5, badgeY + 2)
-          ctx.strokeStyle = isP1Tank ? '#38bdf8' : '#ef4444'
-          ctx.lineWidth = 1.4
-          ctx.lineCap = 'round'
-          ctx.stroke()
-
-          // Engine Deck Slatted Vents (Exhaust Louvers)
-          const ventX = isP1Tank ? -10 : 8
-          ctx.beginPath()
-          ctx.moveTo(ventX, hullTopY + 2)
-          ctx.lineTo(ventX + (isP1Tank ? 4 : -4), hullTopY + 2)
-          ctx.moveTo(ventX, hullTopY + 4)
-          ctx.lineTo(ventX + (isP1Tank ? 4 : -4), hullTopY + 4)
-          ctx.strokeStyle = 'rgba(0, 0, 0, 0.45)'
+          ctx.moveTo(-10, hullTopY + 1.5)
+          ctx.lineTo(11, hullTopY + 1.5)
+          ctx.strokeStyle = teamMark
+          ctx.globalAlpha = 0.55
           ctx.lineWidth = 1
           ctx.stroke()
+          ctx.globalAlpha = 1
         }
 
-        // F. Ballistic Turret & Commander Cupola
-        const turretCenterY = -TURRET_HUB_OFFSET
-        const turretRx = 12.5
-        const turretRy = 9.0
-
         ctx.beginPath()
-        ctx.ellipse(0, turretCenterY, turretRx, turretRy, 0, Math.PI, 0)
+        ctx.ellipse(0, turretCenterY, 11, 7, 0, Math.PI, 0)
         ctx.closePath()
-
-        const turretGrad = ctx.createRadialGradient(
-          isP1Tank ? 4 : -4,
-          turretCenterY - 4,
-          1,
-          0,
-          turretCenterY,
-          turretRx,
-        )
-        if (isP1Tank) {
-          turretGrad.addColorStop(0, '#4c5e7d')
-          turretGrad.addColorStop(0.4, '#324057')
-          turretGrad.addColorStop(0.85, '#1e2736')
-          turretGrad.addColorStop(1, '#131922')
-        } else {
-          turretGrad.addColorStop(0, '#5a3d42')
-          turretGrad.addColorStop(0.4, '#3e292d')
-          turretGrad.addColorStop(0.85, '#281a1d')
-          turretGrad.addColorStop(1, '#170e10')
-        }
-
-        ctx.fillStyle = isEink
-          ? isDark
-            ? isP1Tank ? '#111111' : '#555555'
-            : isP1Tank ? '#ffffff' : '#475569'
-          : turretGrad
+        ctx.fillStyle = isEink ? hullFill : hullTop
         ctx.fill()
-        ctx.strokeStyle = isEink ? einkStroke : isP1Tank ? '#5d7398' : '#7c4d54'
-        ctx.lineWidth = isEink ? 1.6 : 0.8
+        ctx.strokeStyle = isEink ? einkStroke : hullStroke
+        ctx.lineWidth = isEink ? 1.5 : 1
         ctx.stroke()
 
-        // Commander's Cupola with Illuminated Periscope Viewport
-        const cupolaX = isP1Tank ? -2.5 : 2.5
-        const cupolaY = turretCenterY - turretRy + 0.8
-        ctx.beginPath()
-        ctx.ellipse(cupolaX, cupolaY, 4.4, 1.8, 0, 0, Math.PI * 2)
-        ctx.fillStyle = isEink ? (isDark ? '#ffffff' : '#000000') : isP1Tank ? '#2d3b50' : '#3d282b'
-        ctx.fill()
-        ctx.strokeStyle = isEink ? einkStroke : isP1Tank ? '#38bdf8' : '#ef4444'
-        ctx.lineWidth = isEink ? 1 : 0.7
-        ctx.stroke()
-
-        // Viewport lens glow
-        if (!isEink) {
-          ctx.beginPath()
-          ctx.ellipse(cupolaX + (isP1Tank ? 1.2 : -1.2), cupolaY, 1.4, 0.9, 0, 0, Math.PI * 2)
-          ctx.fillStyle = isP1Tank ? '#38bdf8' : '#f87171'
-          ctx.fill()
-        }
-
-        // G. Heavy Artillery Cannon Barrel with Mantlet & Muzzle Brake
-        const barrelLen = BARREL_LENGTH
-        const barrelThickness = 4.2
         const barrelAngleRad = isP1Tank
           ? -((tank.angle * Math.PI) / 180)
           : -(((180 - tank.angle) * Math.PI) / 180)
-
         ctx.save()
         ctx.translate(0, turretCenterY)
         ctx.rotate(barrelAngleRad - slopeAngle)
-
-        // Heavy Mantlet Pivot Collar with Mounting Bolts
         ctx.beginPath()
-        ctx.arc(0, 0, 4.4, 0, Math.PI * 2)
-        ctx.fillStyle = isEink ? (isDark ? '#444444' : '#000000') : isP1Tank ? '#243247' : '#332326'
-        ctx.fill()
-        ctx.strokeStyle = isEink ? einkStroke : isP1Tank ? '#38bdf8' : '#ef4444'
-        ctx.lineWidth = isEink ? 1 : 0.8
+        ctx.moveTo(0, 0)
+        ctx.lineTo(BARREL_LENGTH, 0)
+        ctx.strokeStyle = isEink ? einkStroke : '#343633'
+        ctx.lineWidth = isEink ? 3.5 : 3.2
+        ctx.lineCap = 'round'
         ctx.stroke()
-
-        // Barrel cylinder with 3D cylindrical metallic gradient
-        ctx.beginPath()
-        ctx.moveTo(0, -barrelThickness / 2)
-        ctx.lineTo(barrelLen, -barrelThickness / 2)
-        ctx.lineTo(barrelLen, barrelThickness / 2)
-        ctx.lineTo(0, barrelThickness / 2)
-        ctx.closePath()
-
-        const barrelGrad = ctx.createLinearGradient(0, -barrelThickness / 2, 0, barrelThickness / 2)
-        barrelGrad.addColorStop(0, '#788294')
-        barrelGrad.addColorStop(0.35, '#525a67')
-        barrelGrad.addColorStop(0.8, '#32373f')
-        barrelGrad.addColorStop(1, '#1f2227')
-        ctx.fillStyle = isEink
-          ? isDark
-            ? isP1Tank ? '#222222' : '#888888'
-            : isP1Tank ? '#ffffff' : '#1e293b'
-          : barrelGrad
-        ctx.fill()
-        ctx.strokeStyle = isEink ? einkStroke : '#5e6777'
-        ctx.lineWidth = isEink ? 1.4 : 0.7
-        ctx.stroke()
-
-        // Recoil Sleeve & Glowing Energy Collar Ring
         if (!isEink) {
-          const recoilRingX = 6
           ctx.beginPath()
-          ctx.rect(recoilRingX, -barrelThickness / 2 - 0.5, 3.5, barrelThickness + 1.0)
-          ctx.fillStyle = isP1Tank ? '#38bdf8' : '#ef4444'
-          ctx.fill()
-
-          // Artillery Muzzle Brake at Barrel Tip (with Gas Exhaust Ports)
-          const mbLen = 5.5
-          const mbThick = barrelThickness + 2.2
-          const mbX = barrelLen - mbLen
-
-          ctx.beginPath()
-          ctx.roundRect(mbX, -mbThick / 2, mbLen, mbThick, 1.2)
-          ctx.fillStyle = isP1Tank ? '#1a2331' : '#231619'
-          ctx.fill()
-          ctx.strokeStyle = isP1Tank ? '#38bdf8' : '#ef4444'
+          ctx.moveTo(5, -0.7)
+          ctx.lineTo(BARREL_LENGTH - 2, -0.7)
+          ctx.strokeStyle = 'rgba(220, 214, 190, 0.45)'
           ctx.lineWidth = 0.8
           ctx.stroke()
-
-          // Dual gas release slot ports
-          ctx.fillStyle = '#0a0d12'
-          ctx.fillRect(mbX + 1.5, -mbThick / 2 + 0.3, 2.2, 1.2)
-          ctx.fillRect(mbX + 1.5, mbThick / 2 - 1.5, 2.2, 1.2)
         }
+        ctx.restore()
 
-        ctx.restore() // restore barrel rotation
-
-        // Solar rim highlight on top surfaces facing the sun
-        if (!isEink) {
-          ctx.save()
-          ctx.strokeStyle = 'rgba(254, 240, 150, 0.42)'
-          ctx.lineWidth = 1.1
-          ctx.beginPath()
-          ctx.arc(
-            0,
-            turretCenterY,
-            turretRx,
-            isP1Tank ? -Math.PI * 0.45 : -Math.PI * 0.95,
-            isP1Tank ? -0.05 : -Math.PI * 0.55,
-          )
-          ctx.stroke()
-          ctx.restore()
-        }
-
-        ctx.restore() // restore tank translation & slope rotation
+        ctx.restore()
       })
 
       // ─── 2.5 Tank Callouts & Identifiers (Opening Tour + Position Markers) ────
@@ -1601,9 +1380,11 @@ export const ArtilleryCanvas = memo(function ArtilleryCanvas({
 
       // ─── 6. Floating Damage Combat Text (Worms Style: Bold red, dark outline, floating up) ─
       const textsToDraw =
-        floatingTextsRef.current && floatingTextsRef.current.length > 0
-          ? floatingTextsRef.current
-          : floatingTexts || []
+        currentFloatingTexts.length > 0
+          ? currentFloatingTexts
+          : floatingTextsRef.current.length > 0
+            ? floatingTextsRef.current
+            : floatingTexts || []
 
       textsToDraw.forEach((ft) => {
         ctx.save()

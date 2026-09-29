@@ -1,6 +1,6 @@
 import { useRef, useEffect, useCallback, useState, memo } from 'react'
 import type { PlayerId, GameMode, Tank, GamePhase, DifficultyLevel, WeaponType } from '../types'
-import { Button, PillGroup, ControlsBar } from '@all/ui'
+import { Button, IconButton, PillGroup, ControlsBar } from '@all/ui'
 import type { ArtilleryTranslations } from '../i18n'
 import { sound } from '../audio'
 
@@ -262,7 +262,7 @@ export const ArtilleryTacticalDock = memo(function ArtilleryTacticalDock({
   ]
 
   return (
-    <div
+    <ControlsBar
       className={`artillery-canvas-bottom-dock ${dockVariantClass}`}
       data-eink={isEink ? 'true' : undefined}
       data-theme={theme}
@@ -271,11 +271,12 @@ export const ArtilleryTacticalDock = memo(function ArtilleryTacticalDock({
       <div className="artillery-dock-primary-row">
         {/* Angle Adjustment Group */}
         <div className="artillery-angle-group">
-          <Button
+          <IconButton
             id="artillery-angle-dec-btn"
             variant="secondary"
             size="md"
             className="artillery-icon-btn"
+            rounded
             disabled={isControlsDisabled || activeTank.angle <= 0}
             onPointerDown={(e) => handlePointerDownAngle(e, -1)}
             onPointerUp={handlePointerUpAngle}
@@ -283,21 +284,21 @@ export const ArtilleryTacticalDock = memo(function ArtilleryTacticalDock({
             onPointerCancel={handlePointerUpAngle}
             onContextMenu={(e) => e.preventDefault()}
             aria-label="Decrease angle"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+            icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
               <line x1="5" y1="12" x2="19" y2="12" />
-            </svg>
-          </Button>
+            </svg>}
+          />
 
           <div className="artillery-angle-display">
             <span className="artillery-angle-number">{activeTank.angle}°</span>
           </div>
 
-          <Button
+          <IconButton
             id="artillery-angle-inc-btn"
             variant="secondary"
             size="md"
             className="artillery-icon-btn"
+            rounded
             disabled={isControlsDisabled || activeTank.angle >= 90}
             onPointerDown={(e) => handlePointerDownAngle(e, 1)}
             onPointerUp={handlePointerUpAngle}
@@ -305,21 +306,21 @@ export const ArtilleryTacticalDock = memo(function ArtilleryTacticalDock({
             onPointerCancel={handlePointerUpAngle}
             onContextMenu={(e) => e.preventDefault()}
             aria-label="Increase angle"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+            icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
               <line x1="12" y1="5" x2="12" y2="19" />
               <line x1="5" y1="12" x2="19" y2="12" />
-            </svg>
-          </Button>
+            </svg>}
+          />
         </div>
 
         <div className="artillery-dock-divider" />
 
         {/* Enlarged Circular HOLD TO FIRE Button with SVG Power Ring */}
         <div className="artillery-circle-fire-wrapper">
-          <button
-            type="button"
+          <Button
             id="artillery-fire-btn"
+            variant="secondary"
+            size="md"
             className={`artillery-circle-fire-btn ${chargingRef.current ? 'artillery-circle-fire-btn--active' : ''}`}
             disabled={isControlsDisabled}
             onPointerDown={startCharging}
@@ -360,7 +361,7 @@ export const ArtilleryTacticalDock = memo(function ArtilleryTacticalDock({
                 </div>
               )}
             </div>
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -375,10 +376,11 @@ export const ArtilleryTacticalDock = memo(function ArtilleryTacticalDock({
           const wInfo = t?.weapons[w.id]
 
           return (
-            <button
+            <Button
               key={w.id}
-              type="button"
               id={`artillery-weapon-${w.id}-btn`}
+              variant={isSelected ? 'primary' : 'secondary'}
+              size="sm"
               className={`artillery-weapon-btn ${isSelected ? 'artillery-weapon-btn--selected' : ''} ${isAmmoEmpty ? 'artillery-weapon-btn--empty' : ''}`}
               disabled={isDisabled}
               onClick={() => {
@@ -391,35 +393,44 @@ export const ArtilleryTacticalDock = memo(function ArtilleryTacticalDock({
               aria-label={`${wInfo?.name || w.id} (${ammoDisplay})`}
               aria-pressed={isSelected}
               title={`${wInfo?.name || w.id}: ${wInfo?.desc || ''} [${w.key}]`}
+              icon={
+                <span className="artillery-weapon-icon" aria-hidden="true">
+                  {w.id === 'standard' && (
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M12 2c2 3.5 3 7 3 11v6H9v-6c0-4 1-7.5 3-11z" fill="currentColor" fillOpacity="0.25" />
+                    </svg>
+                  )}
+                  {w.id === 'mortar' && (
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="14" r="7" fill="currentColor" fillOpacity="0.25" />
+                      <path d="M12 7v-4m-3 1h6" />
+                      <path d="M15 4l2-2" />
+                    </svg>
+                  )}
+                  {w.id === 'cluster' && (
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="7" cy="8" r="3" fill="currentColor" fillOpacity="0.25" />
+                      <circle cx="17" cy="8" r="3" fill="currentColor" fillOpacity="0.25" />
+                      <circle cx="12" cy="16" r="3" fill="currentColor" fillOpacity="0.25" />
+                    </svg>
+                  )}
+                </span>
+              }
             >
-              <span className="artillery-weapon-icon">
-                {w.id === 'standard' && (
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 2c2 3.5 3 7 3 11v6H9v-6c0-4 1-7.5 3-11z" fill="currentColor" fillOpacity="0.25" />
+              <span className="artillery-weapon-ammo">
+                {ammo === Infinity ? (
+                  <svg className="artillery-unlimited-icon" viewBox="0 0 16 10" aria-label={t?.unlimitedAmmo || 'Unlimited'}>
+                    <path d="M8 5C5.7 1.2 1.5 1.2 1.5 5s4.2 3.8 6.5 0 6.5-3.8 6.5 0-4.2 3.8-6.5 0Z" />
                   </svg>
-                )}
-                {w.id === 'mortar' && (
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="14" r="7" fill="currentColor" fillOpacity="0.25" />
-                    <path d="M12 7v-4m-3 1h6" />
-                    <path d="M15 4l2-2" />
-                  </svg>
-                )}
-                {w.id === 'cluster' && (
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="7" cy="8" r="3" fill="currentColor" fillOpacity="0.25" />
-                    <circle cx="17" cy="8" r="3" fill="currentColor" fillOpacity="0.25" />
-                    <circle cx="12" cy="16" r="3" fill="currentColor" fillOpacity="0.25" />
-                  </svg>
+                ) : (
+                  ammoDisplay
                 )}
               </span>
-              <span className="artillery-weapon-name">{wInfo?.short || w.id}</span>
-              <span className="artillery-weapon-ammo">{ammoDisplay}</span>
-            </button>
+            </Button>
           )
         })}
       </div>
-    </div>
+    </ControlsBar>
   )
 })
 

@@ -162,11 +162,16 @@ describe('Artillery Component Integration', () => {
 
     // Standard selected by default
     expect(stdBtn.classList.contains('artillery-weapon-btn--selected')).toBe(true)
+    expect(stdBtn.querySelector('.artillery-weapon-icon svg')).toBeInTheDocument()
+    expect(stdBtn.querySelector('.artillery-weapon-icon svg')).toHaveAttribute('width', '20')
+    expect(stdBtn.querySelector('.artillery-unlimited-icon')).toBeInTheDocument()
+    expect(mortarBtn.querySelector('.artillery-weapon-icon svg')).toBeInTheDocument()
+    expect(clusterBtn.querySelector('.artillery-weapon-icon svg')).toBeInTheDocument()
     expect(mortarBtn.classList.contains('artillery-weapon-btn--selected')).toBe(false)
     expect(clusterBtn.classList.contains('artillery-weapon-btn--selected')).toBe(false)
 
     // Check ammo counts
-    expect(stdBtn).toHaveTextContent('∞')
+    expect(stdBtn.querySelector('.artillery-unlimited-icon')).toHaveAttribute('aria-label', '∞')
     expect(mortarBtn).toHaveTextContent('3')
     expect(clusterBtn).toHaveTextContent('2')
 
@@ -192,9 +197,12 @@ describe('Artillery Component Integration', () => {
       expect(document.getElementById('artillery-weapon-standard-btn')).toBeInTheDocument()
     })
 
-    expect(screen.getByText('Zwykły')).toBeInTheDocument()
-    expect(screen.getByText('Ciężki')).toBeInTheDocument()
-    expect(screen.getByText('Kasetowy')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Pocisk zwykły/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Ciężki pocisk/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Pocisk kasetowy/i })).toBeInTheDocument()
+    expect(screen.queryByText('Zwykły')).not.toBeInTheDocument()
+    expect(screen.queryByText('Ciężki')).not.toBeInTheDocument()
+    expect(screen.queryByText('Kasetowy')).not.toBeInTheDocument()
   })
 })
 

@@ -377,9 +377,9 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding: 8px 18px 10px;
-  border-radius: 24px;
+  gap: 6px;
+  padding: 6px 10px 8px;
+  border-radius: 18px;
   user-select: none;
   transition: background 150ms ease, border-color 150ms ease;
 }
@@ -389,12 +389,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 14px;
+  gap: 9px;
 }
 
 .artillery-dock-divider {
   width: 1px;
-  height: 42px;
+  height: 34px;
   margin: 0 2px;
 }
 
@@ -403,20 +403,26 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 4px;
 }
 
 .artillery-weapon-btn {
   display: inline-flex;
   align-items: center;
+  justify-content: space-between;
   gap: 6px;
-  padding: 4px 11px;
+  width: 74px;
+  min-width: 74px;
+  flex: 0 0 74px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0 7px;
   border-radius: 9999px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(255, 255, 255, 0.06);
   color: #ffffff;
   font-family: var(--all-font-sans, system-ui, sans-serif);
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   font-weight: 600;
   cursor: pointer;
   user-select: none;
@@ -453,24 +459,47 @@
 
 .artillery-weapon-icon {
   display: flex;
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
   align-items: center;
   justify-content: center;
   color: var(--weapon-accent, #38bdf8);
 }
 
-.artillery-weapon-name {
-  font-size: 0.76rem;
-  letter-spacing: 0.02em;
+.artillery-weapon-icon svg {
+  display: block;
+  width: 20px;
+  height: 20px;
 }
 
 .artillery-weapon-ammo {
-  font-family: var(--all-font-mono, 'JetBrains Mono', monospace);
-  font-size: 0.72rem;
-  font-weight: 700;
-  padding: 1px 6px;
+  display: inline-flex;
+  flex: 0 0 26px;
+  width: 26px;
+  min-width: 26px;
+  height: 26px;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--all-font-sans, sans-serif);
+  font-size: 0.95rem;
+  font-weight: 800;
+  font-style: normal;
+  line-height: 1;
+  padding: 0;
   border-radius: 9999px;
   background: rgba(0, 0, 0, 0.4);
   color: var(--weapon-accent, #38bdf8);
+}
+
+.artillery-unlimited-icon {
+  display: block;
+  width: 18px;
+  height: 12px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
 }
 
 .artillery-weapon-btn--selected .artillery-weapon-ammo {
@@ -483,7 +512,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--all-space-2, 0.5rem);
+  gap: 5px;
 }
 
 .artillery-icon-btn {
@@ -501,10 +530,10 @@
 }
 
 .artillery-angle-display {
-  min-width: 54px;
+  min-width: 48px;
   text-align: center;
   font-family: var(--all-font-sans, system-ui, sans-serif);
-  font-size: 1.45rem;
+  font-size: 1.25rem;
   font-weight: 700;
   user-select: none;
 }
@@ -512,8 +541,8 @@
 /* Enlarged Circular HOLD TO FIRE Button with SVG Power Ring */
 .artillery-circle-fire-wrapper {
   position: relative;
-  width: 68px;
-  height: 68px;
+  width: 56px;
+  height: 56px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -521,8 +550,8 @@
 
 .artillery-circle-fire-btn {
   position: relative;
-  width: 68px;
-  height: 68px;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
   border: none;
   cursor: pointer;
