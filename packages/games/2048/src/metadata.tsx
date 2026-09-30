@@ -77,8 +77,8 @@ export const metadata: GameMetadata = {
   },
   icon: <Tile2048Icon />,
   tags: {
-    en: ['1 player', 'logic', 'numbers'],
-    pl: ['1 gracz', 'logiczna', 'liczby'],
+    en: ['logic', 'numbers'],
+    pl: ['logiczna', 'liczby'],
   },
   minPlayers: 1,
   maxPlayers: 1,

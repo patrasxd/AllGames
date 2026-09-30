@@ -39,11 +39,14 @@ export function HomePage() {
   // Extract all unique tags in current locale, sorted descending by game count
   const allTags = useMemo(() => {
     const tagCountMap = new Map<string, number>()
+    const ignoredTags = new Set(['1 player', '1 gracz', '1-player', '1-gracz', '1player', '1gracz'])
     GAMES.forEach((game) => {
       const tags = getLocalizedTags(game.metadata.tags, locale)
       const uniqueGameTags = new Set(tags.map((t) => t.trim().toLowerCase()))
       uniqueGameTags.forEach((tag) => {
-        tagCountMap.set(tag, (tagCountMap.get(tag) || 0) + 1)
+        if (!ignoredTags.has(tag)) {
+          tagCountMap.set(tag, (tagCountMap.get(tag) || 0) + 1)
+        }
       })
     })
 

@@ -171,7 +171,9 @@
   font-size: 1.15rem;
   font-weight: 800;
   line-height: 1;
-  transition: color 150ms ease, transform 150ms ease;
+  transition:
+    color 150ms ease,
+    transform 150ms ease;
 }
 
 .artillery-hud-wind-val {
@@ -198,7 +200,9 @@
   background: rgba(2, 132, 199, 0.35);
   border: 1.5px solid rgba(56, 189, 248, 0.7);
   color: #ffffff;
-  box-shadow: 0 0 16px rgba(56, 189, 248, 0.38), 0 4px 12px rgba(0, 0, 0, 0.4);
+  box-shadow:
+    0 0 16px rgba(56, 189, 248, 0.38),
+    0 4px 12px rgba(0, 0, 0, 0.4);
 }
 .artillery-wind-tile--blue .artillery-hud-wind-icon,
 .artillery-wind-tile--blue .artillery-hud-wind-arrow {
@@ -211,7 +215,9 @@
   background: rgba(234, 88, 12, 0.35);
   border: 1.5px solid rgba(249, 115, 22, 0.7);
   color: #ffffff;
-  box-shadow: 0 0 16px rgba(249, 115, 22, 0.38), 0 4px 12px rgba(0, 0, 0, 0.4);
+  box-shadow:
+    0 0 16px rgba(249, 115, 22, 0.38),
+    0 4px 12px rgba(0, 0, 0, 0.4);
 }
 .artillery-wind-tile--orange .artillery-hud-wind-icon,
 .artillery-wind-tile--orange .artillery-hud-wind-arrow {
@@ -224,7 +230,9 @@
   background: rgba(220, 38, 38, 0.38);
   border: 1.5px solid rgba(239, 68, 68, 0.75);
   color: #ffffff;
-  box-shadow: 0 0 18px rgba(239, 68, 68, 0.42), 0 4px 12px rgba(0, 0, 0, 0.4);
+  box-shadow:
+    0 0 18px rgba(239, 68, 68, 0.42),
+    0 4px 12px rgba(0, 0, 0, 0.4);
 }
 .artillery-wind-tile--red .artillery-hud-wind-icon,
 .artillery-wind-tile--red .artillery-hud-wind-arrow {
@@ -381,7 +389,9 @@
   padding: 6px 10px 8px;
   border-radius: 18px;
   user-select: none;
-  transition: background 150ms ease, border-color 150ms ease;
+  transition:
+    background 150ms ease,
+    border-color 150ms ease;
 }
 
 /* Primary Action Row: [-] 45° [+] & Large FIRE button */
@@ -696,7 +706,8 @@
   box-shadow: none !important;
 }
 
-[data-eink='true']:not([data-theme='dark']):not([data-theme='e-ink-dark']) .artillery-top-scout-btn.artillery-scout-btn--active {
+[data-eink='true']:not([data-theme='dark']):not([data-theme='e-ink-dark'])
+  .artillery-top-scout-btn.artillery-scout-btn--active {
   background: #000000 !important;
   color: #ffffff !important;
 }
@@ -823,7 +834,9 @@
   backdrop-filter: blur(16px) !important;
   -webkit-backdrop-filter: blur(16px) !important;
   border: 1px solid rgba(15, 23, 42, 0.12) !important;
-  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.12), 0 2px 8px rgba(15, 23, 42, 0.05) !important;
+  box-shadow:
+    0 10px 28px rgba(15, 23, 42, 0.12),
+    0 2px 8px rgba(15, 23, 42, 0.05) !important;
 }
 
 .artillery-canvas-bottom-dock--light .artillery-dock-divider,
@@ -839,7 +852,9 @@
 }
 
 .artillery-canvas-bottom-dock--light .artillery-weapon-btn:hover:not(:disabled),
-:root[data-theme='light']:not([data-eink='true']) .artillery-canvas-bottom-dock .artillery-weapon-btn:hover:not(:disabled) {
+:root[data-theme='light']:not([data-eink='true'])
+  .artillery-canvas-bottom-dock
+  .artillery-weapon-btn:hover:not(:disabled) {
   background: rgba(15, 23, 42, 0.09);
   border-color: rgba(15, 23, 42, 0.28);
 }
@@ -858,7 +873,10 @@
 }
 
 .artillery-canvas-bottom-dock--light .artillery-weapon-btn--selected .artillery-weapon-ammo,
-:root[data-theme='light']:not([data-eink='true']) .artillery-canvas-bottom-dock .artillery-weapon-btn--selected .artillery-weapon-ammo {
+:root[data-theme='light']:not([data-eink='true'])
+  .artillery-canvas-bottom-dock
+  .artillery-weapon-btn--selected
+  .artillery-weapon-ammo {
   background: #0f172a;
   color: #ffffff;
 }
@@ -878,7 +896,9 @@
 }
 
 .artillery-canvas-bottom-dock--light .artillery-icon-btn:hover:not(:disabled),
-:root[data-theme='light']:not([data-eink='true']) .artillery-canvas-bottom-dock .artillery-icon-btn:hover:not(:disabled) {
+:root[data-theme='light']:not([data-eink='true'])
+  .artillery-canvas-bottom-dock
+  .artillery-icon-btn:hover:not(:disabled) {
   background: #e2e8f0 !important;
   color: #020617 !important;
   border-color: #94a3b8 !important;
@@ -893,7 +913,9 @@
 }
 
 .artillery-canvas-bottom-dock--light .artillery-circle-fire-btn:hover:not(:disabled),
-:root[data-theme='light']:not([data-eink='true']) .artillery-canvas-bottom-dock .artillery-circle-fire-btn:hover:not(:disabled) {
+:root[data-theme='light']:not([data-eink='true'])
+  .artillery-canvas-bottom-dock
+  .artillery-circle-fire-btn:hover:not(:disabled) {
   background: #1e293b !important;
 }
 
@@ -925,7 +947,9 @@
 }
 
 .artillery-canvas-bottom-dock--light .artillery-scout-btn:hover:not(:disabled),
-:root[data-theme='light']:not([data-eink='true']) .artillery-canvas-bottom-dock .artillery-scout-btn:hover:not(:disabled) {
+:root[data-theme='light']:not([data-eink='true'])
+  .artillery-canvas-bottom-dock
+  .artillery-scout-btn:hover:not(:disabled) {
   background: #e2e8f0 !important;
   color: #0f172a !important;
 }
@@ -946,61 +970,83 @@
 }
 
 .artillery-canvas-bottom-dock--eink-light .artillery-dock-divider,
-[data-eink='true']:not([data-theme='dark']):not([data-theme='e-ink-dark']) .artillery-canvas-bottom-dock .artillery-dock-divider {
+[data-eink='true']:not([data-theme='dark']):not([data-theme='e-ink-dark'])
+  .artillery-canvas-bottom-dock
+  .artillery-dock-divider {
   background: #000000 !important;
 }
 
 .artillery-canvas-bottom-dock--eink-light .artillery-angle-display,
 .artillery-canvas-bottom-dock--eink-light .artillery-angle-number,
-[data-eink='true']:not([data-theme='dark']):not([data-theme='e-ink-dark']) .artillery-canvas-bottom-dock .artillery-angle-display,
-[data-eink='true']:not([data-theme='dark']):not([data-theme='e-ink-dark']) .artillery-canvas-bottom-dock .artillery-angle-number {
+[data-eink='true']:not([data-theme='dark']):not([data-theme='e-ink-dark'])
+  .artillery-canvas-bottom-dock
+  .artillery-angle-display,
+[data-eink='true']:not([data-theme='dark']):not([data-theme='e-ink-dark'])
+  .artillery-canvas-bottom-dock
+  .artillery-angle-number {
   color: #000000 !important;
   font-weight: 800 !important;
 }
 
 .artillery-canvas-bottom-dock--eink-light .artillery-icon-btn,
-[data-eink='true']:not([data-theme='dark']):not([data-theme='e-ink-dark']) .artillery-canvas-bottom-dock .artillery-icon-btn {
+[data-eink='true']:not([data-theme='dark']):not([data-theme='e-ink-dark'])
+  .artillery-canvas-bottom-dock
+  .artillery-icon-btn {
   background: #ffffff !important;
   border: 2px solid #000000 !important;
   color: #000000 !important;
 }
 
 .artillery-canvas-bottom-dock--eink-light .artillery-circle-fire-btn,
-[data-eink='true']:not([data-theme='dark']):not([data-theme='e-ink-dark']) .artillery-canvas-bottom-dock .artillery-circle-fire-btn {
+[data-eink='true']:not([data-theme='dark']):not([data-theme='e-ink-dark'])
+  .artillery-canvas-bottom-dock
+  .artillery-circle-fire-btn {
   background: #000000 !important;
   border: 2px solid #000000 !important;
   color: #ffffff !important;
 }
 
 .artillery-canvas-bottom-dock--eink-light .artillery-circle-text,
-[data-eink='true']:not([data-theme='dark']):not([data-theme='e-ink-dark']) .artillery-canvas-bottom-dock .artillery-circle-text {
+[data-eink='true']:not([data-theme='dark']):not([data-theme='e-ink-dark'])
+  .artillery-canvas-bottom-dock
+  .artillery-circle-text {
   color: #ffffff !important;
 }
 
 .artillery-canvas-bottom-dock--eink-light .artillery-circle-power-val,
-[data-eink='true']:not([data-theme='dark']):not([data-theme='e-ink-dark']) .artillery-canvas-bottom-dock .artillery-circle-power-val {
+[data-eink='true']:not([data-theme='dark']):not([data-theme='e-ink-dark'])
+  .artillery-canvas-bottom-dock
+  .artillery-circle-power-val {
   color: #ffffff !important;
 }
 
 .artillery-canvas-bottom-dock--eink-light .artillery-circle-ring-track,
-[data-eink='true']:not([data-theme='dark']):not([data-theme='e-ink-dark']) .artillery-canvas-bottom-dock .artillery-circle-ring-track {
+[data-eink='true']:not([data-theme='dark']):not([data-theme='e-ink-dark'])
+  .artillery-canvas-bottom-dock
+  .artillery-circle-ring-track {
   stroke: rgba(255, 255, 255, 0.3) !important;
 }
 
 .artillery-canvas-bottom-dock--eink-light .artillery-circle-ring-progress,
-[data-eink='true']:not([data-theme='dark']):not([data-theme='e-ink-dark']) .artillery-canvas-bottom-dock .artillery-circle-ring-progress {
+[data-eink='true']:not([data-theme='dark']):not([data-theme='e-ink-dark'])
+  .artillery-canvas-bottom-dock
+  .artillery-circle-ring-progress {
   stroke: #ffffff !important;
 }
 
 .artillery-canvas-bottom-dock--eink-light .artillery-scout-btn,
-[data-eink='true']:not([data-theme='dark']):not([data-theme='e-ink-dark']) .artillery-canvas-bottom-dock .artillery-scout-btn {
+[data-eink='true']:not([data-theme='dark']):not([data-theme='e-ink-dark'])
+  .artillery-canvas-bottom-dock
+  .artillery-scout-btn {
   background: #ffffff !important;
   border: 2px solid #000000 !important;
   color: #000000 !important;
 }
 
 .artillery-canvas-bottom-dock--eink-light .artillery-weapon-btn,
-[data-eink='true']:not([data-theme='dark']):not([data-theme='e-ink-dark']) .artillery-canvas-bottom-dock .artillery-weapon-btn {
+[data-eink='true']:not([data-theme='dark']):not([data-theme='e-ink-dark'])
+  .artillery-canvas-bottom-dock
+  .artillery-weapon-btn {
   background: #ffffff !important;
   border: 1.5px solid #000000 !important;
   color: #000000 !important;
@@ -1008,7 +1054,9 @@
 }
 
 .artillery-canvas-bottom-dock--eink-light .artillery-weapon-btn--selected,
-[data-eink='true']:not([data-theme='dark']):not([data-theme='e-ink-dark']) .artillery-canvas-bottom-dock .artillery-weapon-btn--selected {
+[data-eink='true']:not([data-theme='dark']):not([data-theme='e-ink-dark'])
+  .artillery-canvas-bottom-dock
+  .artillery-weapon-btn--selected {
   background: #000000 !important;
   color: #ffffff !important;
   border-color: #000000 !important;
@@ -1016,8 +1064,14 @@
 
 .artillery-canvas-bottom-dock--eink-light .artillery-weapon-btn--selected .artillery-weapon-icon,
 .artillery-canvas-bottom-dock--eink-light .artillery-weapon-btn--selected .artillery-weapon-ammo,
-[data-eink='true']:not([data-theme='dark']):not([data-theme='e-ink-dark']) .artillery-canvas-bottom-dock .artillery-weapon-btn--selected .artillery-weapon-icon,
-[data-eink='true']:not([data-theme='dark']):not([data-theme='e-ink-dark']) .artillery-canvas-bottom-dock .artillery-weapon-btn--selected .artillery-weapon-ammo {
+[data-eink='true']:not([data-theme='dark']):not([data-theme='e-ink-dark'])
+  .artillery-canvas-bottom-dock
+  .artillery-weapon-btn--selected
+  .artillery-weapon-icon,
+[data-eink='true']:not([data-theme='dark']):not([data-theme='e-ink-dark'])
+  .artillery-canvas-bottom-dock
+  .artillery-weapon-btn--selected
+  .artillery-weapon-ammo {
   color: #ffffff !important;
   background: transparent !important;
 }
@@ -1114,8 +1168,14 @@
 
 .artillery-canvas-bottom-dock--eink-dark .artillery-weapon-btn--selected .artillery-weapon-icon,
 .artillery-canvas-bottom-dock--eink-dark .artillery-weapon-btn--selected .artillery-weapon-ammo,
-[data-eink='true'][data-theme='dark'] .artillery-canvas-bottom-dock .artillery-weapon-btn--selected .artillery-weapon-icon,
-[data-eink='true'][data-theme='dark'] .artillery-canvas-bottom-dock .artillery-weapon-btn--selected .artillery-weapon-ammo {
+[data-eink='true'][data-theme='dark']
+  .artillery-canvas-bottom-dock
+  .artillery-weapon-btn--selected
+  .artillery-weapon-icon,
+[data-eink='true'][data-theme='dark']
+  .artillery-canvas-bottom-dock
+  .artillery-weapon-btn--selected
+  .artillery-weapon-ammo {
   color: #000000 !important;
   background: transparent !important;
 }
@@ -1217,4 +1277,3 @@
     top: 6px;
   }
 }
-

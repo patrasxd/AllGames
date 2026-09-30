@@ -39,4 +39,3 @@ export function AimControls({ disabled, labels, onNudge, onFire }: AimControlsPr
     </div>
   )
 }
-

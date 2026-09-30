@@ -284,9 +284,19 @@ export const ArtilleryTacticalDock = memo(function ArtilleryTacticalDock({
             onPointerCancel={handlePointerUpAngle}
             onContextMenu={(e) => e.preventDefault()}
             aria-label="Decrease angle"
-            icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-              <line x1="5" y1="12" x2="19" y2="12" />
-            </svg>}
+            icon={
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+              >
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+            }
           />
 
           <div className="artillery-angle-display">
@@ -306,10 +316,20 @@ export const ArtilleryTacticalDock = memo(function ArtilleryTacticalDock({
             onPointerCancel={handlePointerUpAngle}
             onContextMenu={(e) => e.preventDefault()}
             aria-label="Increase angle"
-            icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-              <line x1="12" y1="5" x2="12" y2="19" />
-              <line x1="5" y1="12" x2="19" y2="12" />
-            </svg>}
+            icon={
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+              >
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+            }
           />
         </div>
 
@@ -372,7 +392,7 @@ export const ArtilleryTacticalDock = memo(function ArtilleryTacticalDock({
           const ammo = activeTank.ammo[w.id]
           const isAmmoEmpty = ammo <= 0
           const isDisabled = isControlsDisabled || isAmmoEmpty
-          const ammoDisplay = ammo === Infinity ? (t?.unlimitedAmmo || '∞') : ammo
+          const ammoDisplay = ammo === Infinity ? t?.unlimitedAmmo || '∞' : ammo
           const wInfo = t?.weapons[w.id]
 
           return (
@@ -387,28 +407,57 @@ export const ArtilleryTacticalDock = memo(function ArtilleryTacticalDock({
                 sound.init()
                 onSelectWeapon?.(w.id)
               }}
-              style={{
-                '--weapon-accent': w.color,
-              } as React.CSSProperties}
+              style={
+                {
+                  '--weapon-accent': w.color,
+                } as React.CSSProperties
+              }
               aria-label={`${wInfo?.name || w.id} (${ammoDisplay})`}
               aria-pressed={isSelected}
               title={`${wInfo?.name || w.id}: ${wInfo?.desc || ''} [${w.key}]`}
               icon={
                 <span className="artillery-weapon-icon" aria-hidden="true">
                   {w.id === 'standard' && (
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.4"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
                       <path d="M12 2c2 3.5 3 7 3 11v6H9v-6c0-4 1-7.5 3-11z" fill="currentColor" fillOpacity="0.25" />
                     </svg>
                   )}
                   {w.id === 'mortar' && (
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.4"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
                       <circle cx="12" cy="14" r="7" fill="currentColor" fillOpacity="0.25" />
                       <path d="M12 7v-4m-3 1h6" />
                       <path d="M15 4l2-2" />
                     </svg>
                   )}
                   {w.id === 'cluster' && (
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
                       <circle cx="7" cy="8" r="3" fill="currentColor" fillOpacity="0.25" />
                       <circle cx="17" cy="8" r="3" fill="currentColor" fillOpacity="0.25" />
                       <circle cx="12" cy="16" r="3" fill="currentColor" fillOpacity="0.25" />
@@ -419,7 +468,11 @@ export const ArtilleryTacticalDock = memo(function ArtilleryTacticalDock({
             >
               <span className="artillery-weapon-ammo">
                 {ammo === Infinity ? (
-                  <svg className="artillery-unlimited-icon" viewBox="0 0 16 10" aria-label={t?.unlimitedAmmo || 'Unlimited'}>
+                  <svg
+                    className="artillery-unlimited-icon"
+                    viewBox="0 0 16 10"
+                    aria-label={t?.unlimitedAmmo || 'Unlimited'}
+                  >
                     <path d="M8 5C5.7 1.2 1.5 1.2 1.5 5s4.2 3.8 6.5 0 6.5-3.8 6.5 0-4.2 3.8-6.5 0Z" />
                   </svg>
                 ) : (

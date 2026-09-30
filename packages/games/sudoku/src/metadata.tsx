@@ -67,8 +67,8 @@ export const metadata: GameMetadata = {
   },
   icon: <SudokuIcon />,
   tags: {
-    en: ['1 player', 'logic', 'numbers', 'classic'],
-    pl: ['1 gracz', 'logiczna', 'liczby', 'klasyczna'],
+    en: ['logic', 'numbers', 'classic'],
+    pl: ['logiczna', 'liczby', 'klasyczna'],
   },
   minPlayers: 1,
   maxPlayers: 1,

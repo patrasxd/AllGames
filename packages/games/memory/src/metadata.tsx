@@ -38,8 +38,8 @@ export const metadata: GameMetadata = {
   },
   icon: <MemoryCardsIcon />,
   tags: {
-    en: ['1 player', '2 players', 'logic', 'classic'],
-    pl: ['1 gracz', '2 graczy', 'logiczna', 'klasyczna'],
+    en: ['2 players', 'logic', 'classic'],
+    pl: ['2 graczy', 'logiczna', 'klasyczna'],
   },
   minPlayers: 1,
   maxPlayers: 2,

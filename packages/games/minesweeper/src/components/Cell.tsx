@@ -142,11 +142,7 @@ export const Cell = memo(function Cell({
 
   const handleClick = useCallback(
     (e: React.MouseEvent) => {
-      if (
-        isLongPressRef.current ||
-        hasMovedRef.current ||
-        Date.now() - lastLongPressTimeRef.current < 500
-      ) {
+      if (isLongPressRef.current || hasMovedRef.current || Date.now() - lastLongPressTimeRef.current < 500) {
         isLongPressRef.current = false
         hasMovedRef.current = false
         e.preventDefault()

@@ -205,4 +205,3 @@ describe('Artillery Component Integration', () => {
     expect(screen.queryByText('Kasetowy')).not.toBeInTheDocument()
   })
 })
-

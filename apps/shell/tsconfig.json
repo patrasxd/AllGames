@@ -42,6 +42,12 @@
       "@allgames/wing-rush/metadata": ["../../packages/games/wing-rush/src/metadata.tsx"],
       "@allgames/artillery": ["../../packages/games/artillery/src/index.tsx"],
       "@allgames/artillery/metadata": ["../../packages/games/artillery/src/metadata.tsx"],
+      "@allgames/bubble-shooter": ["../../packages/games/bubble-shooter/src/index.tsx"],
+      "@allgames/bubble-shooter/metadata": ["../../packages/games/bubble-shooter/src/metadata.tsx"],
+      "@allgames/ball-sort": ["../../packages/games/ball-sort/src/index.tsx"],
+      "@allgames/ball-sort/metadata": ["../../packages/games/ball-sort/src/metadata.tsx"],
+      "@allgames/block-out": ["../../packages/games/block-out/src/index.tsx"],
+      "@allgames/block-out/metadata": ["../../packages/games/block-out/src/metadata.tsx"],
       "@allgames/ui": ["../../packages/ui/src/index.ts"]
     }
   },

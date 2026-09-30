@@ -34,7 +34,6 @@ describe('BubbleShooter Component Integration', () => {
     await waitFor(() => expect(screen.queryByRole('button', { name: /^Start$/i })).not.toBeInTheDocument())
   })
 
-
   it('does not ask for confirmation before any shot has been fired', async () => {
     const setIsActive = vi.fn()
     render(<BubbleShooter locale="en" setIsActive={setIsActive} />)

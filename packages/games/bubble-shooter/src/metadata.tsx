@@ -41,8 +41,8 @@ export const metadata: GameMetadata = {
   },
   icon: <BubbleIcon />,
   tags: {
-    en: ['1 player', 'arcade', 'puzzle'],
-    pl: ['1 gracz', 'zręcznościowa', 'logiczna'],
+    en: ['arcade', 'puzzle'],
+    pl: ['zręcznościowa', 'logiczna'],
   },
   minPlayers: 1,
   maxPlayers: 1,

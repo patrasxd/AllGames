@@ -50,8 +50,8 @@ export const metadata: GameMetadata = {
   },
   icon: <SolitaireIcon />,
   tags: {
-    en: ['1 player', 'cards', 'classic', 'logic'],
-    pl: ['1 gracz', 'karty', 'klasyczna', 'logiczna'],
+    en: ['cards', 'classic', 'logic'],
+    pl: ['karty', 'klasyczna', 'logiczna'],
   },
   minPlayers: 1,
   maxPlayers: 1,

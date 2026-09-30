@@ -58,7 +58,9 @@ export function GameCard({ metadata, index, isReturning = false }: GameCardProps
 
   const name = getLocalizedText(metadata.name, locale)
   const description = getLocalizedText(metadata.description, locale)
-  const tags = getLocalizedTags(metadata.tags, locale)
+  const tags = getLocalizedTags(metadata.tags, locale).filter(
+    (tag) => !['1 player', '1 gracz', '1-player', '1-gracz', '1player', '1gracz'].includes(tag.trim().toLowerCase()),
+  )
 
   const handleClick = () => {
     setLastActiveCardId(`game-card-${metadata.slug}`)

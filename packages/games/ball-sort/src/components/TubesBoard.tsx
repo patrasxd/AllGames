@@ -96,9 +96,7 @@ export function TubesBoard({ tubes, capacity, selected, onSelect, isEink = false
   const splitIndex = tubes.length >= 8 ? Math.ceil(tubes.length / 2) : tubes.length
   const topRow = tubes.slice(0, splitIndex).map((tube, i) => ({ tube, index: i }))
   const bottomRow =
-    splitIndex < tubes.length
-      ? tubes.slice(splitIndex).map((tube, i) => ({ tube, index: splitIndex + i }))
-      : []
+    splitIndex < tubes.length ? tubes.slice(splitIndex).map((tube, i) => ({ tube, index: splitIndex + i })) : []
 
   const renderTube = (tube: Tube, i: number) => {
     const isSelected = selected === i

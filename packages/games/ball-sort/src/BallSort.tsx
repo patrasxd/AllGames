@@ -114,8 +114,6 @@ export function BallSort({ setHeader, setIsActive, locale = 'en', isEink = false
         }
         overlay={
           <AnimatePresence>
-
-
             {status === 'won' && (
               <GameResultOverlay
                 status="won"

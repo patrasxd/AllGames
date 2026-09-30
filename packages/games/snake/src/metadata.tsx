@@ -37,8 +37,8 @@ export const metadata: GameMetadata = {
   },
   icon: <PixelSnakeIcon />,
   tags: {
-    en: ['classic', 'arcade', '1 player'],
-    pl: ['klasyczna', 'arcade', '1 gracz'],
+    en: ['classic', 'arcade'],
+    pl: ['klasyczna', 'arcade'],
   },
   minPlayers: 1,
   maxPlayers: 1,

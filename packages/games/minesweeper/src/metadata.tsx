@@ -38,8 +38,8 @@ export const metadata: GameMetadata = {
   },
   icon: <BombIcon />,
   tags: {
-    en: ['classic', '1 player', 'logic'],
-    pl: ['klasyczna', '1 gracz', 'logiczna'],
+    en: ['classic', 'logic'],
+    pl: ['klasyczna', 'logiczna'],
   },
   minPlayers: 1,
   maxPlayers: 1,

@@ -1,5 +1,18 @@
 import { useEffect, useRef, useState, useCallback, useContext, memo } from 'react'
-import type { Tank, TerrainData, Projectile, Explosion, FloatingText, Particle, GameTheme, PlayerId, GamePhase, GameMode, Locale, WeaponType } from '../types'
+import type {
+  Tank,
+  TerrainData,
+  Projectile,
+  Explosion,
+  FloatingText,
+  Particle,
+  GameTheme,
+  PlayerId,
+  GamePhase,
+  GameMode,
+  Locale,
+  WeaponType,
+} from '../types'
 import {
   CANVAS_WIDTH,
   CANVAS_HEIGHT,
@@ -76,7 +89,11 @@ export const ArtilleryCanvas = memo(function ArtilleryCanvas({
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const isDark = theme !== 'light' && theme !== 'e-ink-light'
   const motionCtx = useContext(MotionContext)
-  const isReducedMotion = motionCtx?.isReducedMotion ?? (typeof window !== 'undefined' && window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)').matches : false)
+  const isReducedMotion =
+    motionCtx?.isReducedMotion ??
+    (typeof window !== 'undefined' && window.matchMedia
+      ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      : false)
   const isMotionEnabled = motionCtx?.isMotionEnabled ?? !isReducedMotion
   const disableMotion = isEink || isReducedMotion || !isMotionEnabled
 
@@ -237,19 +254,8 @@ export const ArtilleryCanvas = memo(function ArtilleryCanvas({
       const ctx = canvas.getContext('2d')
       if (!ctx) return
 
-      const {
-        tanks,
-        terrain,
-        currentTurn,
-        phase,
-        wind,
-        isEink,
-        theme,
-        turnTitle,
-        windText,
-        mode,
-        propActiveTank,
-      } = renderPropsRef.current
+      const { tanks, terrain, currentTurn, phase, wind, isEink, theme, turnTitle, windText, mode, propActiveTank } =
+        renderPropsRef.current
 
       // Continuous dynamic objects are read directly from engineRef to achieve 60-120fps with ZERO React state churning
       const projectiles = engineRef?.current?.projectiles ?? renderPropsRef.current.projectiles
@@ -307,12 +313,10 @@ export const ArtilleryCanvas = memo(function ArtilleryCanvas({
       const isIntro = !isIntroSkippedRef.current && introStateRef.current.stage !== 'done'
       const intro = introStateRef.current
       const isLingeringOnImpact =
-        lastImpactRef.current !== null &&
-        (phase === 'firing' || phase === 'resolving') &&
-        projectiles.length === 0
+        lastImpactRef.current !== null && (phase === 'firing' || phase === 'resolving') && projectiles.length === 0
 
       const isMobilePortrait = displayWidth < 640 && displayHeight > displayWidth
-      const tankFocusOffsetX = isMobilePortrait ? (isP1 ? 40 : -40) : (isP1 ? 60 : -60)
+      const tankFocusOffsetX = isMobilePortrait ? (isP1 ? 40 : -40) : isP1 ? 60 : -60
       const tankFocusOffsetY = isMobilePortrait ? -35 : -25
 
       let targetX = activeTank.x + tankFocusOffsetX
@@ -327,7 +331,8 @@ export const ArtilleryCanvas = memo(function ArtilleryCanvas({
       const opponentId: PlayerId = currentTurn === 'p1' ? 'p2' : 'p1'
       const opponentTank = tanks[opponentId]
       const opponentIsP1 = opponentId === 'p1'
-      const opponentFocusX = opponentTank.x + (opponentIsP1 ? (isMobilePortrait ? 40 : 60) : -(isMobilePortrait ? 40 : 60))
+      const opponentFocusX =
+        opponentTank.x + (opponentIsP1 ? (isMobilePortrait ? 40 : 60) : -(isMobilePortrait ? 40 : 60))
       const opponentFocusY = opponentTank.y + tankFocusOffsetY
       const currentFocusX = activeTank.x + tankFocusOffsetX
       const currentFocusY = activeTank.y + tankFocusOffsetY
@@ -472,13 +477,14 @@ export const ArtilleryCanvas = memo(function ArtilleryCanvas({
       // Camera smoothing with maximum velocity capping (calm & cinematic, zero jerking)
       const isScoutPan = isScoutActive && (scout.stage === 'pan_to_enemy' || scout.stage === 'pan_to_player')
       const isTrackingShell = !isIntro && !isScoutActive && projectiles.length > 0
-      const isTrackingImpact = !isIntro && !isScoutActive && (explosions.length > 0 || isLingeringOnImpact) && projectiles.length === 0
+      const isTrackingImpact =
+        !isIntro && !isScoutActive && (explosions.length > 0 || isLingeringOnImpact) && projectiles.length === 0
       const isIntroPan = isIntro && (intro.stage === 'pan_to_p2' || intro.stage === 'pan_to_p1')
       const camLerp = isTrackingShell
-        ? 0.20
+        ? 0.2
         : isTrackingImpact
           ? 0.06
-          : (isIntroPan || isScoutPan)
+          : isIntroPan || isScoutPan
             ? 0.038 // Calm, smooth, panoramic glide
             : 0.04
       const zoomLerp = isTrackingShell ? 0.06 : 0.025
@@ -861,7 +867,7 @@ export const ArtilleryCanvas = memo(function ArtilleryCanvas({
               const castX = pt.x + sunCastDirX * (9 * sunCastWeight) * (1 - Math.abs(relI) * 0.25)
               // Tilt with slope angle so it hugs steep inclines
               const slopeDrop = Math.sin(slopeAngle) * relI * 8
-              const castY = pt.y + (7.5 * bellCurve) + Math.max(0, slopeDrop)
+              const castY = pt.y + 7.5 * bellCurve + Math.max(0, slopeDrop)
               ctx.lineTo(castX, castY)
             }
             ctx.closePath()
@@ -901,8 +907,12 @@ export const ArtilleryCanvas = memo(function ArtilleryCanvas({
         const hullStroke = isP1Tank ? '#313d38' : '#493b32'
         const hullFill = isEink
           ? isDark
-            ? isP1Tank ? '#111111' : '#555555'
-            : isP1Tank ? '#ffffff' : '#475569'
+            ? isP1Tank
+              ? '#111111'
+              : '#555555'
+            : isP1Tank
+              ? '#ffffff'
+              : '#475569'
           : hullTop
 
         if (!isEink) {
@@ -973,9 +983,7 @@ export const ArtilleryCanvas = memo(function ArtilleryCanvas({
         ctx.lineWidth = isEink ? 1.5 : 1
         ctx.stroke()
 
-        const barrelAngleRad = isP1Tank
-          ? -((tank.angle * Math.PI) / 180)
-          : -(((180 - tank.angle) * Math.PI) / 180)
+        const barrelAngleRad = isP1Tank ? -((tank.angle * Math.PI) / 180) : -(((180 - tank.angle) * Math.PI) / 180)
         ctx.save()
         ctx.translate(0, turretCenterY)
         ctx.rotate(barrelAngleRad - slopeAngle)
@@ -1091,13 +1099,7 @@ export const ArtilleryCanvas = memo(function ArtilleryCanvas({
             // Fill bar with dynamic color coding based on health remaining
             const fillW = Math.max(0, Math.round((barW - 2) * hpFrac))
             if (fillW > 0) {
-              const fillColor = isEink
-                ? '#ffffff'
-                : hpFrac > 0.5
-                  ? '#22c55e'
-                  : hpFrac > 0.25
-                    ? '#f59e0b'
-                    : '#ef4444'
+              const fillColor = isEink ? '#ffffff' : hpFrac > 0.5 ? '#22c55e' : hpFrac > 0.25 ? '#f59e0b' : '#ef4444'
 
               ctx.fillStyle = fillColor
               ctx.beginPath()
@@ -1166,8 +1168,12 @@ export const ArtilleryCanvas = memo(function ArtilleryCanvas({
         let py = muzzle.y
 
         const reticleColor = isEink
-          ? isDark ? '#ffffff' : '#000000'
-          : isDark ? 'rgba(255, 255, 255, 0.95)' : '#0f172a'
+          ? isDark
+            ? '#ffffff'
+            : '#000000'
+          : isDark
+            ? 'rgba(255, 255, 255, 0.95)'
+            : '#0f172a'
 
         ctx.save()
         if (!isEink) {
@@ -1303,7 +1309,12 @@ export const ArtilleryCanvas = memo(function ArtilleryCanvas({
         const flashColor = exp.color || '#f59e0b'
         const flashGrad = ctx.createRadialGradient(exp.x, exp.y, 0, exp.x, exp.y, currentR * 2.2)
         flashGrad.addColorStop(0, `rgba(255, 255, 255, ${0.5 * alpha})`)
-        flashGrad.addColorStop(0.4, `${flashColor}${Math.max(10, Math.min(255, Math.round(255 * 0.3 * alpha))).toString(16).padStart(2, '0')}`)
+        flashGrad.addColorStop(
+          0.4,
+          `${flashColor}${Math.max(10, Math.min(255, Math.round(255 * 0.3 * alpha)))
+            .toString(16)
+            .padStart(2, '0')}`,
+        )
         flashGrad.addColorStop(1, 'rgba(0, 0, 0, 0)')
         ctx.fillStyle = flashGrad
         ctx.beginPath()
@@ -1430,8 +1441,11 @@ export const ArtilleryCanvas = memo(function ArtilleryCanvas({
         ctx.save()
         const isPl = locale === 'pl' || windText?.includes('Wiatr')
         const bannerText = isScoutActive
-          ? (t?.scoutBanner || (isPl ? 'Rozpoznanie pozycji przeciwnika · Kliknij, aby wrócić' : 'Enemy reconnaissance · Click to return'))
-          : (isPl ? 'Rozpoznanie pozycji · Kliknij, aby pominąć' : 'Position recon · Click to skip')
+          ? t?.scoutBanner ||
+            (isPl ? 'Rozpoznanie pozycji przeciwnika · Kliknij, aby wrócić' : 'Enemy reconnaissance · Click to return')
+          : isPl
+            ? 'Rozpoznanie pozycji · Kliknij, aby pominąć'
+            : 'Position recon · Click to skip'
         ctx.font = '500 12px system-ui, -apple-system, sans-serif'
         const bMetrics = ctx.measureText(bannerText)
         const bW = bMetrics.width + 24
@@ -1485,7 +1499,16 @@ export const ArtilleryCanvas = memo(function ArtilleryCanvas({
           aria-label={t?.scoutEnemy || 'Check enemy position'}
           title={`${t?.scoutEnemy || 'Check enemy position'} (S)`}
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
             <circle cx="12" cy="12" r="3" />
           </svg>
@@ -1516,7 +1539,8 @@ export const ArtilleryCanvas = memo(function ArtilleryCanvas({
               const isPl = locale === 'pl' || windText?.includes('Wiatr')
               const windLabel = t?.windLabel || (isPl ? 'Wiatr' : 'Wind')
               const calmText = isPl ? 'Bezwietrznie' : 'Calm'
-              const driftDirText = windLevel < 0 ? (isPl ? 'w lewo' : 'left') : windLevel > 0 ? (isPl ? 'w prawo' : 'right') : ''
+              const driftDirText =
+                windLevel < 0 ? (isPl ? 'w lewo' : 'left') : windLevel > 0 ? (isPl ? 'w prawo' : 'right') : ''
               const ariaDesc = isCalm ? `${windLabel}: ${calmText}` : `${windLabel}: ${windAbs}/3 ${driftDirText}`
 
               // Color variant by intensity: 1: blue, 2: orange, 3: red, 0: calm neutral

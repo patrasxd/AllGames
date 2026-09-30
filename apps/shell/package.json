@@ -13,6 +13,7 @@
     "@allgames/2048": "*",
     "@allgames/artillery": "*",
     "@allgames/ball-sort": "*",
+    "@allgames/block-out": "*",
     "@allgames/bubble-shooter": "*",
     "@allgames/checkers": "*",
     "@allgames/chess": "*",

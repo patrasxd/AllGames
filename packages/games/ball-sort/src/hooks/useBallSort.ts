@@ -79,7 +79,12 @@ export function useBallSort() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  useEffect(() => () => { if (lastMoveClearRef.current) clearTimeout(lastMoveClearRef.current) }, [])
+  useEffect(
+    () => () => {
+      if (lastMoveClearRef.current) clearTimeout(lastMoveClearRef.current)
+    },
+    [],
+  )
 
   const restartLevel = useCallback(() => {
     loadLevel(currentLevel)
@@ -180,4 +185,3 @@ export function useBallSort() {
     goToLevel,
   }
 }
-

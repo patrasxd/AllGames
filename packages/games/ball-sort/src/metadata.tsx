@@ -41,8 +41,8 @@ export const metadata: GameMetadata = {
   },
   icon: <TubeIcon />,
   tags: {
-    en: ['1 player', 'puzzle', 'levels'],
-    pl: ['1 gracz', 'logiczna', 'poziomy'],
+    en: ['puzzle', 'levels'],
+    pl: ['logiczna', 'poziomy'],
   },
   minPlayers: 1,
   maxPlayers: 1,

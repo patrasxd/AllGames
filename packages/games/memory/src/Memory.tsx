@@ -4,7 +4,16 @@ import { useMemory } from './hooks/useMemory'
 import { MemoryBoard } from './components/MemoryBoard'
 import type { GameComponentProps, MemoryDifficulty, MemoryGameMode } from './types'
 import { memoryTranslations } from './i18n'
-import { BoardLayout, ConfirmDialog, Button, PillGroup, ControlsBar, ModeSelect, StatsHeader, formatTime } from '@all/ui'
+import {
+  BoardLayout,
+  ConfirmDialog,
+  Button,
+  PillGroup,
+  ControlsBar,
+  ModeSelect,
+  StatsHeader,
+  formatTime,
+} from '@all/ui'
 import { GameResultOverlay, SinglePlayerIcon, TwoPlayersIcon } from '@allgames/ui'
 import './styles/memory.css'
 

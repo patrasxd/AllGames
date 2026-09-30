@@ -36,4 +36,3 @@ describe('AimControls', () => {
     expect(document.querySelector('.bs-touch-dock')).not.toBeInTheDocument()
   })
 })
-

@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vitest'
-import { createInitialBoard, createRefillPRNG, generateLevel, hasPossibleMoves, findFirstValidMove } from '../logic/generator'
+import {
+  createInitialBoard,
+  createRefillPRNG,
+  generateLevel,
+  hasPossibleMoves,
+  findFirstValidMove,
+} from '../logic/generator'
 import { generateSolvableLevel, simulateLevel } from '../logic/solver'
 import { findMatches } from '../logic/engine'
 import type { Tile } from '../types'

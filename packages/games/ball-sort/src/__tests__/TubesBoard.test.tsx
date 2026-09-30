@@ -85,4 +85,3 @@ describe('TubesBoard', () => {
     expect(rows9[1].querySelectorAll('.bs-tube')).toHaveLength(4)
   })
 })
-

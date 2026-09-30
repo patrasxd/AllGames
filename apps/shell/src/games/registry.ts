@@ -17,6 +17,7 @@ import { metadata as wingRushMetadata } from '@allgames/wing-rush/metadata'
 import { metadata as artilleryMetadata } from '@allgames/artillery/metadata'
 import { metadata as bubbleShooterMetadata } from '@allgames/bubble-shooter/metadata'
 import { metadata as ballSortMetadata } from '@allgames/ball-sort/metadata'
+import { metadata as blockOutMetadata } from '@allgames/block-out/metadata'
 
 export interface GameRegistryEntry {
   metadata: GameMetadata
@@ -43,6 +44,10 @@ export const GAMES: GameRegistryEntry[] = [
   {
     metadata: ballSortMetadata,
     load: lazyGame(() => import('@allgames/ball-sort')),
+  },
+  {
+    metadata: blockOutMetadata,
+    load: lazyGame(() => import('@allgames/block-out')),
   },
   {
     metadata: crystalMatchMetadata,

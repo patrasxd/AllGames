@@ -131,24 +131,27 @@ export function useCrystalMatch(options?: { isEink?: boolean; locale?: Locale })
     }
   }, [])
 
-  const initLevel = useCallback((lvl: number) => {
-    runIdRef.current += 1
-    isProcessingRef.current = false
-    const newConfig = generateSolvableLevel(lvl, progress.campaignSeed ?? 1)
-    refillRandomRef.current = createRefillPRNG(newConfig)
-    setLevel(lvl)
-    setConfig(newConfig)
-    setBoard(createInitialBoard(newConfig))
-    setMovesLeft(newConfig.maxMoves)
-    setScore(0)
-    setGoals(newConfig.goals.map((g) => ({ ...g, current: 0 })))
-    setGameStatus('playing')
-    setCombo(0)
-    setBursts([])
-    setComboPopups([])
-    setIsLevelIntroOpen(true)
-    setHintCoords(null)
-  }, [progress.campaignSeed])
+  const initLevel = useCallback(
+    (lvl: number) => {
+      runIdRef.current += 1
+      isProcessingRef.current = false
+      const newConfig = generateSolvableLevel(lvl, progress.campaignSeed ?? 1)
+      refillRandomRef.current = createRefillPRNG(newConfig)
+      setLevel(lvl)
+      setConfig(newConfig)
+      setBoard(createInitialBoard(newConfig))
+      setMovesLeft(newConfig.maxMoves)
+      setScore(0)
+      setGoals(newConfig.goals.map((g) => ({ ...g, current: 0 })))
+      setGameStatus('playing')
+      setCombo(0)
+      setBursts([])
+      setComboPopups([])
+      setIsLevelIntroOpen(true)
+      setHintCoords(null)
+    },
+    [progress.campaignSeed],
+  )
 
   // Show a hint after 3.5s without input
   const scheduleHint = useCallback((currentBoard: Tile[][]) => {
