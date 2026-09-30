@@ -366,6 +366,12 @@
 }
 
 /* ─── Dialog Content (Goals, Rules, Level Select) ─────────── */
+.cm-dialog .all-dialog__footer {
+  border-top: none;
+  background-color: transparent;
+  padding: var(--all-space-2, 8px) var(--all-space-5, 20px) var(--all-space-5, 20px);
+}
+
 .cm-modal-actions {
   display: flex;
   gap: 0.5rem;

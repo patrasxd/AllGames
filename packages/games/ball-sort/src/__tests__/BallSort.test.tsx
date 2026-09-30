@@ -3,15 +3,34 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { BallSort } from '../BallSort'
 
 describe('BallSort component', () => {
-  it('renders the board with tubes, controls, and the intro overlay on first load', () => {
+  it('renders the board with tubes, controls, and without intrusive auto-popup on first load', () => {
     render(<BallSort locale="en" />)
 
     expect(document.querySelector('.bs-tubes-board')).toBeInTheDocument()
     expect(document.querySelectorAll('.bs-tube').length).toBeGreaterThan(0)
 
     expect(screen.getByRole('button', { name: /undo/i })).toBeDisabled()
+    expect(screen.getByRole('button', { name: /how to play/i })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /reset/i })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /levels/i })).toBeInTheDocument()
+    // Auto-start overlay should NOT be present on first load
+    expect(screen.queryByRole('button', { name: /^start$/i })).not.toBeInTheDocument()
+  })
+
+  it('opens and closes the how-to-play dialog via controls button', async () => {
+    render(<BallSort locale="en" />)
+    const howToPlayBtn = screen.getByRole('button', { name: /how to play/i })
+    fireEvent.click(howToPlayBtn)
+
+    expect(await screen.findByRole('dialog')).toBeInTheDocument()
+    expect(screen.getByText(/tap a tube to pick up its top color/i)).toBeInTheDocument()
+
+    const okBtn = screen.getByRole('button', { name: /^ok$/i })
+    fireEvent.click(okBtn)
+
+    await waitFor(() => {
+      expect(screen.queryByText(/tap a tube to pick up its top color/i)).not.toBeInTheDocument()
+    })
   })
 
   it('opens and closes the level-select modal', async () => {

@@ -92,6 +92,60 @@ export function TubesBoard({ tubes, capacity, selected, onSelect, isEink = false
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lastMove])
 
+  // Split tubes into two balanced rows from 8 tubes upwards (e.g. 8 -> 4 & 4, 9 -> 5 & 4, 10 -> 5 & 5)
+  const splitIndex = tubes.length >= 8 ? Math.ceil(tubes.length / 2) : tubes.length
+  const topRow = tubes.slice(0, splitIndex).map((tube, i) => ({ tube, index: i }))
+  const bottomRow =
+    splitIndex < tubes.length
+      ? tubes.slice(splitIndex).map((tube, i) => ({ tube, index: splitIndex + i }))
+      : []
+
+  const renderTube = (tube: Tube, i: number) => {
+    const isSelected = selected === i
+    const canReceiveSelection = selected !== null && selected !== i
+    return (
+      <button
+        key={i}
+        type="button"
+        className={`bs-tube ${isSelected ? 'bs-tube--selected' : ''} ${canReceiveSelection ? 'bs-tube--target' : ''}`}
+        style={{ ['--bs-capacity' as string]: capacity }}
+        onClick={() => onSelect(i)}
+        aria-label={`Tube ${i + 1}${tube.length > 0 ? `, top color ${tube[tube.length - 1]}` : ', empty'}`}
+      >
+        {/* Top bounce indicator when selected (absolutely positioned so it never shifts the layout) */}
+        {isSelected && <div className="bs-tube-bounce-indicator" />}
+        <div className="bs-tube-glass">
+          {/* Empty slots at top */}
+          {Array.from({ length: capacity - tube.length }).map((_, slotIdx) => (
+            <div key={`empty-${slotIdx}`} className="bs-ball-slot bs-ball-slot--empty" />
+          ))}
+          {/* Balls from top to bottom (reversed so top of array = top of tube visually) */}
+          {[...tube].reverse().map((color, ballIdx) => (
+            <div key={ballIdx} className="bs-ball-slot">
+              <div
+                className="bs-ball"
+                style={
+                  isEink
+                    ? { background: 'var(--all-surface)', border: '2px solid var(--all-text)' }
+                    : {
+                        background: `radial-gradient(circle at 32% 28%, ${lighten(BALL_HEX[color])}, ${BALL_HEX[color]})`,
+                      }
+                }
+              >
+                <BallGlyph
+                  color={color}
+                  size={16}
+                  ink={isEink ? 'var(--all-text)' : '#ffffff'}
+                  outline={isEink ? 'var(--all-text)' : 'rgba(0,0,0,0.55)'}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      </button>
+    )
+  }
+
   return (
     <div
       ref={boardRef}
@@ -100,51 +154,10 @@ export function TubesBoard({ tubes, capacity, selected, onSelect, isEink = false
       aria-label="Tubes"
       style={{ ['--bs-tube-count' as string]: tubes.length }}
     >
-      {tubes.map((tube, i) => {
-        const isSelected = selected === i
-        const canReceiveSelection = selected !== null && selected !== i
-        return (
-          <button
-            key={i}
-            type="button"
-            className={`bs-tube ${isSelected ? 'bs-tube--selected' : ''} ${canReceiveSelection ? 'bs-tube--target' : ''}`}
-            style={{ ['--bs-capacity' as string]: capacity }}
-            onClick={() => onSelect(i)}
-            aria-label={`Tube ${i + 1}${tube.length > 0 ? `, top color ${tube[tube.length - 1]}` : ', empty'}`}
-          >
-            {/* Top bounce indicator when selected (absolutely positioned so it never shifts the layout) */}
-            {isSelected && <div className="bs-tube-bounce-indicator" />}
-            <div className="bs-tube-glass">
-              {/* Empty slots at top */}
-              {Array.from({ length: capacity - tube.length }).map((_, slotIdx) => (
-                <div key={`empty-${slotIdx}`} className="bs-ball-slot bs-ball-slot--empty" />
-              ))}
-              {/* Balls from top to bottom (reversed so top of array = top of tube visually) */}
-              {[...tube].reverse().map((color, ballIdx) => (
-                <div key={ballIdx} className="bs-ball-slot">
-                  <div
-                    className="bs-ball"
-                    style={
-                      isEink
-                        ? { background: 'var(--all-surface)', border: '2px solid var(--all-text)' }
-                        : {
-                            background: `radial-gradient(circle at 32% 28%, ${lighten(BALL_HEX[color])}, ${BALL_HEX[color]})`,
-                          }
-                    }
-                  >
-                    <BallGlyph
-                      color={color}
-                      size={16}
-                      ink={isEink ? 'var(--all-text)' : '#ffffff'}
-                      outline={isEink ? 'var(--all-text)' : 'rgba(0,0,0,0.55)'}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </button>
-        )
-      })}
+      <div className="bs-tubes-row">{topRow.map(({ tube, index }) => renderTube(tube, index))}</div>
+      {bottomRow.length > 0 && (
+        <div className="bs-tubes-row">{bottomRow.map(({ tube, index }) => renderTube(tube, index))}</div>
+      )}
     </div>
   )
 }

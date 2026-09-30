@@ -1,22 +1,57 @@
 /* ─── Tubes board ──────────────────────────────────────────── */
 .bs-tubes-board {
   display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  justify-content: center;   /* centres tubes horizontally in all cases */
-  gap: var(--all-space-3, 0.75rem) var(--all-space-2, 0.5rem);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--all-space-4, 1.25rem);
   /* Extra top padding leaves room for the selection dot and the flying balls without resizing the board */
   padding: calc(var(--all-space-3, 0.75rem) + 0.75rem) var(--all-space-2, 0.5rem) var(--all-space-3, 0.75rem);
-  /* Cap width so 6 tubes per row max; more tubes naturally wrap to a second row */
-  max-width: min(100%, calc(var(--bs-tube-count, 8) * 4rem));
+  width: 100%;
+  max-width: 100%;
   margin: 0 auto;
   box-sizing: border-box;
+}
+
+.bs-tubes-row {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: flex-end;
+  justify-content: center;
+  gap: var(--all-space-3, 0.75rem);
+  width: 100%;
+}
+
+@media (max-width: 480px) {
+  .bs-tubes-row {
+    gap: var(--all-space-2, 0.35rem);
+  }
 }
 
 /* Narrow phones: tighter spacing */
 @media (max-width: 360px) {
   .bs-tubes-board {
-    gap: var(--all-space-2, 0.5rem) var(--all-space-1, 0.25rem);
+    gap: var(--all-space-2, 0.5rem);
+    padding: var(--all-space-2, 0.5rem) var(--all-space-1, 0.25rem);
+  }
+  .bs-tubes-row {
+    gap: var(--all-space-1, 0.2rem);
+  }
+}
+
+/* Short viewports (mobile landscape) */
+@media (max-height: 520px) {
+  .bs-tubes-board {
+    gap: var(--all-space-1, 0.35rem);
+    padding: calc(var(--all-space-1, 0.25rem) + 0.5rem) var(--all-space-1, 0.25rem) var(--all-space-1, 0.25rem);
+  }
+  .bs-tube-glass {
+    width: 2.3rem;
+    padding: 0.2rem 0.2rem 0.35rem;
+  }
+  .bs-ball-slot {
+    width: 1.65rem;
+    height: 1.65rem;
   }
 }
 
@@ -165,3 +200,46 @@
 .bs-level-cell--locked .bs-level-stars {
   color: var(--all-text-dim);
 }
+
+/* ─── How to Play Modal ────────────────────────────────────── */
+.bs-dialog {
+  background-color: var(--all-surface);
+}
+
+.bs-dialog .all-dialog__header {
+  border-bottom: none;
+  padding: var(--all-space-5, 20px) var(--all-space-5, 20px) var(--all-space-2, 8px);
+}
+
+.bs-dialog .all-dialog__body {
+  padding: var(--all-space-2, 8px) var(--all-space-5, 20px) var(--all-space-3, 12px);
+}
+
+.bs-dialog .all-dialog__footer {
+  border-top: none;
+  background-color: transparent;
+  padding: var(--all-space-2, 8px) var(--all-space-5, 20px) var(--all-space-5, 20px);
+}
+
+.bs-how-to-play-content {
+  display: flex;
+  flex-direction: column;
+  padding: var(--all-space-1, 0.25rem) 0;
+}
+
+.bs-how-to-play-text {
+  font-family: var(--all-font-sans, system-ui, sans-serif);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--all-text-muted);
+  margin: 0;
+  text-align: left;
+}
+
+.bs-how-to-play-actions {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+

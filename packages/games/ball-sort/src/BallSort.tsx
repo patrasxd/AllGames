@@ -3,10 +3,11 @@ import { AnimatePresence } from 'framer-motion'
 import { useBallSort } from './hooks/useBallSort'
 import { TubesBoard } from './components/TubesBoard'
 import { LevelSelectModal } from './components/LevelSelectModal'
+import { HelpIcon } from './components/Icons'
 import type { GameComponentProps } from './types'
 import { ballSortTranslations } from './i18n'
-import { BoardLayout, Button, ConfirmDialog, ControlsBar, StatsHeader, UndoIcon } from '@all/ui'
-import { GameResultOverlay, GameStartOverlay } from '@allgames/ui'
+import { BoardLayout, Button, ConfirmDialog, ControlsBar, Dialog, StatsHeader, UndoIcon } from '@all/ui'
+import { GameResultOverlay } from '@allgames/ui'
 import './styles/ball-sort.css'
 
 export function BallSort({ setHeader, setIsActive, locale = 'en', isEink = false }: GameComponentProps) {
@@ -34,6 +35,7 @@ export function BallSort({ setHeader, setIsActive, locale = 'en', isEink = false
 
   const [levelSelectOpen, setLevelSelectOpen] = useState(false)
   const [confirmRestart, setConfirmRestart] = useState(false)
+  const [howToPlayOpen, setHowToPlayOpen] = useState(false)
 
   useEffect(() => {
     setIsActive?.(isGameActive)
@@ -66,10 +68,6 @@ export function BallSort({ setHeader, setIsActive, locale = 'en', isEink = false
     return () => setHeader?.(null)
   }, [setHeader])
 
-  const [introSeen, setIntroSeen] = useState(false)
-
-  const showIntro = currentLevel === 1 && moves === 0 && status === 'playing' && !introSeen
-
   return (
     <>
       <BoardLayout
@@ -97,6 +95,15 @@ export function BallSort({ setHeader, setIsActive, locale = 'en', isEink = false
             >
               {t.undo}
             </Button>
+            <Button
+              id="ball-sort-how-to-play-btn"
+              variant="secondary"
+              size="sm"
+              icon={<HelpIcon />}
+              onClick={() => setHowToPlayOpen(true)}
+            >
+              {t.howToPlayTitle}
+            </Button>
             <Button id="ball-sort-restart-btn" variant="secondary" size="sm" onClick={requestRestart}>
               {t.reset}
             </Button>
@@ -107,16 +114,6 @@ export function BallSort({ setHeader, setIsActive, locale = 'en', isEink = false
         }
         overlay={
           <AnimatePresence>
-            {showIntro && (
-              <GameStartOverlay
-                title={t.howToPlayTitle}
-                subtitle={t.howToPlayBody}
-                startText={t.startLevel}
-                onStart={() => setIntroSeen(true)}
-                startId="ball-sort-start-btn"
-                isEink={isEink}
-              />
-            )}
 
 
             {status === 'won' && (
@@ -160,6 +157,30 @@ export function BallSort({ setHeader, setIsActive, locale = 'en', isEink = false
         progress={progress}
         t={t}
       />
+
+      <Dialog
+        isOpen={howToPlayOpen}
+        onClose={() => setHowToPlayOpen(false)}
+        title={t.howToPlayTitle}
+        maxWidth="sm"
+        className="bs-dialog"
+        footer={
+          <div className="bs-how-to-play-actions">
+            <Button
+              id="ball-sort-how-to-play-ok-btn"
+              variant="primary"
+              size="sm"
+              onClick={() => setHowToPlayOpen(false)}
+            >
+              OK
+            </Button>
+          </div>
+        }
+      >
+        <div className="bs-how-to-play-content">
+          <p className="bs-how-to-play-text">{t.howToPlayBody}</p>
+        </div>
+      </Dialog>
 
       <ConfirmDialog
         open={confirmRestart}

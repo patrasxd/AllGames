@@ -50,4 +50,39 @@ describe('TubesBoard', () => {
     )
     expect(animate).not.toHaveBeenCalled()
   })
+
+  it('renders tubes in a single row when tube count < 8', () => {
+    // 5 tubes: 1 row
+    const tubes5: Tube[] = [['red'], ['blue'], ['green'], ['red'], []]
+    const { container: c5 } = render(<TubesBoard tubes={tubes5} capacity={4} selected={null} onSelect={() => {}} />)
+    const rows5 = c5.querySelectorAll('.bs-tubes-row')
+    expect(rows5).toHaveLength(1)
+    expect(rows5[0].querySelectorAll('.bs-tube')).toHaveLength(5)
+
+    // 7 tubes: 1 row
+    const tubes7: Tube[] = Array.from({ length: 7 }, () => ['red'])
+    const { container: c7 } = render(<TubesBoard tubes={tubes7} capacity={4} selected={null} onSelect={() => {}} />)
+    const rows7 = c7.querySelectorAll('.bs-tubes-row')
+    expect(rows7).toHaveLength(1)
+    expect(rows7[0].querySelectorAll('.bs-tube')).toHaveLength(7)
+  })
+
+  it('splits tubes into two balanced symmetrical rows from 8 tubes upwards', () => {
+    // 8 tubes: 4 top, 4 bottom
+    const tubes8: Tube[] = Array.from({ length: 8 }, () => ['red'])
+    const { container: c8 } = render(<TubesBoard tubes={tubes8} capacity={4} selected={null} onSelect={() => {}} />)
+    const rows8 = c8.querySelectorAll('.bs-tubes-row')
+    expect(rows8).toHaveLength(2)
+    expect(rows8[0].querySelectorAll('.bs-tube')).toHaveLength(4)
+    expect(rows8[1].querySelectorAll('.bs-tube')).toHaveLength(4)
+
+    // 9 tubes: 5 top, 4 bottom
+    const tubes9: Tube[] = Array.from({ length: 9 }, () => ['red'])
+    const { container: c9 } = render(<TubesBoard tubes={tubes9} capacity={4} selected={null} onSelect={() => {}} />)
+    const rows9 = c9.querySelectorAll('.bs-tubes-row')
+    expect(rows9).toHaveLength(2)
+    expect(rows9[0].querySelectorAll('.bs-tube')).toHaveLength(5)
+    expect(rows9[1].querySelectorAll('.bs-tube')).toHaveLength(4)
+  })
 })
+
