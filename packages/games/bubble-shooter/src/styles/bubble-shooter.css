@@ -33,53 +33,38 @@
   display: block;
 }
 
-/* ─── Footer: single row of meta controls (New Game, difficulty) ──── */
+/* ─── Footer: two-row layout ─────────────────────────────────── */
 .bs-footer-bar {
-  flex-wrap: wrap;
-  justify-content: center;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--all-space-2, 0.5rem);
+  padding: var(--all-space-2, 0.5rem) var(--all-space-3, 0.75rem);
 }
 
-/* On-screen aim/fire dock: floats over the canvas near the bottom, like Artillery's tactical dock.
-   Only on touch devices — a mouse aims and fires by clicking the canvas directly. */
-.bs-touch-dock {
+/* Aim/fire row — hidden on pointer:fine (mouse/trackpad), shown on touch */
+.bs-aim-row {
   display: none;
-  position: absolute;
-  left: 50%;
-  bottom: max(var(--all-space-4, 1rem), env(safe-area-inset-bottom, 0px));
-  transform: translateX(-50%);
-  z-index: 15;
   align-items: center;
   justify-content: center;
   gap: var(--all-space-2, 0.5rem);
-  padding: var(--all-space-2, 0.5rem) var(--all-space-3, 0.75rem);
-  border-radius: var(--all-radius-full, 9999px);
-  background: color-mix(in srgb, var(--all-surface) 85%, transparent);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: var(--all-border-width-sm, 1px) solid var(--all-border-2);
-  box-shadow: var(--all-shadow-md);
-  touch-action: none;
-  user-select: none;
-  -webkit-user-select: none;
-}
-
-[data-eink='true'] .bs-touch-dock {
-  background: var(--all-surface) !important;
-  border: var(--all-border-width, 2px) solid var(--all-border) !important;
-  backdrop-filter: none !important;
-  box-shadow: none !important;
-}
-
-.bs-touch-dock .all-btn {
-  touch-action: none;
-}
-
-.bs-fire-btn {
-  min-width: 6rem;
 }
 
 @media (pointer: coarse) {
-  .bs-touch-dock {
+  .bs-aim-row {
     display: flex;
   }
 }
+
+/* Meta controls row — always visible */
+.bs-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--all-space-2, 0.5rem);
+}
+
+.bs-fire-btn {
+  min-width: 5rem;
+}
+

@@ -1,5 +1,4 @@
 import { useEffect, useRef, memo } from 'react'
-import { AimControls } from './AimControls'
 import type { MutableRefObject } from 'react'
 import type { BubbleColor, BubbleView, GameTheme, ShotEvent } from '../types'
 import {
@@ -675,19 +674,21 @@ export const BubbleShooterCanvas = memo(function BubbleShooterCanvas({
         e.preventDefault()
         const p = toVirtual(e)
         onAim(p.x, p.y)
-        // Mouse click fires. Touch/pen only aim: firing is the Fire button's job, so a stray tap never shoots.
+        // Mouse: fires immediately on click. Touch/pen: capture the pointer so
+        // onPointerMove tracks the drag even outside the element, then fire on release.
         if (e.pointerType === 'mouse') onShoot(aimAngleFromPoint(p.x, p.y))
         else e.currentTarget.setPointerCapture(e.pointerId)
+      }}
+      onPointerUp={(e) => {
+        // Touch/pen: "drag to aim, lift to shoot" — fires on finger/stylus release.
+        if (e.pointerType !== 'mouse') onShoot(viewRef.current.aimAngle)
+      }}
+      onPointerCancel={() => {
+        // Interrupted gesture (e.g. incoming call): do not fire.
       }}
     >
       <div className="bs-canvas-wrapper">
         <canvas ref={canvasRef} className="bs-canvas" />
-        <AimControls
-          disabled={aimDisabled}
-          labels={aimLabels}
-          onNudge={onNudge}
-          onFire={() => onShoot(viewRef.current.aimAngle)}
-        />
       </div>
     </div>
   )

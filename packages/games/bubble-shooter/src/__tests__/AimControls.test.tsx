@@ -28,20 +28,12 @@ describe('AimControls', () => {
     expect(onNudge).toHaveBeenLastCalledWith(1)
   })
 
-  it('keeps pointer events on the control dock from reaching the game canvas', () => {
-    const onCanvasPointerDown = vi.fn()
-    const onCanvasPointerMove = vi.fn()
-    render(
-      <div onPointerDown={onCanvasPointerDown} onPointerMove={onCanvasPointerMove}>
-        <AimControls disabled={false} labels={labels} onNudge={vi.fn()} onFire={vi.fn()} />
-      </div>,
-    )
-
-    const right = screen.getByRole('button', { name: 'Aim right' })
-    fireEvent.pointerDown(right)
-    fireEvent.pointerMove(right)
-
-    expect(onCanvasPointerDown).not.toHaveBeenCalled()
-    expect(onCanvasPointerMove).not.toHaveBeenCalled()
+  it('renders in a plain footer row (bs-aim-row), not a floating canvas overlay', () => {
+    render(<AimControls disabled={false} labels={labels} onNudge={vi.fn()} onFire={vi.fn()} />)
+    const row = document.querySelector('.bs-aim-row')
+    expect(row).toBeInTheDocument()
+    // Must not be the old position:absolute dock — it should be a plain div, not bs-touch-dock
+    expect(document.querySelector('.bs-touch-dock')).not.toBeInTheDocument()
   })
 })
+

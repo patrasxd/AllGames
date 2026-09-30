@@ -10,17 +10,18 @@ describe('BubbleShooter Component Integration', () => {
 
     expect(document.querySelector('.all-fullbleed-layout')).toBeInTheDocument()
 
-    // Footer holds only meta-game controls (New Game, difficulty), never gameplay controls — same
-    // convention as every other game in the suite (e.g. Artillery's footer vs. its on-canvas fire dock).
+    // Footer holds both aim controls and meta-game controls, matching the Artillery convention.
+    // Aim controls (.bs-aim-row) sit above the meta row (.bs-meta-row) inside the same ControlsBar.
     const footer = document.querySelector('.all-fullbleed-layout__footer')
     expect(footer).toBeInTheDocument()
     expect(footer?.querySelector('.all-pill-group')).toBeInTheDocument()
-    expect(footer?.querySelector('.bs-touch-dock')).not.toBeInTheDocument()
+    expect(footer?.querySelector('.bs-aim-row')).toBeInTheDocument()
+    expect(footer?.querySelector('.bs-meta-row')).toBeInTheDocument()
 
-    // The aim/fire dock lives inside the canvas wrapper, floating over the game, not in the footer.
+    // Canvas wrapper is clean — no overlay buttons covering the shooter anymore.
     const canvasWrapper = document.querySelector('.bs-canvas-wrapper')
     expect(canvasWrapper).toBeInTheDocument()
-    expect(canvasWrapper?.querySelector('.bs-touch-dock')).toBeInTheDocument()
+    expect(canvasWrapper?.querySelector('.bs-touch-dock')).not.toBeInTheDocument()
     expect(document.querySelector('canvas')).toBeInTheDocument()
 
     const startBtn = screen.getByRole('button', { name: /^Start$/i })
@@ -32,6 +33,7 @@ describe('BubbleShooter Component Integration', () => {
     fireEvent.click(startBtn)
     await waitFor(() => expect(screen.queryByRole('button', { name: /^Start$/i })).not.toBeInTheDocument())
   })
+
 
   it('does not ask for confirmation before any shot has been fired', async () => {
     const setIsActive = vi.fn()
