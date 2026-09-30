@@ -4,6 +4,24 @@ import React from 'react'
 import { CrystalMatch } from '../CrystalMatch'
 
 describe('CrystalMatch Component Integration', () => {
+  it('persists the campaign seed so future levels stay stable across visits', () => {
+    const key = 'allgames:crystal-match:progress'
+    const previous = localStorage.getItem(key)
+    localStorage.removeItem(key)
+
+    const firstRender = render(<CrystalMatch locale="en" />)
+    const firstSeed = JSON.parse(localStorage.getItem(key) || '{}').campaignSeed
+    firstRender.unmount()
+
+    render(<CrystalMatch locale="en" />)
+    const secondSeed = JSON.parse(localStorage.getItem(key) || '{}').campaignSeed
+
+    expect(Number.isInteger(firstSeed)).toBe(true)
+    expect(secondSeed).toBe(firstSeed)
+    localStorage.removeItem(key)
+    if (previous !== null) localStorage.setItem(key, previous)
+  })
+
   it('renders BoardLayout with goals, grid, ControlsBar, and handles Dialog modals', async () => {
     render(<CrystalMatch locale="en" />)
 

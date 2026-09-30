@@ -91,4 +91,6 @@ export interface PlayerProgress {
   levelStars: Record<number, number>
   levelHighScores: Record<number, number>
   totalScore: number
+  /** Per-player seed for stable procedural levels after the authored first 100. */
+  campaignSeed?: number
 }

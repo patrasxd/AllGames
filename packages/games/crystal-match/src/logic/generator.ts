@@ -13,8 +13,13 @@ export function createPRNG(seed: number) {
   }
 }
 
-export function generateLevel(levelIndex: number): LevelConfig {
-  const rand = createPRNG(levelIndex * 997 + 1013)
+export function createRefillPRNG(config: Pick<LevelConfig, 'seed'>) {
+  return createPRNG((config.seed ?? 1) ^ 0x5f3759df)
+}
+
+export function generateLevel(levelIndex: number, levelSeed?: number): LevelConfig {
+  const generationSeed = levelIndex <= 100 ? levelIndex * 997 + 1013 : levelSeed ?? levelIndex * 997 + 1013
+  const rand = createPRNG(generationSeed)
 
   const rows = 8
   const cols = 8
@@ -189,7 +194,7 @@ export function generateLevel(levelIndex: number): LevelConfig {
     gemColors,
     goals,
     starThresholds: [star1, star2, star3],
-    seed: levelIndex * 7919 + 17,
+    seed: levelIndex <= 100 ? levelIndex * 7919 + 17 : levelSeed ?? levelIndex * 7919 + 17,
     initialObstacles,
   }
 }

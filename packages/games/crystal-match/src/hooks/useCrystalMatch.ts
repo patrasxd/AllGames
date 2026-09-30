@@ -10,7 +10,8 @@ import type {
   GemType,
   Locale,
 } from '../types'
-import { generateLevel, createInitialBoard } from '../logic/generator'
+import { createInitialBoard, createRefillPRNG } from '../logic/generator'
+import { generateSolvableLevel } from '../logic/solver'
 import {
   findMatches,
   findBestMove,
@@ -30,6 +31,10 @@ import { crystalMatchTranslations } from '../i18n'
 
 const SAVE_KEY = 'allgames:crystal-match:progress'
 
+function createCampaignSeed(): number {
+  return Math.floor(Math.random() * 2147483646) + 1
+}
+
 // Animation pacing (ms). Movement itself is a spring in CrystalBoard; these only
 // decide how long the logic waits so the player can follow each step.
 const SWAP_MS = 190
@@ -44,18 +49,30 @@ function loadSavedProgress(): PlayerProgress {
     if (raw) {
       const parsed = JSON.parse(raw)
       if (typeof parsed.unlockedLevel === 'number') {
-        return {
+        const hasCampaignSeed = Number.isInteger(parsed.campaignSeed) && parsed.campaignSeed > 0
+        const progress: PlayerProgress = {
           unlockedLevel: parsed.unlockedLevel || 1,
           levelStars: parsed.levelStars || {},
           levelHighScores: parsed.levelHighScores || {},
           totalScore: parsed.totalScore || 0,
+          campaignSeed: hasCampaignSeed ? parsed.campaignSeed : createCampaignSeed(),
         }
+        if (!hasCampaignSeed) saveProgress(progress)
+        return progress
       }
     }
   } catch {
     // storage error
   }
-  return { unlockedLevel: 1, levelStars: {}, levelHighScores: {}, totalScore: 0 }
+  const progress: PlayerProgress = {
+    unlockedLevel: 1,
+    levelStars: {},
+    levelHighScores: {},
+    totalScore: 0,
+    campaignSeed: createCampaignSeed(),
+  }
+  saveProgress(progress)
+  return progress
 }
 
 function saveProgress(progress: PlayerProgress) {
@@ -82,10 +99,11 @@ export function useCrystalMatch(options?: { isEink?: boolean; locale?: Locale })
   const t = crystalMatchTranslations[options?.locale ?? 'en'] || crystalMatchTranslations.en
 
   const [progress, setProgress] = useState<PlayerProgress>(loadSavedProgress)
-  const [level, setLevel] = useState<number>(() => loadSavedProgress().unlockedLevel)
-  const [config, setConfig] = useState<LevelConfig>(() => generateLevel(level))
+  const [level, setLevel] = useState<number>(() => progress.unlockedLevel)
+  const [config, setConfig] = useState<LevelConfig>(() => generateSolvableLevel(level, progress.campaignSeed ?? 1))
 
   const [board, setBoard] = useState<Tile[][]>(() => createInitialBoard(config))
+  const refillRandomRef = useRef(createRefillPRNG(config))
   const [movesLeft, setMovesLeft] = useState<number>(config.maxMoves)
   const [score, setScore] = useState<number>(0)
   const [goals, setGoals] = useState<LevelGoal[]>(config.goals)
@@ -116,7 +134,8 @@ export function useCrystalMatch(options?: { isEink?: boolean; locale?: Locale })
   const initLevel = useCallback((lvl: number) => {
     runIdRef.current += 1
     isProcessingRef.current = false
-    const newConfig = generateLevel(lvl)
+    const newConfig = generateSolvableLevel(lvl, progress.campaignSeed ?? 1)
+    refillRandomRef.current = createRefillPRNG(newConfig)
     setLevel(lvl)
     setConfig(newConfig)
     setBoard(createInitialBoard(newConfig))
@@ -129,7 +148,7 @@ export function useCrystalMatch(options?: { isEink?: boolean; locale?: Locale })
     setComboPopups([])
     setIsLevelIntroOpen(true)
     setHintCoords(null)
-  }, [])
+  }, [progress.campaignSeed])
 
   // Show a hint after 3.5s without input
   const scheduleHint = useCallback((currentBoard: Tile[][]) => {
@@ -225,7 +244,7 @@ export function useCrystalMatch(options?: { isEink?: boolean; locale?: Locale })
         if (stale()) return
 
         // Everything above falls; new gems drop in from the top
-        currentBoard = applyGravityAndRefill(cleared, config).nextBoard
+        currentBoard = applyGravityAndRefill(cleared, config, refillRandomRef.current).nextBoard
         setBoard(currentBoard)
         await wait(FALL_MS)
         if (stale()) return
@@ -252,6 +271,7 @@ export function useCrystalMatch(options?: { isEink?: boolean; locale?: Locale })
               [level]: Math.max(prev.levelHighScores[level] || 0, totalLevelScore),
             },
             totalScore: prev.totalScore + totalLevelScore,
+            campaignSeed: prev.campaignSeed, // preserve so post-100 levels stay deterministic
           }
           saveProgress(next)
           return next
@@ -261,7 +281,7 @@ export function useCrystalMatch(options?: { isEink?: boolean; locale?: Locale })
       } else {
         if (!hasValidMove(currentBoard)) {
           // Nothing playable: shuffle the same gems (they glide to their new cells)
-          currentBoard = reshuffleBoard(currentBoard, config)
+          currentBoard = reshuffleBoard(currentBoard, config, refillRandomRef.current)
           setBoard(currentBoard)
           await wait(FALL_MS)
           if (stale()) return
@@ -332,7 +352,13 @@ export function useCrystalMatch(options?: { isEink?: boolean; locale?: Locale })
   )
 
   const resetAllProgress = useCallback(() => {
-    const empty: PlayerProgress = { unlockedLevel: 1, levelStars: {}, levelHighScores: {}, totalScore: 0 }
+    const empty: PlayerProgress = {
+      unlockedLevel: 1,
+      levelStars: {},
+      levelHighScores: {},
+      totalScore: 0,
+      campaignSeed: createCampaignSeed(),
+    }
     saveProgress(empty)
     setProgress(empty)
     initLevel(1)
