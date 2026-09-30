@@ -58,7 +58,7 @@ export function useBallSort() {
 
   const clearLastMove = useCallback(() => {
     if (lastMoveClearRef.current) clearTimeout(lastMoveClearRef.current)
-    lastMoveClearRef.current = setTimeout(() => setLastMove(null), 520)
+    lastMoveClearRef.current = setTimeout(() => setLastMove(null), 1000)
   }, [])
 
   const loadLevel = useCallback((level: number) => {

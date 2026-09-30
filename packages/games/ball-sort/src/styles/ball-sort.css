@@ -5,7 +5,8 @@
   align-items: flex-end;
   justify-content: center;   /* centres tubes horizontally in all cases */
   gap: var(--all-space-3, 0.75rem) var(--all-space-2, 0.5rem);
-  padding: var(--all-space-3, 0.75rem) var(--all-space-2, 0.5rem);
+  /* Extra top padding leaves room for the selection dot and the flying balls without resizing the board */
+  padding: calc(var(--all-space-3, 0.75rem) + 0.75rem) var(--all-space-2, 0.5rem) var(--all-space-3, 0.75rem);
   /* Cap width so 6 tubes per row max; more tubes naturally wrap to a second row */
   max-width: min(100%, calc(var(--bs-tube-count, 8) * 4rem));
   margin: 0 auto;
@@ -28,17 +29,22 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  position: relative;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
 
 /* Small dot above the tube that pulses when selected — replaces the floaty ball animation */
 .bs-tube-bounce-indicator {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  margin-left: -3px;
   width: 6px;
   height: 6px;
   border-radius: 50%;
   background: var(--all-accent, #3b82f6);
-  margin-bottom: 4px;
+  pointer-events: none;
   animation: bs-bounce 0.5s ease-in-out infinite alternate;
 }
 

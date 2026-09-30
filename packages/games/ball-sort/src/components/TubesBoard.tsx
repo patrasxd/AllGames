@@ -1,4 +1,5 @@
-import type { Tube } from '../types'
+import { useLayoutEffect, useRef } from 'react'
+import type { Move, Tube } from '../types'
 import { BALL_HEX, BallGlyph } from './Icons'
 
 interface TubesBoardProps {
@@ -7,11 +8,93 @@ interface TubesBoardProps {
   selected: number | null
   onSelect: (index: number) => void
   isEink?: boolean
+  /** The pour that just happened; drives the ball flight animation. */
+  lastMove?: Move | null
 }
 
-export function TubesBoard({ tubes, capacity, selected, onSelect, isEink = false }: TubesBoardProps) {
+const FLIGHT_MS = 520
+const STAGGER_MS = 70
+
+function prefersReducedMotion(): boolean {
+  return typeof window !== 'undefined' && typeof window.matchMedia === 'function'
+    ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    : false
+}
+
+export function TubesBoard({ tubes, capacity, selected, onSelect, isEink = false, lastMove = null }: TubesBoardProps) {
+  const boardRef = useRef<HTMLDivElement>(null)
+
+  // Fly the poured balls from their old slot in the source tube, up and over, then drop them
+  // into their final slot. The balls are already rendered in their final place, so the
+  // animation only adds a transform: if it never runs (e-ink, reduced motion) the game is still correct.
+  useLayoutEffect(() => {
+    const board = boardRef.current
+    if (!board || !lastMove || isEink || prefersReducedMotion()) return
+
+    const tubeEls = board.querySelectorAll<HTMLElement>('.bs-tube-glass')
+    const srcGlass = tubeEls[lastMove.from]
+    const dstGlass = tubeEls[lastMove.to]
+    const dstTube = tubes[lastMove.to]
+    const srcTube = tubes[lastMove.from]
+    if (!srcGlass || !dstGlass || !dstTube || !srcTube) return
+
+    const oldSrcLen = srcTube.length + lastMove.count
+    const srcRect = srcGlass.getBoundingClientRect()
+    const dstRect = dstGlass.getBoundingClientRect()
+    const animations: Animation[] = []
+
+    for (let i = 0; i < lastMove.count; i++) {
+      // i = 0 is the topmost moved ball. Slots are listed top to bottom and there are always `capacity` of them.
+      const dstSlot = dstGlass.children[capacity - dstTube.length + i] as HTMLElement | undefined
+      const srcSlot = srcGlass.children[capacity - oldSrcLen + i] as HTMLElement | undefined
+      const ball = dstSlot?.firstElementChild as HTMLElement | null | undefined
+      if (!dstSlot || !srcSlot || !ball || typeof ball.animate !== 'function') continue
+
+      const to = dstSlot.getBoundingClientRect()
+      const from = srcSlot.getBoundingClientRect()
+      const size = to.height
+      const dx = from.left - to.left
+      const dy = from.top - to.top
+      // Height to travel at: clear of both tube openings, with a little room for the stacked balls.
+      const apexY = Math.min(srcRect.top, dstRect.top) - size * (1.1 + i * 0.15) - to.top
+
+      ball.style.position = 'relative'
+      ball.style.zIndex = '20'
+      const anim = ball.animate(
+        [
+          { transform: `translate(${dx}px, ${dy}px) scale(1)`, offset: 0, easing: 'cubic-bezier(0.3, 0, 0.6, 1)' },
+          {
+            transform: `translate(${dx}px, ${apexY}px) scale(1.06)`,
+            offset: 0.32,
+            easing: 'cubic-bezier(0.45, 0, 0.55, 1)',
+          },
+          {
+            transform: `translate(0px, ${apexY}px) scale(1.06)`,
+            offset: 0.66,
+            easing: 'cubic-bezier(0.5, 0, 0.9, 0.6)',
+          },
+          { transform: 'translate(0px, 0px) scale(0.94, 1.06)', offset: 0.92, easing: 'ease-out' },
+          { transform: 'translate(0px, 0px) scale(1)', offset: 1 },
+        ],
+        { duration: FLIGHT_MS, delay: i * STAGGER_MS, fill: 'backwards' },
+      )
+      const reset = () => {
+        ball.style.position = ''
+        ball.style.zIndex = ''
+      }
+      anim.onfinish = reset
+      anim.oncancel = reset
+      animations.push(anim)
+    }
+
+    // A newer move, undo or level change replaces lastMove: snap any unfinished flight to rest.
+    return () => animations.forEach((a) => a.cancel())
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lastMove])
+
   return (
     <div
+      ref={boardRef}
       className="bs-tubes-board"
       role="group"
       aria-label="Tubes"
@@ -29,7 +112,7 @@ export function TubesBoard({ tubes, capacity, selected, onSelect, isEink = false
             onClick={() => onSelect(i)}
             aria-label={`Tube ${i + 1}${tube.length > 0 ? `, top color ${tube[tube.length - 1]}` : ', empty'}`}
           >
-            {/* Top bounce indicator when selected */}
+            {/* Top bounce indicator when selected (absolutely positioned so it never shifts the layout) */}
             {isSelected && <div className="bs-tube-bounce-indicator" />}
             <div className="bs-tube-glass">
               {/* Empty slots at top */}
