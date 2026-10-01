@@ -11,6 +11,7 @@
   "dependencies": {
     "@all/ui": "file:../../AllUI",
     "@allgames/2048": "*",
+    "@allgames/alchemy": "*",
     "@allgames/artillery": "*",
     "@allgames/ball-sort": "*",
     "@allgames/block-out": "*",

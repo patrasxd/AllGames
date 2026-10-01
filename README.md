@@ -97,6 +97,7 @@ AllGames features a growing collection of browser-based mini-games, spanning arc
 | **Artillery Duel** | `artillery`      | 1P / 2P      | `FullBleedLayout`      | Tactical ballistic tank duel with procedural destructible clay terrain, wind physics, and computer AI.            |
 | **Bubble Shooter** | `bubble-shooter` | 1P           | `FullBleedLayout`      | Aim, bounce off the walls, and match 3+ colored bubbles before the hex grid reaches the bottom.                   |
 | **Ball Sort**      | `ball-sort`      | 1P           | `BoardLayout` (fluid)  | Pour colors between tubes until every one holds a single color. 100 seeded levels, stars, undo.                   |
+| **Alchemy**        | `alchemy`        | 1P           | `BoardLayout` (wide)   | Combine four basic elements into 300+ others. Drag or tap to mix, hints, searchable collection.                   |
 | **Block Out**      | `block-out`      | 1P           | `BoardLayout` (square) | Slide blocks along their axes to clear a path and guide the red block to freedom. 100 levels, star ratings, undo. |
 | **Crystal Match**  | `crystal-match`  | 1P           | `BoardLayout`          | Cascading match-3 puzzle saga. Swap crystals, trigger explosive combos, and beat tiered level targets.            |
 | **Tic-Tac-Toe**    | `tic-tac-toe`    | 1P / 2P      | `BoardLayout`          | Classic 3x3 grid with local 2-player mode and 3-difficulty Minimax AI.                                            |

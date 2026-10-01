@@ -1,0 +1,464 @@
+/* ─── Root: table on top, element list below, always fitting the stage ─── */
+.al-root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--all-space-2, 0.5rem);
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+.al-stage {
+  position: relative;
+  flex: 1 1 0;
+  min-height: 9rem;
+  display: flex;
+}
+
+.al-workspace {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  border-radius: var(--all-radius-md, 0.75rem);
+  border: var(--all-border-width-sm, 1px) dashed var(--all-border-2);
+  background: color-mix(in srgb, var(--all-surface-2) 55%, transparent);
+  touch-action: none;
+}
+
+.al-workspace--drop {
+  border-style: solid;
+  border-color: var(--all-accent, #3b82f6);
+  background: color-mix(in srgb, var(--all-accent, #3b82f6) 10%, var(--all-surface-2));
+}
+
+.al-workspace-empty {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--all-space-4, 1rem);
+  text-align: center;
+  color: var(--all-text-dim);
+  font-size: 0.9rem;
+  pointer-events: none;
+}
+
+/* ─── Items on the table ─── */
+.al-item {
+  position: absolute;
+  top: 0;
+  left: 0;
+  cursor: grab;
+  touch-action: none;
+  outline: none;
+  z-index: 1;
+}
+
+.al-item--dragging {
+  cursor: grabbing;
+  z-index: 10;
+}
+
+.al-item-card {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.1rem;
+  border-radius: var(--all-radius-md, 0.75rem);
+  border: 2px solid var(--all-border-2);
+  background: var(--all-surface);
+  color: var(--all-text);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+  animation: al-pop 220ms ease-out;
+  transition:
+    border-color 120ms ease,
+    box-shadow 120ms ease,
+    transform 120ms ease;
+}
+
+.al-item:focus-visible .al-item-card,
+.al-item--selected .al-item-card {
+  border-color: var(--all-accent, #3b82f6);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--all-accent, #3b82f6) 35%, transparent);
+}
+
+.al-item--dragging .al-item-card {
+  transform: scale(1.08);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.3);
+}
+
+.al-item--hover .al-item-card {
+  border-color: var(--all-accent, #3b82f6);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--all-accent, #3b82f6) 45%, transparent);
+}
+
+.al-item--new .al-item-card {
+  animation: al-burst 420ms ease-out;
+}
+
+.al-item-emoji {
+  font-size: 1.9rem;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.al-item-name {
+  max-width: 100%;
+  padding: 0 0.2rem;
+  font-size: 0.65rem;
+  font-weight: 600;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+}
+
+@keyframes al-pop {
+  from {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes al-burst {
+  0% {
+    transform: scale(0.5);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--all-accent, #3b82f6) 60%, transparent);
+  }
+  55% {
+    transform: scale(1.18);
+    box-shadow: 0 0 0 14px color-mix(in srgb, var(--all-accent, #3b82f6) 0%, transparent);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* ─── Card that follows the pointer while an element is dragged out of the list ─── */
+.al-ghost {
+  position: fixed;
+  z-index: 1000;
+  width: 72px;
+  height: 72px;
+  margin: -36px 0 0 -36px;
+  pointer-events: none;
+  transform: scale(1.08);
+  filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.35));
+}
+
+.al-ghost .al-item-card {
+  animation: none;
+}
+
+.al-ghost--eink {
+  filter: none;
+}
+
+.al-ghost--eink .al-item-card {
+  border-color: var(--all-text);
+}
+
+.al-ghost--eink .al-item-emoji {
+  filter: grayscale(1) contrast(1.4);
+}
+
+/* ─── Discovery / hint banner ─── */
+.al-banner-slot {
+  position: absolute;
+  top: var(--all-space-2, 0.5rem);
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 20;
+}
+
+.al-banner {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  max-width: calc(100% - 1rem);
+  padding: 0.35rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid var(--all-border-2);
+  background: var(--all-surface);
+  color: var(--all-text);
+  font-size: 0.85rem;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  animation: al-banner-in 200ms ease-out;
+}
+
+.al-banner--new {
+  border-color: var(--all-accent, #3b82f6);
+}
+
+@keyframes al-banner-in {
+  from {
+    transform: translateY(-8px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* ─── Element panel: tabs + search + categories on top, scrolling grid below ─── */
+.al-inventory {
+  position: relative;
+  flex: 0 0 48%;
+  max-height: 19rem;
+  min-height: 9rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--all-space-1, 0.25rem);
+  padding: var(--all-space-2, 0.5rem);
+  box-sizing: border-box;
+  border-radius: var(--all-radius-md, 0.75rem);
+  border: var(--all-border-width-sm, 1px) solid var(--all-border-2);
+  background: var(--all-surface);
+  transition: border-color 120ms ease;
+}
+
+.al-inventory--trash {
+  border-color: var(--all-danger, #ef4444);
+}
+
+.al-inventory-trash {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--all-text);
+  background: color-mix(in srgb, var(--all-danger, #ef4444) 40%, var(--all-surface));
+  pointer-events: none;
+}
+
+.al-inventory-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--all-space-2, 0.5rem);
+  flex: 0 0 auto;
+}
+
+.al-tabs {
+  display: inline-flex;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  border: 1px solid var(--all-border-2);
+  overflow: hidden;
+}
+
+.al-tab {
+  appearance: none;
+  border: 0;
+  padding: 0.3rem 0.7rem;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--all-text-dim);
+  background: transparent;
+  cursor: pointer;
+}
+
+.al-tab--active {
+  color: var(--all-text);
+  background: var(--all-surface-2);
+}
+
+.al-search {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0.3rem 0.7rem;
+  font: inherit;
+  font-size: 0.85rem;
+  color: var(--all-text);
+  background: var(--all-surface-2);
+  border: 1px solid var(--all-border-2);
+  border-radius: 999px;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+.al-search:focus-visible,
+.al-tab:focus-visible,
+.al-category:focus-visible {
+  outline: 2px solid var(--all-accent, #3b82f6);
+  outline-offset: 1px;
+}
+
+.al-categories {
+  display: flex;
+  flex: 0 0 auto;
+  gap: var(--all-space-1, 0.25rem);
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: none;
+  touch-action: pan-x;
+}
+
+.al-categories::-webkit-scrollbar {
+  display: none;
+}
+
+.al-category {
+  appearance: none;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.22rem 0.6rem;
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--all-text);
+  background: var(--all-surface-2);
+  border: 1px solid var(--all-border-2);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.al-category--active {
+  border-color: var(--all-accent, #3b82f6);
+  background: color-mix(in srgb, var(--all-accent, #3b82f6) 22%, var(--all-surface-2));
+}
+
+.al-category-count {
+  color: var(--all-text-dim);
+  font-weight: 500;
+}
+
+.al-inventory-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.al-inventory-empty {
+  margin: var(--all-space-4, 1rem) 0;
+  text-align: center;
+  color: var(--all-text-dim);
+  font-size: 0.85rem;
+}
+
+.al-inventory-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(4.6rem, 1fr));
+  gap: var(--all-space-1, 0.25rem);
+}
+
+.al-chip {
+  appearance: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.1rem;
+  min-height: 3.2rem;
+  padding: 0.3rem 0.2rem;
+  border-radius: var(--all-radius-md, 0.75rem);
+  border: var(--all-border-width-sm, 1px) solid var(--all-border-2);
+  background: var(--all-surface-2);
+  color: var(--all-text);
+  cursor: grab;
+  /* Vertical scrolling of the list still works; a touch drag starts after a short hold (see useListDrag). */
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.al-chip:active {
+  transform: scale(0.96);
+}
+
+.al-chip--dragging {
+  opacity: 0.45;
+}
+
+.al-chip--locked {
+  opacity: 0.45;
+  border-style: dashed;
+  cursor: default;
+}
+
+.al-chip--locked:active {
+  transform: none;
+}
+
+.al-chip--locked .al-chip-emoji {
+  filter: grayscale(1);
+}
+
+.al-chip-emoji {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.al-chip-name {
+  max-width: 100%;
+  font-size: 0.65rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.al-controls-bar {
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* ─── E-ink and reduced motion: no animation, no shadows, monochrome emoji ─── */
+.al-root--eink *,
+.al-root--eink *::before,
+.al-root--eink *::after {
+  animation: none !important;
+  transition: none !important;
+  box-shadow: none !important;
+}
+
+.al-root--eink .al-item-emoji,
+.al-root--eink .al-chip-emoji {
+  filter: grayscale(1) contrast(1.4);
+}
+
+.al-root--eink .al-item-card,
+.al-root--eink .al-chip,
+.al-root--eink .al-category,
+.al-root--eink .al-tabs,
+.al-root--eink .al-search {
+  border-color: var(--all-text);
+}
+
+.al-root--eink .al-chip--locked {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .al-item-card,
+  .al-banner {
+    animation: none !important;
+  }
+}
