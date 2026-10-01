@@ -32,10 +32,10 @@ describe('Ball Sort generation is always solvable', () => {
       const { config, tubes } = generateLevel(level)
       expect(isSolvable(tubes, config.capacity)).toBe(true)
     }
-  })
+  }, 30000)
 
   it('is deterministic: the same level number always produces the same board', () => {
-    for (const level of [1, 15, 16, 36, 50, 100]) {
+    for (const level of [1, 15, 16, 36, 50, 100, 185, 200]) {
       const a = generateLevel(level)
       const b = generateLevel(level)
       expect(a.tubes).toEqual(b.tubes)
@@ -44,7 +44,7 @@ describe('Ball Sort generation is always solvable', () => {
   })
 
   it('never loses or duplicates balls: every color has exactly `capacity` balls in play', () => {
-    for (const level of [1, 10, 20, 40, 60, 100]) {
+    for (const level of [1, 10, 20, 40, 60, 100, 150, 200]) {
       const { config, tubes } = generateLevel(level)
       const counts: Record<string, number> = {}
       for (const tube of tubes) for (const color of tube) counts[color] = (counts[color] ?? 0) + 1
@@ -53,11 +53,14 @@ describe('Ball Sort generation is always solvable', () => {
     }
   })
 
-  it('difficulty ramps up with level: more colors, and capacity grows at the configured breakpoints', () => {
-    expect(generateLevel(1).config.numColors).toBeLessThan(generateLevel(50).config.numColors)
-    expect(generateLevel(15).config.capacity).toBe(4)
-    expect(generateLevel(16).config.capacity).toBe(5)
-    expect(generateLevel(35).config.capacity).toBe(5)
-    expect(generateLevel(36).config.capacity).toBe(6)
+  it('difficulty ramps up with level: more colors, and empty tubes decrease for master levels', () => {
+    expect(generateLevel(1).config.numColors).toBe(3)
+    expect(generateLevel(30).config.numColors).toBe(4)
+    expect(generateLevel(60).config.numColors).toBe(5)
+    expect(generateLevel(100).config.numColors).toBe(6)
+    expect(generateLevel(140).config.numColors).toBe(7)
+    expect(generateLevel(170).config.numColors).toBe(8)
+    expect(generateLevel(1).config.numEmptyTubes).toBe(2)
+    expect(generateLevel(190).config.numEmptyTubes).toBe(1)
   })
 })

@@ -40,8 +40,8 @@ export const metadata: GameMetadata = {
     pl: 'Block Out',
   },
   description: {
-    en: 'Slide blocks to clear a path and guide the primary block to freedom. 100 levels, star ratings.',
-    pl: 'Przesuwaj klocki, by utorować drogę i wyprowadzić główny klocek na wolność. 100 poziomów, gwiazdki.',
+    en: 'Slide blocks to clear a path and guide the primary block to freedom. 200+ levels, star ratings.',
+    pl: 'Przesuwaj klocki, by utorować drogę i wyprowadzić główny klocek na wolność. Ponad 200 poziomów, gwiazdki.',
   },
   icon: <BlockOutIcon />,
   tags: {

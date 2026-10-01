@@ -36,8 +36,8 @@ export const metadata: GameMetadata = {
     pl: 'Ball Sort',
   },
   description: {
-    en: 'Pour colors between tubes until every one holds a single color. 100+ levels, star ratings.',
-    pl: 'Przelewaj kolory między probówkami, aż każda będzie jednolita. Ponad 100 poziomów, gwiazdki za wynik.',
+    en: 'Pour colors between tubes until every one holds a single color. 200+ levels, star ratings.',
+    pl: 'Przelewaj kolory między probówkami, aż każda będzie jednolita. Ponad 200 poziomów, gwiazdki za wynik.',
   },
   icon: <TubeIcon />,
   tags: {

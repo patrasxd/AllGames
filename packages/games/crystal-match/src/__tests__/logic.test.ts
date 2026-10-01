@@ -19,16 +19,16 @@ describe('Crystal Match logic', () => {
     expect(config.goals.length).toBeGreaterThan(0)
   })
 
-  it('keeps the first 100 levels unchanged when a procedural seed is supplied', () => {
-    for (let level = 1; level <= 100; level++) {
+  it('keeps the first 200 levels unchanged when a procedural seed is supplied', () => {
+    for (let level = 1; level <= 200; level++) {
       expect(generateLevel(level, 123456)).toEqual(generateLevel(level))
     }
   })
 
-  it('uses an explicit seed for procedural levels after level 100', () => {
-    const first = generateLevel(101, 123456)
-    expect(generateLevel(101, 123456)).toEqual(first)
-    expect(generateLevel(101, 654321)).not.toEqual(first)
+  it('uses an explicit seed for procedural levels after level 200', () => {
+    const first = generateLevel(201, 123456)
+    expect(generateLevel(201, 123456)).toEqual(first)
+    expect(generateLevel(201, 654321)).not.toEqual(first)
     expect(first.seed).toBe(123456)
 
     const firstRefill = createRefillPRNG(first)
@@ -36,14 +36,14 @@ describe('Crystal Match logic', () => {
     expect(Array.from({ length: 8 }, firstRefill)).toEqual(Array.from({ length: 8 }, repeatedRefill))
   })
 
-  it('generates deterministic post-100 levels that pass the game simulator', () => {
-    const first = generateSolvableLevel(101, 847293)
-    const repeated = generateSolvableLevel(101, 847293)
+  it('generates deterministic post-200 levels that pass the game simulator', () => {
+    const first = generateSolvableLevel(201, 847293)
+    const repeated = generateSolvableLevel(201, 847293)
 
     expect(first).toEqual(repeated)
     expect(first.seed).toBeGreaterThan(0)
     expect(simulateLevel(first).won).toBe(true)
-    expect(generateSolvableLevel(101, 847294).seed).not.toBe(first.seed)
+    expect(generateSolvableLevel(201, 847294).seed).not.toBe(first.seed)
   })
 
   it('creates an initial board with no immediate matches and at least one possible move', () => {

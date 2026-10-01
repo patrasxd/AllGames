@@ -4,14 +4,14 @@ import { generateLevel } from '../logic/generator'
 import { canPour, isSolved, pour } from '../logic/engine'
 
 const SAVE_KEY = 'allgames:ball-sort:progress'
-const MAX_LEVEL = 100
+const BASE_MAX_LEVEL = 200
 
 function loadProgress(): PlayerProgress {
   try {
     const raw = localStorage.getItem(SAVE_KEY)
     if (raw) {
       const parsed = JSON.parse(raw)
-      const unlockedLevel = typeof parsed.unlockedLevel === 'number' ? parsed.unlockedLevel : 1
+      const unlockedLevel = typeof parsed.unlockedLevel === 'number' && parsed.unlockedLevel >= 1 ? parsed.unlockedLevel : 1
       return {
         unlockedLevel,
         currentLevel:
@@ -60,6 +60,7 @@ export function useBallSort() {
   const lastMoveClearRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const config = levelData.config
+  const maxLevel = Math.max(BASE_MAX_LEVEL, progress.unlockedLevel)
 
   useEffect(() => {
     saveProgress({ ...progress, currentLevel })
@@ -96,7 +97,7 @@ export function useBallSort() {
 
   const goToLevel = useCallback(
     (level: number) => {
-      if (level < 1 || level > MAX_LEVEL) return
+      if (level < 1) return
       if (level > progress.unlockedLevel) return
       loadLevel(level)
     },
@@ -140,7 +141,7 @@ export function useBallSort() {
           const prevBest = prev.levelBestMoves[currentLevel]
           const improved = prevBest === undefined || finalMoves < prevBest
           const next: PlayerProgress = {
-            unlockedLevel: Math.max(prev.unlockedLevel, Math.min(MAX_LEVEL, currentLevel + 1)),
+            unlockedLevel: Math.max(prev.unlockedLevel, currentLevel + 1),
             levelStars: { ...prev.levelStars, [currentLevel]: Math.max(prev.levelStars[currentLevel] ?? 0, stars) },
             levelBestMoves: improved ? { ...prev.levelBestMoves, [currentLevel]: finalMoves } : prev.levelBestMoves,
           }
@@ -164,14 +165,14 @@ export function useBallSort() {
   }, [history, status])
 
   const nextLevel = useCallback(() => {
-    if (currentLevel < MAX_LEVEL) loadLevel(currentLevel + 1)
+    loadLevel(currentLevel + 1)
   }, [currentLevel, loadLevel])
 
   const isGameActive = useMemo(() => status === 'playing' && moves > 0, [status, moves])
 
   return {
     currentLevel,
-    maxLevel: MAX_LEVEL,
+    maxLevel,
     config,
     tubes,
     selected,

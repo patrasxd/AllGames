@@ -75,7 +75,7 @@ export function useBlockOut() {
 
   const goToLevel = useCallback(
     (level: number) => {
-      if (level < 1 || level > MAX_LEVEL) return
+      if (level < 1) return
       if (level > progress.unlockedLevel) return
       loadLevel(level)
     },
@@ -103,7 +103,7 @@ export function useBlockOut() {
 
         setProgress((prev) => {
           const next: PlayerProgress = {
-            unlockedLevel: Math.max(prev.unlockedLevel, Math.min(MAX_LEVEL, currentLevel + 1)),
+            unlockedLevel: Math.max(prev.unlockedLevel, currentLevel + 1),
             levelStars: {
               ...prev.levelStars,
               [currentLevel]: Math.max(prev.levelStars[currentLevel] ?? 0, stars),
@@ -132,9 +132,7 @@ export function useBlockOut() {
   }, [history, status])
 
   const nextLevel = useCallback(() => {
-    if (currentLevel < MAX_LEVEL) {
-      loadLevel(currentLevel + 1)
-    }
+    loadLevel(currentLevel + 1)
   }, [currentLevel, loadLevel])
 
   const isGameActive = moves > 0 && status === 'playing'
@@ -142,7 +140,7 @@ export function useBlockOut() {
 
   return {
     currentLevel,
-    maxLevel: MAX_LEVEL,
+    maxLevel: Math.max(MAX_LEVEL, progress.unlockedLevel),
     config,
     blocks,
     moves,

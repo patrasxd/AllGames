@@ -85,9 +85,9 @@ export function simulateLevel(config: LevelConfig, rand = createRefillPRNG(confi
 const generatedLevels = new Map<string, LevelConfig>()
 const MAX_SEED_ATTEMPTS = 20
 
-/** Returns a seeded post-100 level only after the real game simulation finds a winning route. */
+/** Returns a seeded post-200 level only after the real game simulation finds a winning route. */
 export function generateSolvableLevel(level: number, campaignSeed: number): LevelConfig {
-  if (level <= 100) return generateLevel(level)
+  if (level <= 200) return generateLevel(level)
 
   const cacheKey = `${campaignSeed}:${level}`
   const cached = generatedLevels.get(cacheKey)
