@@ -45,6 +45,42 @@ export function canPlaceShip(
   return true
 }
 
+export function placeShip(
+  state: PlayerGridState,
+  definition: ShipDef,
+  row: number,
+  col: number,
+  orientation: Orientation,
+): PlayerGridState | null {
+  if (!canPlaceShip(state.grid, row, col, definition.size, orientation)) return null
+
+  const grid = state.grid.map((line) => [...line])
+  const coords: [number, number][] = []
+  for (let i = 0; i < definition.size; i++) {
+    const shipRow = orientation === 'horizontal' ? row : row + i
+    const shipCol = orientation === 'horizontal' ? col + i : col
+    grid[shipRow][shipCol] = 'ship'
+    coords.push([shipRow, shipCol])
+  }
+
+  return {
+    ...state,
+    grid,
+    ships: [
+      ...state.ships,
+      {
+        ...definition,
+        row,
+        col,
+        orientation,
+        hits: 0,
+        isSunk: false,
+        coords,
+      },
+    ],
+  }
+}
+
 export function autoPlaceFleet(): { ships: PlacedShip[]; grid: CellState[][] } {
   let success = false
   let ships: PlacedShip[] = []

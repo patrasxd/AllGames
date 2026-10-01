@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import { useAlchemy } from '../hooks/useAlchemy'
 
@@ -49,7 +49,7 @@ describe('useAlchemy', () => {
     act(() => hook.result.current.dropItem(a.uid, b.uid))
 
     expect(hook.result.current.items).toHaveLength(2)
-    expect(hook.result.current.feedback).toBeNull()
+    expect(hook.result.current.items.every((item) => !item.isNewDiscovery)).toBe(true)
     expect(hook.result.current.toast).toBeNull()
     expect(hook.result.current.mixes).toBe(0)
   })
@@ -66,7 +66,7 @@ describe('useAlchemy', () => {
     expect(hook.result.current.discovered.filter((id) => id === 'steam')).toHaveLength(1)
     // Only a brand new discovery gets the celebration; making a known element just replaces the two cards.
     const latest = hook.result.current.items[hook.result.current.items.length - 1]
-    expect(hook.result.current.feedback?.uids ?? []).not.toContain(latest.uid)
+    expect(latest.isNewDiscovery).toBe(false)
   })
 
   it('tap-to-combine selects the first item and combines on the second tap', () => {
@@ -129,7 +129,7 @@ describe('useAlchemy', () => {
       act(() => hook.result.current.dropNewElement('fire', 110, 105))
 
       expect(hook.result.current.items.map((i) => i.id)).toEqual(['fire', 'fire'])
-      expect(hook.result.current.feedback).toBeNull()
+      expect(hook.result.current.items.every((item) => !item.isNewDiscovery)).toBe(true)
       expect(hook.result.current.mixes).toBe(0)
     })
 
@@ -153,6 +153,20 @@ describe('useAlchemy', () => {
     add('fire', 10, 0)
     const [a, b] = hook.result.current.items
     act(() => hook.result.current.dropItem(a.uid, b.uid))
-    expect(hook.result.current.feedback?.uids).toEqual([hook.result.current.items[0].uid])
+    expect(hook.result.current.items[0].isNewDiscovery).toBe(true)
+  })
+
+  it('keeps the discovery marker after transient toast timing', () => {
+    vi.useFakeTimers()
+    const { hook, add } = setup()
+    add('water', 0, 0)
+    add('fire', 10, 0)
+    const [a, b] = hook.result.current.items
+    act(() => hook.result.current.dropItem(a.uid, b.uid))
+
+    act(() => vi.advanceTimersByTime(500))
+
+    expect(hook.result.current.items[0].isNewDiscovery).toBe(true)
+    vi.useRealTimers()
   })
 })

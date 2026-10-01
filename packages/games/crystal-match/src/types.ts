@@ -88,6 +88,7 @@ export interface ComboPopup {
 
 export interface PlayerProgress {
   unlockedLevel: number
+  currentLevel?: number
   levelStars: Record<number, number>
   levelHighScores: Record<number, number>
   totalScore: number

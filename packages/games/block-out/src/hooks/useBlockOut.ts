@@ -10,8 +10,13 @@ function loadProgress(): PlayerProgress {
     const raw = localStorage.getItem(SAVE_KEY)
     if (raw) {
       const parsed = JSON.parse(raw)
+      const unlockedLevel = typeof parsed.unlockedLevel === 'number' ? parsed.unlockedLevel : 1
       return {
-        unlockedLevel: typeof parsed.unlockedLevel === 'number' ? parsed.unlockedLevel : 1,
+        unlockedLevel,
+        currentLevel:
+          Number.isInteger(parsed.currentLevel) && parsed.currentLevel >= 1 && parsed.currentLevel <= unlockedLevel
+            ? parsed.currentLevel
+            : unlockedLevel,
         levelStars: parsed.levelStars && typeof parsed.levelStars === 'object' ? parsed.levelStars : {},
         levelBestMoves: parsed.levelBestMoves && typeof parsed.levelBestMoves === 'object' ? parsed.levelBestMoves : {},
       }
@@ -42,29 +47,27 @@ interface HistoryEntry {
 
 export function useBlockOut() {
   const [progress, setProgress] = useState<PlayerProgress>(loadProgress)
-  const [currentLevel, setCurrentLevel] = useState(1)
+  const [currentLevel, setCurrentLevel] = useState(() => progress.currentLevel ?? progress.unlockedLevel)
   const config = useMemo(() => getLevelConfig(currentLevel), [currentLevel])
   const [blocks, setBlocks] = useState<Block[]>(() => config.blocks.map((b) => ({ ...b })))
   const [history, setHistory] = useState<HistoryEntry[]>([])
-  const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null)
   const [moves, setMoves] = useState(0)
   const [status, setStatus] = useState<'playing' | 'won'>('playing')
   const [isNewBest, setIsNewBest] = useState(false)
+
+  useEffect(() => {
+    saveProgress({ ...progress, currentLevel })
+  }, [progress, currentLevel])
 
   const loadLevel = useCallback((level: number) => {
     const nextCfg = getLevelConfig(level)
     setCurrentLevel(level)
     setBlocks(nextCfg.blocks.map((b) => ({ ...b })))
     setHistory([])
-    setSelectedBlockId(null)
     setMoves(0)
     setStatus('playing')
     setIsNewBest(false)
   }, [])
-
-  useEffect(() => {
-    loadLevel(1)
-  }, [loadLevel])
 
   const restartLevel = useCallback(() => {
     loadLevel(currentLevel)
@@ -148,8 +151,6 @@ export function useBlockOut() {
     progress,
     isGameActive,
     canUndo,
-    selectedBlockId,
-    selectBlock: setSelectedBlockId,
     slideBlock,
     undo,
     restartLevel,

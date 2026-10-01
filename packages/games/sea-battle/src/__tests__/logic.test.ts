@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { createEmptyGrid, canPlaceShip, autoPlaceFleet, processShot, STANDARD_FLEET } from '../logic'
+import { createEmptyGrid, canPlaceShip, placeShip, autoPlaceFleet, processShot, STANDARD_FLEET } from '../logic'
 import type { PlayerGridState } from '../types'
 
 describe('battleship logic', () => {
@@ -27,6 +27,22 @@ describe('battleship logic', () => {
     expect(canPlaceShip(grid, 1, 1, 2, 'horizontal')).toBe(false)
     // Non-adjacent cell should be allowed
     expect(canPlaceShip(grid, 2, 0, 2, 'horizontal')).toBe(true)
+  })
+
+  it('places ships in the selected orientation without mutating the previous fleet state', () => {
+    const state: PlayerGridState = { grid: createEmptyGrid(), ships: [], shotsReceived: 0 }
+    const placed = placeShip(state, STANDARD_FLEET[0], 2, 1, 'vertical')
+
+    expect(placed?.ships[0]).toMatchObject({ row: 2, col: 1, orientation: 'vertical', size: 4 })
+    expect(placed?.ships[0].coords).toEqual([
+      [2, 1],
+      [3, 1],
+      [4, 1],
+      [5, 1],
+    ])
+    expect(placed?.grid[5][1]).toBe('ship')
+    expect(state.ships).toHaveLength(0)
+    expect(placeShip(state, STANDARD_FLEET[0], 9, 9, 'horizontal')).toBeNull()
   })
 
   it('autoPlaceFleet places all 10 standard ships', () => {

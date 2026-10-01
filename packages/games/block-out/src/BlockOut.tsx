@@ -30,8 +30,6 @@ export function BlockOut({
     progress,
     isGameActive,
     canUndo,
-    selectedBlockId,
-    selectBlock,
     slideBlock,
     undo,
     restartLevel,
@@ -97,8 +95,6 @@ export function BlockOut({
           <Board
             blocks={blocks}
             onSlide={slideBlock}
-            selectedBlockId={selectedBlockId}
-            onSelectBlock={selectBlock}
             isEink={isEink}
             theme={theme}
           />

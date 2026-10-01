@@ -30,7 +30,6 @@ import {
   CANVAS_WIDTH,
   CANVAS_HEIGHT,
 } from '../logic'
-import { sound } from '../audio'
 
 const STATS_STORAGE_KEY = 'allgames:artillery:stats'
 
@@ -71,7 +70,6 @@ export function useArtillery({ isEink = false }: { isEink?: boolean } = {}) {
   const [stats, setStats] = useState<ArtilleryStats>(loadSavedStats)
   const [screenShake, setScreenShake] = useState<number>(0)
   const screenShakeRef = useRef<number>(0)
-  const [isMuted, setIsMuted] = useState<boolean>(sound.isMuted())
   const [matchId, setMatchId] = useState<number>(1)
 
   // Dynamic visual states
@@ -201,7 +199,6 @@ export function useArtillery({ isEink = false }: { isEink?: boolean } = {}) {
 
     const updated = moveTank(currentTank, direction, engineRef.current.terrain)
     if (updated.x !== currentTank.x) {
-      sound.playMove()
       engineRef.current.tanks = {
         ...engineRef.current.tanks,
         [turn]: updated,
@@ -253,7 +250,6 @@ export function useArtillery({ isEink = false }: { isEink?: boolean } = {}) {
     setPhase('firing')
     setIsAiThinking(false)
 
-    sound.playFire()
   }, [])
 
   // Handle AI Turn trigger with clear, readable pacing
@@ -316,7 +312,6 @@ export function useArtillery({ isEink = false }: { isEink?: boolean } = {}) {
   // Spawn visual explosion helper
   const triggerExplosionAt = useCallback(
     (x: number, y: number, radius: number, weaponColor: string, baseDamage: number) => {
-      sound.playExplosion(radius)
       if (!isEink) {
         const shakeVal = Math.min(18, radius * 0.28)
         screenShakeRef.current = shakeVal
@@ -344,15 +339,13 @@ export function useArtillery({ isEink = false }: { isEink?: boolean } = {}) {
       engineRef.current.tanks = settleTanksOnTerrain(engineRef.current.tanks, engineRef.current.terrain)
 
       // 4. Damage calculations
-      let anyHit = false
       const updatedTanks = { ...engineRef.current.tanks }
 
       ;(['p1', 'p2'] as PlayerId[]).forEach((pid) => {
         const t = updatedTanks[pid]
-        const { damage, isDirect } = calculateBlastDamage({ x, y }, radius, baseDamage, t)
+        const { damage } = calculateBlastDamage({ x, y }, radius, baseDamage, t)
 
         if (damage > 0) {
-          anyHit = true
           const newHp = Math.max(0, t.hp - damage)
           updatedTanks[pid] = { ...t, hp: newHp }
 
@@ -369,10 +362,6 @@ export function useArtillery({ isEink = false }: { isEink?: boolean } = {}) {
           })
         }
       })
-
-      if (anyHit) {
-        sound.playHit()
-      }
 
       engineRef.current.tanks = updatedTanks
       setTanks({ ...updatedTanks })
@@ -651,7 +640,6 @@ export function useArtillery({ isEink = false }: { isEink?: boolean } = {}) {
             engineRef.current.phase = 'game_over'
             setPhase('game_over')
             setWinner(matchWinner)
-            sound.playVictory()
 
             setStats((prev) => {
               const updated = {
@@ -695,11 +683,6 @@ export function useArtillery({ isEink = false }: { isEink?: boolean } = {}) {
     return () => cancelAnimationFrame(animId)
   }, [triggerExplosionAt])
 
-  const toggleSound = useCallback(() => {
-    const next = sound.toggleMute()
-    setIsMuted(next)
-  }, [])
-
   const resetStats = useCallback(() => {
     const empty: ArtilleryStats = { p1Wins: 0, p2Wins: 0, draws: 0, roundsPlayed: 0 }
     setStats(empty)
@@ -731,14 +714,12 @@ export function useArtillery({ isEink = false }: { isEink?: boolean } = {}) {
     screenShake,
     screenShakeRef,
     engineRef,
-    isMuted,
     setAngle,
     setPower,
     setSelectedWeapon,
     moveCurrentTank,
     fire,
     startMatch,
-    toggleSound,
     resetStats,
   }
 }

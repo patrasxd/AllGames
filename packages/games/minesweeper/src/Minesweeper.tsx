@@ -123,6 +123,7 @@ function SketchFace({ status, isShocked }: { status: GameStatus; isShocked: bool
 const DIFFICULTIES: MinesweeperDifficulty[] = ['beginner', 'intermediate', 'expert']
 
 export function Minesweeper({ setHeader, setIsActive, locale = 'en', isEink = false }: GameComponentProps) {
+  const [zoom, setZoom] = useState(1.0)
   const [pendingAction, setPendingAction] = useState<
     { type: 'difficulty'; value: MinesweeperDifficulty } | { type: 'newGame' } | null
   >(null)
@@ -211,6 +212,9 @@ export function Minesweeper({ setHeader, setIsActive, locale = 'en', isEink = fa
     setPendingAction(null)
   }
 
+  const handleZoomIn = () => setZoom((value) => Math.min(2.2, Math.round((value + 0.2) * 10) / 10))
+  const handleZoomOut = () => setZoom((value) => Math.max(0.7, Math.round((value - 0.2) * 10) / 10))
+
   return (
     <div className="ms-root">
       <motion.div
@@ -227,25 +231,84 @@ export function Minesweeper({ setHeader, setIsActive, locale = 'en', isEink = fa
                 {pad3(remainingMines)}
               </div>
 
-              <button
-                type="button"
-                id="ms-face-btn"
-                className="ms-face-btn"
-                onClick={handleFaceClick}
-                aria-label={t.clickSmileDesc}
-                title={t.clickSmileDesc}
-              >
-                <SketchFace status={gameStatus} isShocked={isFaceShocked} />
-              </button>
+              <div className="ms-statusbar-center">
+                <button
+                  type="button"
+                  id="ms-face-btn"
+                  className="ms-face-btn"
+                  onClick={handleFaceClick}
+                  aria-label={t.clickSmileDesc}
+                  title={t.clickSmileDesc}
+                >
+                  <SketchFace status={gameStatus} isShocked={isFaceShocked} />
+                </button>
+              </div>
 
-              <div className="ms-counter ms-counter--time" title={t.time}>
-                {pad3(elapsedSeconds)}
+              <div className="ms-statusbar-actions">
+                <div className="ms-zoom-bar" role="toolbar" aria-label="Board Zoom Controls">
+                  <button
+                    type="button"
+                    className="ms-zoom-btn"
+                    onClick={handleZoomOut}
+                    disabled={zoom <= 0.7}
+                    aria-label="Zoom out"
+                    title="Zoom out"
+                  >
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                    >
+                      <line x1="5" y1="12" x2="19" y2="12" />
+                    </svg>
+                  </button>
+                  <button
+                    type="button"
+                    className="ms-zoom-level-btn"
+                    onClick={() => setZoom(1.0)}
+                    title="Reset zoom"
+                    aria-label={`Current zoom ${Math.round(zoom * 100)}%. Click to reset.`}
+                  >
+                    {Math.round(zoom * 100)}%
+                  </button>
+                  <button
+                    type="button"
+                    className="ms-zoom-btn"
+                    onClick={handleZoomIn}
+                    disabled={zoom >= 2.2}
+                    aria-label="Zoom in"
+                    title="Zoom in"
+                  >
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                    >
+                      <line x1="12" y1="5" x2="12" y2="19" />
+                      <line x1="5" y1="12" x2="19" y2="12" />
+                    </svg>
+                  </button>
+                </div>
+
+                <div className="ms-counter ms-counter--time" title={t.time}>
+                  {pad3(elapsedSeconds)}
+                </div>
               </div>
             </div>
           }
           board={
             <MinesweeperBoard
               board={board}
+              zoom={zoom}
+              setZoom={setZoom}
               isEink={isEink}
               onCellClick={handleCellClick}
               onCellContextMenu={handleCellContextMenu}

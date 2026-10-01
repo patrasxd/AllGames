@@ -2,7 +2,6 @@ import { useRef, useEffect, useCallback, useState, memo } from 'react'
 import type { PlayerId, GameMode, Tank, GamePhase, DifficultyLevel, WeaponType } from '../types'
 import { Button, IconButton, PillGroup, ControlsBar } from '@all/ui'
 import type { ArtilleryTranslations } from '../i18n'
-import { sound } from '../audio'
 
 const DIFFICULTIES: DifficultyLevel[] = ['easy', 'medium', 'hard']
 
@@ -115,7 +114,6 @@ export const ArtilleryTacticalDock = memo(function ArtilleryTacticalDock({
   }, [stopAngleRepeat])
 
   const handlePointerDownAngle = (e: React.PointerEvent<HTMLButtonElement>, delta: number) => {
-    sound.init()
     try {
       e.currentTarget.setPointerCapture(e.pointerId)
     } catch {
@@ -159,7 +157,6 @@ export const ArtilleryTacticalDock = memo(function ArtilleryTacticalDock({
   }, [onFireWithPower])
 
   const startCharging = useCallback(() => {
-    sound.init()
     if (isControlsDisabled || chargingRef.current) return
     chargingRef.current = true
     chargeDirectionRef.current = 1
@@ -404,7 +401,6 @@ export const ArtilleryTacticalDock = memo(function ArtilleryTacticalDock({
               className={`artillery-weapon-btn ${isSelected ? 'artillery-weapon-btn--selected' : ''} ${isAmmoEmpty ? 'artillery-weapon-btn--empty' : ''}`}
               disabled={isDisabled}
               onClick={() => {
-                sound.init()
                 onSelectWeapon?.(w.id)
               }}
               style={

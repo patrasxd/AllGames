@@ -5,7 +5,7 @@ import { AppFooter, useCardScrollRestoration, isReturningFromCard } from '@all/u
 import { GAMES } from '../games/registry'
 import { GameCard } from '../components/GameCard'
 import { useI18n } from '../i18n'
-import { getLocalizedTags } from '../types/game'
+import { getLocalizedTags, getLocalizedText } from '../types/game'
 
 const heroVariants = {
   hidden: {},
@@ -57,12 +57,19 @@ export function HomePage() {
 
   // Filter games based on selected tag
   const filteredGames = useMemo(() => {
-    if (!selectedTag) return GAMES
-    const normalizedSelected = selectedTag.trim().toLowerCase()
-    return GAMES.filter((game) => {
-      const tags = getLocalizedTags(game.metadata.tags, locale).map((t) => t.trim().toLowerCase())
-      return tags.includes(normalizedSelected)
-    })
+    const matchingGames = selectedTag
+      ? GAMES.filter((game) => {
+          const normalizedSelected = selectedTag.trim().toLowerCase()
+          const tags = getLocalizedTags(game.metadata.tags, locale).map((t) => t.trim().toLowerCase())
+          return tags.includes(normalizedSelected)
+        })
+      : GAMES
+
+    return [...matchingGames].sort((a, b) =>
+      getLocalizedText(a.metadata.name, locale).localeCompare(getLocalizedText(b.metadata.name, locale), locale, {
+        sensitivity: 'base',
+      }),
+    )
   }, [selectedTag, locale])
 
   // Capture whether we are returning from a game via Back button on mount

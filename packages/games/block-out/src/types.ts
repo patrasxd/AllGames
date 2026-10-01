@@ -40,6 +40,7 @@ export interface LevelConfig {
 
 export interface PlayerProgress {
   unlockedLevel: number
+  currentLevel?: number
   levelStars: Record<number, number>
   levelBestMoves: Record<number, number>
 }

@@ -17,6 +17,19 @@ describe('useBlockOut hook', () => {
     expect(result.current.isGameActive).toBe(false)
   })
 
+  it('resumes the last selected unlocked level', () => {
+    localStorage.setItem(
+      'allgames:block-out:progress',
+      JSON.stringify({ unlockedLevel: 5, currentLevel: 3, levelStars: {}, levelBestMoves: {} }),
+    )
+
+    const { result } = renderHook(() => useBlockOut())
+
+    expect(result.current.currentLevel).toBe(3)
+    act(() => result.current.goToLevel(4))
+    expect(JSON.parse(localStorage.getItem('allgames:block-out:progress')!).currentLevel).toBe(4)
+  })
+
   it('updates moves and enables undo on valid slide', () => {
     const { result } = renderHook(() => useBlockOut())
     const initialTargetCol = result.current.blocks.find((b) => b.isTarget)?.col ?? 0

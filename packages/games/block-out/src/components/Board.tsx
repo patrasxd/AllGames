@@ -5,8 +5,6 @@ import { getBlockSlideBounds, GRID_SIZE, TARGET_ROW } from '../logic/engine'
 interface BoardProps {
   blocks: Block[]
   onSlide: (blockId: string, newPos: number) => void
-  selectedBlockId: string | null
-  onSelectBlock: (id: string | null) => void
   isEink?: boolean
   theme?: GameTheme
 }
@@ -26,8 +24,6 @@ interface DragState {
 export const Board = memo(function Board({
   blocks,
   onSlide,
-  selectedBlockId,
-  onSelectBlock,
   isEink = false,
   theme,
 }: BoardProps) {
@@ -77,7 +73,6 @@ export const Board = memo(function Board({
       const initialCoord = block.orientation === 'h' ? block.col : block.row
 
       e.currentTarget.setPointerCapture(e.pointerId)
-      onSelectBlock(block.id)
 
       setDragState({
         blockId: block.id,
@@ -91,7 +86,7 @@ export const Board = memo(function Board({
         stepPx,
       })
     },
-    [blocks, onSelectBlock],
+    [blocks],
   )
 
   const handlePointerMove = useCallback(
@@ -219,7 +214,6 @@ export const Board = memo(function Board({
           const isDragging =
             dragState?.blockId === b.id &&
             (dragState.orientation === 'h' ? b.col === dragState.initialCoord : b.row === dragState.initialCoord)
-          const isSelected = selectedBlockId === b.id
 
           const transformStyle =
             isDragging && dragState
@@ -239,7 +233,7 @@ export const Board = memo(function Board({
               type="button"
               className={`bo-block ${b.isTarget ? 'bo-block--target' : `bo-block--length-${b.length}`} ${
                 b.orientation === 'h' ? 'bo-block--h' : 'bo-block--v'
-              } ${isSelected ? 'bo-block--selected' : ''} ${isDragging ? 'bo-block--dragging' : ''}`}
+              } ${isDragging ? 'bo-block--dragging' : ''}`}
               style={{
                 gridRow: `${b.row + 1} / span ${b.orientation === 'v' ? b.length : 1}`,
                 gridColumn: `${b.col + 1} / span ${b.orientation === 'h' ? b.length : 1}`,
@@ -250,7 +244,6 @@ export const Board = memo(function Board({
               onPointerUp={handlePointerUp}
               onPointerCancel={handlePointerUp}
               onKeyDown={(e) => handleKeyDown(e, b)}
-              onClick={() => onSelectBlock(b.id)}
               aria-label={`${b.isTarget ? 'Primary target block' : `Block ${b.id}`}, ${
                 b.orientation === 'h' ? 'horizontal' : 'vertical'
               } size ${b.length} at row ${b.row + 1}, column ${b.col + 1}`}

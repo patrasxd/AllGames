@@ -1,5 +1,6 @@
-import { memo } from 'react'
-import type { CellState, PlacedShip } from '../types'
+import { memo, useState } from 'react'
+import type { CellState, Orientation, PlacedShip } from '../types'
+import { canPlaceShip } from '../logic'
 
 interface Grid10x10Props {
   grid: CellState[][]
@@ -9,6 +10,7 @@ interface Grid10x10Props {
   title: string
   isEink: boolean
   showShips?: boolean
+  placementPreview?: { size: number; orientation: Orientation }
   onCellClick?: (row: number, col: number) => void
 }
 
@@ -20,8 +22,11 @@ export const Grid10x10 = memo(function Grid10x10({
   isInteractive,
   title,
   showShips = !isEnemy,
+  placementPreview,
   onCellClick,
 }: Grid10x10Props) {
+  const [hoveredCell, setHoveredCell] = useState<[number, number] | null>(null)
+
   return (
     <div className="bs-grid-panel">
       <div className="bs-grid-title">{title}</div>
@@ -48,29 +53,32 @@ export const Grid10x10 = memo(function Grid10x10({
                 const isMiss = visibleCell === 'miss'
                 const isSunk = visibleCell === 'sunk'
                 const isShip = showShips && cell === 'ship'
+                const previewOffset =
+                  hoveredCell && placementPreview
+                    ? placementPreview.orientation === 'horizontal'
+                      ? r === hoveredCell[0] && c >= hoveredCell[1] && c < hoveredCell[1] + placementPreview.size
+                        ? c - hoveredCell[1]
+                        : -1
+                      : c === hoveredCell[1] && r >= hoveredCell[0] && r < hoveredCell[0] + placementPreview.size
+                        ? r - hoveredCell[0]
+                        : -1
+                    : -1
+                const isPreviewCell = isInteractive && previewOffset >= 0
+                const isPreviewValid =
+                  !hoveredCell ||
+                  !placementPreview ||
+                  canPlaceShip(grid, hoveredCell[0], hoveredCell[1], placementPreview.size, placementPreview.orientation)
 
                 let cellClass = 'bs-cell'
                 if (isInteractive) cellClass += ' bs-cell--interactive'
                 if (isShip) cellClass += ' bs-cell--ship'
+                if (isPreviewCell) cellClass += ` bs-cell--placement-preview${isPreviewValid ? '' : ' bs-cell--placement-invalid'}`
                 if (isHit) cellClass += ' bs-cell--hit'
                 if (isMiss) cellClass += ' bs-cell--miss'
                 if (isSunk) cellClass += ' bs-cell--sunk'
 
-                return (
-                  <div
-                    key={`cell-${r}-${c}`}
-                    className={cellClass}
-                    onClick={() => isInteractive && onCellClick?.(r, c)}
-                    role={isInteractive ? 'button' : 'gridcell'}
-                    tabIndex={isInteractive ? 0 : -1}
-                    aria-label={`${LETTERS[c]}${r + 1}: ${visibleCell}`}
-                    onKeyDown={(e) => {
-                      if (isInteractive && (e.key === 'Enter' || e.key === ' ')) {
-                        e.preventDefault()
-                        onCellClick?.(r, c)
-                      }
-                    }}
-                  >
+                const contents = (
+                  <>
                     {isHit && (
                       <span className="bs-marker bs-marker--hit" aria-hidden="true">
                         ✕
@@ -86,6 +94,34 @@ export const Grid10x10 = memo(function Grid10x10({
                         ·
                       </span>
                     )}
+                  </>
+                )
+
+                const cellLabel = `${LETTERS[c]}${r + 1}: ${visibleCell}`
+                if (isInteractive) {
+                  return (
+                    <button
+                      key={`cell-${r}-${c}`}
+                      type="button"
+                      className={cellClass}
+                      onMouseEnter={() => placementPreview && setHoveredCell([r, c])}
+                      onMouseLeave={() => placementPreview && setHoveredCell(null)}
+                      onFocus={() => placementPreview && setHoveredCell([r, c])}
+                      onBlur={() => placementPreview && setHoveredCell(null)}
+                      onClick={() => {
+                        setHoveredCell(null)
+                        onCellClick?.(r, c)
+                      }}
+                      aria-label={cellLabel}
+                    >
+                      {contents}
+                    </button>
+                  )
+                }
+
+                return (
+                  <div key={`cell-${r}-${c}`} className={cellClass} role="gridcell" aria-label={cellLabel}>
+                    {contents}
                   </div>
                 )
               })}

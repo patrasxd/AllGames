@@ -22,17 +22,34 @@
 
 /* ─── Control Bar (Counter, Face, Timer in HUD) ──────────── */
 .ms-statusbar {
-  display: flex;
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto;
   align-items: center;
-  justify-content: space-between;
   background: var(--all-surface, var(--surface, #1e1e24));
   border: 1.5px solid var(--all-border, var(--border, #33333f));
   border-radius: var(--all-radius-sm, 4px);
   padding: 0.35rem 0.75rem;
   width: 100%;
-  max-width: 480px;
+  max-width: 640px;
   box-sizing: border-box;
   margin: 0 auto;
+}
+
+.ms-statusbar-center {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ms-statusbar-actions {
+  display: flex;
+  align-items: center;
+  justify-self: end;
+  gap: var(--all-space-2, 0.5rem);
 }
 
 .ms-counter {
@@ -52,6 +69,37 @@
 
 .ms-counter--mines {
   color: #ef4444;
+  justify-self: start;
+}
+
+@media (max-width: 420px) {
+  .ms-statusbar {
+    padding-inline: 0.5rem;
+  }
+
+  .ms-statusbar-actions {
+    gap: var(--all-space-1, 0.25rem);
+  }
+
+  .ms-counter {
+    min-width: 2.6rem;
+    padding-inline: 0.3rem;
+    font-size: 1rem;
+  }
+
+  .ms-face-btn {
+    width: 2.1rem;
+    height: 2.1rem;
+  }
+
+  .ms-zoom-btn {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  .ms-zoom-level-btn {
+    padding-inline: 0.25rem;
+  }
 }
 
 [data-theme^='e-ink'] .ms-counter--mines,
@@ -108,7 +156,6 @@
   border: 1px solid var(--all-border, var(--border, #33333f));
   border-radius: var(--all-radius-sm, 4px);
   padding: 2px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   z-index: 10;
   user-select: none;
 }

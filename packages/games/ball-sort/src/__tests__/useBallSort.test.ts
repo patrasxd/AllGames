@@ -16,6 +16,19 @@ describe('useBallSort', () => {
     expect(result.current.tubes.length).toBeGreaterThan(0)
   })
 
+  it('resumes the last selected unlocked level', () => {
+    localStorage.setItem(
+      'allgames:ball-sort:progress',
+      JSON.stringify({ unlockedLevel: 5, currentLevel: 3, levelStars: {}, levelBestMoves: {} }),
+    )
+
+    const { result } = renderHook(() => useBallSort())
+
+    expect(result.current.currentLevel).toBe(3)
+    act(() => result.current.goToLevel(4))
+    expect(JSON.parse(localStorage.getItem('allgames:ball-sort:progress')!).currentLevel).toBe(4)
+  })
+
   it('selecting an empty tube does nothing; selecting a non-empty tube selects it', () => {
     const { result } = renderHook(() => useBallSort())
     const emptyIndex = result.current.tubes.findIndex((t) => t.length === 0)

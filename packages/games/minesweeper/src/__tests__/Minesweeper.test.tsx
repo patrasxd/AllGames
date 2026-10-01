@@ -182,6 +182,15 @@ describe('Minesweeper Component Integration', () => {
     const zoomInBtn = screen.getByRole('button', { name: /Zoom in/i })
     const zoomOutBtn = screen.getByRole('button', { name: /Zoom out/i })
     const zoomResetBtn = screen.getByRole('button', { name: /Current zoom/i })
+    const zoomToolbar = screen.getByRole('toolbar', { name: /Board Zoom Controls/i })
+    const statusbarCenter = document.querySelector('.ms-statusbar-center')
+    const statusbarActions = document.querySelector('.ms-statusbar-actions')
+
+    expect(zoomToolbar.closest('.ms-statusbar')).toBeInTheDocument()
+    expect(statusbarCenter?.querySelector('#ms-face-btn')).toBeInTheDocument()
+    expect(statusbarActions?.contains(zoomToolbar)).toBe(true)
+    expect(statusbarActions?.querySelector('.ms-counter--time')).toBeInTheDocument()
+    expect(document.querySelector('.ms-board-container .ms-zoom-bar')).not.toBeInTheDocument()
 
     expect(zoomResetBtn).toHaveTextContent('100%')
 

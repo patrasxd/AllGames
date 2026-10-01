@@ -30,16 +30,17 @@ export type BattleshipDifficulty = SeaBattleDifficulty
 export type BattleshipMode = SeaBattleMode
 
 export type Orientation = 'horizontal' | 'vertical'
+export type ShipName = 'battleship' | 'cruiser' | 'destroyer' | 'patrol'
 
 export interface ShipDef {
   id: string
-  name: string
+  name: ShipName
   size: number
 }
 
 export interface PlacedShip {
   id: string
-  name: string
+  name: ShipName
   size: number
   row: number
   col: number

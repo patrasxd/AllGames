@@ -42,10 +42,5 @@ export interface WorkItem {
   id: ElementId
   x: number
   y: number
-}
-
-/** Marks the cards that were just created by a successful mix, so they can play the "discovered" animation. */
-export interface Feedback {
-  key: number
-  uids: number[]
+  isNewDiscovery?: boolean
 }

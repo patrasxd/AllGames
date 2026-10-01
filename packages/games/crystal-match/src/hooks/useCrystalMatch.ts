@@ -49,9 +49,14 @@ function loadSavedProgress(): PlayerProgress {
     if (raw) {
       const parsed = JSON.parse(raw)
       if (typeof parsed.unlockedLevel === 'number') {
+        const unlockedLevel = parsed.unlockedLevel || 1
         const hasCampaignSeed = Number.isInteger(parsed.campaignSeed) && parsed.campaignSeed > 0
         const progress: PlayerProgress = {
-          unlockedLevel: parsed.unlockedLevel || 1,
+          unlockedLevel,
+          currentLevel:
+            Number.isInteger(parsed.currentLevel) && parsed.currentLevel >= 1 && parsed.currentLevel <= unlockedLevel
+              ? parsed.currentLevel
+              : unlockedLevel,
           levelStars: parsed.levelStars || {},
           levelHighScores: parsed.levelHighScores || {},
           totalScore: parsed.totalScore || 0,
@@ -99,7 +104,7 @@ export function useCrystalMatch(options?: { isEink?: boolean; locale?: Locale })
   const t = crystalMatchTranslations[options?.locale ?? 'en'] || crystalMatchTranslations.en
 
   const [progress, setProgress] = useState<PlayerProgress>(loadSavedProgress)
-  const [level, setLevel] = useState<number>(() => progress.unlockedLevel)
+  const [level, setLevel] = useState<number>(() => progress.currentLevel ?? progress.unlockedLevel)
   const [config, setConfig] = useState<LevelConfig>(() => generateSolvableLevel(level, progress.campaignSeed ?? 1))
 
   const [board, setBoard] = useState<Tile[][]>(() => createInitialBoard(config))
@@ -123,6 +128,10 @@ export function useCrystalMatch(options?: { isEink?: boolean; locale?: Locale })
   // Bumped whenever a level is (re)started so a cascade still running for the old
   // level cannot write into the new one.
   const runIdRef = useRef(0)
+
+  useEffect(() => {
+    saveProgress({ ...progress, currentLevel: level })
+  }, [progress, level])
 
   useEffect(() => {
     aliveRef.current = true

@@ -4,6 +4,29 @@ import React from 'react'
 import { CrystalMatch } from '../CrystalMatch'
 
 describe('CrystalMatch Component Integration', () => {
+  it('resumes the last selected unlocked level', () => {
+    const key = 'allgames:crystal-match:progress'
+    const previous = localStorage.getItem(key)
+    localStorage.setItem(
+      key,
+      JSON.stringify({
+        unlockedLevel: 5,
+        currentLevel: 3,
+        levelStars: {},
+        levelHighScores: {},
+        totalScore: 0,
+        campaignSeed: 123,
+      }),
+    )
+
+    render(<CrystalMatch locale="en" />)
+
+    expect(screen.getByText(/Level 3/i)).toBeInTheDocument()
+    expect(JSON.parse(localStorage.getItem(key)!).currentLevel).toBe(3)
+    localStorage.removeItem(key)
+    if (previous !== null) localStorage.setItem(key, previous)
+  })
+
   it('persists the campaign seed so future levels stay stable across visits', () => {
     const key = 'allgames:crystal-match:progress'
     const previous = localStorage.getItem(key)

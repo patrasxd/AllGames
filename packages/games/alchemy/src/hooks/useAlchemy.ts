@@ -1,12 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import type { ElementId, Feedback, WorkItem } from '../types'
+import type { ElementId, WorkItem } from '../types'
 import { BASE_IDS } from '../elements'
 import { findCombineTarget } from '../geometry'
 import { TOTAL_ELEMENTS, combine, getHint, sanitizeDiscovered } from '../logic'
 
 const SAVE_KEY = 'allgames:alchemy:progress'
 
-const FEEDBACK_MS = 450
 const TOAST_MS = 2200
 const HINT_MS = 7000
 
@@ -32,21 +31,18 @@ export function useAlchemy() {
   const [discovered, setDiscovered] = useState<ElementId[]>(loadProgress)
   const [items, setItems] = useState<WorkItem[]>([])
   const [selectedUid, setSelectedUid] = useState<number | null>(null)
-  const [feedback, setFeedback] = useState<Feedback | null>(null)
   const [toast, setToast] = useState<{ id: ElementId; key: number } | null>(null)
   const [hint, setHint] = useState<{ a: ElementId; b: ElementId } | null>(null)
   const [noHint, setNoHint] = useState(false)
   const [mixes, setMixes] = useState(0)
 
   const uidRef = useRef(1)
-  const keyRef = useRef(1)
-  const timers = useRef<Record<'feedback' | 'toast' | 'hint', ReturnType<typeof setTimeout> | null>>({
-    feedback: null,
+  const timers = useRef<Record<'toast' | 'hint', ReturnType<typeof setTimeout> | null>>({
     toast: null,
     hint: null,
   })
 
-  const schedule = useCallback((slot: 'feedback' | 'toast' | 'hint', fn: () => void, ms: number) => {
+  const schedule = useCallback((slot: 'toast' | 'hint', fn: () => void, ms: number) => {
     const current = timers.current[slot]
     if (current) clearTimeout(current)
     timers.current[slot] = setTimeout(fn, ms)
@@ -82,15 +78,16 @@ export function useAlchemy() {
 
       const newUid = uidRef.current++
       const isNew = !discoveredSet.has(resultId)
-      setItems((prev) => [...prev.filter((i) => !consume.includes(i.uid)), { uid: newUid, id: resultId, x, y }])
+      setItems((prev) => [
+        ...prev.filter((i) => !consume.includes(i.uid)),
+        { uid: newUid, id: resultId, x, y, isNewDiscovery: isNew },
+      ])
       setMixes((m) => m + 1)
       clearHint()
       if (isNew) {
         setDiscovered((prev) => (prev.includes(resultId) ? prev : [...prev, resultId]))
         setToast({ id: resultId, key: newUid })
         schedule('toast', () => setToast(null), TOAST_MS)
-        setFeedback({ key: keyRef.current++, uids: [newUid] })
-        schedule('feedback', () => setFeedback(null), FEEDBACK_MS)
       }
       return true
     },
@@ -179,7 +176,6 @@ export function useAlchemy() {
     setDiscovered([...BASE_IDS])
     setItems([])
     setSelectedUid(null)
-    setFeedback(null)
     setToast(null)
     clearHint()
     setMixes(0)
@@ -189,7 +185,6 @@ export function useAlchemy() {
     discovered,
     items,
     selectedUid,
-    feedback,
     toast,
     hint,
     noHint,

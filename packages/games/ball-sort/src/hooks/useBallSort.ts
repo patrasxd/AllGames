@@ -11,8 +11,13 @@ function loadProgress(): PlayerProgress {
     const raw = localStorage.getItem(SAVE_KEY)
     if (raw) {
       const parsed = JSON.parse(raw)
+      const unlockedLevel = typeof parsed.unlockedLevel === 'number' ? parsed.unlockedLevel : 1
       return {
-        unlockedLevel: typeof parsed.unlockedLevel === 'number' ? parsed.unlockedLevel : 1,
+        unlockedLevel,
+        currentLevel:
+          Number.isInteger(parsed.currentLevel) && parsed.currentLevel >= 1 && parsed.currentLevel <= unlockedLevel
+            ? parsed.currentLevel
+            : unlockedLevel,
         levelStars: parsed.levelStars && typeof parsed.levelStars === 'object' ? parsed.levelStars : {},
         levelBestMoves: parsed.levelBestMoves && typeof parsed.levelBestMoves === 'object' ? parsed.levelBestMoves : {},
       }
@@ -43,8 +48,8 @@ interface HistoryEntry {
 
 export function useBallSort() {
   const [progress, setProgress] = useState<PlayerProgress>(loadProgress)
-  const [currentLevel, setCurrentLevel] = useState(1)
-  const [levelData, setLevelData] = useState(() => generateLevel(1))
+  const [currentLevel, setCurrentLevel] = useState(() => progress.currentLevel ?? progress.unlockedLevel)
+  const [levelData, setLevelData] = useState(() => generateLevel(currentLevel))
   const [tubes, setTubes] = useState<Tube[]>(() => levelData.tubes)
   const [history, setHistory] = useState<HistoryEntry[]>([])
   const [selected, setSelected] = useState<number | null>(null)
@@ -55,6 +60,10 @@ export function useBallSort() {
   const lastMoveClearRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const config = levelData.config
+
+  useEffect(() => {
+    saveProgress({ ...progress, currentLevel })
+  }, [progress, currentLevel])
 
   const clearLastMove = useCallback(() => {
     if (lastMoveClearRef.current) clearTimeout(lastMoveClearRef.current)
@@ -72,11 +81,6 @@ export function useBallSort() {
     setStatus('playing')
     setIsNewBest(false)
     setLastMove(null)
-  }, [])
-
-  useEffect(() => {
-    loadLevel(1)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(

@@ -7,7 +7,6 @@ import type { GameComponentProps, GameMode, DifficultyLevel } from './types'
 import { artilleryTranslations } from './i18n'
 import { FullBleedLayout, ConfirmDialog, ModeSelect, StatsHeader } from '@all/ui'
 import { GameResultOverlay, ComputerIcon, TwoPlayersIcon } from '@allgames/ui'
-import { sound } from './audio'
 import './styles/artillery.css'
 
 export function Artillery({
@@ -59,7 +58,6 @@ export function Artillery({
 
   // Prevent accidental tab close/reload during active game
   useEffect(() => {
-    sound.init()
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (isGameInProgress) {
         e.preventDefault()
@@ -103,7 +101,6 @@ export function Artillery({
 
   // Mode Selection handler
   const handleSelectMode = (newMode: GameMode) => {
-    sound.init()
     startMatch(newMode, difficulty)
     setHasChosenMode(true)
   }

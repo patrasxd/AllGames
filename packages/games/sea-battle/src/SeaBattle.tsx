@@ -26,6 +26,8 @@ export function SeaBattle({ setHeader, setIsActive, locale = 'en', isEink = fals
     p1State,
     p2State,
     activePlacementPlayer,
+    placementOrientation,
+    nextShip,
     currentTurn,
     winner,
     isAIThinking,
@@ -38,6 +40,8 @@ export function SeaBattle({ setHeader, setIsActive, locale = 'en', isEink = fals
     setDifficulty,
     changeMode,
     autoDeployCurrent,
+    placeCurrentShip,
+    rotatePlacement,
     clearCurrent,
     confirmPlacementAndStart,
     handleFire,
@@ -225,7 +229,6 @@ export function SeaBattle({ setHeader, setIsActive, locale = 'en', isEink = fals
                     <div className="bs-status-text">
                       {mode === '2p' && activePlacementPlayer === 'p2' ? t.player2Fleet : t.placementPhase}
                     </div>
-                    <div className="bs-status-sub">{t.placementDesc}</div>
                   </div>
                 ) : undefined
               }
@@ -242,9 +245,11 @@ export function SeaBattle({ setHeader, setIsActive, locale = 'en', isEink = fals
                       grid={currentPlacementState.grid}
                       ships={currentPlacementState.ships}
                       isEnemy={false}
-                      isInteractive={false}
+                      isInteractive={nextShip !== null}
                       title={mode === '2p' && activePlacementPlayer === 'p2' ? t.player2Fleet : t.yourFleet}
                       isEink={isEink}
+                      placementPreview={nextShip ? { size: nextShip.size, orientation: placementOrientation } : undefined}
+                      onCellClick={placeCurrentShip}
                     />
                   )}
                 </div>
@@ -254,7 +259,12 @@ export function SeaBattle({ setHeader, setIsActive, locale = 'en', isEink = fals
                   <PlacementControls
                     locale={locale}
                     hasShips={currentPlacementState.ships.length > 0}
+                    canStart={nextShip === null}
+                    canRotate={nextShip !== null}
+                    nextShip={nextShip ? t.ships[nextShip.name] : null}
+                    orientation={placementOrientation}
                     onAutoDeploy={autoDeployCurrent}
+                    onRotate={rotatePlacement}
                     onClear={clearCurrent}
                     onStart={confirmPlacementAndStart}
                   />

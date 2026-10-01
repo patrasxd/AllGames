@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from 'react'
-import type { SeaBattleDifficulty, SeaBattleMode, PlayerGridState, GamePhase, PlacedShip } from '../types'
-import { autoPlaceFleet, processShot, createEmptyGrid } from '../logic'
+import type { SeaBattleDifficulty, SeaBattleMode, PlayerGridState, GamePhase, PlacedShip, Orientation } from '../types'
+import { autoPlaceFleet, processShot, createEmptyGrid, placeShip as placeShipOnGrid, STANDARD_FLEET } from '../logic'
 import { getAIMove } from '../ai'
 
 const DIFFICULTY_KEY = 'allgames:sea-battle:difficulty'
@@ -79,6 +79,7 @@ export function useSeaBattle(options?: { isEink?: boolean }) {
   const [p1State, setP1State] = useState<PlayerGridState>(createEmptyPlayerState)
   const [p2State, setP2State] = useState<PlayerGridState>(createEmptyPlayerState)
   const [activePlacementPlayer, setActivePlacementPlayer] = useState<'p1' | 'p2'>('p1')
+  const [placementOrientation, setPlacementOrientation] = useState<Orientation>('horizontal')
 
   // Battle state
   const [currentTurn, setCurrentTurn] = useState<'p1' | 'p2'>('p1')
@@ -112,8 +113,7 @@ export function useSeaBattle(options?: { isEink?: boolean }) {
       const diffToUse = newDiff ?? difficulty
       const modeToUse = newMode ?? mode
 
-      const autoP1 = autoPlaceFleet()
-      setP1State({ ships: autoP1.ships, grid: autoP1.grid, shotsReceived: 0 })
+      setP1State(createEmptyPlayerState())
 
       if (modeToUse === 'ai') {
         const autoP2 = autoPlaceFleet()
@@ -123,6 +123,7 @@ export function useSeaBattle(options?: { isEink?: boolean }) {
       }
 
       setActivePlacementPlayer('p1')
+      setPlacementOrientation('horizontal')
       setPhase('placement')
       setCurrentTurn('p1')
       setWinner(null)
@@ -143,7 +144,7 @@ export function useSeaBattle(options?: { isEink?: boolean }) {
         turnTimerRef.current = null
       }
     },
-    [difficulty, mode, clearTurnCountdown],
+    [difficulty, mode, clearTurnCountdown, clearPassDevice],
   )
 
   const setDifficulty = useCallback(
@@ -173,6 +174,25 @@ export function useSeaBattle(options?: { isEink?: boolean }) {
     }
   }, [activePlacementPlayer])
 
+  const placeCurrentShip = useCallback(
+    (row: number, col: number) => {
+      if (phase !== 'placement') return
+      const currentState = activePlacementPlayer === 'p1' ? p1State : p2State
+      const nextShip = STANDARD_FLEET[currentState.ships.length]
+      if (!nextShip) return
+
+      const nextState = placeShipOnGrid(currentState, nextShip, row, col, placementOrientation)
+      if (!nextState) return
+      if (activePlacementPlayer === 'p1') setP1State(nextState)
+      else setP2State(nextState)
+    },
+    [phase, activePlacementPlayer, p1State, p2State, placementOrientation],
+  )
+
+  const rotatePlacement = useCallback(() => {
+    setPlacementOrientation((current) => (current === 'horizontal' ? 'vertical' : 'horizontal'))
+  }, [])
+
   const clearCurrent = useCallback(() => {
     if (activePlacementPlayer === 'p1') {
       setP1State(createEmptyPlayerState())
@@ -182,9 +202,10 @@ export function useSeaBattle(options?: { isEink?: boolean }) {
   }, [activePlacementPlayer])
 
   const confirmPlacementAndStart = useCallback(() => {
+    const currentState = activePlacementPlayer === 'p1' ? p1State : p2State
+    if (currentState.ships.length !== STANDARD_FLEET.length) return
+
     if (mode === '2p' && activePlacementPlayer === 'p1') {
-      const autoP2 = autoPlaceFleet()
-      setP2State({ ships: autoP2.ships, grid: autoP2.grid, shotsReceived: 0 })
       setActivePlacementPlayer('p2')
       setCurrentTurn('p2')
       setPassDevicePlayer('p2')
@@ -233,7 +254,7 @@ export function useSeaBattle(options?: { isEink?: boolean }) {
     }
 
     setPhase('battle')
-  }, [mode, activePlacementPlayer])
+  }, [mode, activePlacementPlayer, p1State, p2State])
 
   // AI turn execution
   const executeAIMove = useCallback(() => {
@@ -370,6 +391,9 @@ export function useSeaBattle(options?: { isEink?: boolean }) {
     }
   }, [difficulty])
 
+  const currentPlacementState = activePlacementPlayer === 'p1' ? p1State : p2State
+  const nextShip = STANDARD_FLEET[currentPlacementState.ships.length] ?? null
+
   return {
     mode,
     difficulty,
@@ -377,6 +401,8 @@ export function useSeaBattle(options?: { isEink?: boolean }) {
     p1State,
     p2State,
     activePlacementPlayer,
+    placementOrientation,
+    nextShip,
     currentTurn,
     winner,
     isAIThinking,
@@ -390,6 +416,8 @@ export function useSeaBattle(options?: { isEink?: boolean }) {
     setDifficulty,
     changeMode,
     autoDeployCurrent,
+    placeCurrentShip,
+    rotatePlacement,
     clearCurrent,
     confirmPlacementAndStart,
     handleFire,

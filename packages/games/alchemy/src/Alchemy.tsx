@@ -96,7 +96,6 @@ export function Alchemy({ setHeader, locale = 'en', isEink = false }: GameCompon
                 workspaceRef={workspaceRef}
                 trashRef={inventoryRef}
                 selectedUid={game.selectedUid}
-                feedback={game.feedback}
                 dropActive={listDrag.drag?.overWorkspace ?? false}
                 highlightUid={listDrag.drag?.targetUid ?? null}
                 emptyText={t.emptyTable}

@@ -1,9 +1,12 @@
-import { memo, useState, useRef, useCallback, useEffect } from 'react'
+import { memo, useRef, useCallback, useEffect } from 'react'
+import type { Dispatch, SetStateAction } from 'react'
 import type { MinesweeperBoardState } from '../types'
 import { Cell } from './Cell'
 
 interface MinesweeperBoardProps {
   board: MinesweeperBoardState
+  zoom: number
+  setZoom: Dispatch<SetStateAction<number>>
   isEink: boolean
   onCellClick: (row: number, col: number) => void
   onCellContextMenu: (e: React.MouseEvent, row: number, col: number) => void
@@ -14,6 +17,8 @@ interface MinesweeperBoardProps {
 
 export const MinesweeperBoard = memo(function MinesweeperBoard({
   board,
+  zoom,
+  setZoom,
   isEink,
   onCellClick,
   onCellContextMenu,
@@ -24,7 +29,6 @@ export const MinesweeperBoard = memo(function MinesweeperBoard({
   const rows = board.length
   const cols = board[0].length
 
-  const [zoom, setZoom] = useState(1.0)
   const wrapperRef = useRef<HTMLDivElement>(null)
   const prevZoomRef = useRef(1.0)
 
@@ -40,7 +44,7 @@ export const MinesweeperBoard = memo(function MinesweeperBoard({
   useEffect(() => {
     setZoom(1.0)
     prevZoomRef.current = 1.0
-  }, [rows, cols])
+  }, [rows, cols, setZoom])
 
   // Center preservation on zoom change
   useEffect(() => {
@@ -79,18 +83,6 @@ export const MinesweeperBoard = memo(function MinesweeperBoard({
     return () => {
       el.removeEventListener('touchmove', onNativeTouchMove)
     }
-  }, [])
-
-  const handleZoomIn = useCallback(() => {
-    setZoom((z) => Math.min(2.2, Math.round((z + 0.2) * 10) / 10))
-  }, [])
-
-  const handleZoomOut = useCallback(() => {
-    setZoom((z) => Math.max(0.7, Math.round((z - 0.2) * 10) / 10))
-  }, [])
-
-  const handleResetZoom = useCallback(() => {
-    setZoom(1.0)
   }, [])
 
   const handleScroll = useCallback(() => {
@@ -134,7 +126,7 @@ export const MinesweeperBoard = memo(function MinesweeperBoard({
         lastScrollOrDragTimeRef.current = Date.now()
       }
     }
-  }, [])
+  }, [setZoom])
 
   const handleTouchEnd = useCallback((e: React.TouchEvent) => {
     if (e.touches.length < 2) {
@@ -158,7 +150,7 @@ export const MinesweeperBoard = memo(function MinesweeperBoard({
       const delta = e.deltaY < 0 ? 0.15 : -0.15
       setZoom((z) => Math.min(2.2, Math.max(0.7, Math.round((z + delta) * 100) / 100)))
     }
-  }, [])
+  }, [setZoom])
 
   const handleSafeCellClick = useCallback(
     (row: number, col: number) => {
@@ -173,62 +165,6 @@ export const MinesweeperBoard = memo(function MinesweeperBoard({
 
   return (
     <div className="ms-board-container">
-      {/* Interactive Board Zoom Toolbar */}
-      <div className="ms-zoom-bar" role="toolbar" aria-label="Board Zoom Controls">
-        <button
-          type="button"
-          className="ms-zoom-btn"
-          onClick={handleZoomOut}
-          disabled={zoom <= 0.7}
-          aria-label="Zoom out"
-          title="Zoom out"
-        >
-          <svg
-            width="12"
-            height="12"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-          >
-            <line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
-        </button>
-
-        <button
-          type="button"
-          className="ms-zoom-level-btn"
-          onClick={handleResetZoom}
-          title="Reset zoom"
-          aria-label={`Current zoom ${Math.round(zoom * 100)}%. Click to reset.`}
-        >
-          {Math.round(zoom * 100)}%
-        </button>
-
-        <button
-          type="button"
-          className="ms-zoom-btn"
-          onClick={handleZoomIn}
-          disabled={zoom >= 2.2}
-          aria-label="Zoom in"
-          title="Zoom in"
-        >
-          <svg
-            width="12"
-            height="12"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-          >
-            <line x1="12" y1="5" x2="12" y2="19" />
-            <line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
-        </button>
-      </div>
-
       <div
         ref={wrapperRef}
         className="ms-board-wrapper"

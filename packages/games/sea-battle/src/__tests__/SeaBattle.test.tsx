@@ -40,6 +40,33 @@ describe('SeaBattle component integration', () => {
     expect(boardLayout).toBeInTheDocument()
   })
 
+  it('supports manually placing and rotating ships before the fleet is ready', async () => {
+    render(<SeaBattle locale="en" />)
+    fireEvent.click(document.getElementById('mode-opt-ai')!)
+
+    await waitFor(() => expect(document.getElementById('bs-rotate-btn')).toBeInTheDocument())
+    expect(document.getElementById('bs-start-btn')).toBeDisabled()
+    expect(document.querySelector('.bs-placement-summary .all-badge')).toHaveTextContent('Battleship (4)')
+
+    const firstCell = screen.getByLabelText('A1: empty')
+    fireEvent.mouseEnter(firstCell)
+    expect(document.querySelectorAll('.bs-cell--placement-preview')).toHaveLength(4)
+    fireEvent.click(firstCell)
+    expect(screen.getByLabelText('A1: ship')).toBeInTheDocument()
+
+    fireEvent.mouseEnter(screen.getByLabelText('A2: empty'))
+    expect(document.querySelectorAll('.bs-cell--placement-invalid')).toHaveLength(3)
+    fireEvent.mouseLeave(screen.getByLabelText('A2: empty'))
+
+    fireEvent.click(document.getElementById('bs-rotate-btn')!)
+    const nextCell = screen.getByLabelText('A3: empty')
+    fireEvent.mouseEnter(nextCell)
+    expect(document.querySelectorAll('.bs-cell--placement-preview')).toHaveLength(3)
+    fireEvent.click(nextCell)
+    expect(screen.getByLabelText('A3: ship')).toBeInTheDocument()
+    expect(document.getElementById('bs-start-btn')).toBeDisabled()
+  })
+
   it('notifies shell with setIsActive(true) as soon as battle is active', async () => {
     const setIsActive = vi.fn()
     render(<SeaBattle locale="en" setIsActive={setIsActive} />)
@@ -81,11 +108,14 @@ describe('SeaBattle component integration', () => {
     expect(interactiveCells.length).toBeGreaterThan(0)
 
     // Click an interactive cell to fire
+    const coordinate = interactiveCells[0].getAttribute('aria-label')!.split(':')[0]
     fireEvent.click(interactiveCells[0])
 
     // Cell should now have hit or miss marker
     await waitFor(() => {
-      const marker = interactiveCells[0].querySelector('.bs-marker')
+      const enemyGrid = document.querySelectorAll('.bs-grid-panel')[1]
+      const updatedCell = enemyGrid?.querySelector(`[aria-label^="${coordinate}:"]`)
+      const marker = updatedCell?.querySelector('.bs-marker')
       expect(marker).toBeInTheDocument()
     })
   })
@@ -108,10 +138,13 @@ describe('SeaBattle component integration', () => {
 
     // Fire one shot to make battle active
     const interactiveCells = document.querySelectorAll('.bs-cell--interactive')
+    const coordinate = interactiveCells[0].getAttribute('aria-label')!.split(':')[0]
     fireEvent.click(interactiveCells[0])
 
     await waitFor(() => {
-      expect(interactiveCells[0].querySelector('.bs-marker')).toBeInTheDocument()
+      const enemyGrid = document.querySelectorAll('.bs-grid-panel')[1]
+      const updatedCell = enemyGrid?.querySelector(`[aria-label^="${coordinate}:"]`)
+      expect(updatedCell?.querySelector('.bs-marker')).toBeInTheDocument()
     })
 
     // Click new game button

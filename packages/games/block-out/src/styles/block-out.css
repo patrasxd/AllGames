@@ -97,7 +97,7 @@
   transition: none !important;
 }
 
-.bo-block--selected {
+.bo-block:focus-visible {
   outline: 2px solid var(--all-accent, #3b82f6);
   outline-offset: 2px;
 }

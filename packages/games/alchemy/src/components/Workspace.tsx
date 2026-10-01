@@ -1,5 +1,5 @@
 import { useRef, useState, type KeyboardEvent, type PointerEvent, type RefObject } from 'react'
-import type { Feedback, Locale, WorkItem } from '../types'
+import type { Locale, WorkItem } from '../types'
 import { elementEmoji, elementName } from '../logic'
 import { ITEM_SIZE, clamp, findCombineTarget } from '../geometry'
 
@@ -13,7 +13,6 @@ interface WorkspaceProps {
   /** Element list; releasing an item over it throws the item away. */
   trashRef: RefObject<HTMLElement>
   selectedUid: number | null
-  feedback: Feedback | null
   /** An element being dragged in from the list is over the table. */
   dropActive?: boolean
   /** The card an element dragged in from the list would be mixed with. */
@@ -33,7 +32,6 @@ export function Workspace({
   workspaceRef,
   trashRef,
   selectedUid,
-  feedback,
   dropActive = false,
   highlightUid = null,
   emptyText,
@@ -133,13 +131,12 @@ export function Workspace({
       {items.length === 0 && <p className="al-workspace-empty">{emptyText}</p>}
       {items.map((item) => {
         const name = elementName(item.id, locale)
-        const isNew = feedback?.uids.includes(item.uid) ?? false
         const classes = [
           'al-item',
           draggingUid === item.uid ? 'al-item--dragging' : '',
           hoverUid === item.uid || highlightUid === item.uid ? 'al-item--hover' : '',
           selectedUid === item.uid ? 'al-item--selected' : '',
-          isNew ? 'al-item--new' : '',
+          item.isNewDiscovery ? 'al-item--new' : '',
         ]
           .filter(Boolean)
           .join(' ')

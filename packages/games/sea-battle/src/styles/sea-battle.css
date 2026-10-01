@@ -42,6 +42,13 @@
   font-weight: 500;
 }
 
+.bs-placement-summary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--all-space-1, 0.25rem);
+}
+
 /* ─── Turn Handoff (Pass Device) ────────────────────────────── */
 .bs-turn-handoff {
   position: fixed;
@@ -219,13 +226,34 @@
 }
 
 .bs-cell--interactive {
+  appearance: none;
+  padding: 0;
+  font: inherit;
   cursor: crosshair;
+}
+
+.bs-placement-stage .bs-cell--interactive {
+  cursor: copy;
 }
 
 .bs-cell--interactive:hover {
   background: color-mix(in srgb, var(--all-text, #fff) 18%, var(--all-surface, #1e293b));
   transform: scale(1.06);
   z-index: 2;
+}
+
+.bs-cell--placement-preview {
+  z-index: 3;
+  border: 2px solid var(--all-accent, #38bdf8);
+  background: color-mix(in srgb, var(--all-accent, #38bdf8) 32%, var(--all-surface-2, var(--surface-2))) !important;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--all-accent, #38bdf8) 45%, transparent);
+  transform: scale(1.05);
+}
+
+.bs-cell--placement-invalid {
+  border-color: var(--all-danger, #ef4444);
+  background: color-mix(in srgb, var(--all-danger, #ef4444) 28%, var(--all-surface-2, var(--surface-2))) !important;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--all-danger, #ef4444) 45%, transparent);
 }
 
 /* Friendly Ships */
@@ -266,6 +294,33 @@
 .bs-marker--miss {
   color: var(--all-text-muted, var(--text-muted));
   font-size: 1.25rem;
+  animation: bs-miss-splash 420ms ease-out both;
+}
+
+@keyframes bs-miss-splash {
+  0% {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+  45% {
+    opacity: 1;
+    transform: scale(1.5);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bs-marker--miss {
+    animation: none;
+  }
+}
+
+[data-theme^='e-ink'] .bs-marker--miss,
+[data-eink='true'] .bs-marker--miss {
+  animation: none;
 }
 
 /* ─── E-Ink Theme ───────────────────────────────────────────── */
