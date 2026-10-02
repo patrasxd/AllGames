@@ -1,10 +1,42 @@
-import { defineConfig } from 'vite'
+import { defineConfig, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
+
+const cspPlugin = (): Plugin => ({
+  name: 'production-csp',
+  apply: 'build',
+  transformIndexHtml() {
+    return [
+      {
+        tag: 'meta',
+        attrs: {
+          'http-equiv': 'Content-Security-Policy',
+          content: [
+            "default-src 'self'",
+            "script-src 'self' 'wasm-unsafe-eval'",
+            "style-src 'self' 'unsafe-inline'",
+            "img-src 'self' data: blob:",
+            "media-src 'self' blob: mediastream:",
+            "font-src 'self' data:",
+            "connect-src 'self' blob: data:",
+            "worker-src 'self' blob:",
+            "manifest-src 'self'",
+            "object-src 'none'",
+            "base-uri 'self'",
+            "form-action 'none'",
+            "frame-src 'none'",
+          ].join('; '),
+        },
+        injectTo: 'head-prepend',
+      },
+    ]
+  },
+})
 
 export default defineConfig({
   base: '/AllGames/',
   plugins: [
+    cspPlugin(),
     react(),
     VitePWA({
       registerType: 'autoUpdate',

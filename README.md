@@ -268,6 +268,8 @@ All client-side state is stored strictly in browser `localStorage` using standar
 | `allgames:<slug>:settings` | `JSON Object`                                        | Game settings (difficulty, board size, sound) |
 | `allgames:<slug>:stats`    | `JSON Object`                                        | High scores, win/loss records, best times     |
 
+Production builds enforce a strict Content Security Policy (`connect-src 'self'`), providing a technical guarantee that the application cannot send data or telemetry to external servers. All game logic, state, and statistics remain strictly local to your device.
+
 ---
 
 ## Deployment
