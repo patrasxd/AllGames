@@ -12,7 +12,7 @@
   <img src="https://img.shields.io/badge/TypeScript-5.5-blue.svg" alt="TypeScript 5" />
   <img src="https://img.shields.io/badge/Vite-6.0-646CFF.svg" alt="Vite" />
   <img src="https://img.shields.io/badge/PWA-Offline--First-brightgreen.svg" alt="PWA Ready" />
-  <img src="https://img.shields.io/badge/Vitest-49%20passed-success.svg" alt="Vitest Tests" />
+  <img src="https://img.shields.io/badge/Vitest-436%20passed-success.svg" alt="Vitest Tests" />
 </p>
 
 ---
@@ -91,25 +91,25 @@ npm run dev
 
 AllGames features a growing collection of browser-based mini-games, spanning arcade classics, logic puzzles, and strategic board games:
 
-| Game               | Slug             | Players / AI | Template               | Description                                                                                                       |
-| :----------------- | :--------------- | :----------- | :--------------------- | :---------------------------------------------------------------------------------------------------------------- |
-| **Wing Rush**      | `wing-rush`      | 1P           | `FullBleedLayout`      | Minimalist physics arcade. Tap to flap wings, weave through architectural gates, and beat high scores.            |
-| **Artillery Duel** | `artillery`      | 1P / 2P      | `FullBleedLayout`      | Tactical ballistic tank duel with procedural destructible clay terrain, wind physics, and computer AI.            |
-| **Bubble Shooter** | `bubble-shooter` | 1P           | `FullBleedLayout`      | Aim, bounce off the walls, and match 3+ colored bubbles before the hex grid reaches the bottom.                   |
-| **Ball Sort**      | `ball-sort`      | 1P           | `BoardLayout` (fluid)  | Pour colors between tubes until every one holds a single color. 100 seeded levels, stars, undo.                   |
-| **Alchemy**        | `alchemy`        | 1P           | `BoardLayout` (wide)   | Combine four basic elements into 300+ others. Drag or tap to mix, hints, searchable collection.                   |
-| **Block Out**      | `block-out`      | 1P           | `BoardLayout` (square) | Slide blocks along their axes to clear a path and guide the red block to freedom. 100 levels, star ratings, undo. |
-| **Crystal Match**  | `crystal-match`  | 1P           | `BoardLayout`          | Cascading match-3 puzzle saga. Swap crystals, trigger explosive combos, and beat tiered level targets.            |
-| **Tic-Tac-Toe**    | `tic-tac-toe`    | 1P / 2P      | `BoardLayout`          | Classic 3x3 grid with local 2-player mode and 3-difficulty Minimax AI.                                            |
-| **Snake**          | `snake`          | 1P           | `BoardLayout`          | Retro snake with 3 map layouts (Border, Open, Obstacles), speed presets, and high score tracking.                 |
-| **Checkers**       | `checkers`       | 1P / 2P      | `BoardLayout`          | Traditional 8x8 checkers supporting local pass-and-play or Minimax computer opponent.                             |
-| **Chess**          | `chess`          | 1P / 2P      | `BoardLayout`          | Full FIDE rules (castling, en passant, pawn promotion) with local 2P or Minimax AI.                               |
-| **Minesweeper**    | `minesweeper`    | 1P           | `BoardLayout`          | Safe first click guarantee, quick-flagging, 3 board dimensions, and timer records.                                |
-| **2048**           | `2048`           | 1P           | `BoardLayout`          | Number sliding puzzle supporting 3x3, 4x4, and 5x5 grids, swipe gestures, move undo, and best scores.             |
-| **Memory**         | `memory`         | 1P / 2P      | `BoardLayout`          | Hand-drawn vector sketch icon matching with 3 board densities and turn-based 2-player mode.                       |
-| **Sudoku**         | `sudoku`         | 1P           | `BoardLayout`          | Procedurally generated puzzles across 3 difficulties with pencil notes, mistake counter, and timer.               |
-| **Sea Battle**     | `sea-battle`     | 1P / 2P      | `BoardLayout`          | Tactical radar grid battleship with fleet auto-deployment and 3-tier computer AI.                                 |
-| **Solitaire**      | `solitaire`      | 1P           | `BoardLayout`          | Classic Klondike (Draw 1 / Draw 3), smart move hints, undo stack, auto-finish, and Vegas scoring.                 |
+| Game               | Slug             | Players / AI | Template               | Description                                                                                                        |
+| :----------------- | :--------------- | :----------- | :--------------------- | :----------------------------------------------------------------------------------------------------------------- |
+| **Wing Rush**      | `wing-rush`      | 1P           | `FullBleedLayout`      | Minimalist physics arcade. Tap to flap wings, weave through architectural gates, and beat high scores.             |
+| **Artillery Duel** | `artillery`      | 1P / 2P      | `FullBleedLayout`      | Tactical ballistic tank duel with procedural destructible clay terrain, wind physics, and computer AI.             |
+| **Bubble Shooter** | `bubble-shooter` | 1P           | `FullBleedLayout`      | Aim, bounce off the walls, and match 3+ colored bubbles before the hex grid reaches the bottom.                    |
+| **Ball Sort**      | `ball-sort`      | 1P           | `BoardLayout` (fluid)  | Pour colors between tubes until every one holds a single color. 200+ seeded levels, stars, undo.                   |
+| **Alchemy**        | `alchemy`        | 1P           | `BoardLayout` (wide)   | Combine four basic elements into 300+ others. Drag or tap to mix, hints, searchable collection.                    |
+| **Block Out**      | `block-out`      | 1P           | `BoardLayout` (square) | Slide blocks along their axes to clear a path and guide the red block to freedom. 200+ levels, star ratings, undo. |
+| **Crystal Match**  | `crystal-match`  | 1P           | `BoardLayout`          | Cascading match-3 puzzle saga. Swap crystals, trigger explosive combos, and beat tiered level targets.             |
+| **Tic-Tac-Toe**    | `tic-tac-toe`    | 1P / 2P      | `BoardLayout`          | Classic 3x3 grid with local 2-player mode and 3-difficulty Minimax AI.                                             |
+| **Snake**          | `snake`          | 1P           | `BoardLayout`          | Retro snake with 3 map layouts (Border, Open, Obstacles), speed presets, and high score tracking.                  |
+| **Checkers**       | `checkers`       | 1P / 2P      | `BoardLayout`          | Traditional 8x8 checkers supporting local pass-and-play or Minimax computer opponent.                              |
+| **Chess**          | `chess`          | 1P / 2P      | `BoardLayout`          | Full FIDE rules (castling, en passant, pawn promotion) with local 2P or Minimax AI.                                |
+| **Minesweeper**    | `minesweeper`    | 1P           | `BoardLayout`          | Safe first click guarantee, quick-flagging, 3 board dimensions, and timer records.                                 |
+| **2048**           | `2048`           | 1P           | `BoardLayout`          | Number sliding puzzle supporting 3x3, 4x4, and 5x5 grids, swipe gestures, move undo, and best scores.              |
+| **Memory**         | `memory`         | 1P / 2P      | `BoardLayout`          | Hand-drawn vector sketch icon matching with 3 board densities and turn-based 2-player mode.                        |
+| **Sudoku**         | `sudoku`         | 1P           | `BoardLayout`          | Procedurally generated puzzles across 3 difficulties with pencil notes, mistake counter, and timer.                |
+| **Sea Battle**     | `sea-battle`     | 1P / 2P      | `BoardLayout`          | Tactical radar grid battleship with fleet auto-deployment and 3-tier computer AI.                                  |
+| **Solitaire**      | `solitaire`      | 1P           | `BoardLayout`          | Classic Klondike (Draw 1 / Draw 3), smart move hints, undo stack, auto-finish, and Vegas scoring.                  |
 
 ---
 
