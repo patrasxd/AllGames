@@ -1,12 +1,13 @@
 import { describe, it, expect } from 'vitest'
-import { LEVELS_DATA } from '../logic/levelsData'
-import { generateLevel } from '../logic/generator'
+import { CAMPAIGN_LEVELS, LEVELS_DATA } from '../logic/levelsData'
+import { generateLevel, HIDDEN_FROM_LEVEL, visibleBelowTopFor } from '../logic/generator'
 import { findSolution } from '../logic/solver'
 import { isSolved } from '../logic/engine'
 
 describe('Ball Sort 200 Levels & Procedural Engine', () => {
-  it('has 200 precomputed levels with valid configurations', () => {
-    expect(LEVELS_DATA).toHaveLength(200)
+  it('has 200 campaign levels plus an endless pool, all with valid configurations', () => {
+    expect(CAMPAIGN_LEVELS).toBe(200)
+    expect(LEVELS_DATA).toHaveLength(300)
 
     for (let i = 0; i < LEVELS_DATA.length; i++) {
       const lvl = LEVELS_DATA[i]
@@ -56,18 +57,45 @@ describe('Ball Sort 200 Levels & Procedural Engine', () => {
     }
   })
 
-  it('procedurally generates solvable levels for 201+', () => {
+  it('serves solvable levels for 201+ from the pre-verified pool', () => {
     const lvl201 = generateLevel(201)
     expect(lvl201.config.level).toBe(201)
     expect(lvl201.config.numColors).toBe(8)
-    expect(lvl201.config.numEmptyTubes).toBe(2)
+    expect(lvl201.config.numEmptyTubes).toBe(1)
     const sol201 = findSolution(lvl201.tubes, lvl201.config.capacity, { maxNodes: 45000 })
     expect(sol201).not.toBeNull()
 
-    const lvl205 = generateLevel(205) // Boss level with 1 empty tube
+    const lvl205 = generateLevel(205) // pool breather: a second empty tube
     expect(lvl205.config.level).toBe(205)
-    expect(lvl205.config.numEmptyTubes).toBe(1)
+    expect(lvl205.config.numEmptyTubes).toBe(2)
     const sol205 = findSolution(lvl205.tubes, lvl205.config.capacity, { maxNodes: 45000 })
     expect(sol205).not.toBeNull()
+
+    // The pool cycles, and always keeps the hardest hidden-color tier.
+    expect(generateLevel(201 + 100).tubes).toEqual(generateLevel(201).tubes)
+    expect(generateLevel(5000).config.visibleBelowTop).toBe(0)
+  })
+
+  it('introduces hidden colors from level 150 and ramps them up', () => {
+    expect(HIDDEN_FROM_LEVEL).toBe(150)
+    for (let i = 1; i < HIDDEN_FROM_LEVEL; i++) expect(generateLevel(i).config.visibleBelowTop).toBeUndefined()
+    expect(visibleBelowTopFor(150)).toBe(2)
+    expect(visibleBelowTopFor(165)).toBe(2)
+    expect(visibleBelowTopFor(166)).toBe(1)
+    expect(visibleBelowTopFor(185)).toBe(1)
+    expect(visibleBelowTopFor(186)).toBe(0)
+    expect(generateLevel(150).config.visibleBelowTop).toBe(2)
+    expect(generateLevel(200).config.visibleBelowTop).toBe(0)
+  })
+
+  it('gets harder across the campaign: every tier needs more pours than the one before it', () => {
+    const tiers: Array<[number, number]> = [[1, 15], [16, 45], [46, 80], [81, 120], [121, 160], [161, 185]]
+    const avg = ([a, b]: [number, number]) => {
+      const pars = LEVELS_DATA.slice(a - 1, b).map((l) => l.config.parMoves)
+      return pars.reduce((x, y) => x + y, 0) / pars.length
+    }
+    for (let i = 1; i < tiers.length; i++) expect(avg(tiers[i])).toBeGreaterThan(avg(tiers[i - 1]))
+    // No level in the second half of the campaign is a quick one.
+    for (const l of LEVELS_DATA.slice(80, 200)) expect(l.config.parMoves).toBeGreaterThanOrEqual(18)
   })
 })

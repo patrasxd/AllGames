@@ -22,6 +22,7 @@ export interface BallSortTranslations {
   howToPlayTitle: string
   howToPlayBody: string
   startLevel: string
+  hiddenNote: string
 }
 
 export const ballSortTranslations: Record<Locale, BallSortTranslations> = {
@@ -46,8 +47,9 @@ export const ballSortTranslations: Record<Locale, BallSortTranslations> = {
     levelStars: (n) => `${n} stars`,
     howToPlayTitle: 'How to play',
     howToPlayBody:
-      'Tap a tube to pick up its top color, then tap another tube to pour it there. You can only pour onto an empty tube or one topped with the same color. Sort every color into its own tube to win.',
+      'Tap a tube to pick up its top color, then tap another tube to pour it there. You can only pour onto an empty tube or one topped with the same color. Sort every color into its own tube to win. From level 150, some colors are hidden ("?") until you uncover them.',
     startLevel: 'Start',
+    hiddenNote: 'Hidden colors: only the top of each tube is revealed.',
   },
   pl: {
     gameTitle: 'Ball Sort',
@@ -70,7 +72,8 @@ export const ballSortTranslations: Record<Locale, BallSortTranslations> = {
     levelStars: (n) => `${n} gwiazdki`,
     howToPlayTitle: 'Jak grać',
     howToPlayBody:
-      'Dotknij probówki, aby podnieść jej górny kolor, a potem dotknij innej, aby go tam przelać. Możesz przelewać tylko do pustej probówki albo takiej, na której wierzchu jest ten sam kolor. Posortuj każdy kolor do osobnej probówki, aby wygrać.',
+      'Dotknij probówki, aby podnieść jej górny kolor, a potem dotknij innej, aby go tam przelać. Możesz przelewać tylko do pustej probówki albo takiej, na której wierzchu jest ten sam kolor. Posortuj każdy kolor do osobnej probówki, aby wygrać. Od poziomu 150 część kolorów jest ukryta („?”), dopóki jej nie odkryjesz.',
     startLevel: 'Start',
+    hiddenNote: 'Ukryte kolory: widać tylko wierzch każdej probówki.',
   },
 }

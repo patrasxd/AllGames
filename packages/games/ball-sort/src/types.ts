@@ -29,6 +29,13 @@ export interface LevelConfig {
   /** Max moves for 3 stars, then for 2 stars. More moves than that still wins, just at 1 star. */
   starThresholds: [number, number]
   seed: number
+  /**
+   * Hidden-colors mode. When set, a ball is only shown if it belongs to the top run of its tube or
+   * is one of the next `visibleBelowTop` balls under it; every other ball is drawn as a "?".
+   * Undefined means every ball is visible. Visibility is derived from the tube contents only, so
+   * undo and restart need no extra state, and the solver (which sees all colors) is unaffected.
+   */
+  visibleBelowTop?: number
 }
 
 /** A single pour: `count` balls of `color` moved from the top of `from` to `to`. */

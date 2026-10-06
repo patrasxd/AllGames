@@ -1,5 +1,6 @@
 import { useLayoutEffect, useRef } from 'react'
 import type { Move, Tube } from '../types'
+import { ballVisibility } from '../logic/engine'
 import { BALL_HEX, BallGlyph } from './Icons'
 
 interface TubesBoardProps {
@@ -10,6 +11,8 @@ interface TubesBoardProps {
   isEink?: boolean
   /** The pour that just happened; drives the ball flight animation. */
   lastMove?: Move | null
+  /** Hidden-colors mode, see LevelConfig.visibleBelowTop. */
+  visibleBelowTop?: number
 }
 
 const FLIGHT_MS = 520
@@ -21,7 +24,7 @@ function prefersReducedMotion(): boolean {
     : false
 }
 
-export function TubesBoard({ tubes, capacity, selected, onSelect, isEink = false, lastMove = null }: TubesBoardProps) {
+export function TubesBoard({ tubes, capacity, selected, onSelect, isEink = false, lastMove = null, visibleBelowTop }: TubesBoardProps) {
   const boardRef = useRef<HTMLDivElement>(null)
 
   // Fly the poured balls from their old slot in the source tube, up and over, then drop them
@@ -101,6 +104,8 @@ export function TubesBoard({ tubes, capacity, selected, onSelect, isEink = false
   const renderTube = (tube: Tube, i: number) => {
     const isSelected = selected === i
     const canReceiveSelection = selected !== null && selected !== i
+    const visibility = ballVisibility(tube, visibleBelowTop)
+    const hiddenCount = visibility.filter((v) => !v).length
     return (
       <button
         key={i}
@@ -108,7 +113,7 @@ export function TubesBoard({ tubes, capacity, selected, onSelect, isEink = false
         className={`bs-tube ${isSelected ? 'bs-tube--selected' : ''} ${canReceiveSelection ? 'bs-tube--target' : ''}`}
         style={{ ['--bs-capacity' as string]: capacity }}
         onClick={() => onSelect(i)}
-        aria-label={`Tube ${i + 1}${tube.length > 0 ? `, top color ${tube[tube.length - 1]}` : ', empty'}`}
+        aria-label={`Tube ${i + 1}${tube.length > 0 ? `, top color ${tube[tube.length - 1]}` : ', empty'}${hiddenCount > 0 ? `, ${hiddenCount} hidden` : ''}`}
       >
         {/* Top bounce indicator when selected (absolutely positioned so it never shifts the layout) */}
         {isSelected && <div className="bs-tube-bounce-indicator" />}
@@ -118,27 +123,38 @@ export function TubesBoard({ tubes, capacity, selected, onSelect, isEink = false
             <div key={`empty-${slotIdx}`} className="bs-ball-slot bs-ball-slot--empty" />
           ))}
           {/* Balls from top to bottom (reversed so top of array = top of tube visually) */}
-          {[...tube].reverse().map((color, ballIdx) => (
-            <div key={ballIdx} className="bs-ball-slot">
-              <div
-                className="bs-ball"
-                style={
-                  isEink
-                    ? { background: 'var(--all-surface)', border: '2px solid var(--all-text)' }
-                    : {
-                        background: `radial-gradient(circle at 32% 28%, ${lighten(BALL_HEX[color])}, ${BALL_HEX[color]})`,
-                      }
-                }
-              >
-                <BallGlyph
-                  color={color}
-                  size={16}
-                  ink={isEink ? 'var(--all-text)' : '#ffffff'}
-                  outline={isEink ? 'var(--all-text)' : 'rgba(0,0,0,0.55)'}
-                />
+          {[...tube].reverse().map((color, ballIdx) => {
+            if (!visibility[tube.length - 1 - ballIdx]) {
+              return (
+                <div key={ballIdx} className="bs-ball-slot">
+                  <div className="bs-ball bs-ball--hidden" data-hidden="true">
+                    ?
+                  </div>
+                </div>
+              )
+            }
+            return (
+              <div key={ballIdx} className="bs-ball-slot">
+                <div
+                  className="bs-ball"
+                  style={
+                    isEink
+                      ? { background: 'var(--all-surface)', border: '2px solid var(--all-text)' }
+                      : {
+                          background: `radial-gradient(circle at 32% 28%, ${lighten(BALL_HEX[color])}, ${BALL_HEX[color]})`,
+                        }
+                  }
+                >
+                  <BallGlyph
+                    color={color}
+                    size={16}
+                    ink={isEink ? 'var(--all-text)' : '#ffffff'}
+                    outline={isEink ? 'var(--all-text)' : 'rgba(0,0,0,0.55)'}
+                  />
+                </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </button>
     )

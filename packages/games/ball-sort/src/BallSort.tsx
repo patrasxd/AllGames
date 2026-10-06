@@ -74,14 +74,18 @@ export function BallSort({ setHeader, setIsActive, locale = 'en', isEink = false
         variant="fluid"
         align="center"
         board={
-          <TubesBoard
-            tubes={tubes}
-            capacity={config.capacity}
-            selected={selected}
-            onSelect={selectTube}
-            isEink={isEink}
-            lastMove={lastMove}
-          />
+          <>
+            <TubesBoard
+              tubes={tubes}
+              capacity={config.capacity}
+              selected={selected}
+              onSelect={selectTube}
+              isEink={isEink}
+              lastMove={lastMove}
+              visibleBelowTop={config.visibleBelowTop}
+            />
+            {config.visibleBelowTop !== undefined && <p className="bs-hidden-note">{t.hiddenNote}</p>}
+          </>
         }
         controls={
           <ControlsBar className="bs-controls-bar">

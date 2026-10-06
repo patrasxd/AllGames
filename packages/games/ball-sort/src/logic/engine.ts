@@ -24,6 +24,16 @@ export function topRun(tube: Tube): { color: BallColor; length: number } | null 
   return { color, length }
 }
 
+/**
+ * Which balls of a tube (bottom to top) the player can see. With `visibleBelowTop` undefined all of
+ * them; otherwise the top run (same-color balls reveal nothing extra) plus that many balls under it.
+ */
+export function ballVisibility(tube: Tube, visibleBelowTop?: number): boolean[] {
+  if (visibleBelowTop === undefined) return tube.map(() => true)
+  const firstVisible = tube.length - (topRun(tube)?.length ?? 0) - visibleBelowTop
+  return tube.map((_, i) => i >= firstVisible)
+}
+
 export function isTubeSolved(tube: Tube): boolean {
   return tube.length === 0 || topRun(tube)!.length === tube.length
 }
