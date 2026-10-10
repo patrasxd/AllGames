@@ -89,7 +89,14 @@ describe('Ball Sort 200 Levels & Procedural Engine', () => {
   })
 
   it('gets harder across the campaign: every tier needs more pours than the one before it', () => {
-    const tiers: Array<[number, number]> = [[1, 15], [16, 45], [46, 80], [81, 120], [121, 160], [161, 185]]
+    const tiers: Array<[number, number]> = [
+      [1, 15],
+      [16, 45],
+      [46, 80],
+      [81, 120],
+      [121, 160],
+      [161, 185],
+    ]
     const avg = ([a, b]: [number, number]) => {
       const pars = LEVELS_DATA.slice(a - 1, b).map((l) => l.config.parMoves)
       return pars.reduce((x, y) => x + y, 0) / pars.length

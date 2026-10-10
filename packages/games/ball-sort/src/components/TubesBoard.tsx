@@ -24,7 +24,15 @@ function prefersReducedMotion(): boolean {
     : false
 }
 
-export function TubesBoard({ tubes, capacity, selected, onSelect, isEink = false, lastMove = null, visibleBelowTop }: TubesBoardProps) {
+export function TubesBoard({
+  tubes,
+  capacity,
+  selected,
+  onSelect,
+  isEink = false,
+  lastMove = null,
+  visibleBelowTop,
+}: TubesBoardProps) {
   const boardRef = useRef<HTMLDivElement>(null)
 
   // Fly the poured balls from their old slot in the source tube, up and over, then drop them

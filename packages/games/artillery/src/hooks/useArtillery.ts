@@ -249,7 +249,6 @@ export function useArtillery({ isEink = false }: { isEink?: boolean } = {}) {
     engineRef.current.phase = 'firing'
     setPhase('firing')
     setIsAiThinking(false)
-
   }, [])
 
   // Handle AI Turn trigger with clear, readable pacing

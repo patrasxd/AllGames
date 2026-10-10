@@ -109,24 +109,27 @@ export const MinesweeperBoard = memo(function MinesweeperBoard({
     [zoom],
   )
 
-  const handleTouchMove = useCallback((e: React.TouchEvent) => {
-    if (e.touches.length === 2 && initialDistanceRef.current !== null) {
-      isPinchingRef.current = true
-      lastScrollOrDragTimeRef.current = Date.now()
-      const dx = e.touches[0].clientX - e.touches[1].clientX
-      const dy = e.touches[0].clientY - e.touches[1].clientY
-      const currentDist = Math.hypot(dx, dy)
-      const scaleFactor = currentDist / initialDistanceRef.current
-      const newZoom = Math.min(2.2, Math.max(0.7, initialZoomRef.current * scaleFactor))
-      setZoom(Math.round(newZoom * 100) / 100)
-    } else if (e.touches.length === 1 && touchStartPosRef.current) {
-      const dx = Math.abs(e.touches[0].clientX - touchStartPosRef.current.x)
-      const dy = Math.abs(e.touches[0].clientY - touchStartPosRef.current.y)
-      if (dx > 10 || dy > 10) {
+  const handleTouchMove = useCallback(
+    (e: React.TouchEvent) => {
+      if (e.touches.length === 2 && initialDistanceRef.current !== null) {
+        isPinchingRef.current = true
         lastScrollOrDragTimeRef.current = Date.now()
+        const dx = e.touches[0].clientX - e.touches[1].clientX
+        const dy = e.touches[0].clientY - e.touches[1].clientY
+        const currentDist = Math.hypot(dx, dy)
+        const scaleFactor = currentDist / initialDistanceRef.current
+        const newZoom = Math.min(2.2, Math.max(0.7, initialZoomRef.current * scaleFactor))
+        setZoom(Math.round(newZoom * 100) / 100)
+      } else if (e.touches.length === 1 && touchStartPosRef.current) {
+        const dx = Math.abs(e.touches[0].clientX - touchStartPosRef.current.x)
+        const dy = Math.abs(e.touches[0].clientY - touchStartPosRef.current.y)
+        if (dx > 10 || dy > 10) {
+          lastScrollOrDragTimeRef.current = Date.now()
+        }
       }
-    }
-  }, [setZoom])
+    },
+    [setZoom],
+  )
 
   const handleTouchEnd = useCallback((e: React.TouchEvent) => {
     if (e.touches.length < 2) {
@@ -144,13 +147,16 @@ export const MinesweeperBoard = memo(function MinesweeperBoard({
   }, [])
 
   // Wheel zoom (Ctrl + wheel)
-  const handleWheel = useCallback((e: React.WheelEvent) => {
-    if (e.ctrlKey || e.metaKey) {
-      e.preventDefault()
-      const delta = e.deltaY < 0 ? 0.15 : -0.15
-      setZoom((z) => Math.min(2.2, Math.max(0.7, Math.round((z + delta) * 100) / 100)))
-    }
-  }, [setZoom])
+  const handleWheel = useCallback(
+    (e: React.WheelEvent) => {
+      if (e.ctrlKey || e.metaKey) {
+        e.preventDefault()
+        const delta = e.deltaY < 0 ? 0.15 : -0.15
+        setZoom((z) => Math.min(2.2, Math.max(0.7, Math.round((z + delta) * 100) / 100)))
+      }
+    },
+    [setZoom],
+  )
 
   const handleSafeCellClick = useCallback(
     (row: number, col: number) => {

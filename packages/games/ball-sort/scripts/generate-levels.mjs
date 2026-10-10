@@ -78,7 +78,11 @@ function* pours(tubes) {
   }
 }
 // Tubes are interchangeable, so sort them to collapse symmetric states.
-const keyOf = (tubes) => tubes.map((t) => t.join('.')).sort().join('|')
+const keyOf = (tubes) =>
+  tubes
+    .map((t) => t.join('.'))
+    .sort()
+    .join('|')
 
 /** Exact minimum number of pours (BFS), or null once more than maxStates states were visited. */
 function optimalLength(tubes, maxStates) {
@@ -204,7 +208,8 @@ for (let level = 1; level <= LEVEL_COUNT; level++) {
     },
     tubes: best.tubes,
   })
-  if (level % 10 === 0) log(`level ${level}/${LEVEL_COUNT} (${colors} colors, best of ${evaluated}: ${best.length} pours)`)
+  if (level % 10 === 0)
+    log(`level ${level}/${LEVEL_COUNT} (${colors} colors, best of ${evaluated}: ${best.length} pours)`)
 }
 
 const outPath = fileURLToPath(new URL('../src/logic/levelsData.ts', import.meta.url))

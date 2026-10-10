@@ -11,7 +11,8 @@ function loadProgress(): PlayerProgress {
     const raw = localStorage.getItem(SAVE_KEY)
     if (raw) {
       const parsed = JSON.parse(raw)
-      const unlockedLevel = typeof parsed.unlockedLevel === 'number' && parsed.unlockedLevel >= 1 ? parsed.unlockedLevel : 1
+      const unlockedLevel =
+        typeof parsed.unlockedLevel === 'number' && parsed.unlockedLevel >= 1 ? parsed.unlockedLevel : 1
       return {
         unlockedLevel,
         currentLevel:

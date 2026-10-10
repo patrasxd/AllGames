@@ -67,12 +67,19 @@ export const Grid10x10 = memo(function Grid10x10({
                 const isPreviewValid =
                   !hoveredCell ||
                   !placementPreview ||
-                  canPlaceShip(grid, hoveredCell[0], hoveredCell[1], placementPreview.size, placementPreview.orientation)
+                  canPlaceShip(
+                    grid,
+                    hoveredCell[0],
+                    hoveredCell[1],
+                    placementPreview.size,
+                    placementPreview.orientation,
+                  )
 
                 let cellClass = 'bs-cell'
                 if (isInteractive) cellClass += ' bs-cell--interactive'
                 if (isShip) cellClass += ' bs-cell--ship'
-                if (isPreviewCell) cellClass += ` bs-cell--placement-preview${isPreviewValid ? '' : ' bs-cell--placement-invalid'}`
+                if (isPreviewCell)
+                  cellClass += ` bs-cell--placement-preview${isPreviewValid ? '' : ' bs-cell--placement-invalid'}`
                 if (isHit) cellClass += ' bs-cell--hit'
                 if (isMiss) cellClass += ' bs-cell--miss'
                 if (isSunk) cellClass += ' bs-cell--sunk'

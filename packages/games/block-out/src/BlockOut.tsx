@@ -91,14 +91,7 @@ export function BlockOut({
       <BoardLayout
         variant="square"
         align="center"
-        board={
-          <Board
-            blocks={blocks}
-            onSlide={slideBlock}
-            isEink={isEink}
-            theme={theme}
-          />
-        }
+        board={<Board blocks={blocks} onSlide={slideBlock} isEink={isEink} theme={theme} />}
         controls={
           <ControlsBar className="bo-controls-bar">
             <Button

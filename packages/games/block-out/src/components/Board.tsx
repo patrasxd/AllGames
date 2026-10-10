@@ -21,12 +21,7 @@ interface DragState {
   stepPx: number
 }
 
-export const Board = memo(function Board({
-  blocks,
-  onSlide,
-  isEink = false,
-  theme,
-}: BoardProps) {
+export const Board = memo(function Board({ blocks, onSlide, isEink = false, theme }: BoardProps) {
   const boardRef = useRef<HTMLDivElement>(null)
   const animFrameRef = useRef<number | null>(null)
   const [dragState, setDragState] = useState<DragState | null>(null)

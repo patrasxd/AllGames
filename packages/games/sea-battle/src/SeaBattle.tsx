@@ -248,7 +248,9 @@ export function SeaBattle({ setHeader, setIsActive, locale = 'en', isEink = fals
                       isInteractive={nextShip !== null}
                       title={mode === '2p' && activePlacementPlayer === 'p2' ? t.player2Fleet : t.yourFleet}
                       isEink={isEink}
-                      placementPreview={nextShip ? { size: nextShip.size, orientation: placementOrientation } : undefined}
+                      placementPreview={
+                        nextShip ? { size: nextShip.size, orientation: placementOrientation } : undefined
+                      }
                       onCellClick={placeCurrentShip}
                     />
                   )}

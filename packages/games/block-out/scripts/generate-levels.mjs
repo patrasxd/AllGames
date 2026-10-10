@@ -10,13 +10,7 @@
  */
 import fs from 'node:fs'
 import { fileURLToPath } from 'node:url'
-import {
-  climbBoard,
-  createPRNG,
-  exploreComponent,
-  findBoard,
-  toBlocks,
-} from '../src/logic/hardBoards.ts'
+import { climbBoard, createPRNG, exploreComponent, findBoard, toBlocks } from '../src/logic/hardBoards.ts'
 
 const CAMPAIGN = 200
 const POOL = 100
