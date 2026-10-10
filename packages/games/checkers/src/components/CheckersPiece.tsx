@@ -16,8 +16,6 @@ function CrownIcon() {
 }
 
 export function CheckersPiece({ piece, isSelected = false, isEink = false }: PieceProps) {
-  const isWhite = piece.color === 'white'
-
   const content = (
     <div
       className={`checkers-piece checkers-piece--${piece.color} ${piece.isKing ? 'checkers-piece--king' : ''} ${

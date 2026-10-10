@@ -591,9 +591,6 @@ export const BubbleShooterCanvas = memo(function BubbleShooterCanvas({
   theme = 'dark',
   onAim,
   onShoot,
-  aimDisabled,
-  onNudge,
-  aimLabels,
 }: BubbleShooterCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const optionsRef = useRef({ isEink, theme })

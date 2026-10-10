@@ -18,7 +18,6 @@ export function ChessBoard({
   board,
   selectedCoord,
   validMoves,
-  turn,
   inCheck,
   isEink = false,
   locale = 'en',
@@ -40,7 +39,6 @@ export function ChessBoard({
             const moveKey = `${row},${col}`
             const move = validDests.get(moveKey)
             const isValidDestination = !!move
-            const isCapture = move?.captured != null
             const isKingInCheckSquare = checkedKingPos?.row === row && checkedKingPos?.col === col
 
             return (

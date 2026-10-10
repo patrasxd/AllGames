@@ -17,7 +17,6 @@ export function CheckersBoard({
   board,
   selectedPos,
   validMoves,
-  turn,
   isEink = false,
   locale = 'en',
   onSquareClick,
@@ -34,7 +33,6 @@ export function CheckersBoard({
             const piece = board[row][col]
             const isSelected = selectedPos?.row === row && selectedPos?.col === col
             const isValidDestination = validDestinations.has(`${row},${col}`)
-            const isClickable = (piece && piece.color === turn) || isValidDestination
 
             return (
               <button

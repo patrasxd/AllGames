@@ -13,17 +13,7 @@ interface SnakeCanvasProps {
   onBoardClick?: () => void
 }
 
-export function SnakeCanvas({
-  snake,
-  food,
-  obstacles,
-  gridSize,
-  direction,
-  status,
-  isEink = false,
-  onSwipe,
-  onBoardClick,
-}: SnakeCanvasProps) {
+export function SnakeCanvas({ snake, food, obstacles, gridSize, direction, onSwipe, onBoardClick }: SnakeCanvasProps) {
   const touchStartRef = useRef<{ x: number; y: number } | null>(null)
 
   const handleTouchStart = (e: React.TouchEvent) => {

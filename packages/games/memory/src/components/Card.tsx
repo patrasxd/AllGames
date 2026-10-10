@@ -8,7 +8,7 @@ interface CardProps {
   onClick: () => void
 }
 
-export const Card = memo(function Card({ card, isEink, onClick }: CardProps) {
+export const Card = memo(function Card({ card, onClick }: CardProps) {
   const isOpen = card.isFlipped || card.isMatched
 
   let cardClasses = 'memory-card'

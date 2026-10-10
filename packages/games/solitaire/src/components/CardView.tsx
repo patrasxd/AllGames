@@ -56,7 +56,6 @@ export const CardView = memo(function CardView({
   isHintTarget,
   isDragging,
   draggable = false,
-  isEink,
   onClick,
   onDoubleClick,
   onDragStart,

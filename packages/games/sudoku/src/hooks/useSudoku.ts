@@ -48,7 +48,7 @@ interface MoveHistory {
   prevError: boolean
 }
 
-export function useSudoku(options?: { isEink?: boolean }) {
+export function useSudoku(_options?: { isEink?: boolean }) {
   const [difficulty, setDifficultyState] = useState<SudokuDifficulty>(loadDifficulty)
   const [board, setBoard] = useState<SudokuBoard>(() => createInitialBoard(difficulty))
   const [selectedCell, setSelectedCell] = useState<[number, number] | null>(null)

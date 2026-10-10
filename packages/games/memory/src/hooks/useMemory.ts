@@ -104,9 +104,8 @@ export function useMemory(options?: { isEink?: boolean }) {
   }, [gameStatus])
 
   const resetGame = useCallback(
-    (newDiff?: MemoryDifficulty, newMode?: MemoryGameMode) => {
+    (newDiff?: MemoryDifficulty, _newMode?: MemoryGameMode) => {
       const diffToUse = newDiff ?? difficulty
-      const modeToUse = newMode ?? mode
 
       setCards(createDeck(diffToUse))
       setFlippedIds([])

@@ -15,7 +15,6 @@ export const SudokuCell = memo(function SudokuCell({
   isSelected,
   isHighlighted,
   isSameNumber,
-  isEink,
   onClick,
 }: SudokuCellProps) {
   let cellClass = 'sdk-cell'

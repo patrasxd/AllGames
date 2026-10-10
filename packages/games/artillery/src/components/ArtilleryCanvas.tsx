@@ -567,7 +567,6 @@ export const ArtilleryCanvas = memo(function ArtilleryCanvas({
       const viewRight = camX + halfViewW
       const viewTop = camY - halfViewH
       const viewBottom = camY + halfViewH
-      const viewWidth = viewRight - viewLeft
       const viewHeight = viewBottom - viewTop
 
       // ─── 0. Sun, Atmosphere & 3D Claymorphic Clouds (matching reference image) ─────

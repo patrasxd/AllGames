@@ -47,7 +47,7 @@ interface HistoryState {
   score: number
 }
 
-export function use2048(options?: { isEink?: boolean }) {
+export function use2048(_options?: { isEink?: boolean }) {
   const [gridSize, setGridSizeState] = useState<GridSize>(loadGridSize)
   const [tiles, setTiles] = useState<TileData[]>(() => createInitialTiles(gridSize))
   const [score, setScore] = useState(0)

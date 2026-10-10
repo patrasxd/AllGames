@@ -156,7 +156,6 @@ function GridLines({ isEink }: { isEink: boolean }) {
 export function Board({
   board,
   winningLine,
-  currentPlayer,
   gameOver,
   isAIThinking,
   locale = 'en',

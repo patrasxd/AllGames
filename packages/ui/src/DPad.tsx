@@ -44,13 +44,13 @@ export function DPad({
   }
 
   const makeHandlers = (dir: DPadDirection) => ({
-    onTouchStart: (e: React.TouchEvent) => {
+    onTouchStart: () => {
       lastTouchRef.current = Date.now()
       if (!disabled) {
         onDirection(dir)
       }
     },
-    onClick: (e: React.MouseEvent) => {
+    onClick: () => {
       // Prevent double-firing on touch screens while responding instantly to mouse clicks
       if (Date.now() - lastTouchRef.current < 450) return
       if (!disabled) {

@@ -50,7 +50,7 @@ function saveBestTime(diff: MinesweeperDifficulty, timeSeconds: number) {
   }
 }
 
-export function useMinesweeper(options?: { isEink?: boolean }) {
+export function useMinesweeper(_options?: { isEink?: boolean }) {
   const [difficulty, setDifficultyState] = useState<MinesweeperDifficulty>(loadSavedDifficulty)
   const config = DIFFICULTY_CONFIGS[difficulty]
 

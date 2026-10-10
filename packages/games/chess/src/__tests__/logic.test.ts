@@ -7,7 +7,6 @@ import {
   applyChessMove,
   isKingInCheck,
   getBestChessAIMove,
-  cloneChessBoard,
   BOARD_SIZE,
 } from '../logic'
 import type { ChessBoardState } from '../types'
