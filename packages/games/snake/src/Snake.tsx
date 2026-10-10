@@ -2,7 +2,7 @@ import { useEffect, useCallback, useState } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import { useSnake } from './hooks/useSnake'
 import { SnakeCanvas } from './components/SnakeCanvas'
-import type { GameComponentProps, SpeedMode, MapMode } from './types'
+import type { GameComponentProps, SpeedMode, MapMode, Direction } from './types'
 import { snakeTranslations } from './i18n'
 import { BoardLayout, Button, PillGroup, ControlsBar, ConfirmDialog, PlayIcon, PauseIcon, StatsHeader } from '@all/ui'
 import { GameResultOverlay, GameStartOverlay, DPad } from '@allgames/ui'
@@ -151,7 +151,7 @@ export function Snake({ setHeader, setIsActive, locale = 'en', isEink = false }:
         }
         dpad={
           <DPad
-            onDirection={(dir) => changeDirection(dir.toUpperCase() as any)}
+            onDirection={(dir) => changeDirection(dir.toUpperCase() as Direction)}
             labels={{
               up: t.upAria,
               down: t.downAria,
