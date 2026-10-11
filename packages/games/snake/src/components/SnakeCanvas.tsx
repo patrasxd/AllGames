@@ -45,6 +45,7 @@ export function SnakeCanvas({ snake, food, obstacles, gridSize, direction, onSwi
   return (
     <div
       className="snake-board-wrapper"
+      role="presentation"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
       onClick={onBoardClick}

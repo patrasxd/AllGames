@@ -1277,3 +1277,11 @@
     top: 6px;
   }
 }
+
+/* Visible focus ring for keyboard navigation (Tab) */
+.artillery-weapon-btn:focus-visible,
+.artillery-circle-fire-btn:focus-visible,
+.artillery-top-scout-btn:focus-visible {
+  outline: 3px solid var(--all-accent, #3b82f6);
+  outline-offset: 2px;
+}

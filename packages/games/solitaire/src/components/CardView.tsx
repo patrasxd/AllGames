@@ -1,4 +1,5 @@
 import { memo } from 'react'
+import { onKeyActivate } from '@allgames/ui'
 import type { CardData, Suit } from '../types'
 import { formatRank } from '../cards'
 
@@ -66,7 +67,13 @@ export const CardView = memo(function CardView({
 }: CardViewProps) {
   if (!card.faceUp) {
     return (
-      <div className="sol-card sol-card--back" onClick={onClick}>
+      <div
+        className="sol-card sol-card--back"
+        role="button"
+        tabIndex={0}
+        onClick={onClick}
+        onKeyDown={onKeyActivate(() => onClick?.())}
+      >
         <div className="sol-card-back-pattern" />
       </div>
     )

@@ -2,6 +2,7 @@ import { memo, useState, useRef, useCallback } from 'react'
 import type { SolitaireState, CardLocation, CardData } from '../types'
 import { FOUNDATION_SUITS } from '../cards'
 import { CardView, SuitIcon } from './CardView'
+import { onKeyActivate } from '@allgames/ui'
 
 interface SolitaireBoardProps {
   state: SolitaireState
@@ -237,6 +238,7 @@ export const SolitaireBoard = memo(function SolitaireBoard({
             }}
             role="button"
             tabIndex={0}
+            onKeyDown={onKeyActivate(onStockClick)}
             aria-label={`Stock pile (${state.stock.length} cards remaining)`}
           >
             {state.stock.length > 0 ? (
@@ -280,6 +282,19 @@ export const SolitaireBoard = memo(function SolitaireBoard({
             const hasCards = pile.length > 0
             const isTarget = isHintTo('foundation', fIdx)
             const isDragOver = dragOverTarget?.type === 'foundation' && dragOverTarget?.pileIndex === fIdx
+            const activateFoundation = () => {
+              if (selectedLocation) {
+                onMove?.(selectedLocation, { type: 'foundation', pileIndex: fIdx })
+              } else if (hasCards) {
+                onCardClick({
+                  type: 'foundation',
+                  pileIndex: fIdx,
+                  cardIndex: pile.length - 1,
+                })
+              } else {
+                onEmptyFoundationClick(fIdx)
+              }
+            }
 
             return (
               <div
@@ -294,18 +309,9 @@ export const SolitaireBoard = memo(function SolitaireBoard({
                 onDrop={(e) => handleDrop(e, { type: 'foundation', pileIndex: fIdx })}
                 onClick={(e) => {
                   e.stopPropagation()
-                  if (selectedLocation) {
-                    onMove?.(selectedLocation, { type: 'foundation', pileIndex: fIdx })
-                  } else if (hasCards) {
-                    onCardClick({
-                      type: 'foundation',
-                      pileIndex: fIdx,
-                      cardIndex: pile.length - 1,
-                    })
-                  } else {
-                    onEmptyFoundationClick(fIdx)
-                  }
+                  activateFoundation()
                 }}
+                onKeyDown={onKeyActivate(activateFoundation)}
                 role="button"
                 tabIndex={0}
                 aria-label={`Foundation ${FOUNDATION_SUITS[fIdx]}`}
@@ -367,6 +373,8 @@ export const SolitaireBoard = memo(function SolitaireBoard({
           const minColHeight = column.length > 0 ? `calc(${lastOffset}px + clamp(62px, 14vw, 95px))` : undefined
 
           return (
+            // The column is only interactive (button role, focusable) while it is empty; the linter cannot see the conditional role.
+            // eslint-disable-next-line jsx-a11y/no-static-element-interactions
             <div
               key={`tableau-${colIdx}`}
               className={`sol-tableau-col ${isEmpty ? 'sol-tableau-col--empty' : ''} ${
@@ -385,7 +393,10 @@ export const SolitaireBoard = memo(function SolitaireBoard({
                   onEmptyTableauClick(colIdx)
                 }
               }}
-              role="region"
+              role={isEmpty ? 'button' : 'region'}
+              // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
+              tabIndex={isEmpty ? 0 : undefined}
+              onKeyDown={isEmpty ? onKeyActivate(() => onEmptyTableauClick(colIdx)) : undefined}
               aria-label={`Tableau column ${colIdx + 1}`}
             >
               {column.map((card, cardIdx) => {
