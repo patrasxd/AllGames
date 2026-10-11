@@ -28,6 +28,7 @@ import {
   type MatchResult,
 } from '../logic/engine'
 import { crystalMatchTranslations } from '../i18n'
+import { safeGetItem, safeSetJSON } from '@allgames/ui'
 
 const SAVE_KEY = 'allgames:crystal-match:progress'
 
@@ -45,7 +46,7 @@ const wait = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, 
 
 function loadSavedProgress(): PlayerProgress {
   try {
-    const raw = localStorage.getItem(SAVE_KEY)
+    const raw = safeGetItem(SAVE_KEY)
     if (raw) {
       const parsed = JSON.parse(raw)
       if (typeof parsed.unlockedLevel === 'number') {
@@ -81,11 +82,7 @@ function loadSavedProgress(): PlayerProgress {
 }
 
 function saveProgress(progress: PlayerProgress) {
-  try {
-    localStorage.setItem(SAVE_KEY, JSON.stringify(progress))
-  } catch {
-    // storage unavailable
-  }
+  safeSetJSON(SAVE_KEY, progress)
 }
 
 const GEM_COLORS: Record<GemType, string> = {

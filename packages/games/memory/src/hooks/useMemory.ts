@@ -1,50 +1,35 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import type { MemoryDifficulty, MemoryGameMode, CardData, BestScoreRecord } from '../types'
 import { createDeck, DIFFICULTY_PAIR_COUNTS } from '../logic'
+import { safeGetItem, safeRemoveItem, safeSetItem, safeSetJSON } from '@allgames/ui'
 
 const DIFFICULTY_KEY = 'allgames:memory:difficulty'
 const MODE_KEY = 'allgames:memory:mode'
 const BEST_SCORE_KEY_PREFIX = 'allgames:memory:best:'
 
 function loadSavedDifficulty(): MemoryDifficulty {
-  try {
-    const raw = localStorage.getItem(DIFFICULTY_KEY)
-    if (raw === 'easy' || raw === 'medium' || raw === 'hard') return raw
-    return 'medium'
-  } catch {
-    return 'medium'
-  }
+  const raw = safeGetItem(DIFFICULTY_KEY)
+  if (raw === 'easy' || raw === 'medium' || raw === 'hard') return raw
+  return 'medium'
 }
 
 function saveDifficulty(diff: MemoryDifficulty) {
-  try {
-    localStorage.setItem(DIFFICULTY_KEY, diff)
-  } catch {
-    // Storage unavailable
-  }
+  safeSetItem(DIFFICULTY_KEY, diff)
 }
 
 function loadSavedMode(): MemoryGameMode {
-  try {
-    const raw = localStorage.getItem(MODE_KEY)
-    if (raw === '1p' || raw === '2p') return raw
-    return '1p'
-  } catch {
-    return '1p'
-  }
+  const raw = safeGetItem(MODE_KEY)
+  if (raw === '1p' || raw === '2p') return raw
+  return '1p'
 }
 
 function saveMode(mode: MemoryGameMode) {
-  try {
-    localStorage.setItem(MODE_KEY, mode)
-  } catch {
-    // Storage unavailable
-  }
+  safeSetItem(MODE_KEY, mode)
 }
 
 function loadBestScore(diff: MemoryDifficulty): BestScoreRecord | null {
   try {
-    const raw = localStorage.getItem(`${BEST_SCORE_KEY_PREFIX}${diff}`)
+    const raw = safeGetItem(`${BEST_SCORE_KEY_PREFIX}${diff}`)
     return raw ? JSON.parse(raw) : null
   } catch {
     return null
@@ -52,11 +37,7 @@ function loadBestScore(diff: MemoryDifficulty): BestScoreRecord | null {
 }
 
 function saveBestScore(diff: MemoryDifficulty, record: BestScoreRecord) {
-  try {
-    localStorage.setItem(`${BEST_SCORE_KEY_PREFIX}${diff}`, JSON.stringify(record))
-  } catch {
-    // Storage unavailable
-  }
+  safeSetJSON(`${BEST_SCORE_KEY_PREFIX}${diff}`, record)
 }
 
 export function useMemory(options?: { isEink?: boolean }) {
@@ -246,12 +227,8 @@ export function useMemory(options?: { isEink?: boolean }) {
   )
 
   const resetBest = useCallback(() => {
-    try {
-      localStorage.removeItem(`${BEST_SCORE_KEY_PREFIX}${difficulty}`)
-      setBestScore(null)
-    } catch {
-      // Storage unavailable
-    }
+    safeRemoveItem(`${BEST_SCORE_KEY_PREFIX}${difficulty}`)
+    setBestScore(null)
   }, [difficulty])
 
   return {

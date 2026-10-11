@@ -1,43 +1,28 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import type { SudokuDifficulty, SudokuBoard, GameStatus } from '../types'
 import { createInitialBoard } from '../generator'
+import { safeGetItem, safeRemoveItem, safeSetItem } from '@allgames/ui'
 
 const DIFFICULTY_KEY = 'allgames:sudoku:difficulty'
 const BEST_TIME_KEY_PREFIX = 'allgames:sudoku:best-time:'
 
 function loadDifficulty(): SudokuDifficulty {
-  try {
-    const raw = localStorage.getItem(DIFFICULTY_KEY)
-    if (raw === 'easy' || raw === 'medium' || raw === 'hard') return raw
-    return 'easy'
-  } catch {
-    return 'easy'
-  }
+  const raw = safeGetItem(DIFFICULTY_KEY)
+  if (raw === 'easy' || raw === 'medium' || raw === 'hard') return raw
+  return 'easy'
 }
 
 function saveDifficulty(diff: SudokuDifficulty) {
-  try {
-    localStorage.setItem(DIFFICULTY_KEY, diff)
-  } catch {
-    // Storage unavailable
-  }
+  safeSetItem(DIFFICULTY_KEY, diff)
 }
 
 function loadBestTime(diff: SudokuDifficulty): number | null {
-  try {
-    const raw = localStorage.getItem(`${BEST_TIME_KEY_PREFIX}${diff}`)
-    return raw ? Number(raw) : null
-  } catch {
-    return null
-  }
+  const raw = safeGetItem(`${BEST_TIME_KEY_PREFIX}${diff}`)
+  return raw ? Number(raw) : null
 }
 
 function saveBestTime(diff: SudokuDifficulty, time: number) {
-  try {
-    localStorage.setItem(`${BEST_TIME_KEY_PREFIX}${diff}`, String(time))
-  } catch {
-    // Storage unavailable
-  }
+  safeSetItem(`${BEST_TIME_KEY_PREFIX}${diff}`, String(time))
 }
 
 interface MoveHistory {
@@ -263,12 +248,8 @@ export function useSudoku(_options?: { isEink?: boolean }) {
   }, [gameStatus])
 
   const resetBest = useCallback(() => {
-    try {
-      localStorage.removeItem(`${BEST_TIME_KEY_PREFIX}${difficulty}`)
-      setBestTime(null)
-    } catch {
-      // Storage unavailable
-    }
+    safeRemoveItem(`${BEST_TIME_KEY_PREFIX}${difficulty}`)
+    setBestTime(null)
   }, [difficulty])
 
   // Keyboard navigation & inputs

@@ -2,12 +2,13 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import type { Block, LevelConfig, PlayerProgress } from '../types'
 import { getLevelConfig, MAX_LEVEL } from '../logic/levels'
 import { moveBlock as engineMoveBlock, isWon } from '../logic/engine'
+import { safeGetItem, safeSetJSON } from '@allgames/ui'
 
 const SAVE_KEY = 'allgames:block-out:progress'
 
 function loadProgress(): PlayerProgress {
   try {
-    const raw = localStorage.getItem(SAVE_KEY)
+    const raw = safeGetItem(SAVE_KEY)
     if (raw) {
       const parsed = JSON.parse(raw)
       const unlockedLevel = typeof parsed.unlockedLevel === 'number' ? parsed.unlockedLevel : 1
@@ -28,11 +29,7 @@ function loadProgress(): PlayerProgress {
 }
 
 function saveProgress(progress: PlayerProgress) {
-  try {
-    localStorage.setItem(SAVE_KEY, JSON.stringify(progress))
-  } catch {
-    // ignore
-  }
+  safeSetJSON(SAVE_KEY, progress)
 }
 
 export function starsFor(config: LevelConfig, moves: number): number {

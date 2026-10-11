@@ -11,12 +11,13 @@ import {
   DIFFICULTY_CONFIGS,
   BIRD_X,
 } from '../logic/engine'
+import { safeGetItem, safeSetJSON } from '@allgames/ui'
 
 const SAVE_KEY = 'allgames:wing-rush:highscores'
 
 function loadSavedHighScores(): HighScores {
   try {
-    const raw = localStorage.getItem(SAVE_KEY)
+    const raw = safeGetItem(SAVE_KEY)
     if (raw) {
       const parsed = JSON.parse(raw)
       return {
@@ -32,11 +33,7 @@ function loadSavedHighScores(): HighScores {
 }
 
 function saveHighScores(scores: HighScores) {
-  try {
-    localStorage.setItem(SAVE_KEY, JSON.stringify(scores))
-  } catch {
-    // ignore
-  }
+  safeSetJSON(SAVE_KEY, scores)
 }
 
 export function useWingRush() {

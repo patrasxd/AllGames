@@ -3,6 +3,7 @@ import type { ElementId, WorkItem } from '../types'
 import { BASE_IDS } from '../elements'
 import { findCombineTarget } from '../geometry'
 import { TOTAL_ELEMENTS, combine, getHint, sanitizeDiscovered } from '../logic'
+import { safeGetItem, safeSetJSON } from '@allgames/ui'
 
 const SAVE_KEY = 'allgames:alchemy:progress'
 
@@ -11,7 +12,7 @@ const HINT_MS = 7000
 
 function loadProgress(): ElementId[] {
   try {
-    const raw = localStorage.getItem(SAVE_KEY)
+    const raw = safeGetItem(SAVE_KEY)
     if (raw) return sanitizeDiscovered(JSON.parse(raw))
   } catch {
     // ignore
@@ -20,11 +21,7 @@ function loadProgress(): ElementId[] {
 }
 
 function saveProgress(discovered: ElementId[]) {
-  try {
-    localStorage.setItem(SAVE_KEY, JSON.stringify(discovered))
-  } catch {
-    // ignore
-  }
+  safeSetJSON(SAVE_KEY, discovered)
 }
 
 export function useAlchemy() {

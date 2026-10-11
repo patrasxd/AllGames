@@ -1,11 +1,12 @@
 import React, { createContext, useContext, useEffect, useState, useMemo } from 'react'
 import type { Locale } from '../types/game'
+import { safeGetItem, safeSetItem } from '@allgames/ui'
 
 const STORAGE_KEY = 'allgames:language'
 
 function detectInitialLocale(): Locale {
   try {
-    const saved = localStorage.getItem(STORAGE_KEY)
+    const saved = safeGetItem(STORAGE_KEY)
     if (saved === 'en' || saved === 'pl') return saved
 
     // Auto-detect from browser locale
@@ -148,11 +149,7 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
 
   const setLocale = (loc: Locale) => {
     setLocaleState(loc)
-    try {
-      localStorage.setItem(STORAGE_KEY, loc)
-    } catch {
-      // Storage unavailable
-    }
+    safeSetItem(STORAGE_KEY, loc)
   }
 
   useEffect(() => {

@@ -2,13 +2,14 @@ import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import type { LevelConfig, Move, PlayerProgress, Tube } from '../types'
 import { generateLevel } from '../logic/generator'
 import { canPour, isSolved, pour } from '../logic/engine'
+import { safeGetItem, safeSetJSON } from '@allgames/ui'
 
 const SAVE_KEY = 'allgames:ball-sort:progress'
 const BASE_MAX_LEVEL = 200
 
 function loadProgress(): PlayerProgress {
   try {
-    const raw = localStorage.getItem(SAVE_KEY)
+    const raw = safeGetItem(SAVE_KEY)
     if (raw) {
       const parsed = JSON.parse(raw)
       const unlockedLevel =
@@ -30,11 +31,7 @@ function loadProgress(): PlayerProgress {
 }
 
 function saveProgress(progress: PlayerProgress) {
-  try {
-    localStorage.setItem(SAVE_KEY, JSON.stringify(progress))
-  } catch {
-    // ignore
-  }
+  safeSetJSON(SAVE_KEY, progress)
 }
 
 function starsFor(config: LevelConfig, moves: number): number {

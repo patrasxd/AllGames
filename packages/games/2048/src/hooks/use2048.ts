@@ -1,45 +1,30 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import type { GridSize, TileData, Direction, Game2048Status } from '../types'
 import { createInitialTiles, createRandomTile, moveTiles, hasMovesAvailable, hasReached2048 } from '../logic'
+import { safeGetItem, safeRemoveItem, safeSetItem } from '@allgames/ui'
 
 const GRID_SIZE_KEY = 'allgames:2048:grid-size'
 const BEST_SCORE_KEY_PREFIX = 'allgames:2048:best-score:'
 
 function loadGridSize(): GridSize {
-  try {
-    const raw = localStorage.getItem(GRID_SIZE_KEY)
-    if (raw === '3' || raw === '4' || raw === '5') {
-      return Number(raw) as GridSize
-    }
-    return 4
-  } catch {
-    return 4
+  const raw = safeGetItem(GRID_SIZE_KEY)
+  if (raw === '3' || raw === '4' || raw === '5') {
+    return Number(raw) as GridSize
   }
+  return 4
 }
 
 function saveGridSize(size: GridSize) {
-  try {
-    localStorage.setItem(GRID_SIZE_KEY, String(size))
-  } catch {
-    // Storage unavailable
-  }
+  safeSetItem(GRID_SIZE_KEY, String(size))
 }
 
 function loadBestScore(size: GridSize): number {
-  try {
-    const raw = localStorage.getItem(`${BEST_SCORE_KEY_PREFIX}${size}`)
-    return raw ? Number(raw) : 0
-  } catch {
-    return 0
-  }
+  const raw = safeGetItem(`${BEST_SCORE_KEY_PREFIX}${size}`)
+  return raw ? Number(raw) : 0
 }
 
 function saveBestScore(size: GridSize, score: number) {
-  try {
-    localStorage.setItem(`${BEST_SCORE_KEY_PREFIX}${size}`, String(score))
-  } catch {
-    // Storage unavailable
-  }
+  safeSetItem(`${BEST_SCORE_KEY_PREFIX}${size}`, String(score))
 }
 
 interface HistoryState {
@@ -135,12 +120,8 @@ export function use2048(_options?: { isEink?: boolean }) {
   }, [])
 
   const resetBestScore = useCallback(() => {
-    try {
-      localStorage.removeItem(`${BEST_SCORE_KEY_PREFIX}${gridSize}`)
-      setBestScore(0)
-    } catch {
-      // Storage unavailable
-    }
+    safeRemoveItem(`${BEST_SCORE_KEY_PREFIX}${gridSize}`)
+    setBestScore(0)
   }, [gridSize])
 
   // Keyboard navigation listener

@@ -12,6 +12,7 @@ import {
   checkObstacleCollision,
   spawnFood,
 } from '../logic'
+import { safeGetItem, safeSetItem } from '@allgames/ui'
 
 const MAP_KEY = 'allgames:snake:map'
 const SPEED_KEY = 'allgames:snake:speed'
@@ -21,56 +22,32 @@ function getHighScoreKey(map: MapMode): string {
 }
 
 function loadHighScore(map: MapMode): number {
-  try {
-    const raw = localStorage.getItem(getHighScoreKey(map))
-    return raw ? parseInt(raw, 10) || 0 : 0
-  } catch {
-    return 0
-  }
+  const raw = safeGetItem(getHighScoreKey(map))
+  return raw ? parseInt(raw, 10) || 0 : 0
 }
 
 function saveHighScore(map: MapMode, score: number) {
-  try {
-    localStorage.setItem(getHighScoreKey(map), score.toString())
-  } catch {
-    // Storage unavailable
-  }
+  safeSetItem(getHighScoreKey(map), score.toString())
 }
 
 function loadMapMode(): MapMode {
-  try {
-    const raw = localStorage.getItem(MAP_KEY)
-    if (raw === 'classic' || raw === 'obstacles' || raw === 'big') return raw
-    return 'classic'
-  } catch {
-    return 'classic'
-  }
+  const raw = safeGetItem(MAP_KEY)
+  if (raw === 'classic' || raw === 'obstacles' || raw === 'big') return raw
+  return 'classic'
 }
 
 function saveMapMode(map: MapMode) {
-  try {
-    localStorage.setItem(MAP_KEY, map)
-  } catch {
-    // Storage unavailable
-  }
+  safeSetItem(MAP_KEY, map)
 }
 
 function loadSpeed(): SpeedMode {
-  try {
-    const raw = localStorage.getItem(SPEED_KEY)
-    if (raw === 'relaxed' || raw === 'normal' || raw === 'fast') return raw
-    return 'normal'
-  } catch {
-    return 'normal'
-  }
+  const raw = safeGetItem(SPEED_KEY)
+  if (raw === 'relaxed' || raw === 'normal' || raw === 'fast') return raw
+  return 'normal'
 }
 
 function saveSpeed(speed: SpeedMode) {
-  try {
-    localStorage.setItem(SPEED_KEY, speed)
-  } catch {
-    // Storage unavailable
-  }
+  safeSetItem(SPEED_KEY, speed)
 }
 
 export function useSnake(options?: { isEink?: boolean }) {

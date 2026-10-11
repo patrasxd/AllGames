@@ -9,42 +9,27 @@ import {
   findAutoFoundationMove,
   findHintMove,
 } from '../logic'
+import { safeGetItem, safeRemoveItem, safeSetItem } from '@allgames/ui'
 
 const DRAW_MODE_KEY = 'allgames:solitaire:draw-mode'
 const BEST_SCORE_KEY = 'allgames:solitaire:best-score'
 
 function loadDrawMode(): DrawMode {
-  try {
-    const raw = localStorage.getItem(DRAW_MODE_KEY)
-    return raw === '3' ? 3 : 1
-  } catch {
-    return 1
-  }
+  const raw = safeGetItem(DRAW_MODE_KEY)
+  return raw === '3' ? 3 : 1
 }
 
 function saveDrawMode(mode: DrawMode) {
-  try {
-    localStorage.setItem(DRAW_MODE_KEY, String(mode))
-  } catch {
-    // Storage unavailable
-  }
+  safeSetItem(DRAW_MODE_KEY, String(mode))
 }
 
 function loadBestScore(): number | null {
-  try {
-    const raw = localStorage.getItem(BEST_SCORE_KEY)
-    return raw ? Number(raw) : null
-  } catch {
-    return null
-  }
+  const raw = safeGetItem(BEST_SCORE_KEY)
+  return raw ? Number(raw) : null
 }
 
 function saveBestScore(score: number) {
-  try {
-    localStorage.setItem(BEST_SCORE_KEY, String(score))
-  } catch {
-    // Storage unavailable
-  }
+  safeSetItem(BEST_SCORE_KEY, String(score))
 }
 
 function cloneState(state: SolitaireState): SolitaireState {
@@ -440,12 +425,8 @@ export function useSolitaire(options?: { isEink?: boolean }) {
   }, [state, isEink])
 
   const resetBest = useCallback(() => {
-    try {
-      localStorage.removeItem(BEST_SCORE_KEY)
-      setBestScore(null)
-    } catch {
-      // Storage unavailable
-    }
+    safeRemoveItem(BEST_SCORE_KEY)
+    setBestScore(null)
   }, [])
 
   return {

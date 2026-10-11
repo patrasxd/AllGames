@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { safeGetItem, safeSetJSON } from '@allgames/ui'
 
 /**
  * Generic hook for synchronized localStorage state across React components and tabs.
@@ -6,7 +7,7 @@ import { useState, useEffect } from 'react'
 export function useLocalStorage<T>(key: string, initialValue: T) {
   const [storedValue, setStoredValue] = useState<T>(() => {
     try {
-      const item = window.localStorage.getItem(key)
+      const item = safeGetItem(key)
       return item ? (JSON.parse(item) as T) : initialValue
     } catch {
       return initialValue
@@ -17,7 +18,7 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
     try {
       const valueToStore = value instanceof Function ? value(storedValue) : value
       setStoredValue(valueToStore)
-      window.localStorage.setItem(key, JSON.stringify(valueToStore))
+      safeSetJSON(key, valueToStore)
     } catch {
       console.warn(`Failed to save to localStorage: ${key}`)
     }

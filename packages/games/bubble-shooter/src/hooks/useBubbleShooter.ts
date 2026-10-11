@@ -19,6 +19,7 @@ import {
   POINTS_PER_MATCHED_BUBBLE,
   POINTS_PER_FLOATING_BUBBLE,
 } from '../logic/engine'
+import { safeGetItem, safeSetJSON } from '@allgames/ui'
 
 const SAVE_KEY = 'allgames:bubble-shooter:highscores'
 /** How long the end-of-game overlay waits so the final pop animation stays visible. */
@@ -26,7 +27,7 @@ const END_OVERLAY_DELAY_MS = 800
 
 function loadHighScores(): HighScores {
   try {
-    const raw = localStorage.getItem(SAVE_KEY)
+    const raw = safeGetItem(SAVE_KEY)
     if (raw) {
       const parsed = JSON.parse(raw)
       return {
@@ -42,11 +43,7 @@ function loadHighScores(): HighScores {
 }
 
 function saveHighScores(scores: HighScores) {
-  try {
-    localStorage.setItem(SAVE_KEY, JSON.stringify(scores))
-  } catch {
-    // ignore
-  }
+  safeSetJSON(SAVE_KEY, scores)
 }
 
 function createView(diff: Difficulty, seq: number, status: GameStatus): BubbleView {

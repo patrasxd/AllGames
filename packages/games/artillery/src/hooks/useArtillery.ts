@@ -30,12 +30,13 @@ import {
   CANVAS_WIDTH,
   CANVAS_HEIGHT,
 } from '../logic'
+import { safeGetItem, safeSetJSON } from '@allgames/ui'
 
 const STATS_STORAGE_KEY = 'allgames:artillery:stats'
 
 function loadSavedStats(): ArtilleryStats {
   try {
-    const raw = localStorage.getItem(STATS_STORAGE_KEY)
+    const raw = safeGetItem(STATS_STORAGE_KEY)
     if (raw) {
       const parsed = JSON.parse(raw)
       return {
@@ -52,11 +53,7 @@ function loadSavedStats(): ArtilleryStats {
 }
 
 function saveStats(stats: ArtilleryStats) {
-  try {
-    localStorage.setItem(STATS_STORAGE_KEY, JSON.stringify(stats))
-  } catch {
-    // ignore
-  }
+  safeSetJSON(STATS_STORAGE_KEY, stats)
 }
 
 export function useArtillery({ isEink = false }: { isEink?: boolean } = {}) {

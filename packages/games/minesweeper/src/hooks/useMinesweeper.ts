@@ -9,45 +9,30 @@ import {
   chordReveal,
   countFlags,
 } from '../logic'
+import { safeGetItem, safeRemoveItem, safeSetItem } from '@allgames/ui'
 
 const DIFFICULTY_KEY = 'allgames:minesweeper:difficulty'
 const BEST_TIME_KEY_PREFIX = 'allgames:minesweeper:best-time:'
 
 function loadSavedDifficulty(): MinesweeperDifficulty {
-  try {
-    const raw = localStorage.getItem(DIFFICULTY_KEY)
-    if (raw === 'beginner' || raw === 'intermediate' || raw === 'expert') {
-      return raw
-    }
-    return 'beginner'
-  } catch {
-    return 'beginner'
+  const raw = safeGetItem(DIFFICULTY_KEY)
+  if (raw === 'beginner' || raw === 'intermediate' || raw === 'expert') {
+    return raw
   }
+  return 'beginner'
 }
 
 function saveDifficulty(diff: MinesweeperDifficulty) {
-  try {
-    localStorage.setItem(DIFFICULTY_KEY, diff)
-  } catch {
-    // Storage unavailable
-  }
+  safeSetItem(DIFFICULTY_KEY, diff)
 }
 
 function loadBestTime(diff: MinesweeperDifficulty): number | null {
-  try {
-    const raw = localStorage.getItem(`${BEST_TIME_KEY_PREFIX}${diff}`)
-    return raw ? Number(raw) : null
-  } catch {
-    return null
-  }
+  const raw = safeGetItem(`${BEST_TIME_KEY_PREFIX}${diff}`)
+  return raw ? Number(raw) : null
 }
 
 function saveBestTime(diff: MinesweeperDifficulty, timeSeconds: number) {
-  try {
-    localStorage.setItem(`${BEST_TIME_KEY_PREFIX}${diff}`, String(timeSeconds))
-  } catch {
-    // Storage unavailable
-  }
+  safeSetItem(`${BEST_TIME_KEY_PREFIX}${diff}`, String(timeSeconds))
 }
 
 export function useMinesweeper(_options?: { isEink?: boolean }) {
@@ -216,12 +201,8 @@ export function useMinesweeper(_options?: { isEink?: boolean }) {
   }, [])
 
   const resetBestTime = useCallback(() => {
-    try {
-      localStorage.removeItem(`${BEST_TIME_KEY_PREFIX}${difficulty}`)
-      setBestTime(null)
-    } catch {
-      // Storage unavailable
-    }
+    safeRemoveItem(`${BEST_TIME_KEY_PREFIX}${difficulty}`)
+    setBestTime(null)
   }, [difficulty])
 
   return {

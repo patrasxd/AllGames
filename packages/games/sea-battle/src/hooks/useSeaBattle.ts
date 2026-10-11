@@ -2,62 +2,39 @@ import { useState, useCallback, useRef } from 'react'
 import type { SeaBattleDifficulty, SeaBattleMode, PlayerGridState, GamePhase, PlacedShip, Orientation } from '../types'
 import { autoPlaceFleet, processShot, createEmptyGrid, placeShip as placeShipOnGrid, STANDARD_FLEET } from '../logic'
 import { getAIMove } from '../ai'
+import { safeGetItem, safeRemoveItem, safeSetItem } from '@allgames/ui'
 
 const DIFFICULTY_KEY = 'allgames:sea-battle:difficulty'
 const MODE_KEY = 'allgames:sea-battle:mode'
 const BEST_SHOTS_KEY_PREFIX = 'allgames:sea-battle:best:'
 
 function loadDifficulty(): SeaBattleDifficulty {
-  try {
-    const raw = localStorage.getItem(DIFFICULTY_KEY)
-    if (raw === 'easy' || raw === 'medium' || raw === 'hard') return raw
-    return 'medium'
-  } catch {
-    return 'medium'
-  }
+  const raw = safeGetItem(DIFFICULTY_KEY)
+  if (raw === 'easy' || raw === 'medium' || raw === 'hard') return raw
+  return 'medium'
 }
 
 function saveDifficulty(diff: SeaBattleDifficulty) {
-  try {
-    localStorage.setItem(DIFFICULTY_KEY, diff)
-  } catch {
-    // Storage unavailable
-  }
+  safeSetItem(DIFFICULTY_KEY, diff)
 }
 
 function loadMode(): SeaBattleMode {
-  try {
-    const raw = localStorage.getItem(MODE_KEY)
-    if (raw === 'ai' || raw === '2p') return raw
-    return 'ai'
-  } catch {
-    return 'ai'
-  }
+  const raw = safeGetItem(MODE_KEY)
+  if (raw === 'ai' || raw === '2p') return raw
+  return 'ai'
 }
 
 function saveMode(mode: SeaBattleMode) {
-  try {
-    localStorage.setItem(MODE_KEY, mode)
-  } catch {
-    // Storage unavailable
-  }
+  safeSetItem(MODE_KEY, mode)
 }
 
 function loadBestShots(diff: SeaBattleDifficulty): number | null {
-  try {
-    const raw = localStorage.getItem(`${BEST_SHOTS_KEY_PREFIX}${diff}`)
-    return raw ? Number(raw) : null
-  } catch {
-    return null
-  }
+  const raw = safeGetItem(`${BEST_SHOTS_KEY_PREFIX}${diff}`)
+  return raw ? Number(raw) : null
 }
 
 function saveBestShots(diff: SeaBattleDifficulty, shots: number) {
-  try {
-    localStorage.setItem(`${BEST_SHOTS_KEY_PREFIX}${diff}`, String(shots))
-  } catch {
-    // Storage unavailable
-  }
+  safeSetItem(`${BEST_SHOTS_KEY_PREFIX}${diff}`, String(shots))
 }
 
 function createEmptyPlayerState(): PlayerGridState {
@@ -383,12 +360,8 @@ export function useSeaBattle(options?: { isEink?: boolean }) {
   )
 
   const resetBest = useCallback(() => {
-    try {
-      localStorage.removeItem(`${BEST_SHOTS_KEY_PREFIX}${difficulty}`)
-      setBestShots(null)
-    } catch {
-      // Storage unavailable
-    }
+    safeRemoveItem(`${BEST_SHOTS_KEY_PREFIX}${difficulty}`)
+    setBestShots(null)
   }, [difficulty])
 
   const currentPlacementState = activePlacementPlayer === 'p1' ? p1State : p2State

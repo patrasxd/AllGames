@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import type { Board, Player, GameMode, DifficultyLevel } from '../logic'
 import { checkWinner, isDraw, getBestMove } from '../logic'
+import { safeGetItem, safeSetItem, safeSetJSON } from '@allgames/ui'
 
 export interface Stats {
   X: number
@@ -15,7 +16,7 @@ const DIFFICULTY_KEY = 'allgames:tic-tac-toe:difficulty'
 
 function loadAIStats(): Stats {
   try {
-    const raw = localStorage.getItem(AI_STATS_KEY)
+    const raw = safeGetItem(AI_STATS_KEY)
     return raw ? JSON.parse(raw) : { X: 0, O: 0, draw: 0 }
   } catch {
     return { X: 0, O: 0, draw: 0 }
@@ -23,16 +24,12 @@ function loadAIStats(): Stats {
 }
 
 function saveAIStats(stats: Stats) {
-  try {
-    localStorage.setItem(AI_STATS_KEY, JSON.stringify(stats))
-  } catch {
-    // Storage unavailable
-  }
+  safeSetJSON(AI_STATS_KEY, stats)
 }
 
 function loadMode(): GameMode {
   try {
-    const raw = localStorage.getItem(SETTINGS_KEY)
+    const raw = safeGetItem(SETTINGS_KEY)
     const parsed = raw ? JSON.parse(raw) : null
     return parsed?.mode ?? '2p'
   } catch {
@@ -41,29 +38,17 @@ function loadMode(): GameMode {
 }
 
 function saveMode(mode: GameMode) {
-  try {
-    localStorage.setItem(SETTINGS_KEY, JSON.stringify({ mode }))
-  } catch {
-    // Storage unavailable
-  }
+  safeSetJSON(SETTINGS_KEY, { mode })
 }
 
 function loadDifficulty(): DifficultyLevel {
-  try {
-    const raw = localStorage.getItem(DIFFICULTY_KEY)
-    if (raw === 'easy' || raw === 'medium' || raw === 'hard') return raw
-    return 'medium'
-  } catch {
-    return 'medium'
-  }
+  const raw = safeGetItem(DIFFICULTY_KEY)
+  if (raw === 'easy' || raw === 'medium' || raw === 'hard') return raw
+  return 'medium'
 }
 
 function saveDifficulty(diff: DifficultyLevel) {
-  try {
-    localStorage.setItem(DIFFICULTY_KEY, diff)
-  } catch {
-    // Storage unavailable
-  }
+  safeSetItem(DIFFICULTY_KEY, diff)
 }
 
 export function useGame(options?: { isEink?: boolean }) {
