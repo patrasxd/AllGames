@@ -4,12 +4,9 @@
   "type": "module",
   "main": "./src/index.tsx",
   "peerDependencies": {
+    "framer-motion": "^11.0.0",
     "react": "^18.3.0",
-    "react-dom": "^18.3.0",
-    "framer-motion": "^11.0.0"
-  },
-  "dependencies": {
-    "@all/ui": "file:../../../AllUI"
+    "react-dom": "^18.3.0"
   },
   "exports": {
     ".": "./src/index.tsx",

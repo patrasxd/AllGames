@@ -1,7 +1,7 @@
 import { Suspense, useCallback, useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Button, BackLink, ConfirmDialog, setLastActiveCardId } from '@all/ui'
+import { Button, ConfirmDialog, setLastActiveCardId } from '@all/ui'
 import { findGame } from '../games/registry'
 import { useI18n } from '../i18n'
 import { useTheme } from '../hooks/useTheme'
@@ -75,7 +75,7 @@ export function GamePage() {
   const [isGameActive, setIsGameActive] = useState(false)
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false)
 
-  const { setHeaderExtra } = useGameHeader()
+  const { setHeaderExtra, setHeaderBackAction } = useGameHeader()
   const setHeader = useCallback(
     (content: React.ReactNode) => {
       setHeaderExtra(content)
@@ -100,20 +100,14 @@ export function GamePage() {
     }
   }, [isGameActive, navigate, slug])
 
+  useEffect(() => {
+    setHeaderBackAction(handleBack)
+    return () => setHeaderBackAction(null)
+  }, [handleBack, setHeaderBackAction])
+
   return (
     <motion.div className="game-page" variants={pageVariants} initial="hidden" animate="visible" exit="exit">
       <div className="game-page-inner">
-        <div className="container game-page-top-bar">
-          <BackLink
-            id={`back-btn-${slug}`}
-            label={t.backToGames}
-            onClick={handleBack}
-            aria-label={t.backToGamesAria}
-            title={t.backToGames}
-          />
-          <div id="game-page-top-actions" className="game-page-top-actions" />
-        </div>
-
         {/* ── Game area — fills remaining viewport height ── */}
         <div className="game-page-content">
           {entry ? (
