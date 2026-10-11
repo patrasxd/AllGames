@@ -15,6 +15,14 @@
   <img src="https://img.shields.io/badge/Vitest-378%20passed-success.svg" alt="Vitest Tests" />
 </p>
 
+<p align="center">
+  <a href="https://patrasxd.github.io/AllGames/"><img src="apps/shell/public/og-image.png" alt="AllGames: free browser games that work offline" width="640" /></a>
+</p>
+
+<p align="center">
+  <a href="https://patrasxd.github.io/AllGames/"><strong>Open AllGames online</strong></a> · installable as an offline app (PWA) · no sign-up
+</p>
+
 ---
 
 ## Table of Contents
@@ -28,6 +36,7 @@
 - [Adding a New Game & API Contract](#adding-a-new-game--api-contract)
 - [Storage & Persistence](#storage--persistence)
 - [Deployment](#deployment)
+- [AI-assisted Development](#ai-assisted-development)
 - [License](#license)
 
 ---
@@ -259,16 +268,18 @@ import { metadata as newGameMetadata } from '@allgames/new-game/metadata'
 
 ## Storage & Persistence
 
-All client-side state is stored strictly in browser `localStorage` using standardized prefixes:
+All client-side state is stored strictly in browser `localStorage`. Storage access goes through the safe helpers in `packages/ui` (`safeGetItem`, `safeSetItem`, `safeGetJSON`, `safeSetJSON`), so an unavailable or full storage (for example in private mode) never breaks a game; it just falls back to defaults. Keys:
 
-| Key Format                 | Type                                                 | Description                                   |
-| :------------------------- | :--------------------------------------------------- | :-------------------------------------------- |
-| `allgames:theme`           | `'dark' \| 'light' \| 'e-ink-light' \| 'e-ink-dark'` | Active theme preference                       |
-| `allgames:language`        | `'en' \| 'pl'`                                       | User language preference                      |
-| `allgames:<slug>:settings` | `JSON Object`                                        | Game settings (difficulty, board size, sound) |
-| `allgames:<slug>:stats`    | `JSON Object`                                        | High scores, win/loss records, best times     |
+| Key                                        | Type                                                 | Description                                                                                   |
+| :----------------------------------------- | :--------------------------------------------------- | :-------------------------------------------------------------------------------------------- |
+| `all_theme`                                | `'dark' \| 'light' \| 'e-ink-light' \| 'e-ink-dark'` | Theme preference (shared AllUI theme provider)                                                |
+| `allgames:language`                        | `'en' \| 'pl'`                                       | Language preference                                                                           |
+| `allgames:<slug>:difficulty`, `:mode`, ... | `string`                                             | Per-game settings such as difficulty, mode or map                                             |
+| `allgames:<slug>:progress`                 | `JSON`                                               | Level progress (Ball Sort, Block Out, Crystal Match, Alchemy)                                 |
+| `allgames:<slug>:highscores`, `:stats-ai`  | `JSON`                                               | High scores and win/loss records                                                              |
+| `allgames:<slug>:best*`                    | `number`                                             | Best scores, times and shot counts (Solitaire, Sudoku, Minesweeper, 2048, Sea Battle, Memory) |
 
-Production builds enforce a strict Content Security Policy (`connect-src 'self'`), providing a technical guarantee that the application cannot send data or telemetry to external servers. All game logic, state, and statistics remain strictly local to your device.
+Production builds ship a Content Security Policy that limits network connections to the same origin (`connect-src 'self'`) and allows no external hosts, so the application cannot send data or telemetry to external servers. There are no cookies and no analytics. All game logic runs locally.
 
 ---
 
@@ -279,6 +290,12 @@ Continuous deployment is automated via GitHub Actions on push to `main`:
 1. **Verification**: Checks out submodules (`AllUI`), runs `npm ci`, linter (`npm run lint`), TypeScript checks (`npm run typecheck`), and Vitest test suite (`npm test`).
 2. **Build**: Generates production SPA bundles (`npm run build`) and creates a `404.html` copy for direct client-side routing on GitHub Pages.
 3. **Publish**: Deploys `apps/shell/dist` to GitHub Pages via `peaceiris/actions-gh-pages`.
+
+---
+
+## AI-assisted Development
+
+This project is built with AI coding agents under human direction. The architecture, the tech stack, the testing approach, the look and feel, and the written instructions the agents follow ([`AGENTS.md`](AGENTS.md) and the rules and skills in [`.agents/`](.agents/)) were decided by the author. The agents implement within those rules, the author reviews the result, and the repository has also been cross-checked with Claude, GitHub Copilot and Antigravity. Lint, formatting, type checks, tests and a production build must pass in CI before every deployment.
 
 ---
 
