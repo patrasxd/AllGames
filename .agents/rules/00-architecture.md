@@ -6,7 +6,7 @@ AllGames is a multi-package monorepo managed with npm workspaces:
 
 - `apps/shell`: The central Vite + React 18 + TypeScript + PWA shell (mounted at base path `/AllGames/`).
 - `packages/ui`: Local UI package (`@allgames/ui`), strictly reserved for game interaction mechanics (`DPad`, `GameResultOverlay`, `GameStartOverlay`) and game-specific vector icons. Shared primitives and layout templates are consumed directly from `@all/ui`.
-- `packages/games/*`: 12 individual, self-contained game packages (`2048`, `battleship`, `checkers`, `chess`, `crystal-match`, `memory`, `minesweeper`, `snake`, `solitaire`, `sudoku`, `tic-tac-toe`, `wing-rush`).
+- `packages/games/*`: 17 registered, self-contained game packages (`2048`, `alchemy`, `artillery`, `ball-sort`, `block-out`, `bubble-shooter`, `checkers`, `chess`, `crystal-match`, `memory`, `minesweeper`, `sea-battle`, `snake`, `solitaire`, `sudoku`, `tic-tac-toe`, `wing-rush`). The additional `word-craft` directory currently has no package manifest and is not registered in the shell. Use package manifests and the registry as the source of truth for available games.
 
 ## Shell & Registry Contract
 

@@ -65,7 +65,7 @@ The application adheres to strict privacy and usability standards: zero third-pa
 
 ### Prerequisites
 
-- **Node.js**: `18.0.0` or higher
+- **Node.js**: `22` (the version used by CI)
 - **npm**: `9.0.0` or higher (supporting npm workspaces)
 
 ### Installation & Development
