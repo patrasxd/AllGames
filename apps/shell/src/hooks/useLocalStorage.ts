@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { safeGetItem, safeSetJSON } from '@allgames/ui'
+import { safeGetItem, safeSetJSON } from '@all/ui'
 
 /**
  * Generic hook for synchronized localStorage state across React components and tabs.

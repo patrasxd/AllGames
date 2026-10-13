@@ -1,7 +1,6 @@
-export type Locale = 'en' | 'pl'
-
-export type LocalizedText = string | Record<Locale, string>
-export type LocalizedTags = string[] | Record<Locale, string[]>
+import type { Locale, LocalizedText, LocalizedTags } from '@all/ui'
+export type { Locale, LocalizedText, LocalizedTags } from '@all/ui'
+export { getLocalizedText, getLocalizedTags } from '@all/ui'
 
 export interface GameMetadata {
   /** Unique identifier used in URL: /games/:slug */
@@ -41,16 +40,4 @@ export interface GameComponentProps {
 export interface GameModule {
   metadata: GameMetadata
   GameComponent: React.ComponentType<GameComponentProps>
-}
-
-/** Helper to resolve LocalizedText to current locale */
-export function getLocalizedText(text: LocalizedText, locale: Locale): string {
-  if (typeof text === 'string') return text
-  return text[locale] || text.en || ''
-}
-
-/** Helper to resolve LocalizedTags to current locale */
-export function getLocalizedTags(tags: LocalizedTags, locale: Locale): string[] {
-  if (Array.isArray(tags)) return tags
-  return tags[locale] || tags.en || []
 }

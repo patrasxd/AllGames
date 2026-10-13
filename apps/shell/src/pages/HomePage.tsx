@@ -1,39 +1,25 @@
 import { useState, useMemo, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { AppFooter, FilterGroup, useCardScrollRestoration, isReturningFromCard } from '@all/ui'
+import {
+  AppFooter,
+  DirectoryHero,
+  CatalogSectionHeader,
+  CatalogGrid,
+  FilterGroup,
+  useCardScrollRestoration,
+  isReturningFromCard,
+  useMotion,
+} from '@all/ui'
 import { GAMES } from '../games/registry'
 import { GameCard } from '../components/GameCard'
 import { useI18n } from '../i18n'
 import { getLocalizedTags, getLocalizedText } from '../types/game'
 
-const heroVariants = {
-  hidden: {},
-  visible: (isReturning?: boolean) => ({
-    transition: isReturning
-      ? { staggerChildren: 0.02, delayChildren: 0 }
-      : { staggerChildren: 0.07, delayChildren: 0.1 },
-  }),
-}
-
-const lineVariants = {
-  hidden: (isReturning?: boolean) => ({
-    opacity: 0,
-    y: isReturning ? 8 : 20,
-  }),
-  visible: (isReturning?: boolean) => ({
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: isReturning ? 0.2 : 0.6,
-      ease: [0.16, 1, 0.3, 1],
-    },
-  }),
-}
-
 export function HomePage() {
   const navigate = useNavigate()
   const { locale, t } = useI18n()
+  const { isMotionEnabled } = useMotion()
   const [selectedTag, setSelectedTag] = useState<string | null>(null)
 
   // Extract all unique tags in current locale, sorted descending by game count
@@ -82,75 +68,69 @@ export function HomePage() {
     <div className="home-page">
       <div className="container">
         {/* Hero Section */}
-        <motion.section
-          className="home-hero"
-          variants={heroVariants}
-          initial="hidden"
-          animate="visible"
-          custom={isReturning}
-          aria-labelledby="home-title"
-        >
-          <motion.p className="home-eyebrow" variants={lineVariants} custom={isReturning}>
-            {t.heroEyebrow}
-          </motion.p>
-          <motion.h1 className="home-title" id="home-title" variants={lineVariants} custom={isReturning}>
-            All
-            <br />
-            Games
-          </motion.h1>
-          <motion.p className="home-description" variants={lineVariants} custom={isReturning}>
-            {t.heroDescription}
-          </motion.p>
-        </motion.section>
+        <DirectoryHero
+          title={
+            <>
+              All
+              <br />
+              Games
+            </>
+          }
+          eyebrow={t.heroEyebrow}
+          description={t.heroDescription}
+          isReturning={isReturning}
+        />
 
         {/* Filter Bar & Games List */}
         <section aria-labelledby="games-section-label">
-          <div className="home-section-header">
-            <motion.p
-              className="home-games-label"
-              id="games-section-label"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.3, duration: 0.5 }}
-            >
-              {t.gameCount(filteredGames.length)}
-            </motion.p>
-
-            {/* Shared category filters */}
-            {allTags.length > 0 && (
-              <FilterGroup<string | null>
-                label={t.filterLabel}
-                value={selectedTag}
-                onChange={(tag) => setSelectedTag(tag === selectedTag ? null : tag)}
-                options={[
-                  { id: 'all', value: null, label: t.allFilter, count: GAMES.length, buttonId: 'filter-all-btn' },
-                  ...allTags.map((tag) => ({
-                    id: tag,
-                    value: tag,
-                    label: tag,
-                    count: GAMES.filter((g) =>
-                      getLocalizedTags(g.metadata.tags, locale).some((t) => t.trim().toLowerCase() === tag),
-                    ).length,
-                    buttonId: `filter-tag-${tag.replace(/\s+/g, '-').toLowerCase()}`,
-                  })),
-                ]}
-              />
-            )}
-          </div>
+          <CatalogSectionHeader
+            label={t.gameCount(filteredGames.length)}
+            labelId="games-section-label"
+            filters={
+              <>
+                {/* Shared category filters */}
+                {allTags.length > 0 && (
+                  <FilterGroup<string | null>
+                    label={t.filterLabel}
+                    value={selectedTag}
+                    onChange={(tag) => setSelectedTag(tag === selectedTag ? null : tag)}
+                    options={[
+                      { id: 'all', value: null, label: t.allFilter, count: GAMES.length, buttonId: 'filter-all-btn' },
+                      ...allTags.map((tag) => ({
+                        id: tag,
+                        value: tag,
+                        label: tag,
+                        count: GAMES.filter((g) =>
+                          getLocalizedTags(g.metadata.tags, locale).some((t) => t.trim().toLowerCase() === tag),
+                        ).length,
+                        buttonId: `filter-tag-${tag.replace(/\s+/g, '-').toLowerCase()}`,
+                      })),
+                    ]}
+                  />
+                )}
+              </>
+            }
+          />
 
           {/* Animated Games Grid */}
-          <motion.div className="games-grid" role="list" layout>
+          <CatalogGrid className="games-grid">
             <AnimatePresence mode="popLayout">
               {filteredGames.length > 0 ? (
                 filteredGames.map((game, i) => (
                   <motion.div
                     key={game.metadata.slug}
                     role="listitem"
-                    layout
-                    initial={isReturning ? { opacity: 0, y: 8 } : { opacity: 0, scale: 0.95 }}
+                    layout={isMotionEnabled}
+                    initial={
+                      isMotionEnabled ? (isReturning ? { opacity: 0, y: 8 } : { opacity: 0, scale: 0.95 }) : false
+                    }
                     animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ duration: isReturning ? 0.2 : 0.35, ease: [0.16, 1, 0.3, 1] }}
+                    exit={isMotionEnabled ? { opacity: 0, scale: 0.95 } : undefined}
+                    transition={
+                      isMotionEnabled
+                        ? { duration: isReturning ? 0.2 : 0.35, ease: [0.16, 1, 0.3, 1] }
+                        : { duration: 0 }
+                    }
                   >
                     <GameCard metadata={game.metadata} index={i} isReturning={isReturning} />
                   </motion.div>
@@ -158,9 +138,9 @@ export function HomePage() {
               ) : (
                 <motion.div
                   className="home-no-games"
-                  initial={{ opacity: 0, y: 16 }}
+                  initial={isMotionEnabled ? { opacity: 0, y: 16 } : false}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -16 }}
+                  exit={isMotionEnabled ? { opacity: 0, y: -16 } : undefined}
                   transition={{ duration: 0.3 }}
                 >
                   <p>{t.noFilteredGames}</p>
@@ -170,7 +150,7 @@ export function HomePage() {
                 </motion.div>
               )}
             </AnimatePresence>
-          </motion.div>
+          </CatalogGrid>
         </section>
 
         <AppFooter

@@ -9,3 +9,6 @@ package-lock.json
 sw.js
 workbox-*.js
 **/levelsData.ts
+
+playwright-report
+test-results

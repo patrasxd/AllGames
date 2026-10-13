@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, useMemo } from 'react'
 import type { Locale } from '../types/game'
-import { safeGetItem, safeSetItem } from '@allgames/ui'
+import { safeGetItem, safeSetItem } from '@all/ui'
 
 const STORAGE_KEY = 'allgames:language'
 
