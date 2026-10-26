@@ -48,6 +48,8 @@
       "@allgames/ball-sort/metadata": ["../../packages/games/ball-sort/src/metadata.tsx"],
       "@allgames/block-out": ["../../packages/games/block-out/src/index.tsx"],
       "@allgames/block-out/metadata": ["../../packages/games/block-out/src/metadata.tsx"],
+      "@allgames/untangle": ["../../packages/games/untangle/src/index.tsx"],
+      "@allgames/untangle/metadata": ["../../packages/games/untangle/src/metadata.tsx"],
       "@allgames/ui": ["../../packages/ui/src/index.ts"]
     }
   },

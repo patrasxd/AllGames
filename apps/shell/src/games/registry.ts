@@ -19,6 +19,7 @@ import { metadata as bubbleShooterMetadata } from '@allgames/bubble-shooter/meta
 import { metadata as ballSortMetadata } from '@allgames/ball-sort/metadata'
 import { metadata as alchemyMetadata } from '@allgames/alchemy/metadata'
 import { metadata as blockOutMetadata } from '@allgames/block-out/metadata'
+import { metadata as untangleMetadata } from '@allgames/untangle/metadata'
 
 export interface GameRegistryEntry {
   metadata: GameMetadata
@@ -53,6 +54,10 @@ export const GAMES: GameRegistryEntry[] = [
   {
     metadata: blockOutMetadata,
     load: lazyGame(() => import('@allgames/block-out')),
+  },
+  {
+    metadata: untangleMetadata,
+    load: lazyGame(() => import('@allgames/untangle')),
   },
   {
     metadata: crystalMatchMetadata,

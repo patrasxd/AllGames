@@ -12,7 +12,7 @@
   <img src="https://img.shields.io/badge/TypeScript-5.5-blue.svg" alt="TypeScript 5" />
   <img src="https://img.shields.io/badge/Vite-6.0-646CFF.svg" alt="Vite" />
   <img src="https://img.shields.io/badge/PWA-Offline--First-brightgreen.svg" alt="PWA Ready" />
-  <img src="https://img.shields.io/badge/Vitest-378%20passed-success.svg" alt="Vitest Tests" />
+  <img src="https://img.shields.io/badge/Vitest-466%20passed-success.svg" alt="Vitest Tests" />
 </p>
 
 <p align="center">
@@ -108,6 +108,7 @@ AllGames features a growing collection of browser-based mini-games, spanning arc
 | **Ball Sort**      | `ball-sort`      | 1P           | `BoardLayout` (fluid)  | Pour colors between tubes until every one holds a single color. 200+ seeded levels, stars, undo.                   |
 | **Alchemy**        | `alchemy`        | 1P           | `BoardLayout` (wide)   | Combine four basic elements into 300+ others. Drag or tap to mix, hints, searchable collection.                    |
 | **Block Out**      | `block-out`      | 1P           | `BoardLayout` (square) | Slide blocks along their axes to clear a path and guide the red block to freedom. 200+ levels, star ratings, undo. |
+| **Untangle**       | `untangle`       | 1P           | `BoardLayout` (square) | Move rope ends to empty pegs, in the right order. Seven board shapes, 200+ levels, star ratings, undo.             |
 | **Crystal Match**  | `crystal-match`  | 1P           | `BoardLayout`          | Cascading match-3 puzzle saga. Swap crystals, trigger explosive combos, and beat tiered level targets.             |
 | **Tic-Tac-Toe**    | `tic-tac-toe`    | 1P / 2P      | `BoardLayout`          | Classic 3x3 grid with local 2-player mode and 3-difficulty Minimax AI.                                             |
 | **Snake**          | `snake`          | 1P           | `BoardLayout`          | Retro snake with 3 map layouts (Border, Open, Obstacles), speed presets, and high score tracking.                  |
@@ -275,7 +276,7 @@ All client-side state is stored strictly in browser `localStorage`. Storage acce
 | `all_theme`                                | `'dark' \| 'light' \| 'e-ink-light' \| 'e-ink-dark'` | Theme preference (shared AllUI theme provider)                                                |
 | `allgames:language`                        | `'en' \| 'pl'`                                       | Language preference                                                                           |
 | `allgames:<slug>:difficulty`, `:mode`, ... | `string`                                             | Per-game settings such as difficulty, mode or map                                             |
-| `allgames:<slug>:progress`                 | `JSON`                                               | Level progress (Ball Sort, Block Out, Crystal Match, Alchemy)                                 |
+| `allgames:<slug>:progress`                 | `JSON`                                               | Level progress (Ball Sort, Block Out, Untangle, Crystal Match, Alchemy)                       |
 | `allgames:<slug>:highscores`, `:stats-ai`  | `JSON`                                               | High scores and win/loss records                                                              |
 | `allgames:<slug>:best*`                    | `number`                                             | Best scores, times and shot counts (Solitaire, Sudoku, Minesweeper, 2048, Sea Battle, Memory) |
 

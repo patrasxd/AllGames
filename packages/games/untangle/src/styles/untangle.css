@@ -1,0 +1,531 @@
+/* ─── Untangle Styles ────────────────────────────────────────── */
+
+.ut-board-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  box-sizing: border-box;
+}
+
+.ut-board {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  aspect-ratio: 1 / 1;
+  box-sizing: border-box;
+  padding: var(--all-space-1, 4px);
+  background:
+    radial-gradient(120% 90% at 50% 0%, color-mix(in srgb, var(--all-surface-2) 85%, transparent), transparent 70%),
+    var(--all-surface);
+  border: 3px solid var(--all-border-2);
+  border-radius: var(--all-radius-lg, 12px);
+  box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.18);
+  transition:
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.ut-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  overflow: visible;
+}
+
+.ut-svg--locked {
+  pointer-events: none;
+}
+
+/* ─── Ring ──────────────────────────────────────────────────── */
+
+.ut-ring-body {
+  fill: none;
+  stroke: var(--all-surface-2);
+}
+
+.ut-ring-edge {
+  fill: none;
+  stroke: var(--all-border-2);
+  stroke-width: 0.5;
+}
+
+/* ─── Holes ─────────────────────────────────────────────────── */
+
+.ut-hole {
+  fill: color-mix(in srgb, var(--all-bg) 70%, var(--all-surface-2));
+  stroke: var(--all-border-2);
+  stroke-width: 0.7;
+}
+
+.ut-hole--used {
+  opacity: 0.55;
+}
+
+.ut-hole-hit {
+  fill: transparent;
+}
+
+.ut-hole-mark {
+  fill: var(--all-border-2);
+  opacity: 0.45;
+}
+
+.ut-slot {
+  cursor: default;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ut-slot--armed {
+  cursor: pointer;
+}
+
+.ut-slot--armed .ut-hole {
+  stroke: var(--all-accent);
+  stroke-width: 1.2;
+  stroke-dasharray: 2 1.4;
+}
+
+/* While a rope end is in the air, every free hole invites it; the closest one lights up in the rope's colour. */
+.ut-board--dragging .ut-slot .ut-hole {
+  stroke: color-mix(in srgb, var(--ut-drag) 55%, var(--all-border-2));
+  stroke-width: 1;
+  stroke-dasharray: 1.6 1.4;
+}
+
+/* Holes the held rope end cannot go to (a rope would run through a peg) */
+.ut-slot--blocked .ut-hole,
+.ut-board--dragging .ut-slot--blocked .ut-hole {
+  stroke: var(--all-border-2) !important;
+  stroke-width: 0.7 !important;
+  stroke-dasharray: none !important;
+  animation: none !important;
+  opacity: 0.4;
+}
+
+.ut-slot--blocked .ut-hole-mark {
+  opacity: 0.2;
+}
+
+.ut-slot--target .ut-hole {
+  stroke: var(--ut-drag, var(--all-accent)) !important;
+  stroke-width: 1.6 !important;
+  stroke-dasharray: none !important;
+  fill: color-mix(in srgb, var(--ut-drag, var(--all-accent)) 22%, var(--all-surface-2));
+}
+
+.ut-slot--target .ut-hole-mark {
+  fill: var(--ut-drag, var(--all-accent));
+  opacity: 0.9;
+}
+
+.ut-slot:focus-visible .ut-hole {
+  stroke: var(--all-accent);
+  stroke-width: 1.6;
+}
+
+/* ─── Ropes ─────────────────────────────────────────────────── */
+
+.ut-rope {
+  pointer-events: none;
+}
+
+.ut-rope line {
+  stroke-linecap: round;
+  fill: none;
+}
+
+.ut-rope-shadow {
+  stroke: rgba(0, 0, 0, 0.28);
+  stroke-width: 5.6;
+  transform: translate(0.5px, 0.8px);
+}
+
+.ut-rope-edge {
+  stroke: color-mix(in srgb, var(--ut-rope) 40%, #000000);
+  stroke-width: 5.6;
+}
+
+.ut-rope-body {
+  stroke: var(--ut-rope);
+  stroke-width: 4.4;
+}
+
+.ut-rope-twist {
+  stroke: rgba(255, 255, 255, 0.4);
+  stroke-width: 4.4;
+  stroke-linecap: butt !important;
+}
+
+/* Thin highlight along the rope for a rounded, 3D look */
+.ut-rope-shine {
+  stroke: rgba(255, 255, 255, 0.3);
+  stroke-width: 1;
+  transform: translate(-0.9px, -0.9px);
+}
+
+/* ─── Pegs ──────────────────────────────────────────────────── */
+
+.ut-peg {
+  cursor: grab;
+  outline: none;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ut-peg-hit {
+  fill: transparent;
+}
+
+.ut-peg-body {
+  fill: var(--ut-rope);
+  stroke: color-mix(in srgb, var(--ut-rope) 55%, #000000);
+  stroke-width: 1;
+  filter: drop-shadow(0 0.6px 0.8px rgba(0, 0, 0, 0.35));
+}
+
+.ut-peg-cap {
+  fill: rgba(255, 255, 255, 0.14);
+  stroke: rgba(0, 0, 0, 0.2);
+  stroke-width: 0.6;
+}
+
+.ut-peg-gloss {
+  fill: rgba(255, 255, 255, 0.55);
+  pointer-events: none;
+}
+
+.ut-peg-inner {
+  transition: transform 0.15s ease;
+}
+
+@media (hover: hover) {
+  .ut-peg:hover .ut-peg-inner {
+    transform: scale(1.1);
+  }
+}
+
+.ut-peg-ring {
+  fill: none;
+  stroke: var(--all-accent);
+  stroke-width: 1;
+  stroke-dasharray: 2.4 1.6;
+}
+
+.ut-peg-number {
+  fill: var(--all-text);
+  font-family: var(--all-font-mono, ui-monospace, monospace);
+  font-weight: 700;
+  pointer-events: none;
+}
+
+.ut-peg--dragging {
+  cursor: grabbing;
+}
+
+/* The held peg lifts off the board */
+.ut-peg--dragging .ut-peg-inner {
+  transform: scale(1.22);
+}
+
+.ut-peg--dragging .ut-peg-body {
+  stroke-width: 1.4;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.45));
+}
+
+.ut-peg:focus-visible .ut-peg-body {
+  stroke: var(--all-accent);
+  stroke-width: 1.8;
+}
+
+/* ─── Motion ────────────────────────────────────────────────── */
+
+@keyframes ut-pop {
+  from {
+    transform: scale(0);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes ut-dash-spin {
+  to {
+    stroke-dashoffset: -7;
+  }
+}
+
+@keyframes ut-bounce {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.35);
+  }
+}
+
+@keyframes ut-glow {
+  0%,
+  100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.25) drop-shadow(0 0 1.5px var(--ut-rope));
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Pegs pop in one after another when a level opens */
+  .ut-peg-inner {
+    animation: ut-pop 0.38s cubic-bezier(0.2, 1.5, 0.4, 1) backwards;
+    animation-delay: calc(var(--i, 0) * 45ms);
+  }
+
+  .ut-slot--armed .ut-hole {
+    animation: ut-dash-spin 0.9s linear infinite;
+  }
+
+  .ut-board--won .ut-peg-inner {
+    animation: ut-bounce 0.6s ease backwards;
+    animation-delay: calc(var(--i, 0) * 60ms);
+  }
+
+  .ut-board--won .ut-rope {
+    animation: ut-glow 1.6s ease-in-out infinite;
+  }
+}
+
+/* Solved: the frame turns green */
+.ut-board--won {
+  border-color: var(--all-success, #34d399);
+  box-shadow:
+    inset 0 0 24px color-mix(in srgb, var(--all-success, #34d399) 25%, transparent),
+    0 0 18px color-mix(in srgb, var(--all-success, #34d399) 30%, transparent);
+}
+
+/* ─── Buried ends ───────────────────────────────────────────── */
+
+@keyframes ut-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-1.2px);
+  }
+  75% {
+    transform: translateX(1.2px);
+  }
+}
+
+/* An end lying under another rope cannot be picked up */
+.ut-peg--locked {
+  cursor: not-allowed;
+}
+
+.ut-peg--locked .ut-peg-body,
+.ut-peg--locked .ut-peg-cap {
+  opacity: 0.5;
+}
+
+.ut-peg--locked .ut-peg-gloss {
+  opacity: 0.3;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ut-peg--denied .ut-peg-inner {
+    animation: ut-shake 0.18s linear 2;
+  }
+}
+
+/* ─── Level Select Grid ─────────────────────────────────────── */
+
+.ut-level-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(4.2rem, 1fr));
+  gap: var(--all-space-2, 0.5rem);
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: var(--all-space-1, 0.25rem);
+}
+
+.ut-level-cell {
+  appearance: none;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  aspect-ratio: 1;
+  border-radius: var(--all-radius-md, 0.75rem);
+  border: var(--all-border-width-sm, 1px) solid var(--all-border-2);
+  background: var(--all-surface-2);
+  color: var(--all-text);
+  font-weight: 600;
+  touch-action: manipulation;
+}
+
+.ut-level-cell:focus-visible {
+  outline: 2px solid var(--all-accent);
+  outline-offset: 2px;
+}
+
+.ut-level-cell--current {
+  border-color: var(--all-accent, #3b82f6);
+  border-width: 2px;
+}
+
+.ut-level-cell--locked {
+  cursor: not-allowed;
+  color: var(--all-text-dim);
+  opacity: 0.6;
+}
+
+.ut-level-num {
+  font-size: 1.05rem;
+}
+
+.ut-level-stars {
+  display: flex;
+  gap: 1px;
+  color: #fbbf24;
+}
+
+.ut-level-cell--locked .ut-level-stars {
+  color: var(--all-text-dim);
+}
+
+/* ─── Dialogs & How to Play (Uniform AllUI style) ───────────── */
+
+.ut-dialog {
+  background-color: var(--all-surface);
+}
+
+.ut-dialog .all-dialog__header {
+  border-bottom: none;
+  padding: var(--all-space-5, 20px) var(--all-space-5, 20px) var(--all-space-2, 8px);
+}
+
+.ut-dialog .all-dialog__body {
+  padding: var(--all-space-2, 8px) var(--all-space-5, 20px) var(--all-space-3, 12px);
+}
+
+.ut-dialog .all-dialog__footer {
+  border-top: none;
+  background-color: transparent;
+  padding: var(--all-space-2, 8px) var(--all-space-5, 20px) var(--all-space-5, 20px);
+}
+
+.ut-how-to-play-content {
+  display: flex;
+  flex-direction: column;
+  padding: var(--all-space-1, 0.25rem) 0;
+}
+
+.ut-how-to-play-text {
+  font-family: var(--all-font-sans, system-ui, sans-serif);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--all-text-muted);
+  margin: 0;
+  text-align: left;
+}
+
+.ut-how-to-play-actions {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+/* ─── E-Ink Theme Support ───────────────────────────────────── */
+
+[data-theme^='e-ink'] .ut-board,
+[data-eink='true'] .ut-board {
+  border: 2px solid var(--all-border) !important;
+  box-shadow: none !important;
+}
+
+[data-theme^='e-ink'] .ut-ring-body,
+[data-eink='true'] .ut-ring-body {
+  stroke: transparent !important;
+}
+
+[data-theme^='e-ink'] .ut-ring-edge,
+[data-eink='true'] .ut-ring-edge {
+  stroke: var(--all-border) !important;
+  stroke-width: 0.9 !important;
+}
+
+[data-theme^='e-ink'] .ut-hole,
+[data-eink='true'] .ut-hole {
+  fill: transparent !important;
+  stroke: var(--all-border) !important;
+  stroke-width: 1 !important;
+}
+
+[data-theme^='e-ink'] .ut-rope-shadow,
+[data-eink='true'] .ut-rope-shadow {
+  display: none;
+}
+
+[data-theme^='e-ink'] .ut-rope-body,
+[data-eink='true'] .ut-rope-body {
+  stroke: var(--all-text) !important;
+  stroke-width: 3.6;
+}
+
+[data-theme^='e-ink'] .ut-rope-twist,
+[data-eink='true'] .ut-rope-twist {
+  stroke: var(--all-surface) !important;
+  stroke-width: 1.6;
+}
+
+[data-theme^='e-ink'] .ut-peg-body,
+[data-eink='true'] .ut-peg-body {
+  fill: var(--all-surface) !important;
+  stroke: var(--all-text) !important;
+  stroke-width: 1.6 !important;
+  filter: none !important;
+}
+
+[data-theme^='e-ink'] .ut-peg-cap,
+[data-eink='true'] .ut-peg-cap {
+  display: none;
+}
+
+/* A gap in the lower rope at every crossing makes over/under readable in black and white */
+[data-theme^='e-ink'] .ut-rope-edge,
+[data-eink='true'] .ut-rope-edge {
+  stroke: var(--all-surface) !important;
+  stroke-width: 5.6;
+}
+
+[data-theme^='e-ink'] .ut-peg-gloss,
+[data-theme^='e-ink'] .ut-rope-shine,
+[data-eink='true'] .ut-peg-gloss,
+[data-eink='true'] .ut-rope-shine {
+  display: none;
+}
+
+/* No animation on e-ink panels */
+[data-theme^='e-ink'] *,
+[data-eink='true'] * {
+  animation: none !important;
+  transition: none !important;
+}
+
+[data-theme^='e-ink'] .ut-board--won,
+[data-eink='true'] .ut-board--won {
+  border-color: var(--all-border) !important;
+  box-shadow: none !important;
+}
