@@ -74,3 +74,14 @@ export function distanceToSegment(p: Point, a: Point, b: Point): number {
   const t = Math.max(0, Math.min(1, ((p.x - a.x) * dx + (p.y - a.y) * dy) / lengthSq))
   return distance(p, { x: a.x + t * dx, y: a.y + t * dy })
 }
+
+/** Shortest distance between two segments (0 when they cross or touch). */
+export function segmentDistance(a: Point, b: Point, c: Point, d: Point): number {
+  if (segmentsIntersect(a, b, c, d)) return 0
+  return Math.min(
+    distanceToSegment(a, c, d),
+    distanceToSegment(b, c, d),
+    distanceToSegment(c, a, b),
+    distanceToSegment(d, a, b),
+  )
+}

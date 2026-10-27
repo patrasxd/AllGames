@@ -1,5 +1,5 @@
 import type { Conflict, Move, Point, Rope, RopeEnd } from '../types'
-import { distance, distanceToSegment, intersectionPoint, segmentsIntersect } from './geometry'
+import { distanceToSegment, intersectionPoint, segmentDistance, segmentsIntersect } from './geometry'
 
 export function cloneRopes(ropes: Rope[]): Rope[] {
   return ropes.map((r) => ({ ...r }))
@@ -131,31 +131,23 @@ export function hasPegCollision(slots: Point[], ropes: Rope[], clearance: number
 }
 
 /**
- * Ropes lie in layers: a rope with a higher id lies on top of one with a lower id. A rope end can only be
- * picked up when it is not buried: walking from its peg along the rope, the first rope that crosses it must
- * lie underneath (or there must be no crossing at all). So the order in which ropes are moved matters.
+ * Ropes lie in layers: a rope with a higher id lies on top of one with a lower id. A held rope end can slide
+ * over the ropes beneath its own rope, but never across a rope that lies on top of it. So this says whether
+ * dragging the end of rope `ropeId` along the straight path `from` -> `to` would run into a rope above it.
  */
-export function isEndFree(slots: Point[], ropes: Rope[], ropeId: number, end: RopeEnd): boolean {
-  const rope = ropes.find((r) => r.id === ropeId)
-  if (!rope) return false
-  const from = slots[rope[end]]
-  const to = slots[rope[end === 'a' ? 'b' : 'a']]
-
-  let nearest = Infinity
-  let strongest = -1 // highest layer among the ropes crossing at that nearest point
+export function pathBlocked(
+  slots: Point[],
+  clearance: number,
+  ropes: Rope[],
+  ropeId: number,
+  from: Point,
+  to: Point,
+): boolean {
   for (const other of ropes) {
-    if (other.id === rope.id) continue
-    const point = intersectionPoint(from, to, slots[other.a], slots[other.b])
-    if (!point) continue
-    const t = distance(from, point)
-    if (t < nearest - 1e-6) {
-      nearest = t
-      strongest = other.id
-    } else if (Math.abs(t - nearest) <= 1e-6) {
-      strongest = Math.max(strongest, other.id)
-    }
+    if (other.id <= ropeId) continue
+    if (segmentDistance(from, to, slots[other.a], slots[other.b]) < clearance) return true
   }
-  return strongest < rope.id
+  return false
 }
 
 /**
@@ -176,9 +168,12 @@ export function moveEndClear(
 }
 
 /**
- * The move rule of the game. Like `moveEnd`, but the end must not be buried under another rope
- * (`isEndFree`), and the move must not run a rope through another rope's peg. Ropes may still cross each
- * other: untangling them is the whole game.
+ * The move rule of the game. Like `moveEnd`, but a move must not run a rope through another rope's peg, and
+ * the peg must not have to cross a rope lying on top of its own rope on the way (`pathBlocked`), so the order
+ * in which ropes are moved matters. Ropes may still cross each other: untangling them is the whole game.
+ *
+ * `checkPath: false` skips the straight-path test, for a peg that was dragged along a path the board has
+ * already checked step by step (it may have gone around an obstacle).
  */
 export function tryMoveEnd(
   slots: Point[],
@@ -187,7 +182,25 @@ export function tryMoveEnd(
   ropeId: number,
   end: RopeEnd,
   to: number,
+  options: { checkPath?: boolean } = {},
 ): Rope[] | null {
-  if (!isEndFree(slots, ropes, ropeId, end)) return null
-  return moveEndClear(slots, clearance, ropes, ropeId, end, to)
+  const rope = ropes.find((r) => r.id === ropeId)
+  if (!rope) return null
+  const next = moveEndClear(slots, clearance, ropes, ropeId, end, to)
+  if (!next) return null
+  if (options.checkPath !== false && pathBlocked(slots, clearance, ropes, ropeId, slots[rope[end]], slots[to]))
+    return null
+  return next
+}
+
+/**
+ * Ropes that no longer cross any other rope are untangled: they are taken off the board. Returns the ropes
+ * that stay and the ones that were released. Ids are kept, so layers do not change.
+ */
+export function releaseFreeRopes(slots: Point[], ropes: Rope[]): { remaining: Rope[]; freed: Rope[] } {
+  const tangled = conflictingRopeIds(findConflicts(slots, ropes))
+  return {
+    remaining: ropes.filter((r) => tangled.has(r.id)),
+    freed: ropes.filter((r) => !tangled.has(r.id)),
+  }
 }

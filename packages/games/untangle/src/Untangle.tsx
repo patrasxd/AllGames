@@ -24,17 +24,18 @@ export function Untangle({ setHeader, setIsActive, locale = 'en', isEink = false
     moves,
     status,
     isNewBest,
+    vanishing,
+    resultReady,
     progress,
     isGameActive,
     canUndo,
     moveEnd,
     canMove,
-    canGrab,
     undo,
     restartLevel,
     nextLevel,
     goToLevel,
-  } = useUntangle()
+  } = useUntangle({ animate: !isEink })
 
   const [levelSelectOpen, setLevelSelectOpen] = useState(false)
   const [confirmRestart, setConfirmRestart] = useState(false)
@@ -100,11 +101,11 @@ export function Untangle({ setHeader, setIsActive, locale = 'en', isEink = false
             ropes={ropes}
             clearance={clearance}
             canMove={canMove}
-            canGrab={canGrab}
             onMove={moveEnd}
             t={t}
             disabled={status !== 'playing'}
             won={status === 'won'}
+            vanishing={vanishing}
             isEink={isEink}
           />
         }
@@ -139,7 +140,7 @@ export function Untangle({ setHeader, setIsActive, locale = 'en', isEink = false
         }
         overlay={
           <AnimatePresence>
-            {status === 'won' && (
+            {status === 'won' && resultReady && (
               <GameResultOverlay
                 status="won"
                 title={t.wonTitle}

@@ -1,6 +1,6 @@
 import type { LayoutSpec, Move, Point, Rope } from '../types'
 import { buildSlots, ropeClearance, slotCount } from './layouts'
-import { countConflicts, emptySlots, hasPegCollision, isEndFree, moveEndClear } from './engine'
+import { countConflicts, emptySlots, hasPegCollision, moveEndClear, pathBlocked } from './engine'
 import { segmentsIntersect } from './geometry'
 
 /** Small deterministic PRNG (mulberry32): the same seed always gives the same level. */
@@ -127,7 +127,7 @@ export interface GeneratedLevel {
 /**
  * Builds a solvable level: start from a tangle-free board and scramble it with `scrambleMoves` moves, each
  * picked from a few random candidates to favour the one that tangles the ropes most. A scramble move is only
- * accepted if undoing it is a legal move under the layer rule, so playing the scramble backwards is a real
+ * accepted if undoing it is a legal move under the layer rule (the peg's way back crosses no rope above it), so playing the scramble backwards is a real
  * solution and every level is solvable by construction.
  */
 export function generateLevel(
@@ -160,8 +160,8 @@ export function generateLevel(
         if (previous && previous.ropeId === rope.id && previous.end === end && previous.from === to) continue
         const next = moveEndClear(slots, clearance, ropes, rope.id, end, to)
         if (!next) continue
-        // The way back must be playable: once scrambled, that end must be free to pick up again.
-        if (!isEndFree(slots, next, rope.id, end)) continue
+        // The way back must be playable: dragging the peg back must not have to cross a rope lying above it.
+        if (pathBlocked(slots, clearance, next, rope.id, slots[to], slots[rope[end]])) continue
         const score = countConflicts(slots, next) + rand() * 0.5
         if (!pick || score > pick.score) pick = { ropes: next, ropeId: rope.id, end, from: rope[end], to, score }
       }

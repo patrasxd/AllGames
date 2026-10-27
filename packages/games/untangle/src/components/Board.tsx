@@ -1,12 +1,13 @@
 import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
 import { onKeyActivate } from '@allgames/ui'
-import type { LayoutSpec, Point, Rope, RopeEnd } from '../types'
+import type { LayoutSpec, Point, Rope, RopeEnd, VanishingRope } from '../types'
 import type { UntangleTranslations } from '../i18n'
 import { BOARD_SIZE, pegRadius, ringRadii, slotSpacing } from '../logic/layouts'
 import { distance, distanceToSegment } from '../logic/geometry'
 import { emptySlots } from '../logic/engine'
 import { ropeColor, ropeDash } from './palette'
+import { motionAllowed, VANISH_MS } from './motion'
 
 interface BoardProps {
   layout: LayoutSpec
@@ -15,14 +16,15 @@ interface BoardProps {
   /** Rope-to-peg clearance (board units): a held rope end stops before a rope would come closer to a peg. */
   clearance: number
   /** Whether the rope end may be put in that hole (it must be empty and no rope may run through a peg). */
-  canMove: (ropeId: number, end: RopeEnd, slot: number) => boolean
-  /** Whether the rope end can be picked up (it is not buried under another rope). */
-  canGrab: (ropeId: number, end: RopeEnd) => boolean
-  onMove: (ropeId: number, end: RopeEnd, slot: number) => boolean
+  canMove: (ropeId: number, end: RopeEnd, slot: number, from?: Point) => boolean
+  /** `dragged` is true when the peg was carried there by hand (its way was already checked). */
+  onMove: (ropeId: number, end: RopeEnd, slot: number, dragged?: boolean) => boolean
   t: UntangleTranslations
   disabled?: boolean
   /** The level is solved: the board celebrates. */
   won?: boolean
+  /** Ropes that were just untangled and are unravelling off the board. */
+  vanishing?: VanishingRope[]
   isEink?: boolean
 }
 
@@ -58,13 +60,6 @@ const easeOutBack = (t: number) => {
   return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2)
 }
 
-/** Motion is skipped on e-ink screens, with reduced-motion on, and wherever matchMedia is missing (tests). */
-function canAnimate(isEink: boolean): boolean {
-  if (isEink || typeof window === 'undefined' || typeof window.matchMedia !== 'function') return false
-  if (typeof requestAnimationFrame !== 'function') return false
-  return !window.matchMedia('(prefers-reduced-motion: reduce)').matches
-}
-
 const clamp = (v: number) => Math.max(0, Math.min(BOARD_SIZE, v))
 
 export const Board = memo(function Board({
@@ -73,11 +68,11 @@ export const Board = memo(function Board({
   ropes,
   clearance,
   canMove,
-  canGrab,
   onMove,
   t,
   disabled = false,
   won = false,
+  vanishing = [],
   isEink = false,
 }: BoardProps) {
   const svgRef = useRef<SVGSVGElement>(null)
@@ -86,8 +81,6 @@ export const Board = memo(function Board({
   const suppressClickRef = useRef(false)
   const [drag, setDrag] = useState<DragState | null>(null)
   const [selected, setSelected] = useState<Selection | null>(null)
-  const [denied, setDenied] = useState<string | null>(null)
-  const deniedTimerRef = useRef<number | null>(null)
   const [, setFrame] = useState(0)
   const slotOfEndRef = useRef<Map<string, number>>(new Map())
   const dropRef = useRef<{ key: string; point: Point } | null>(null)
@@ -113,16 +106,38 @@ export const Board = memo(function Board({
     () => () => {
       cleanupRef.current?.()
       if (rafRef.current !== null) cancelAnimationFrame(rafRef.current)
-      if (deniedTimerRef.current !== null) window.clearTimeout(deniedTimerRef.current)
     },
     [],
   )
+
+  const vanishingRef = useRef(vanishing)
+  vanishingRef.current = vanishing
+
+  /** Redraws every frame while a rope end glides or a rope unravels. */
+  const ensureLoop = useCallback(() => {
+    if (rafRef.current !== null) return
+    const tick = () => {
+      const now = performance.now()
+      const live: typeof glideRef.current = {}
+      for (const [key, g] of Object.entries(glideRef.current)) if (now - g.start < SETTLE_MS) live[key] = g
+      glideRef.current = live
+      setFrame((f) => f + 1)
+      const unravelling = vanishingRef.current.some((v) => now - v.start < VANISH_MS)
+      rafRef.current = Object.keys(live).length > 0 || unravelling ? requestAnimationFrame(tick) : null
+    }
+    rafRef.current = requestAnimationFrame(tick)
+  }, [])
+
+  // A freshly untangled rope needs frames to unravel.
+  useLayoutEffect(() => {
+    if (vanishing.length > 0 && motionAllowed(isEink)) ensureLoop()
+  }, [vanishing, isEink, ensureLoop])
 
   // When a rope end lands in a new hole (drop, undo, restart) let it glide there from where it was.
   useLayoutEffect(() => {
     const next = new Map<string, number>()
     const started: Record<string, { from: Point; start: number }> = {}
-    const animate = canAnimate(isEink)
+    const animate = motionAllowed(isEink)
     for (const rope of ropes) {
       for (const end of ['a', 'b'] as RopeEnd[]) {
         const key = `${rope.id}-${end}`
@@ -139,17 +154,8 @@ export const Board = memo(function Board({
     if (Object.keys(started).length === 0) return
 
     glideRef.current = { ...glideRef.current, ...started }
-    if (rafRef.current !== null) return
-    const tick = () => {
-      const now = performance.now()
-      const live: typeof glideRef.current = {}
-      for (const [key, g] of Object.entries(glideRef.current)) if (now - g.start < SETTLE_MS) live[key] = g
-      glideRef.current = live
-      setFrame((f) => f + 1)
-      rafRef.current = Object.keys(live).length > 0 ? requestAnimationFrame(tick) : null
-    }
-    rafRef.current = requestAnimationFrame(tick)
-  }, [ropes, slots, isEink])
+    ensureLoop()
+  }, [ropes, slots, isEink, ensureLoop])
 
   const toBoardPoint = useCallback((clientX: number, clientY: number): Point => {
     const rect = svgRef.current?.getBoundingClientRect()
@@ -165,7 +171,7 @@ export const Board = memo(function Board({
       let bestDist = snapR
       for (const s of empty) {
         const d = distance(p, slots[s])
-        if (d <= bestDist && canMove(ropeId, end, s)) {
+        if (d <= bestDist && canMove(ropeId, end, s, p)) {
           best = s
           bestDist = d
         }
@@ -177,8 +183,8 @@ export const Board = memo(function Board({
 
   /**
    * Moves the held rope end from `previous` towards the pointer, but stops just before the rope would run
-   * through another rope's peg (or the held peg would bump into one). Ropes are not an obstacle: crossing
-   * them is allowed while playing.
+   * through another rope's peg, the held peg would bump into one, or the peg would cross a rope lying on top
+   * of its own rope. Ropes beneath it are no obstacle.
    */
   const constrainHeld = useCallback((previous: Point, raw: Point, ropeId: number, end: RopeEnd): Point => {
     const g = geometryRef.current
@@ -186,9 +192,12 @@ export const Board = memo(function Board({
     if (!rope) return previous
     const fixed = g.slots[end === 'a' ? rope.b : rope.a]
     const obstacles = g.ropes.filter((r) => r.id !== ropeId).flatMap((r) => [g.slots[r.a], g.slots[r.b]])
+    // Ropes lying on top of the held rope are walls for the peg; ropes beneath it can be crossed.
+    const walls = g.ropes.filter((r) => r.id > ropeId)
     const target = { x: clamp(raw.x), y: clamp(raw.y) }
     const free = (q: Point) =>
-      obstacles.every((o) => distance(o, q) >= g.pegR * 2 && distanceToSegment(o, fixed, q) >= g.clearance)
+      obstacles.every((o) => distance(o, q) >= g.pegR * 2 && distanceToSegment(o, fixed, q) >= g.clearance) &&
+      walls.every((w) => distanceToSegment(q, g.slots[w.a], g.slots[w.b]) >= g.clearance)
 
     const steps = Math.max(1, Math.ceil(distance(previous, target)))
     let held = previous
@@ -203,23 +212,9 @@ export const Board = memo(function Board({
     return held
   }, [])
 
-  /** A buried end that is touched shakes briefly, so it is clear why it will not move. */
-  const flashDenied = useCallback((ropeId: number, end: RopeEnd) => {
-    setDenied(`${ropeId}-${end}`)
-    if (deniedTimerRef.current !== null) window.clearTimeout(deniedTimerRef.current)
-    deniedTimerRef.current = window.setTimeout(() => {
-      deniedTimerRef.current = null
-      setDenied(null)
-    }, 450)
-  }, [])
-
   const handlePegPointerDown = useCallback(
     (e: React.PointerEvent<SVGGElement>, ropeId: number, end: RopeEnd) => {
       if (disabled || (e.pointerType === 'mouse' && e.button !== 0)) return
-      if (!canGrab(ropeId, end)) {
-        flashDenied(ropeId, end)
-        return
-      }
       cleanupRef.current?.()
 
       const start = toBoardPoint(e.clientX, e.clientY)
@@ -260,7 +255,7 @@ export const Board = memo(function Board({
         const target = nearestEmpty(d.point, d.ropeId, d.end)
         if (target !== null) {
           dropRef.current = { key: `${d.ropeId}-${d.end}`, point: d.point }
-          onMove(d.ropeId, d.end, target)
+          onMove(d.ropeId, d.end, target, true)
           setSelected(null)
         }
       }
@@ -276,19 +271,15 @@ export const Board = memo(function Board({
       window.addEventListener('pointercancel', onCancelEvent)
       cleanupRef.current = stop
     },
-    [disabled, canGrab, flashDenied, toBoardPoint, constrainHeld, nearestEmpty, onMove],
+    [disabled, toBoardPoint, constrainHeld, nearestEmpty, onMove],
   )
 
   const toggleSelect = useCallback(
     (ropeId: number, end: RopeEnd) => {
       if (disabled) return
-      if (!canGrab(ropeId, end)) {
-        flashDenied(ropeId, end)
-        return
-      }
       setSelected((prev) => (prev && prev.ropeId === ropeId && prev.end === end ? null : { ropeId, end }))
     },
-    [disabled, canGrab, flashDenied],
+    [disabled],
   )
 
   const handleHole = useCallback(
@@ -354,7 +345,7 @@ export const Board = memo(function Board({
             const isTarget = dragTarget === i
             // While a rope end is held or selected, holes it could not go to are dimmed.
             const holder = drag?.moved ? drag : selected
-            const isBlocked = !!holder && !canMove(holder.ropeId, holder.end, i)
+            const isBlocked = !!holder && !canMove(holder.ropeId, holder.end, i, drag?.moved ? drag.point : undefined)
             return (
               <g
                 key={`hole-${i}`}
@@ -377,25 +368,21 @@ export const Board = memo(function Board({
           })}
 
           {/* Ropes */}
-          {[...ropes]
-            .sort(
-              (x, y) => Number(x.id === drag?.ropeId && !!drag.moved) - Number(y.id === drag?.ropeId && !!drag.moved),
+          {ropes.map((rope) => {
+            const a = endPoint(rope, 'a')
+            const b = endPoint(rope, 'b')
+            const style = { ['--ut-rope' as string]: ropeColor(rope.id) } as CSSProperties
+            const line = { x1: a.x, y1: a.y, x2: b.x, y2: b.y }
+            return (
+              <g key={`rope-${rope.id}`} className="ut-rope" style={style} data-rope={rope.id} aria-hidden="true">
+                <line className="ut-rope-shadow" {...line} />
+                <line className="ut-rope-edge" {...line} />
+                <line className="ut-rope-body" {...line} />
+                <line className="ut-rope-twist" {...line} strokeDasharray={isEink ? ropeDash(rope.id) : '1.4 2.4'} />
+                <line className="ut-rope-shine" {...line} />
+              </g>
             )
-            .map((rope) => {
-              const a = endPoint(rope, 'a')
-              const b = endPoint(rope, 'b')
-              const style = { ['--ut-rope' as string]: ropeColor(rope.id) } as CSSProperties
-              const line = { x1: a.x, y1: a.y, x2: b.x, y2: b.y }
-              return (
-                <g key={`rope-${rope.id}`} className="ut-rope" style={style} data-rope={rope.id} aria-hidden="true">
-                  <line className="ut-rope-shadow" {...line} />
-                  <line className="ut-rope-edge" {...line} />
-                  <line className="ut-rope-body" {...line} />
-                  <line className="ut-rope-twist" {...line} strokeDasharray={isEink ? ropeDash(rope.id) : '1.4 2.4'} />
-                  <line className="ut-rope-shine" {...line} />
-                </g>
-              )
-            })}
+          })}
 
           {/* Pegs on every rope end (these are what the player grabs) */}
           {ropes.flatMap((rope, ropeIndex) =>
@@ -403,8 +390,6 @@ export const Board = memo(function Board({
               const p = endPoint(rope, end)
               const isSelected = selected?.ropeId === rope.id && selected.end === end
               const isDragging = drag?.moved && drag.ropeId === rope.id && drag.end === end
-              const isLocked = !disabled && !canGrab(rope.id, end)
-              const isDenied = denied === `${rope.id}-${end}`
               const style = {
                 ['--ut-rope' as string]: ropeColor(rope.id),
                 ['--i' as string]: ropeIndex * 2 + endIndex,
@@ -412,15 +397,12 @@ export const Board = memo(function Board({
               return (
                 <g
                   key={`peg-${rope.id}-${end}`}
-                  className={`ut-peg ${isSelected ? 'ut-peg--selected' : ''} ${isDragging ? 'ut-peg--dragging' : ''} ${
-                    isLocked ? 'ut-peg--locked' : ''
-                  } ${isDenied ? 'ut-peg--denied' : ''}`}
+                  className={`ut-peg ${isSelected ? 'ut-peg--selected' : ''} ${isDragging ? 'ut-peg--dragging' : ''} `}
                   style={style}
                   transform={`translate(${p.x} ${p.y})`}
                   role="button"
                   tabIndex={disabled ? -1 : 0}
-                  aria-label={t.pegLabel(rope.id + 1, isSelected, isLocked)}
-                  aria-disabled={isLocked}
+                  aria-label={t.pegLabel(rope.id + 1, isSelected)}
                   aria-pressed={isSelected}
                   data-rope={rope.id}
                   data-end={end}
@@ -455,6 +437,72 @@ export const Board = memo(function Board({
               )
             }),
           )}
+
+          {/* Ropes that were just untangled: they pull themselves in and burst into sparks */}
+          {vanishing.map((v) => {
+            const a = slots[v.rope.a]
+            const b = slots[v.rope.b]
+            const t = Math.min(1, Math.max(0, (performance.now() - v.start) / VANISH_MS))
+            const pull = t * t * (3 - 2 * t)
+            const mid = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }
+            const from = { x: a.x + (mid.x - a.x) * pull, y: a.y + (mid.y - a.y) * pull }
+            const to = { x: b.x + (mid.x - b.x) * pull, y: b.y + (mid.y - b.y) * pull }
+            const thin = 1 - 0.55 * pull
+            const line = { x1: from.x, y1: from.y, x2: to.x, y2: to.y }
+            const style = {
+              ['--ut-rope' as string]: ropeColor(v.rope.id),
+              opacity: t < 0.7 ? 1 : 1 - (t - 0.7) / 0.3,
+            } as CSSProperties
+            return (
+              <g key={`ghost-${v.rope.id}-${v.start}`} aria-hidden="true">
+                <g className="ut-rope ut-rope--ghost" style={style}>
+                  <line className="ut-rope-shadow" {...line} style={{ strokeWidth: 5.6 * thin }} />
+                  <line className="ut-rope-edge" {...line} style={{ strokeWidth: 5.6 * thin }} />
+                  <line className="ut-rope-body" {...line} style={{ strokeWidth: 4.4 * thin }} />
+                  <line
+                    className="ut-rope-twist"
+                    {...line}
+                    strokeDasharray="1.4 2.4"
+                    style={{ strokeWidth: 4.4 * thin, strokeDashoffset: -t * 36 }}
+                  />
+                </g>
+                {([v.rope.a, v.rope.b] as number[]).map((slot, i) => {
+                  const p = slots[slot]
+                  const sparks = Array.from({ length: 6 }, (_, k) => {
+                    const angle = (k / 6) * Math.PI * 2 + v.rope.id * 0.7 + i * 0.5
+                    const dist = 8 + (k % 2) * 4
+                    return {
+                      dx: Math.cos(angle) * dist,
+                      dy: Math.sin(angle) * dist,
+                    }
+                  })
+                  return (
+                    <g
+                      key={`ghost-peg-${i}`}
+                      transform={`translate(${p.x} ${p.y})`}
+                      style={{ ['--ut-rope' as string]: ropeColor(v.rope.id) } as CSSProperties}
+                    >
+                      <g className="ut-ghost-peg">
+                        <circle className="ut-peg-body" r={pegR} />
+                        <circle className="ut-peg-cap" r={pegR * 0.62} />
+                      </g>
+                      <circle className="ut-burst" r={pegR} />
+                      {sparks.map((sp, k) => (
+                        <circle
+                          key={k}
+                          className="ut-spark"
+                          r={0.9}
+                          style={
+                            { ['--dx' as string]: `${sp.dx}px`, ['--dy' as string]: `${sp.dy}px` } as CSSProperties
+                          }
+                        />
+                      ))}
+                    </g>
+                  )
+                })}
+              </g>
+            )
+          })}
         </svg>
       </div>
     </div>

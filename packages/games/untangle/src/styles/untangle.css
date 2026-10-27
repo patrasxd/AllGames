@@ -312,39 +312,67 @@
     0 0 18px color-mix(in srgb, var(--all-success, #34d399) 30%, transparent);
 }
 
-/* ─── Buried ends ───────────────────────────────────────────── */
+/* ─── Untangled ropes vanishing ─────────────────────────────── */
 
-@keyframes ut-shake {
-  0%,
-  100% {
-    transform: translateX(0);
+@keyframes ut-ghost-peg {
+  0% {
+    transform: scale(1);
+    opacity: 1;
   }
   25% {
-    transform: translateX(-1.2px);
+    transform: scale(1.3);
+    opacity: 1;
   }
-  75% {
-    transform: translateX(1.2px);
+  100% {
+    transform: scale(0);
+    opacity: 0;
   }
 }
 
-/* An end lying under another rope cannot be picked up */
-.ut-peg--locked {
-  cursor: not-allowed;
-}
-
-.ut-peg--locked .ut-peg-body,
-.ut-peg--locked .ut-peg-cap {
-  opacity: 0.5;
-}
-
-.ut-peg--locked .ut-peg-gloss {
-  opacity: 0.3;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .ut-peg--denied .ut-peg-inner {
-    animation: ut-shake 0.18s linear 2;
+@keyframes ut-burst {
+  from {
+    transform: scale(0.7);
+    opacity: 0.9;
   }
+  to {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
+@keyframes ut-spark {
+  from {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: translate(var(--dx), var(--dy)) scale(0.2);
+    opacity: 0;
+  }
+}
+
+.ut-ghost-peg {
+  animation: ut-ghost-peg 0.6s ease-in 0.14s both;
+}
+
+.ut-ghost-peg .ut-peg-body {
+  fill: var(--ut-rope);
+  stroke: color-mix(in srgb, var(--ut-rope) 55%, #000000);
+  stroke-width: 1;
+}
+
+.ut-burst {
+  fill: none;
+  stroke: var(--ut-rope);
+  stroke-width: 1.1;
+  animation: ut-burst 0.6s ease-out 0.12s both;
+  pointer-events: none;
+}
+
+.ut-spark {
+  fill: var(--ut-rope);
+  animation: ut-spark 0.65s ease-out 0.12s both;
+  pointer-events: none;
 }
 
 /* ─── Level Select Grid ─────────────────────────────────────── */

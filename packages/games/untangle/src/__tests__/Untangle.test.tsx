@@ -4,7 +4,7 @@ import { Untangle } from '../Untangle'
 import { getLevelConfig } from '../logic/levels'
 import { buildSlots, pegRadius, ropeClearance } from '../logic/layouts'
 import { distanceToSegment } from '../logic/geometry'
-import { emptySlots, isEndFree, moveEnd, tryMoveEnd } from '../logic/engine'
+import { emptySlots, moveEnd, tryMoveEnd } from '../logic/engine'
 import type { RopeEnd } from '../types'
 
 /** Level 1's first rope end / hole pair that is a legal move, or a pair refused because a rope would hit a peg. */
@@ -17,22 +17,23 @@ function level1Moves() {
   for (const rope of cfg.ropes) {
     for (const end of ['a', 'b'] as RopeEnd[]) {
       for (const slot of emptySlots(cfg.ropes, slots.length)) {
-        // Refused only because of the peg rule (the end itself is free to pick up).
-        const geometric = isEndFree(slots, cfg.ropes, rope.id, end)
-          ? moveEnd(cfg.ropes, rope.id, end, slot, slots.length)
-          : null
+        // Refused by the rules even though the hole is empty.
+        const geometric = moveEnd(cfg.ropes, rope.id, end, slot, slots.length)
         const ok = tryMoveEnd(slots, clearance, cfg.ropes, rope.id, end, slot)
         // The straight drag path must also be clear: a held peg stops before a rope would hit another peg.
         const fixed = slots[end === 'a' ? rope.b : rope.a]
         const from = slots[rope[end]]
         const to = slots[slot]
         const others = cfg.ropes.filter((r) => r.id !== rope.id).flatMap((r) => [slots[r.a], slots[r.b]])
+        const walls = cfg.ropes.filter((r) => r.id > rope.id)
         const pathClear = Array.from({ length: 41 }, (_, i) => i / 40).every((t) => {
           const q = { x: from.x + (to.x - from.x) * t, y: from.y + (to.y - from.y) * t }
-          return others.every(
-            (o) =>
-              Math.hypot(o.x - q.x, o.y - q.y) >= pegRadius(cfg.layout) * 2 &&
-              distanceToSegment(o, fixed, q) >= clearance,
+          return (
+            others.every(
+              (o) =>
+                Math.hypot(o.x - q.x, o.y - q.y) >= pegRadius(cfg.layout) * 2 &&
+                distanceToSegment(o, fixed, q) >= clearance,
+            ) && walls.every((w) => distanceToSegment(q, slots[w.a], slots[w.b]) >= clearance)
           )
         })
         if (ok && pathClear && !legal) legal = { ropeId: rope.id, end, slot }
@@ -94,26 +95,6 @@ describe('Untangle component', () => {
   it('draws no crossing markers: the crossings themselves show which rope is on top', () => {
     render(<Untangle locale="en" />)
     expect(document.querySelector('.ut-conflict')).toBeNull()
-  })
-
-  it('dims ends buried under another rope and refuses to pick them up', () => {
-    render(<Untangle locale="en" />)
-    const cfg = getLevelConfig(1)
-    const slots = buildSlots(cfg.layout)
-    const locked: { ropeId: number; end: RopeEnd }[] = []
-    for (const rope of cfg.ropes)
-      for (const end of ['a', 'b'] as RopeEnd[])
-        if (!isEndFree(slots, cfg.ropes, rope.id, end)) locked.push({ ropeId: rope.id, end })
-
-    expect(locked.length).toBeGreaterThan(0)
-    for (const l of locked) {
-      const peg = pegFor(l.ropeId, l.end)
-      expect(peg.getAttribute('class')).toContain('ut-peg--locked')
-      expect(peg).toHaveAttribute('aria-disabled', 'true')
-      fireEvent.click(peg)
-      expect(peg).toHaveAttribute('aria-pressed', 'false')
-    }
-    expect(document.querySelectorAll('.ut-peg--locked')).toHaveLength(locked.length)
   })
 
   it('renders Polish labels', () => {
@@ -229,9 +210,8 @@ describe('Untangle component', () => {
     const cfg = getLevelConfig(1)
     const slots = buildSlots(cfg.layout)
     const clearance = ropeClearance(cfg.layout)
-    const { rope, end } = cfg.ropes
-      .flatMap((r) => (['a', 'b'] as RopeEnd[]).map((e) => ({ rope: r, end: e })))
-      .find((x) => isEndFree(slots, cfg.ropes, x.rope.id, x.end))!
+    const rope = cfg.ropes[0]
+    const end: RopeEnd = 'a'
     const fixed = slots[end === 'a' ? rope.b : rope.a]
     const startSlot = slots[rope[end]]
     const others = cfg.ropes.filter((r) => r.id !== rope.id).flatMap((r) => [slots[r.a], slots[r.b]])

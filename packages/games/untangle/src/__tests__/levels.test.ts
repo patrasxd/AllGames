@@ -1,6 +1,14 @@
 import { describe, it, expect } from 'vitest'
 import { CAMPAIGN_LEVELS, getLevelConfig, starThresholds } from '../logic/levels'
-import { applyMoves, countConflicts, hasPegCollision, isSolved, occupiedSlots, tryMoveEnd } from '../logic/engine'
+import {
+  applyMoves,
+  countConflicts,
+  hasPegCollision,
+  isSolved,
+  occupiedSlots,
+  releaseFreeRopes,
+  tryMoveEnd,
+} from '../logic/engine'
 import { buildSlots, gridLayout, ringLayout, ropeClearance, slotCount } from '../logic/layouts'
 import { createRng, generateLevel, generateSolved } from '../logic/generator'
 import { solveMinMoves } from '../logic/solver'
@@ -41,6 +49,9 @@ describe('level generation', () => {
 
       // No rope starts out running through a peg.
       expect(hasPegCollision(slots, cfg.ropes, ropeClearance(cfg.layout))).toBe(false)
+
+      // At least two tangled ropes are left once the already-free ones are taken off the board.
+      expect(releaseFreeRopes(slots, cfg.ropes).remaining.length).toBeGreaterThanOrEqual(2)
 
       // Something can actually be moved: at least one end is free with a hole it may go to.
       const clearanceNow = ropeClearance(cfg.layout)
@@ -91,7 +102,7 @@ describe('level generation', () => {
   it('never reports a par above the known solution length', () => {
     for (const level of [1, 5, 12, 40, 70, 100]) {
       const cfg = getLevelConfig(level)
-      const exact = solveMinMoves(buildSlots(cfg.layout), cfg.ropes)
+      const exact = solveMinMoves(buildSlots(cfg.layout), cfg.ropes, 25_000, Infinity, ropeClearance(cfg.layout))
       if (cfg.parExact) expect(exact).toBe(cfg.par)
     }
   })

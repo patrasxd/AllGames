@@ -1,5 +1,5 @@
 import type { Point, Rope } from '../types'
-import { hasConflict, hasPegCollision, isEndFree } from './engine'
+import { hasConflict, hasPegCollision, pathBlocked } from './engine'
 
 /** Search budget: boards bigger than this are left to the generator's own upper bound. */
 export const MAX_SOLVER_STATES = 25_000
@@ -45,8 +45,8 @@ export function solveMinMoves(
 
       for (let r = 0; r < state.length; r++) {
         for (let end = 0; end < 2; end++) {
-          if (!isEndFree(slots, parent, r, end === 0 ? 'a' : 'b')) continue
           for (const target of empty) {
+            if (clearance > 0 && pathBlocked(slots, clearance, parent, r, slots[state[r][end]], slots[target])) continue
             const child = state.map((pair) => pair.slice())
             child[r][end] = target
             const key = stateKey(child)

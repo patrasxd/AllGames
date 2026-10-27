@@ -76,3 +76,9 @@ export interface PlayerProgress {
 }
 
 export type GameStatus = 'playing' | 'won'
+
+/** A rope that was just untangled and is playing its vanishing animation (it is no longer part of the game). */
+export interface VanishingRope {
+  rope: Rope
+  start: number
+}

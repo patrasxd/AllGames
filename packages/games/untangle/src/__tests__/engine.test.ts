@@ -7,8 +7,8 @@ import {
   findConflicts,
   findSegmentConflicts,
   hasPegCollision,
-  isEndFree,
-  moveEndClear,
+  pathBlocked,
+  releaseFreeRopes,
   tryMoveEnd,
   isSolved,
   moveEnd,
@@ -219,70 +219,113 @@ describe('ropes and pegs', () => {
   })
 
   it('refuses a move that would run a rope through a peg, but allows others', () => {
+    // Rope 1 lies on top, so nothing above it can block it: only the peg rule is tested here.
     const ropes: Rope[] = [
-      { id: 0, a: 0, b: 6 },
-      { id: 1, a: 1, b: 7 },
+      { id: 0, a: 1, b: 7 },
+      { id: 1, a: 0, b: 6 },
     ]
-    // Rope 0 would run 0 -> 8 along... via the diagonal through slot 4, which is empty: fine.
-    expect(tryMoveEnd(gridSlots, clearance, ropes, 0, 'b', 8)).not.toBeNull()
-    // Moving rope 0's end to slot 2 would run it along the top row through rope 1's peg in slot 1.
-    expect(tryMoveEnd(gridSlots, clearance, ropes, 0, 'b', 2)).toBeNull()
+    // Moving rope 1's end to slot 2 would run it along the top row through rope 0's peg in slot 1.
+    expect(tryMoveEnd(gridSlots, clearance, ropes, 1, 'b', 2)).toBeNull()
     // The plain move is still geometrically fine, only the peg rule refuses it.
-    expect(moveEnd(ropes, 0, 'b', 2, 9)).not.toBeNull()
+    expect(moveEnd(ropes, 1, 'b', 2, 9)).not.toBeNull()
+    // Rope 1 to the opposite corner is fine.
+    expect(tryMoveEnd(gridSlots, clearance, ropes, 1, 'b', 8)).not.toBeNull()
     // Occupied targets stay illegal.
-    expect(tryMoveEnd(gridSlots, clearance, ropes, 0, 'b', 7)).toBeNull()
+    expect(tryMoveEnd(gridSlots, clearance, ropes, 1, 'b', 7)).toBeNull()
   })
 })
 
-describe('layers: buried ends', () => {
-  // 3x3 slots: 0 1 2 / 3 4 5 / 6 7 8. Higher rope id lies on top.
+describe('layers: dragging a peg across ropes', () => {
+  // The 3x3 board; slots are numbered 1-9 in the comments (row by row), indices 0-8 in the code.
+  // Higher rope id = lies on top.
   const clearance = ropeClearance(grid)
-  // Three ropes in an X-like tangle: rope 0 (0-8 diagonal) is crossed by rope 1 (2-6) and rope 2 (3-5).
-  const ropes: Rope[] = [
-    { id: 0, a: 0, b: 8 },
-    { id: 1, a: 2, b: 6 },
-  ]
+  const at = (n: number) => n - 1
 
-  it('frees every end of a rope that nothing crosses', () => {
-    const apart: Rope[] = [
+  // Red (lowest) 3-8, blue 1-9, green (top) 2-6.
+  const crossing: Rope[] = [
+    { id: 0, a: at(3), b: at(8) },
+    { id: 1, a: at(1), b: at(9) },
+    { id: 2, a: at(2), b: at(6) },
+  ]
+  // Red (lowest) 6-7, blue 3-8, green (top) 2-9.
+  const tangle: Rope[] = [
+    { id: 0, a: at(6), b: at(7) },
+    { id: 1, a: at(3), b: at(8) },
+    { id: 2, a: at(2), b: at(9) },
+  ]
+  const move = (ropes: Rope[], id: number, end: 'a' | 'b', to: number) =>
+    tryMoveEnd(gridSlots, clearance, ropes, id, end, at(to))
+
+  it('lets the lowest rope move along the edge: 8 -> 7 and 8 -> 4', () => {
+    expect(move(crossing, 0, 'b', 7)).not.toBeNull()
+    expect(move(crossing, 0, 'b', 4)).not.toBeNull()
+  })
+
+  it('lets red go 7 -> 4 and 7 -> 1, but not 6 -> 5 across the ropes above it', () => {
+    expect(move(tangle, 0, 'b', 4)).not.toBeNull()
+    expect(move(tangle, 0, 'b', 1)).not.toBeNull()
+    expect(move(tangle, 0, 'a', 5)).toBeNull()
+  })
+
+  it('never blocks the rope on top: nothing lies above it', () => {
+    expect(move(tangle, 2, 'a', 1)).not.toBeNull()
+    expect(move(tangle, 2, 'b', 5)).not.toBeNull()
+  })
+
+  it('refuses to drag a peg across a rope above it, but allows crossing a rope beneath it', () => {
+    // Green runs across the middle row; a blue peg wants to go from the bottom middle to the top middle.
+    const green = { id: 2, a: at(4), b: at(6) }
+    const blueBelow: Rope[] = [{ id: 1, a: at(1), b: at(8) }, green]
+    expect(move(blueBelow, 1, 'b', 2)).toBeNull()
+    // The same shapes with the layers swapped: now the moving rope is the top one.
+    const blueOnTop: Rope[] = [
+      { id: 1, a: at(4), b: at(6) },
+      { id: 2, a: at(1), b: at(8) },
+    ]
+    expect(move(blueOnTop, 2, 'b', 2)).not.toBeNull()
+  })
+
+  it('judges the straight path with pathBlocked', () => {
+    const from = gridSlots[at(8)]
+    const to = gridSlots[at(2)]
+    expect(pathBlocked(gridSlots, clearance, [{ id: 0, a: at(4), b: at(6) }], 5, from, to)).toBe(false) // no rope above
+    expect(pathBlocked(gridSlots, clearance, [{ id: 7, a: at(4), b: at(6) }], 5, from, to)).toBe(true)
+    expect(pathBlocked(gridSlots, clearance, [{ id: 7, a: at(7), b: at(9) }], 5, from, gridSlots[at(7)])).toBe(true)
+  })
+
+  it('can skip the straight-path test for a peg that was dragged around an obstacle', () => {
+    expect(tryMoveEnd(gridSlots, clearance, tangle, 0, 'a', at(5), { checkPath: false })).not.toBeNull()
+  })
+})
+
+describe('untangled ropes leave the board', () => {
+  it('releases ropes that cross nothing and keeps the tangled ones, with their ids', () => {
+    // Ropes 0 and 1 cross; rope 2 runs along the bottom row, clear of both.
+    const ropes: Rope[] = [
+      { id: 0, a: 0, b: 5 },
+      { id: 1, a: 2, b: 3 },
+      { id: 2, a: 6, b: 8 },
+    ]
+    const { remaining, freed } = releaseFreeRopes(gridSlots, ropes)
+    expect(remaining.map((r) => r.id)).toEqual([0, 1])
+    expect(freed.map((r) => r.id)).toEqual([2])
+  })
+
+  it('releases everything once nothing crosses', () => {
+    const ropes: Rope[] = [
       { id: 0, a: 0, b: 2 },
       { id: 1, a: 3, b: 5 },
     ]
-    for (const r of apart)
-      for (const end of ['a', 'b'] as const) expect(isEndFree(gridSlots, apart, r.id, end)).toBe(true)
+    const { remaining, freed } = releaseFreeRopes(gridSlots, ropes)
+    expect(remaining).toHaveLength(0)
+    expect(freed).toHaveLength(2)
   })
 
-  it('lets the rope on top move, but buries the end under it', () => {
-    // The two diagonals cross in the middle; rope 1 lies on top of rope 0.
-    expect(isEndFree(gridSlots, ropes, 1, 'a')).toBe(true)
-    expect(isEndFree(gridSlots, ropes, 1, 'b')).toBe(true)
-    expect(isEndFree(gridSlots, ropes, 0, 'a')).toBe(false)
-    expect(isEndFree(gridSlots, ropes, 0, 'b')).toBe(false)
-  })
-
-  it('judges each end by the first rope met when walking away from it', () => {
-    // Rope 1 (1 -> 7, vertical) is crossed first by rope 2 (below it), then by rope 3 (above it) coming from slot 1.
-    const stack: Rope[] = [
-      { id: 0, a: 0, b: 8 }, // diagonal; crosses the vertical rope in the middle at (4)
-      { id: 1, a: 1, b: 7 },
-      { id: 2, a: 3, b: 5 },
+  it('keeps a pair of crossing ropes together', () => {
+    const ropes: Rope[] = [
+      { id: 0, a: 0, b: 8 },
+      { id: 1, a: 2, b: 6 },
     ]
-    // Rope 1 end at slot 7 meets rope 0 (the diagonal) first? Both cross at the centre: rope 2 and rope 0 are
-    // at the same point, so the strongest (rope 2) decides, and rope 2 is above rope 1 -> buried from both sides.
-    expect(isEndFree(gridSlots, stack, 1, 'a')).toBe(false)
-    expect(isEndFree(gridSlots, stack, 1, 'b')).toBe(false)
-    // Rope 2 is on top of everything, so both of its ends are free.
-    expect(isEndFree(gridSlots, stack, 2, 'a')).toBe(true)
-    expect(isEndFree(gridSlots, stack, 2, 'b')).toBe(true)
-  })
-
-  it('refuses to move a buried end even to a perfectly good hole', () => {
-    expect(moveEndClear(gridSlots, clearance, ropes, 0, 'a', 1)).not.toBeNull()
-    expect(tryMoveEnd(gridSlots, clearance, ropes, 0, 'a', 1)).toBeNull()
-    expect(tryMoveEnd(gridSlots, clearance, ropes, 1, 'a', 1)).not.toBeNull()
-  })
-
-  it('treats an unknown rope as not free', () => {
-    expect(isEndFree(gridSlots, ropes, 9, 'a')).toBe(false)
+    expect(releaseFreeRopes(gridSlots, ropes).freed).toHaveLength(0)
   })
 })

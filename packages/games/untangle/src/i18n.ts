@@ -23,7 +23,7 @@ export interface UntangleTranslations {
   levelLocked: string
   levelStars: (n: number) => string
   boardLabel: string
-  pegLabel: (rope: number, selected: boolean, locked: boolean) => string
+  pegLabel: (rope: number, selected: boolean) => string
   holeLabel: (n: number) => string
 }
 
@@ -40,7 +40,7 @@ export const untangleTranslations: Record<Locale, UntangleTranslations> = {
     levels: 'Levels',
     howToPlayTitle: 'How to play',
     howToPlayBody:
-      'Every rope joins two pegs. Drag a rope end to an empty hole, or tap the peg and then the hole, until no ropes cross or touch. Ropes can never run through a peg: the peg you hold stops before it would happen. Ropes lie in layers: an end buried under another rope (dimmed) cannot be lifted until that rope is moved away, so the order matters. Fewer moves earn more stars.',
+      'Every rope joins two pegs. Drag a rope end to an empty hole, or tap the peg and then the hole, until no ropes cross or touch. Ropes can never run through a peg: the peg you hold stops before it would happen. Ropes lie in layers: you can drag a rope end over the ropes beneath it, but never across a rope lying on top of it, so the order matters. A rope that no longer crosses any other unravels and disappears; clear them all to win. Fewer moves earn more stars.',
     confirmTitle: 'Start over?',
     confirmRestartDesc: 'This level is in progress. Restarting will discard your current moves.',
     confirmBtn: 'Restart',
@@ -52,8 +52,7 @@ export const untangleTranslations: Record<Locale, UntangleTranslations> = {
     levelLocked: 'locked',
     levelStars: (n) => (n === 1 ? '1 star' : `${n} stars`),
     boardLabel: 'Rope board',
-    pegLabel: (rope, selected, locked) =>
-      `Rope ${rope} end${selected ? ', selected' : ''}${locked ? ', under another rope' : ''}`,
+    pegLabel: (rope, selected) => `Rope ${rope} end${selected ? ', selected' : ''}`,
     holeLabel: (n) => `Empty hole ${n}`,
   },
   pl: {
@@ -68,7 +67,7 @@ export const untangleTranslations: Record<Locale, UntangleTranslations> = {
     levels: 'Poziomy',
     howToPlayTitle: 'Jak grać',
     howToPlayBody:
-      'Każda lina łączy dwa kołki. Przeciągnij koniec liny na puste miejsce albo dotknij kołka, a potem miejsca, aż żadne liny nie będą się krzyżować ani dotykać. Liny nie przechodzą przez kołki: trzymany kołek zatrzyma się, zanim lina trafiłaby w inny. Liny leżą warstwami: koniec przykryty inną liną (przyciemniony) nie da się podnieść, dopóki tej liny nie odsuniesz, więc kolejność ma znaczenie. Im mniej ruchów, tym więcej gwiazdek.',
+      'Każda lina łączy dwa kołki. Przeciągnij koniec liny na puste miejsce albo dotknij kołka, a potem miejsca, aż żadne liny nie będą się krzyżować ani dotykać. Liny nie przechodzą przez kołki: trzymany kołek zatrzyma się, zanim lina trafiłaby w inny. Liny leżą warstwami: koniec liny możesz przeciągać nad linami leżącymi pod nią, ale nigdy przez linę leżącą na wierzchu, więc kolejność ma znaczenie. Lina, która nie krzyżuje się już z żadną inną, rozwiązuje się i znika; usuń wszystkie, żeby wygrać. Im mniej ruchów, tym więcej gwiazdek.',
     confirmTitle: 'Zacząć od nowa?',
     confirmRestartDesc: 'Ten poziom jest w trakcie gry. Restart usunie Twoje obecne ruchy.',
     confirmBtn: 'Restart',
@@ -80,8 +79,7 @@ export const untangleTranslations: Record<Locale, UntangleTranslations> = {
     levelLocked: 'zablokowany',
     levelStars: (n) => (n === 1 ? '1 gwiazdka' : `${n} gwiazdki`),
     boardLabel: 'Plansza z linami',
-    pegLabel: (rope, selected, locked) =>
-      `Koniec liny ${rope}${selected ? ', zaznaczony' : ''}${locked ? ', pod inną liną' : ''}`,
+    pegLabel: (rope, selected) => `Koniec liny ${rope}${selected ? ', zaznaczony' : ''}`,
     holeLabel: (n) => `Puste miejsce ${n}`,
   },
 }
