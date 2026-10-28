@@ -84,49 +84,6 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-.ut-slot--armed {
-  cursor: pointer;
-}
-
-.ut-slot--armed .ut-hole {
-  stroke: var(--all-accent);
-  stroke-width: 1.2;
-  stroke-dasharray: 2 1.4;
-}
-
-/* While a rope end is in the air, every free hole invites it; the closest one lights up in the rope's colour. */
-.ut-board--dragging .ut-slot .ut-hole {
-  stroke: color-mix(in srgb, var(--ut-drag) 55%, var(--all-border-2));
-  stroke-width: 1;
-  stroke-dasharray: 1.6 1.4;
-}
-
-/* Holes the held rope end cannot go to (a rope would run through a peg) */
-.ut-slot--blocked .ut-hole,
-.ut-board--dragging .ut-slot--blocked .ut-hole {
-  stroke: var(--all-border-2) !important;
-  stroke-width: 0.7 !important;
-  stroke-dasharray: none !important;
-  animation: none !important;
-  opacity: 0.4;
-}
-
-.ut-slot--blocked .ut-hole-mark {
-  opacity: 0.2;
-}
-
-.ut-slot--target .ut-hole {
-  stroke: var(--ut-drag, var(--all-accent)) !important;
-  stroke-width: 1.6 !important;
-  stroke-dasharray: none !important;
-  fill: color-mix(in srgb, var(--ut-drag, var(--all-accent)) 22%, var(--all-surface-2));
-}
-
-.ut-slot--target .ut-hole-mark {
-  fill: var(--ut-drag, var(--all-accent));
-  opacity: 0.9;
-}
-
 .ut-slot:focus-visible .ut-hole {
   stroke: var(--all-accent);
   stroke-width: 1.6;
@@ -257,12 +214,6 @@
   }
 }
 
-@keyframes ut-dash-spin {
-  to {
-    stroke-dashoffset: -7;
-  }
-}
-
 @keyframes ut-bounce {
   0%,
   100% {
@@ -288,10 +239,6 @@
   .ut-peg-inner {
     animation: ut-pop 0.38s cubic-bezier(0.2, 1.5, 0.4, 1) backwards;
     animation-delay: calc(var(--i, 0) * 45ms);
-  }
-
-  .ut-slot--armed .ut-hole {
-    animation: ut-dash-spin 0.9s linear infinite;
   }
 
   .ut-board--won .ut-peg-inner {

@@ -112,7 +112,6 @@ describe('Untangle component', () => {
     const before = peg.getAttribute('data-slot')
     fireEvent.click(peg)
     expect(peg).toHaveAttribute('aria-pressed', 'true')
-    expect(holes()[0].className.baseVal).toContain('ut-slot--armed')
 
     fireEvent.click(holeFor(legal.slot))
 
@@ -166,7 +165,7 @@ describe('Untangle component', () => {
     expect(document.querySelector('.ut-peg--dragging')).toBeNull()
   })
 
-  it('previews tangles live while a rope end is dragged and lights the drop target', () => {
+  it('does not highlight any holes while a rope end is dragged', () => {
     render(<Untangle locale="en" />)
     mockBoardRect()
     const { slots, legal } = level1Moves()
@@ -178,13 +177,14 @@ describe('Untangle component', () => {
     firePointer(window, 'pointermove', { pointerId: 3, clientX: to.x, clientY: to.y })
 
     expect(document.querySelector('.ut-board--dragging')).not.toBeNull()
-    expect(holeFor(legal.slot).getAttribute('class')).toContain('ut-slot--target')
+    // The holes are never highlighted: that would only hint at some of the places the peg may go.
+    expect(document.querySelector('.ut-slot--target, .ut-slot--armed, .ut-slot--blocked')).toBeNull()
 
     firePointer(window, 'pointerup', { pointerId: 3, clientX: to.x, clientY: to.y })
     expect(document.querySelector('.ut-board--dragging')).toBeNull()
   })
 
-  it('refuses a drop where the rope would run through a peg, and dims that hole while dragging', () => {
+  it('refuses a drop where the rope would run through a peg', () => {
     render(<Untangle locale="en" />)
     mockBoardRect()
     const { slots, blocked } = level1Moves()
@@ -196,8 +196,7 @@ describe('Untangle component', () => {
 
     firePointer(pegFor(b.ropeId, b.end), 'pointerdown', { pointerId: 4, clientX: from.x, clientY: from.y })
     firePointer(window, 'pointermove', { pointerId: 4, clientX: to.x, clientY: to.y })
-    expect(holeFor(b.slot).getAttribute('class')).toContain('ut-slot--blocked')
-    expect(holeFor(b.slot).getAttribute('class')).not.toContain('ut-slot--target')
+    expect(document.querySelector('.ut-slot--blocked, .ut-slot--target')).toBeNull()
     firePointer(window, 'pointerup', { pointerId: 4, clientX: to.x, clientY: to.y })
 
     expect(pegFor(b.ropeId, b.end).getAttribute('data-slot')).toBe(slotBefore)

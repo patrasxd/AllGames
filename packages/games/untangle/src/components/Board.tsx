@@ -291,7 +291,6 @@ export const Board = memo(function Board({
     [disabled, selected, onMove],
   )
 
-  const dragTarget = drag && drag.moved ? nearestEmpty(drag.point, drag.ropeId, drag.end) : null
   const draggedPoint = (ropeId: number, end: RopeEnd): Point | null =>
     drag && drag.moved && drag.ropeId === ropeId && drag.end === end ? drag.point : null
   const endPoint = (rope: Rope, end: RopeEnd): Point => {
@@ -313,7 +312,6 @@ export const Board = memo(function Board({
       <div
         className={`ut-board ${won ? 'ut-board--won' : ''} ${drag?.moved ? 'ut-board--dragging' : ''}`}
         data-layout={layout.kind}
-        style={drag?.moved ? ({ ['--ut-drag' as string]: ropeColor(drag.ropeId) } as CSSProperties) : undefined}
       >
         <svg
           ref={svgRef}
@@ -342,16 +340,10 @@ export const Board = memo(function Board({
             if (!isEmpty) {
               return <circle key={`hole-${i}`} className="ut-hole ut-hole--used" cx={p.x} cy={p.y} r={pegR + 0.8} />
             }
-            const isTarget = dragTarget === i
-            // While a rope end is held or selected, holes it could not go to are dimmed.
-            const holder = drag?.moved ? drag : selected
-            const isBlocked = !!holder && !canMove(holder.ropeId, holder.end, i, drag?.moved ? drag.point : undefined)
             return (
               <g
                 key={`hole-${i}`}
-                className={`ut-slot ${selected ? 'ut-slot--armed' : ''} ${isTarget ? 'ut-slot--target' : ''} ${
-                  isBlocked ? 'ut-slot--blocked' : ''
-                }`}
+                className="ut-slot"
                 role="button"
                 tabIndex={disabled ? -1 : 0}
                 aria-label={t.holeLabel(i + 1)}
