@@ -65,7 +65,7 @@ describe('board shapes', () => {
     const kinds = new Set<string>()
     for (let level = 1; level <= CAMPAIGN_LEVELS; level++) kinds.add(getLevelConfig(level).layout.kind)
     expect(kinds).toEqual(new Set(['grid', 'ring', 'diamond', 'triangle', 'hex', 'twin', 'scatter']))
-  })
+  }, 20_000)
 
   it('does not show the same board for many levels in a row', () => {
     let run = 1

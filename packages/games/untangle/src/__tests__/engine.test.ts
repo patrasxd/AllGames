@@ -228,8 +228,11 @@ describe('ropes and pegs', () => {
     expect(tryMoveEnd(gridSlots, clearance, ropes, 1, 'b', 2)).toBeNull()
     // The plain move is still geometrically fine, only the peg rule refuses it.
     expect(moveEnd(ropes, 1, 'b', 2, 9)).not.toBeNull()
-    // Rope 1 to the opposite corner is fine.
-    expect(tryMoveEnd(gridSlots, clearance, ropes, 1, 'b', 8)).not.toBeNull()
+    // The opposite corner is clear, but a straight drag crosses the peg in slot 7.
+    expect(tryMoveEnd(gridSlots, clearance, ropes, 1, 'b', 8)).toBeNull()
+    expect(tryMoveEnd(gridSlots, clearance, ropes, 1, 'b', 8, { checkPath: false })).not.toBeNull()
+    // Moving along the left edge is physically clear.
+    expect(tryMoveEnd(gridSlots, clearance, ropes, 1, 'b', 3)).not.toBeNull()
     // Occupied targets stay illegal.
     expect(tryMoveEnd(gridSlots, clearance, ropes, 1, 'b', 7)).toBeNull()
   })

@@ -4,8 +4,8 @@ import { onKeyActivate } from '@allgames/ui'
 import type { LayoutSpec, Point, Rope, RopeEnd, VanishingRope } from '../types'
 import type { UntangleTranslations } from '../i18n'
 import { BOARD_SIZE, pegRadius, ringRadii, slotSpacing } from '../logic/layouts'
-import { distance, distanceToSegment } from '../logic/geometry'
-import { emptySlots } from '../logic/engine'
+import { distance } from '../logic/geometry'
+import { constrainHeldPoint, emptySlots } from '../logic/engine'
 import { ropeColor, ropeDash } from './palette'
 import { motionAllowed, VANISH_MS } from './motion'
 
@@ -181,35 +181,13 @@ export const Board = memo(function Board({
     [empty, slots, snapR, canMove],
   )
 
-  /**
-   * Moves the held rope end from `previous` towards the pointer, but stops just before the rope would run
-   * through another rope's peg, the held peg would bump into one, or the peg would cross a rope lying on top
-   * of its own rope. Ropes beneath it are no obstacle.
-   */
+  /** Drag, click, generator and solver all use the same collision geometry. */
   const constrainHeld = useCallback((previous: Point, raw: Point, ropeId: number, end: RopeEnd): Point => {
     const g = geometryRef.current
-    const rope = g.ropes.find((r) => r.id === ropeId)
-    if (!rope) return previous
-    const fixed = g.slots[end === 'a' ? rope.b : rope.a]
-    const obstacles = g.ropes.filter((r) => r.id !== ropeId).flatMap((r) => [g.slots[r.a], g.slots[r.b]])
-    // Ropes lying on top of the held rope are walls for the peg; ropes beneath it can be crossed.
-    const walls = g.ropes.filter((r) => r.id > ropeId)
-    const target = { x: clamp(raw.x), y: clamp(raw.y) }
-    const free = (q: Point) =>
-      obstacles.every((o) => distance(o, q) >= g.pegR * 2 && distanceToSegment(o, fixed, q) >= g.clearance) &&
-      walls.every((w) => distanceToSegment(q, g.slots[w.a], g.slots[w.b]) >= g.clearance)
-
-    const steps = Math.max(1, Math.ceil(distance(previous, target)))
-    let held = previous
-    for (let i = 1; i <= steps; i++) {
-      const q = {
-        x: previous.x + ((target.x - previous.x) * i) / steps,
-        y: previous.y + ((target.y - previous.y) * i) / steps,
-      }
-      if (!free(q)) break
-      held = q
-    }
-    return held
+    return constrainHeldPoint(g.slots, g.ropes, g.pegR, g.clearance, ropeId, end, previous, {
+      x: clamp(raw.x),
+      y: clamp(raw.y),
+    })
   }, [])
 
   const handlePegPointerDown = useCallback(

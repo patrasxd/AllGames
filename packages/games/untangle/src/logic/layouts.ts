@@ -214,10 +214,12 @@ export function ringRadii(layout: LayoutSpec): number[] {
   return []
 }
 
+export const ROPE_PEG_PADDING = 2
+
 /**
  * How close a rope may run to a peg's centre before it counts as passing through it: the peg's radius plus
  * (about) the rope's half width. Ropes may never be that close to a peg that belongs to another rope.
  */
 export function ropeClearance(layout: LayoutSpec): number {
-  return pegRadius(layout) + 2
+  return pegRadius(layout) + ROPE_PEG_PADDING
 }

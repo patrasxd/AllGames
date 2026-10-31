@@ -4,7 +4,7 @@ import { Untangle } from '../Untangle'
 import { getLevelConfig } from '../logic/levels'
 import { buildSlots, pegRadius, ropeClearance } from '../logic/layouts'
 import { distanceToSegment } from '../logic/geometry'
-import { emptySlots, moveEnd, tryMoveEnd } from '../logic/engine'
+import { emptySlots, moveEnd, releaseFreeRopes, tryMoveEnd } from '../logic/engine'
 import type { RopeEnd } from '../types'
 
 /** Level 1's first rope end / hole pair that is a legal move, or a pair refused because a rope would hit a peg. */
@@ -36,7 +36,9 @@ function level1Moves() {
             ) && walls.every((w) => distanceToSegment(q, slots[w.a], slots[w.b]) >= clearance)
           )
         })
-        if (ok && pathClear && !legal) legal = { ropeId: rope.id, end, slot }
+        // Keep the moved rope visible so these tests can assert its new position and undo it.
+        if (ok && pathClear && !legal && releaseFreeRopes(slots, ok).remaining.some((r) => r.id === rope.id))
+          legal = { ropeId: rope.id, end, slot }
         if (geometric && !ok && !blocked) blocked = { ropeId: rope.id, end, slot }
       }
     }

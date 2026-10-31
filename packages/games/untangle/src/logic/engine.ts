@@ -1,5 +1,6 @@
 import type { Conflict, Move, Point, Rope, RopeEnd } from '../types'
-import { distanceToSegment, intersectionPoint, segmentDistance, segmentsIntersect } from './geometry'
+import { ROPE_PEG_PADDING } from './layouts'
+import { distance, distanceToSegment, intersectionPoint, segmentDistance, segmentsIntersect } from './geometry'
 
 export function cloneRopes(ropes: Rope[]): Rope[] {
   return ropes.map((r) => ({ ...r }))
@@ -151,6 +152,65 @@ export function pathBlocked(
 }
 
 /**
+ * The same continuous collision rules as pointer dragging. A held peg cannot run into another peg,
+ * swing its rope through another peg, or cross a rope above its own layer. Ropes below it are passable.
+ * Sampling at most one board unit apart matches the live board and prevents click-to-move teleporting.
+ */
+export function constrainHeldPoint(
+  slots: Point[],
+  ropes: Rope[],
+  pegR: number,
+  clearance: number,
+  ropeId: number,
+  end: RopeEnd,
+  previous: Point,
+  target: Point,
+): Point {
+  const rope = ropes.find((r) => r.id === ropeId)
+  if (!rope) return previous
+  const fixed = slots[end === 'a' ? rope.b : rope.a]
+  const obstacles = ropes.filter((r) => r.id !== ropeId).flatMap((r) => [slots[r.a], slots[r.b]])
+  const walls = ropes.filter((r) => r.id > ropeId)
+  const free = (q: Point) =>
+    obstacles.every((o) => distance(o, q) >= pegR * 2 && distanceToSegment(o, fixed, q) >= clearance) &&
+    walls.every((w) => distanceToSegment(q, slots[w.a], slots[w.b]) >= clearance)
+  const steps = Math.max(1, Math.ceil(distance(previous, target)))
+  let held = previous
+  for (let i = 1; i <= steps; i++) {
+    const q = {
+      x: previous.x + ((target.x - previous.x) * i) / steps,
+      y: previous.y + ((target.y - previous.y) * i) / steps,
+    }
+    if (!free(q)) break
+    held = q
+  }
+  return held
+}
+
+/** Checks a straight drag; curved pointer routes remain possible with constrainHeldPoint. */
+export function canDragStraight(
+  slots: Point[],
+  clearance: number,
+  ropes: Rope[],
+  ropeId: number,
+  end: RopeEnd,
+  from: Point,
+  to: Point,
+): boolean {
+  const held = constrainHeldPoint(
+    slots,
+    ropes,
+    Math.max(0, clearance - ROPE_PEG_PADDING),
+    clearance,
+    ropeId,
+    end,
+    from,
+    to,
+  )
+  return distance(held, to) < 0.001
+}
+
+/**
  * Moves a rope end to an empty slot, ignoring the layers: only refuses a move that would leave a rope
  * running through another rope's peg, or a peg landing on another rope. Used to build levels.
  */
@@ -168,12 +228,9 @@ export function moveEndClear(
 }
 
 /**
- * The move rule of the game. Like `moveEnd`, but a move must not run a rope through another rope's peg, and
- * the peg must not have to cross a rope lying on top of its own rope on the way (`pathBlocked`), so the order
- * in which ropes are moved matters. Ropes may still cross each other: untangling them is the whole game.
- *
- * `checkPath: false` skips the straight-path test, for a peg that was dragged along a path the board has
- * already checked step by step (it may have gone around an obstacle).
+ * The move rule of the game. The final position must be clear, and a click must be possible as a physical
+ * straight drag (not a teleport). A dragged peg can take a curved route checked step by step by the board.
+ * `checkPath: false` is only for an already-validated pointer path or a provisional destination check.
  */
 export function tryMoveEnd(
   slots: Point[],
@@ -188,7 +245,11 @@ export function tryMoveEnd(
   if (!rope) return null
   const next = moveEndClear(slots, clearance, ropes, ropeId, end, to)
   if (!next) return null
-  if (options.checkPath !== false && pathBlocked(slots, clearance, ropes, ropeId, slots[rope[end]], slots[to]))
+  if (
+    options.checkPath !== false &&
+    clearance > 0 &&
+    !canDragStraight(slots, clearance, ropes, ropeId, end, slots[rope[end]], slots[to])
+  )
     return null
   return next
 }

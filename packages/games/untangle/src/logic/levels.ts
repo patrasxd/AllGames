@@ -1,4 +1,4 @@
-import type { LayoutSpec, LevelConfig } from '../types'
+import type { LayoutSpec, LevelConfig, Move } from '../types'
 import { generateLevel } from './generator'
 import {
   buildSlots,
@@ -75,6 +75,7 @@ export function starThresholds(par: number, exact: boolean): [number, number] {
 }
 
 const cache = new Map<number, LevelConfig>()
+const knownSolutions = new Map<number, Move[]>()
 
 function buildLevel(level: number): LevelConfig {
   const tier = tierFor(level)
@@ -112,6 +113,7 @@ function buildLevel(level: number): LevelConfig {
     }
   }
   const generated = chosen
+  knownSolutions.set(level, generated.solution)
   const par = exact ?? generated.solution.length
 
   return {
@@ -138,4 +140,11 @@ export function getLevelConfig(levelIndex: number): LevelConfig {
     layout: { ...config.layout },
     starThresholds: [...config.starThresholds],
   }
+}
+
+/** A defensive copy of the generator's solution certificate, for diagnostics and campaign regression tests. */
+export function getKnownSolution(levelIndex: number): Move[] {
+  const level = Math.max(1, Math.floor(levelIndex))
+  getLevelConfig(level)
+  return (knownSolutions.get(level) ?? []).map((move) => ({ ...move }))
 }

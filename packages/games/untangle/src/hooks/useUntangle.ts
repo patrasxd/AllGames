@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import type { GameStatus, LevelConfig, Move, PlayerProgress, Point, Rope, RopeEnd, VanishingRope } from '../types'
 import { getLevelConfig, MAX_LEVEL } from '../logic/levels'
-import { cloneRopes, findConflicts, pathBlocked, releaseFreeRopes, tryMoveEnd } from '../logic/engine'
+import { canDragStraight, cloneRopes, findConflicts, releaseFreeRopes, tryMoveEnd } from '../logic/engine'
 import { buildSlots, ropeClearance } from '../logic/layouts'
 import { safeGetItem, safeSetJSON } from '@allgames/ui'
 import { motionAllowed, VANISH_MS } from '../components/motion'
@@ -163,15 +163,12 @@ export function useUntangle({ animate = true }: { animate?: boolean } = {}) {
     [status, ropes, clearance, moves, slots, config, progress, currentLevel, animate],
   )
 
-  /**
-   * Whether a rope end may be put in a slot: it must be empty, no rope may end up running through a peg, and
-   * the peg must not have to cross a rope lying above its own. `from` is where the peg is (it defaults to its hole).
-   */
+  /** Check the last stretch of a dragged peg, or the complete straight route for a tap. */
   const canMove = useCallback(
     (ropeId: number, end: RopeEnd, to: number, from?: Point): boolean => {
       const rope = ropes.find((r) => r.id === ropeId)
       if (!rope || tryMoveEnd(slots, clearance, ropes, ropeId, end, to, { checkPath: false }) === null) return false
-      return !pathBlocked(slots, clearance, ropes, ropeId, from ?? slots[rope[end]], slots[to])
+      return canDragStraight(slots, clearance, ropes, ropeId, end, from ?? slots[rope[end]], slots[to])
     },
     [slots, clearance, ropes],
   )

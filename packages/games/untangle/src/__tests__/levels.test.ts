@@ -1,15 +1,17 @@
 import { describe, it, expect } from 'vitest'
-import { CAMPAIGN_LEVELS, getLevelConfig, starThresholds } from '../logic/levels'
+import { CAMPAIGN_LEVELS, getKnownSolution, getLevelConfig, starThresholds } from '../logic/levels'
 import {
+  canDragStraight,
   applyMoves,
   countConflicts,
   hasPegCollision,
   isSolved,
+  moveEndClear,
   occupiedSlots,
   releaseFreeRopes,
   tryMoveEnd,
 } from '../logic/engine'
-import { buildSlots, gridLayout, ringLayout, ropeClearance, slotCount } from '../logic/layouts'
+import { buildSlots, diamondLayout, gridLayout, ringLayout, ropeClearance, slotCount } from '../logic/layouts'
 import { createRng, generateLevel, generateSolved } from '../logic/generator'
 import { solveMinMoves } from '../logic/solver'
 
@@ -25,6 +27,9 @@ describe('level generation', () => {
     const first = getLevelConfig(3)
     first.ropes[0].a = 999
     expect(getLevelConfig(3).ropes[0].a).not.toBe(999)
+    const solution = getKnownSolution(3)
+    solution[0].to = 999
+    expect(getKnownSolution(3)[0].to).not.toBe(999)
   })
 
   it('has 200 campaign levels and keeps generating beyond them', () => {
@@ -69,6 +74,45 @@ describe('level generation', () => {
       expect(cfg.par).toBeGreaterThan(0)
       expect(cfg.starThresholds[0]).toBeGreaterThanOrEqual(cfg.par)
       expect(cfg.starThresholds[1]).toBeGreaterThan(cfg.starThresholds[0])
+    }
+  }, 20_000)
+
+  it('rejects the original level 27 click-through route blocked by another peg', () => {
+    const shape = diamondLayout(2)
+    const slots = buildSlots(shape)
+    const clearance = ropeClearance(shape)
+    const original = [
+      { id: 0, a: 5, b: 12 },
+      { id: 1, a: 2, b: 9 },
+      { id: 3, a: 10, b: 4 },
+    ]
+    // Destination is clear, but the yellow peg blocks the physical path from hole 13 to hole 8.
+    expect(moveEndClear(slots, clearance, original, 0, 'b', 7)).not.toBeNull()
+    expect(tryMoveEnd(slots, clearance, original, 0, 'b', 7)).toBeNull()
+    expect(canDragStraight(slots, clearance, original, 0, 'b', slots[12], slots[7])).toBe(false)
+  })
+
+  it('physically replays the actual solution certificate for all campaign levels, including 27', () => {
+    for (let level = 1; level <= CAMPAIGN_LEVELS + 20; level++) {
+      const cfg = getLevelConfig(level)
+      const slots = buildSlots(cfg.layout)
+      const clearance = ropeClearance(cfg.layout)
+      let state = releaseFreeRopes(slots, cfg.ropes).remaining
+      const solution = getKnownSolution(level)
+      expect(solution.length).toBeGreaterThan(0)
+      for (const move of solution) {
+        // A rope that has already disappeared must not be moved again.
+        const rope = state.find((r) => r.id === move.ropeId)
+        if (!rope) continue
+        expect(rope[move.end]).toBe(move.from)
+        expect(canDragStraight(slots, clearance, state, move.ropeId, move.end, slots[move.from], slots[move.to])).toBe(
+          true,
+        )
+        const next = tryMoveEnd(slots, clearance, state, move.ropeId, move.end, move.to)
+        expect(next).not.toBeNull()
+        state = releaseFreeRopes(slots, next!).remaining
+      }
+      expect(state).toHaveLength(0)
     }
   })
 

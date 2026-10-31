@@ -35,12 +35,15 @@ function findWin(slots: Point[], clearance: number, start: Rope[]) {
   return null
 }
 
-/** The first legal move on the board. */
+/** A legal move that keeps the moved rope on the board for position and undo assertions. */
 function firstLegalMove(slots: Point[], clearance: number, ropes: Rope[]) {
   for (const rope of ropes)
     for (const end of ['a', 'b'] as const)
-      for (const to of emptySlots(ropes, slots.length))
-        if (tryMoveEnd(slots, clearance, ropes, rope.id, end, to)) return { id: rope.id, end, to }
+      for (const to of emptySlots(ropes, slots.length)) {
+        const next = tryMoveEnd(slots, clearance, ropes, rope.id, end, to)
+        if (next && releaseFreeRopes(slots, next).remaining.some((r) => r.id === rope.id))
+          return { id: rope.id, end, to }
+      }
   return null
 }
 
